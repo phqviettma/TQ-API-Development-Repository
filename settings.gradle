@@ -1,4 +1,4 @@
-rootProject.name = 'TQ-API-Development'
+rootProject.name = 'True-Quit'
 
 include 'inf-sdk'
 include 'sbm-sdk'
