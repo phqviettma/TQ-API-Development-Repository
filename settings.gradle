@@ -1,0 +1,6 @@
+rootProject.name = 'TQ-API-Development'
+
+include 'inf-sdk'
+include 'sbm-sdk'
+include 'click-funnel-lambda'
+include 'simply-book-lambda'
