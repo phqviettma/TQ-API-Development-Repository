@@ -2,6 +2,7 @@ package com.tq.simplybook.req;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -89,9 +90,40 @@ public class ClientData implements Serializable {
     public void setZip(String zip) {
         this.zip = zip;
     }
-
-    public static long getSerialversionuid() {
-        return serialVersionUID;
+    
+    @JsonIgnore
+    public ClientData withName(String name) {
+        this.name = name;
+        return this;
+    }
+    @JsonIgnore
+    public ClientData withEmail(String email) {
+        this.email = email;
+        return this;
+    }
+    
+    @JsonIgnore
+    public ClientData withPhone(String phone) {
+        this.phone = phone;
+        return this;
+    }
+    
+    @JsonIgnore
+    public ClientData withCity(String city) {
+        this.city = city;
+        return this;
+    }
+    
+    @JsonIgnore
+    public ClientData withAddress1(String address1) {
+        this.address1 = address1;
+        return this;
+    }
+    
+    @JsonIgnore
+    public ClientData withCountry_id(String country_id) {
+        this.country_id = country_id;
+        return this;
     }
 
     @Override

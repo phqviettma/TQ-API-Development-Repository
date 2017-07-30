@@ -2,5 +2,6 @@ rootProject.name = 'True-Quit'
 
 include 'inf-sdk'
 include 'sbm-sdk'
+include 'bridge-calback'
 include 'click-funnel-lambda'
 include 'simply-book-lambda'
