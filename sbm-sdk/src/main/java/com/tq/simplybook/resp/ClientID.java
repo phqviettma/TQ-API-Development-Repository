@@ -2,6 +2,9 @@ package com.tq.simplybook.resp;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ClientID implements Serializable {
     private static final long serialVersionUID = 4866377630849191665L;
     private Integer result;

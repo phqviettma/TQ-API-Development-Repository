@@ -60,7 +60,7 @@ public class CreateContactHandlerTest {
     }
 
     @Test
-    public void testContactHandle() throws SbmSDKException, InfSDKExecption {
+    public void testContactHandleMock() throws SbmSDKException, InfSDKExecption {
         Context context = mock(Context.class);
         AwsProxyRequest input = new AwsProxyRequest();
         String jsonString = JsonUtils.getJsonString(CreateContactHandlerTest.class.getResourceAsStream("contactpayload.json"));
@@ -77,6 +77,17 @@ public class CreateContactHandlerTest {
         when(m_contactServiceInf.addWithDupCheck(any(String.class), any(String.class), any(AddNewContactQuery.class)))
                 .thenReturn(infContactId);
         
+        m_handleLambda.handleRequest(input, context);
+    }
+    
+    @Test
+    public void testHandleExternalRequestWithDynamoDBLocally() {
+        AwsProxyRequest input = new AwsProxyRequest();
+        String jsonString = JsonUtils.getJsonString(CreateContactHandlerTest.class.getResourceAsStream("contactpayload.json"));
+        input.setBody(jsonString);
+        m_handleLambda = new CreateContactHandler();
+        m_handleLambda.setContactItemService(m_contactItemService); // Locally Dynamodb
+        Context context = mock(Context.class);
         m_handleLambda.handleRequest(input, context);
     }
 

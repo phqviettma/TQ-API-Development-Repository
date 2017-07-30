@@ -1,5 +1,8 @@
 package com.tq.simplybook.resp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SbmErrorResp {
     private SbmError error;
     private Integer id;

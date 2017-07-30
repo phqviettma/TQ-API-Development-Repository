@@ -3,7 +3,7 @@ package com.tq.clickfunnel.lambda.dynamodb.service;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
-public abstract class AbstractItem<Item, ID> implements GenericeItem<Item, ID> {
+public abstract class AbstractItem<Item, ID> implements GenericItem<Item, ID> {
     private AmazonDynamoDB client;
     private Class<Item> item;
 

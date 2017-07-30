@@ -2,6 +2,9 @@ package com.tq.simplybook.resp;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Token implements Serializable {
     private static final long serialVersionUID = -6270014247092481560L;
 
