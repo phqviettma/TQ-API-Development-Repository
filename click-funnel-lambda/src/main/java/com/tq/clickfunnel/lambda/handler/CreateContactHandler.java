@@ -57,7 +57,6 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
 
     @Override
     public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
-        log.info("{} ", input.getBody());
         AwsProxyResponse resp = new AwsProxyResponse();
         ContactItem contactItem = null;
         try {

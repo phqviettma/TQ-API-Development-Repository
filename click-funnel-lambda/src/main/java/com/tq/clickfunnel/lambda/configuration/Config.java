@@ -9,7 +9,7 @@ public class Config {
 
     public static final String INFUSIONSOFT_API_NAME = "https://uf238.infusionsoft.com/api/xmlrpc";
 
-    public static final String INFUSIONSOFT_API_KEY = "da2083451dab102fbd9122c05629fe63";
+    public static final String INFUSIONSOFT_API_KEY = "";
 
     // Simply book
     public static final String SIMPLY_BOOK_SERVICE_URL = "https://user-api.simplybook.me/";
@@ -31,12 +31,12 @@ public class Config {
     /**
      * AWS Access key
      */
-    public static final String AWS_ACCESS_KEY = "AKIAI33G4J47Y4ODORVQ";
+    public static final String AWS_ACCESS_KEY = "";
     
     /**
      * AWS SECRET ACCESS KEY
      */
-    public static final String AWS_SECRET_ACCESS_KEY = "gr9p2wEVYMe1iwmMz3NDaYiK55N88jg4Nd5p/hKc";
+    public static final String AWS_SECRET_ACCESS_KEY = "";
     
     /**
      * Locally end point DynamoDB for connecting to locally DynamoDB
