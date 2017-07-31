@@ -17,7 +17,7 @@ public class ContactItemServiceImplTest {
 
     @Test
     public void testGetContactItem() {
-        ContactItem contactItem = m_contactItemService.getContactItem("tnnha124@gmail.com");
+        ContactItem contactItem = m_contactItemService.get("tnnha124@gmail.com");
         log.info("{}", contactItem);
     }
 

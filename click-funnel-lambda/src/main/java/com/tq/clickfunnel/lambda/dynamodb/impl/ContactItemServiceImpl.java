@@ -17,7 +17,7 @@ public class ContactItemServiceImpl extends AbstractItem<ContactItem, String> im
     }
 
     @Override
-    public ContactItem getContactItem(String email) {
+    public ContactItem get(String email) {
         return loadItem(getItem(), email);
     }
 

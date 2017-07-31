@@ -10,8 +10,8 @@ public interface ContactItemService {
     public void put(ContactItem contactItem);
     
     /**
-     * 
-     * @return the contact item or null
+     * @param email as hashKey
+     * @return contact Item or null
      */
-    public ContactItem getContactItem(String email);
+    public ContactItem get(String email);
 }
