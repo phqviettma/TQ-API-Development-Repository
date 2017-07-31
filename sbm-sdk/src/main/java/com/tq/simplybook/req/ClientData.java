@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ClientData implements Serializable {
+    
     private static final long serialVersionUID = -7181306280002845610L;
-
     private String name;
     private String email;
     private String phone;
@@ -17,6 +17,7 @@ public class ClientData implements Serializable {
     private String address2;
     private String country_id;
     private String zip;
+    private String pass = "123456"; // default
 
     public ClientData() {
     }
@@ -126,9 +127,17 @@ public class ClientData implements Serializable {
         return this;
     }
 
+    public String getPass() {
+        return pass;
+    }
+    
+    public void setPass(String pass) {
+        this.pass = pass;
+    }
+
     @Override
     public String toString() {
         return "ClientData [name=" + name + ", email=" + email + ", phone=" + phone + ", city=" + city + ", address1=" + address1
-                + ", address2=" + address2 + ", country_id=" + country_id + ", zip=" + zip + "]";
+                + ", address2=" + address2 + ", country_id=" + country_id + ", zip=" + zip + ", pass=" + pass + "]";
     }
 }

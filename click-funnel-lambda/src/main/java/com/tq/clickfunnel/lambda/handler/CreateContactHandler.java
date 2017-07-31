@@ -64,16 +64,16 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
             // 1. building Client of Click Funnel from incoming AWS proxy request.
             ContactPayload contactPayLoad = mapper.readValue(input.getBody(), ContactPayload.class);
             if (contactPayLoad != null && contactPayLoad.getContact() != null) {
-                Contact sbmContact = contactPayLoad.getContact();
+                Contact funnelContact = contactPayLoad.getContact();
 
                 // 2. creating the client based on Contact of Click Funnel on Simplybook.me
-                Integer clientSbmId = addClientToSimplyBookMe(sbmContact);
+                Integer clientSbmId = addClientToSimplyBookMe(funnelContact);
 
                 // 3. creating the contact based on Contact of Click Funnel on Infusion soft
-                Integer contactInfId = addContactToInfusionsoft(sbmContact);
+                Integer contactInfId = addContactToInfusionsoft(funnelContact);
 
                 // 4. Saving the client & contact ID into DynamoDB.
-                contactItem = persitClientVoInDB(sbmContact, clientSbmId, contactInfId);
+                contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId);
             }
         } catch (IOException e) {
             log.error("Can't create contact in SMB/ INF or Dynamodb : ", e);
@@ -100,35 +100,38 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
         resp.setStatusCode(200);
     }
 
-    private ContactItem persitClientVoInDB(Contact sbmContact, Integer clientSbmId, Integer contactInfId) throws JsonProcessingException {
+    private ContactItem persitClientVoInDB(Contact funnelContact, Integer clientSbmId, Integer contactInfId) throws JsonProcessingException {
         // build client to save Dynomadb
-        ClientInfo clientInfo = new ClientInfo().withClientId(clientSbmId).withContactId(contactInfId).withEmail(sbmContact.getEmail())
-                .withFirstName(sbmContact.getFirstName()).withLastName(sbmContact.getLastName()).withPhone1(sbmContact.getPhone())
-                .withAddress1(sbmContact.getAddress()).withCountry(sbmContact.getCountry())
-                .withCreatedAt(Config.DATE_FORMAT_24_H.format(sbmContact.getCreateAt()))
-                .withUpdatedAt(Config.DATE_FORMAT_24_H.format(sbmContact.getUpdateAt()));
-        ContactItem contactItem = new ContactItem().withContactInfo(clientInfo);
+        ClientInfo clientInfo = new ClientInfo().withClientId(clientSbmId).withContactId(contactInfId).withEmail(funnelContact.getEmail())
+                .withFirstName(funnelContact.getFirstName()).withLastName(funnelContact.getLastName()).withPhone1(funnelContact.getPhone())
+                .withAddress1(funnelContact.getAddress()).withCountry(funnelContact.getCountry())
+                .withCreatedAt(Config.DATE_FORMAT_24_H.format(funnelContact.getCreateAt()))
+                .withUpdatedAt(Config.DATE_FORMAT_24_H.format(funnelContact.getUpdateAt()));
+        
+        ContactItem contactItem = new ContactItem()
+                .withEmail(funnelContact.getEmail()) // unique key
+                .withContactInfo(clientInfo);
         m_contactItemService.put(contactItem);
         return contactItem;
     }
 
     /**
-     * @param sbmContact
+     * @param funnelContact
      * @return contact id 
      * See more https://developer.infusionsoft.com/docs/table-schema/
      * For Contact table
      */
-    private Integer addContactToInfusionsoft(Contact sbmContact) {
+    private Integer addContactToInfusionsoft(Contact funnelContact) {
         Integer contactId = null;
         try {
             Map<String, String> dataRecord = new HashMap<>();
-            dataRecord.put("Email", sbmContact.getEmail());
-            dataRecord.put("FirstName", sbmContact.getFirstName());
-            dataRecord.put("LastName", sbmContact.getLastName());
-            dataRecord.put("Phone1", sbmContact.getPhone());
-            dataRecord.put("Country", sbmContact.getCountry());
-            dataRecord.put("City", sbmContact.getCity());
-            dataRecord.put("StreetAddress1", sbmContact.getAddress());
+            dataRecord.put("Email", funnelContact.getEmail());
+            dataRecord.put("FirstName", funnelContact.getFirstName());
+            dataRecord.put("LastName", funnelContact.getLastName());
+            dataRecord.put("Phone1", funnelContact.getPhone());
+            dataRecord.put("Country", funnelContact.getCountry());
+            dataRecord.put("City", funnelContact.getCity());
+            dataRecord.put("StreetAddress1", funnelContact.getAddress());
             
             ContactServiceInf contactServiceInf = m_clickFunnelExternalService.getContactServiceInf();
             contactId = contactServiceInf.addWithDupCheck(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY,
@@ -139,14 +142,14 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
         return contactId;
     }
 
-    private Integer addClientToSimplyBookMe(Contact sbmContact) {
+    private Integer addClientToSimplyBookMe(Contact funnelContact) {
         Integer clientSbmId = null;
         try {
             TokenServiceSbm tokenServiceSbm = m_clickFunnelExternalService.getTokenServiceSbm();
             ClientServiceSbm clientServiceSbm = m_clickFunnelExternalService.getClientServiceSbm();
             String userToken = tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER,
                     Config.SIMPLY_BOOK_PASSWORD, Config.SIMPLY_BOOK_SERVICE_URL_lOGIN);
-            ClientData client = new ClientData(sbmContact.getFirstName(), sbmContact.getEmail(), sbmContact.getPhone());
+            ClientData client = new ClientData(funnelContact.getFirstName(), funnelContact.getEmail(), funnelContact.getPhone());
             clientSbmId = clientServiceSbm.addClient(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_ADMIN_SERVICE_URL, userToken,
                     client);
         } catch (SbmSDKException e) {

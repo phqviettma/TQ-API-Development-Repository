@@ -1,6 +1,10 @@
 package com.tq.clickfunnel.lambda.dynamodb.model;
 
-public class ClientInfo {
+import java.io.Serializable;
+
+public class ClientInfo implements Serializable{
+    private static final long serialVersionUID = -5851343590430915427L;
+
     /**
      * Client ID of click funnel
      */
