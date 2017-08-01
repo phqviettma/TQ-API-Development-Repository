@@ -10,6 +10,8 @@ repositories {
 
 dependencies {
     compile project(':inf-sdk')
+    compile project(':sbm-sdk')
+    compile project(':click-funnel-lambda')
     compile (
         'com.amazonaws:aws-lambda-java-core:1.1.0',
         'com.amazonaws:aws-lambda-java-log4j:1.0.0',

@@ -1,17 +1,20 @@
 package com.tq.simplybook.req;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SbmReq<T extends Serializable> implements Serializable {
     private static final long serialVersionUID = 1049888275931534942L;
+    private static final AtomicLong count = new AtomicLong(1);
+    
     private String jsonrpc = "2.0";
     private String method;
-    private String id = "1";
+    private String id = String.valueOf(count.getAndIncrement());
     private T params;
-
+    
     public SbmReq(String method, T params) {
         this.method = method;
         this.setParams(params);

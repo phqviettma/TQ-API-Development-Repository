@@ -27,4 +27,6 @@ public interface DataServiceInf {
     Integer addCustomField(String apiName, String apiKey, final CustomFieldDataQuery customField) throws InfSDKExecption ;
     
     Boolean updateCustomField(String apiName, String apiKey, Integer customFieldId, Map<?, ?> values) throws InfSDKExecption ;
+    
+    Boolean updateCustomField(String apiName, String apiKey, Integer customFieldId, String values) throws InfSDKExecption ;
 }

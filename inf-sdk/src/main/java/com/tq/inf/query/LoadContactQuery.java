@@ -27,7 +27,7 @@ public class LoadContactQuery {
         return this;
     }
 
-    public LoadContactQuery withContactId(List<?> selectedFields) {
+    public LoadContactQuery withSelectedFields(List<?> selectedFields) {
         this.selectedFields = selectedFields;
         return this;
     }

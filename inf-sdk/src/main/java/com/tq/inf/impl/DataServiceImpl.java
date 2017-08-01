@@ -176,4 +176,20 @@ public class DataServiceImpl implements DataServiceInf {
             }
         }, "DataService.updateCustomField");
     }
+    
+    @Override
+    public Boolean updateCustomField(String apiName, String apiKey, Integer customFieldId, String values) throws InfSDKExecption {
+        return (Boolean) XmlRqcUtils.execute(apiName, apiKey, new ActionCallback() {
+
+            @Override
+            public List<?> getParameters(ApiContext apiContext) {
+                List<Object> params = new LinkedList<>();
+                params.add(apiContext.getApiKey());// secure key
+
+                params.add(customFieldId);
+                params.add(values);
+                return params;
+            }
+        }, "DataService.updateCustomField");
+    }
 }

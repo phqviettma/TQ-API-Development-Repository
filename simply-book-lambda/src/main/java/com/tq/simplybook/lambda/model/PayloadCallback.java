@@ -9,7 +9,7 @@ public class PayloadCallback implements Serializable {
     
     private static final long serialVersionUID = 3285019718457403417L;
 
-    private Integer booking_id;
+    private Long booking_id;
 
     private String booking_hash;
 
@@ -20,11 +20,11 @@ public class PayloadCallback implements Serializable {
      */
     private String notification_type;
 
-    public Integer getBooking_id() {
+    public Long getBooking_id() {
         return booking_id;
     }
 
-    public void setBooking_id(Integer booking_id) {
+    public void setBooking_id(Long booking_id) {
         this.booking_id = booking_id;
     }
 

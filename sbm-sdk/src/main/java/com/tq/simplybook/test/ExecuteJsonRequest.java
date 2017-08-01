@@ -26,7 +26,7 @@ public class ExecuteJsonRequest {
         //String token = clientService.getToken(COMAPNY_LOGIN, API_KEY_SIMPLYBOOK, ENDPOINT_SBM_LOGIN);
         String token = tokenService.getUserToken(COMAPNY_LOGIN, "admin", "12345678x@X",  ENDPOINT_SBM_LOGIN );
         log.info("Token : {}", token);
-        Client client = clientService.getClient(COMAPNY_LOGIN, ADMIN_URL, token , 0);
+        Client client = clientService.getClient(COMAPNY_LOGIN, ADMIN_URL, token , 1);
         log.info("{}", client);
         //ClientReq addClient = new ClientReq(new ClientData("Vietprox", "picpicproveiet@gmail.com", "+84973508124"));
        //clientService.addClient(COMAPNY_LOGIN, "https://user-api.simplybook.me/admin/", token, addClient );

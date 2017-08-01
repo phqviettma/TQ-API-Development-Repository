@@ -172,8 +172,14 @@ public class Client implements Serializable{
         this.is_confirmed_phone = is_confirmed_phone;
     }
 
-    public static long getSerialversionuid() {
-        return serialVersionUID;
-    }
-
+	@Override
+	public String toString() {
+		return "Client [id=" + id + ", email=" + email + ", pass=" + pass + ", name=" + name + ", phone=" + phone
+				+ ", registration_date=" + registration_date + ", is_blocked=" + is_blocked + ", is_deleted="
+				+ is_deleted + ", email_verification_string=" + email_verification_string + ", email_verification_date="
+				+ email_verification_date + ", address1=" + address1 + ", address2=" + address2 + ", city=" + city
+				+ ", zip=" + zip + ", country_id=" + country_id + ", state_id=" + state_id + ", is_confirmed_email="
+				+ is_confirmed_email + ", is_confirmed_phone=" + is_confirmed_phone + "]";
+	}
+    
 }
