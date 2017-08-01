@@ -45,13 +45,13 @@ public class CreateInternalHandlerTest {
         contactItem.setClient(ci);
         when(cis.get(any())).thenReturn(contactItem);
 
-        CreateInternalHandler handler = new CreateInternalHandler(tss, bss, csi, cis);
+        CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis);
 
         PayloadCallback payLoad = new PayloadCallback();
         payLoad.setBooking_id(8L);
         payLoad.setBooking_hash("0ae1d64c5981efeca54082536beb5901");
         payLoad.setNotification_type("create");
 
-        handler.handle(env, payLoad);
+        handler.handle(payLoad);
     }
 }

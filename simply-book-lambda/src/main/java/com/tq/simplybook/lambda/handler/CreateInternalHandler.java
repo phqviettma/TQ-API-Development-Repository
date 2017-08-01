@@ -16,12 +16,14 @@ import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
 public class CreateInternalHandler implements InternalHandler {
+    private Env m_env = null;
     private BookingServiceSbm m_bss = null;
     private TokenServiceSbm m_tss = null;
     private ContactServiceInf m_csi = null;
     private ContactItemService m_cis = null;
 
-    public CreateInternalHandler(TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi, ContactItemService cis) {
+    public CreateInternalHandler(Env env, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi, ContactItemService cis) {
+        m_env = env;
         m_tss = tss;
         m_bss = bss;
         m_csi = csi;
@@ -29,15 +31,15 @@ public class CreateInternalHandler implements InternalHandler {
     }
 
     @Override
-    public void handle(Env env, PayloadCallback payload) throws SbmSDKException {
-        String companyLogin = env.getSimplyBookCompanyLogin();
-        String user = env.getSimplyBookUser();
-        String password = env.getSimplyBookPassword();
-        String loginEndPoint = env.getSimplyBookServiceUrlLogin();
-        String adminEndPoint = env.getSimplyBookAdminServiceUrl();
-        String infusionSoftApiName = env.getInfusionSoftApiName();
-        String infusionSoftApiKey = env.getInfusionSoftApiKey();
-        String infusionSoftCustomFiledName = env.getInfusionSoftCustomFieldName();
+    public void handle(PayloadCallback payload) throws SbmSDKException {
+        String companyLogin = m_env.getSimplyBookCompanyLogin();
+        String user = m_env.getSimplyBookUser();
+        String password = m_env.getSimplyBookPassword();
+        String loginEndPoint = m_env.getSimplyBookServiceUrlLogin();
+        String adminEndPoint = m_env.getSimplyBookAdminServiceUrl();
+        String infusionSoftApiName = m_env.getInfusionSoftApiName();
+        String infusionSoftApiKey = m_env.getInfusionSoftApiKey();
+        String infusionSoftCustomFiledName = m_env.getInfusionSoftCustomFieldName();
 
         Long bookingId = payload.getBooking_id();
 

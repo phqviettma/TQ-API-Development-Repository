@@ -46,12 +46,12 @@ public class CancelInternalHandlerTest {
         contactItem.setClient(ci);
         when(cis.get(any())).thenReturn(contactItem);
 
-        CancelInternalHandler handler = new CancelInternalHandler(tss, bss, csi, cis);
+        CancelInternalHandler handler = new CancelInternalHandler(env, tss, bss, csi, cis);
         PayloadCallback payLoad = new PayloadCallback();
         payLoad.setBooking_id(8L);
         payLoad.setBooking_hash("0ae1d64c5981efeca54082536beb5901");
         payLoad.setNotification_type("cancel");
 
-        handler.handle(env, payLoad);
+        handler.handle(payLoad);
     }
 }

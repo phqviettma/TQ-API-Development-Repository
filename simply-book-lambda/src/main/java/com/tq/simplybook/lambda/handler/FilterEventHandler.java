@@ -44,8 +44,8 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
     private TokenServiceSbm m_tss = new TokenServiceImpl();
     private ContactItemService m_cis = new ContactItemServiceImpl(m_amazonDynamoDB);
 
-    private InternalHandler m_createHandler = new CreateInternalHandler(m_tss, m_bss, m_csi, m_cis);
-    private InternalHandler m_cancelHandler = new CancelInternalHandler(m_tss, m_bss, m_csi, m_cis);
+    private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis);
+    private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis);
 
     @Override
     public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
@@ -56,9 +56,9 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
         if (payLoad != null) {
             try {
                 if ("create".equalsIgnoreCase(payLoad.getNotification_type())) {
-                    m_createHandler.handle(m_env, payLoad);
+                    m_createHandler.handle(payLoad);
                 } else if ("cancel".equalsIgnoreCase(payLoad.getNotification_type())) {
-                    m_cancelHandler.handle(m_env, payLoad);
+                    m_cancelHandler.handle(payLoad);
                 } else {
                     ignored = false;
                 }
