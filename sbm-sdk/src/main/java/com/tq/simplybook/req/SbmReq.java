@@ -8,11 +8,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SbmReq<T extends Serializable> implements Serializable {
     private static final long serialVersionUID = 1049888275931534942L;
-    private static final AtomicLong count = new AtomicLong(1);
+    private static final AtomicLong count = new AtomicLong(0);
     
     private String jsonrpc = "2.0";
     private String method;
-    private String id = String.valueOf(count.getAndIncrement());
+    private String id = String.valueOf(count.getAndIncrement()%1000);
     private T params;
     
     public SbmReq(String method, T params) {

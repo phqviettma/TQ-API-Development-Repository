@@ -8,22 +8,22 @@ provider:
   stage: development
   region: us-east-1
   environment:
-    AWS_ACCESS_KEY_ID: "AKIAIOSFODNN7EXAMPLE"
-    AWS_SECRET_ACCESS_KEY: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-    CLICK_FUNNEL_CONTACT_TABLE: "click-funnel-contact"
-    CLICK_FUNNEL_ORDER_TABLE: "click-funnel-order"
-    INFUSIONSOFT_API_NAME: "https://uf238.infusionsoft.com/api/xmlrpc"
-    INFUSIONSOFT_API_KEY: "da2083451dab102fbd9122c05629fe63"
-    INFUSIONSOFT_CUSTOM_FILED_NAME: "TO BE UPDATED"
-    INFUSIONSOFT_CANCEL_APPLIED_TAG: "643"
-    SIMPLY_BOOK_SERVICE_URL_lOGIN: "https://user-api.simplybook.me/login"
-    SIMPLY_BOOK_SERVICE_URL: "https://user-api.simplybook.me/"
-    SIMPLY_BOOK_ADMIN_SERVICE_URL: "https://user-api.simplybook.me/admin/"
-    SIMPLY_BOOK_COMPANY_LOGIN: "phqviet93gmailcom"
-    SIMPLY_BOOK_USER: "admin"
-    SIMPLY_BOOK_PASSWORD: "12345678x@X"
-    SIMPLY_BOOK_API_KEY: "4de2a2545aed8e5e19861ee91221460c7e7e0ec90bff6dcad96fcc4d68c8e228"
-    SIMPLY_BOOK_SECRET_KEY: "c9c8476bdedc3a2294a5fc69c9d0019e2af44dbe126ccb10f7431739a720b1ef"
+    AWS_ACCESS_KEY_ID: ""
+    AWS_SECRET_ACCESS_KEY: ""
+    CLICK_FUNNEL_CONTACT_TABLE: ""
+    CLICK_FUNNEL_ORDER_TABLE: ""
+    INFUSIONSOFT_API_NAME: ""
+    INFUSIONSOFT_API_KEY: ""
+    INFUSIONSOFT_CUSTOM_FILED_NAME: ""
+    INFUSIONSOFT_CANCEL_APPLIED_TAG: ""
+    SIMPLY_BOOK_SERVICE_URL_lOGIN: ""
+    SIMPLY_BOOK_SERVICE_URL: ""
+    SIMPLY_BOOK_ADMIN_SERVICE_URL: ""
+    SIMPLY_BOOK_COMPANY_LOGIN: ""
+    SIMPLY_BOOK_USER: ""
+    SIMPLY_BOOK_PASSWORD: ""
+    SIMPLY_BOOK_API_KEY: ""
+    SIMPLY_BOOK_SECRET_KEY: ""
     
 package:
     artifact: build/distributions/aws-java-simplybook-http-endpoint.zip

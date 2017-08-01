@@ -50,6 +50,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
     @Override
     public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
         AwsProxyResponse res = new AwsProxyResponse();
+        
         PayloadCallback payLoad = getPayloadCallback(input.getBody());
         boolean ignored = true;
 
