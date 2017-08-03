@@ -1,4 +1,4 @@
-package com.tq.clickfunnel.lambda.configuration;
+package com.tq.clickfunnel.lambda.impl;
 
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.service.ClientServiceSbm;
@@ -6,11 +6,11 @@ import com.tq.simplybook.service.TokenServiceSbm;
 
 public class ClickFunnelContextBuilder {
 
-    private BasicClickFunnelExertenalService m_context = new BasicClickFunnelExertenalService();
+    private CFLambdaServiceImpl m_context = new CFLambdaServiceImpl();
 
     public static ClickFunnelContextBuilder DEFAILT = new ClickFunnelContextBuilder();
 
-    public BasicClickFunnelExertenalService build() {
+    public CFLambdaServiceImpl build() {
         return m_context;
     }
 

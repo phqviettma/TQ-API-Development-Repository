@@ -12,8 +12,9 @@ public class ContactItemServiceImpl extends AbstractItem<ContactItem, String> im
     }
 
     @Override
-    public void put(ContactItem contactItem) {
+    public boolean put(ContactItem contactItem) {
         putItem(contactItem);
+        return true;
     }
 
     @Override

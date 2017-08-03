@@ -1,10 +1,10 @@
-package com.tq.clickfunnel.lambda.configuration;
+package com.tq.clickfunnel.lambda.service;
 
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.service.ClientServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
-public interface ClickFunnelExternalService {
+public interface CFLambdaService {
 
     public ContactServiceInf getContactServiceInf();
 

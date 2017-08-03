@@ -1,5 +1,6 @@
-package com.tq.clickfunnel.lambda.configuration;
+package com.tq.clickfunnel.lambda.impl;
 
+import com.tq.clickfunnel.lambda.service.CFLambdaService;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.impl.ClientServiceImpl;
@@ -7,48 +8,48 @@ import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.service.ClientServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
-public class BasicClickFunnelExertenalService implements ClickFunnelExternalService {
+public class CFLambdaServiceImpl implements CFLambdaService {
 
-    private static ClickFunnelContextBuilder builder = ClickFunnelContextBuilder.DEFAILT;
+    private static ClickFunnelContextBuilder m_builder = ClickFunnelContextBuilder.DEFAILT;
 
-    private ContactServiceInf contactServiceInf;
+    private ContactServiceInf m_contactServiceInf;
 
-    private TokenServiceSbm tokenServiceSbm;
+    private TokenServiceSbm m_tokenServiceSbm;
 
-    private ClientServiceSbm clientServiceSbm;
+    private ClientServiceSbm m_clientServiceSbm;
 
-    public static BasicClickFunnelExertenalService defaults() {
-        return builder.registerINFContact(new ContactServiceImpl())
+    public static CFLambdaServiceImpl defaults() {
+        return m_builder.registerINFContact(new ContactServiceImpl())
                       .registerSBMClientService(new ClientServiceImpl())
                       .registerSBMTokenService(new TokenServiceImpl())
                       .build();
     }
 
     public ClickFunnelContextBuilder builder() {
-        return builder;
+        return m_builder;
     }
 
     public ContactServiceInf getContactServiceInf() {
-        return contactServiceInf;
+        return m_contactServiceInf;
     }
 
     public void setContactServiceInf(ContactServiceInf contactServiceInf) {
-        this.contactServiceInf = contactServiceInf;
+        this.m_contactServiceInf = contactServiceInf;
     }
 
     public TokenServiceSbm getTokenServiceSbm() {
-        return tokenServiceSbm;
+        return m_tokenServiceSbm;
     }
 
     public void setTokenServiceSbm(TokenServiceSbm tokenServiceSbm) {
-        this.tokenServiceSbm = tokenServiceSbm;
+        this.m_tokenServiceSbm = tokenServiceSbm;
     }
 
     public ClientServiceSbm getClientServiceSbm() {
-        return clientServiceSbm;
+        return m_clientServiceSbm;
     }
 
     public void setClientServiceSbm(ClientServiceSbm clientServiceSbm) {
-        this.clientServiceSbm = clientServiceSbm;
+        this.m_clientServiceSbm = clientServiceSbm;
     }
 }

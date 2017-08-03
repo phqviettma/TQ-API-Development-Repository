@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Contact implements Serializable {
+public class CFContact implements Serializable {
     private static final long serialVersionUID = 1555856465131791499L;
 
     @JsonProperty("id")
@@ -269,7 +269,7 @@ public class Contact implements Serializable {
 
     @Override
     public String toString() {
-        return "Contact [id=" + id + ", pageId=" + pageId + ", firstName=" + firstName + ", lastName=" + lastName
+        return "CFContact [id=" + id + ", pageId=" + pageId + ", firstName=" + firstName + ", lastName=" + lastName
                 + ", name=" + name + ", address=" + address + ", city=" + city + ", country=" + country + ", state=" + state + ", zip="
                 + zip + ", email=" + email + ", phone=" + phone + ", createAt=" + createAt + ", updateAt=" + updateAt + ", ip=" + ip
                 + ", funnelId=" + funnelId + ", funnelStepId=" + funnelStepId + ", cfUvid=" + cfUvid + ", shippingAddress="

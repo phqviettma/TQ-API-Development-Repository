@@ -5,18 +5,18 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ContactPayload implements Serializable {
+public class CFContactPayload implements Serializable {
     private static final long serialVersionUID = -1223928206631103206L;
     
-    private Contact contact;
+    private CFContact contact;
     
     private String event;
 
-    public Contact getContact() {
+    public CFContact getContact() {
         return contact;
     }
 
-    public void setContact(Contact contact) {
+    public void setContact(CFContact contact) {
         this.contact = contact;
     }
 
@@ -30,6 +30,6 @@ public class ContactPayload implements Serializable {
 
     @Override
     public String toString() {
-        return "ContactPayload [contact=" + contact + ", event=" + event + "]";
+        return "CFContactPayload [contact=" + contact + ", event=" + event + "]";
     }
 }

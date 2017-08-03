@@ -7,7 +7,7 @@ public interface ContactItemService {
      * Allow save the contact item into DynamoDB
      * {"email": "", client:"{json}"}
      */
-    public void put(ContactItem contactItem);
+    public boolean put(ContactItem contactItem);
     
     /**
      * @param email as hashKey

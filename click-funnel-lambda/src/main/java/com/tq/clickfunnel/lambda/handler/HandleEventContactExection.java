@@ -9,22 +9,17 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tq.clickfunnel.lambda.configuration.BasicClickFunnelExertenalService;
-import com.tq.clickfunnel.lambda.configuration.ClickFunnelExternalService;
 import com.tq.clickfunnel.lambda.configuration.Config;
-import com.tq.clickfunnel.lambda.dynamodb.impl.ContactItemServiceImpl;
 import com.tq.clickfunnel.lambda.dynamodb.model.ClientInfo;
 import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
-import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
 import com.tq.clickfunnel.lambda.exception.ClickFunnelLambdaException;
-import com.tq.clickfunnel.lambda.modle.Contact;
-import com.tq.clickfunnel.lambda.modle.ContactPayload;
-import com.tq.clickfunnel.lambda.utils.DynanodbUtils;
+import com.tq.clickfunnel.lambda.modle.CFContact;
+import com.tq.clickfunnel.lambda.modle.CFContactPayload;
+import com.tq.clickfunnel.lambda.service.CFLambdaContext;
+import com.tq.clickfunnel.lambda.service.CFLambdaService;
+import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.service.ContactServiceInf;
@@ -34,36 +29,27 @@ import com.tq.simplybook.service.ClientServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
 /**
- * Handle CREATE contact
+ * 
+ * @author phqviet The class will handle for update, create event on contact of click funnel
  *
  */
-public class CreateContactHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
+public class HandleEventContactExection extends AbstractEventPayloadExecution {
 
-    private static final Logger log = LoggerFactory.getLogger(CreateContactHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(HandleEventContactExection.class);
+    private ObjectMapper m_mapper = new ObjectMapper();
 
-    private ObjectMapper mapper = new ObjectMapper();
-
-    private ClickFunnelExternalService m_clickFunnelExternalService;;
-
-    private AmazonDynamoDB m_amazonDynamoDB;
-
-    private ContactItemService m_contactItemService;
-
-    public CreateContactHandler() {
-        m_clickFunnelExternalService = BasicClickFunnelExertenalService.defaults();
-        m_amazonDynamoDB = DynanodbUtils.getAmazonDynamoDB(Config.DYNAMODB_DEFAULT_REGION, Config.AWS_ACCESS_KEY, Config.AWS_SECRET_ACCESS_KEY);
-        setContactItemService(new ContactItemServiceImpl(m_amazonDynamoDB));
-    }
+    private CFLambdaService m_cfLambdaService;
 
     @Override
-    public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
+    public AwsProxyResponse execute(AwsProxyRequest input, CFLambdaContext proxyContext) {
         AwsProxyResponse resp = new AwsProxyResponse();
+        m_cfLambdaService = proxyContext.getCFLambdaService();
         ContactItem contactItem = null;
         try {
             // 1. building Client of Click Funnel from incoming AWS proxy request.
-            ContactPayload contactPayLoad = mapper.readValue(input.getBody(), ContactPayload.class);
+            CFContactPayload contactPayLoad = m_mapper.readValue(input.getBody(), CFContactPayload.class);
             if (contactPayLoad != null && contactPayLoad.getContact() != null) {
-                Contact funnelContact = contactPayLoad.getContact();
+                CFContact funnelContact = contactPayLoad.getContact();
 
                 // 2. creating the client based on Contact of Click Funnel on Simplybook.me
                 Integer clientSbmId = addClientToSimplyBookMe(funnelContact);
@@ -72,7 +58,7 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
                 Integer contactInfId = addContactToInfusionsoft(funnelContact);
 
                 // 4. Saving the client & contact ID into DynamoDB.
-                contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId);
+                contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, proxyContext.getCFLambdaServiceRepository());
             }
         } catch (IOException e) {
             log.error("Can't create contact in SMB/ INF or Dynamodb : ", e);
@@ -90,37 +76,36 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
     private void handleResponse(AwsProxyRequest input, AwsProxyResponse resp, ContactItem contactItem) {
         String rebuild = null;
         try {
-            rebuild = contactItem == null ? String.format("{\"error\": \"%s\"}", "null") : mapper.writeValueAsString(contactItem);
+            rebuild = contactItem == null ? String.format("{\"error\": \"%s\"}", "null") : m_mapper.writeValueAsString(contactItem);
         } catch (JsonProcessingException e) {
-            //ignore
+            log.error("", e);
+            // ignore
         }
         resp.setBody(rebuild);
         resp.setHeaders(input.getHeaders());
         resp.setStatusCode(200);
     }
 
-    private ContactItem persitClientVoInDB(Contact funnelContact, Integer clientSbmId, Integer contactInfId) throws JsonProcessingException {
+    private ContactItem persitClientVoInDB(CFContact funnelContact, Integer clientSbmId, Integer contactInfId,
+            CFLambdaServiceRepository repository) throws JsonProcessingException {
         // build client to save Dynomadb
         ClientInfo clientInfo = new ClientInfo().withClientId(clientSbmId).withContactId(contactInfId).withEmail(funnelContact.getEmail())
                 .withFirstName(funnelContact.getFirstName()).withLastName(funnelContact.getLastName()).withPhone1(funnelContact.getPhone())
                 .withAddress1(funnelContact.getAddress()).withCountry(funnelContact.getCountry())
                 .withCreatedAt(Config.DATE_FORMAT_24_H.format(funnelContact.getCreateAt()))
                 .withUpdatedAt(Config.DATE_FORMAT_24_H.format(funnelContact.getUpdateAt()));
-        
-        ContactItem contactItem = new ContactItem()
-                .withEmail(funnelContact.getEmail()) // unique key
+
+        ContactItem contactItem = new ContactItem().withEmail(funnelContact.getEmail()) // unique key
                 .withContactInfo(clientInfo);
-        m_contactItemService.put(contactItem);
+        repository.getContactItemService().put(contactItem);
         return contactItem;
     }
 
     /**
      * @param funnelContact
-     * @return contact id 
-     * See more https://developer.infusionsoft.com/docs/table-schema/
-     * For Contact table
+     * @return contact id See more https://developer.infusionsoft.com/docs/table-schema/ For Contact table
      */
-    private Integer addContactToInfusionsoft(Contact funnelContact) {
+    private Integer addContactToInfusionsoft(CFContact funnelContact) {
         Integer contactId = null;
         try {
             Map<String, String> dataRecord = new HashMap<>();
@@ -131,8 +116,8 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
             dataRecord.put("Country", funnelContact.getCountry());
             dataRecord.put("City", funnelContact.getCity());
             dataRecord.put("StreetAddress1", funnelContact.getAddress());
-            
-            ContactServiceInf contactServiceInf = m_clickFunnelExternalService.getContactServiceInf();
+
+            ContactServiceInf contactServiceInf = m_cfLambdaService.getContactServiceInf();
             contactId = contactServiceInf.addWithDupCheck(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY,
                     new AddNewContactQuery().withDataRecord(dataRecord));
         } catch (InfSDKExecption e) {
@@ -141,11 +126,11 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
         return contactId;
     }
 
-    private Integer addClientToSimplyBookMe(Contact funnelContact) {
+    private Integer addClientToSimplyBookMe(CFContact funnelContact) {
         Integer clientSbmId = null;
         try {
-            TokenServiceSbm tokenServiceSbm = m_clickFunnelExternalService.getTokenServiceSbm();
-            ClientServiceSbm clientServiceSbm = m_clickFunnelExternalService.getClientServiceSbm();
+            TokenServiceSbm tokenServiceSbm = m_cfLambdaService.getTokenServiceSbm();
+            ClientServiceSbm clientServiceSbm = m_cfLambdaService.getClientServiceSbm();
             String userToken = tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER,
                     Config.SIMPLY_BOOK_PASSWORD, Config.SIMPLY_BOOK_SERVICE_URL_lOGIN);
             ClientData client = new ClientData(funnelContact.getFirstName(), funnelContact.getEmail(), funnelContact.getPhone());
@@ -155,24 +140,6 @@ public class CreateContactHandler implements RequestHandler<AwsProxyRequest, Aws
             throw new ClickFunnelLambdaException(e);
         }
         return clientSbmId;
-    }
-
-    /**
-     * @param clickFunnelContext
-     * @param amazonDynamoDB
-     *            Take a note : the constructor is used for Unit test
-     */
-    public CreateContactHandler(ClickFunnelExternalService clickFunnelContext, AmazonDynamoDB amazonDynamoDB) {
-        this.m_clickFunnelExternalService = clickFunnelContext;
-        this.m_amazonDynamoDB = amazonDynamoDB;
-    }
-
-    /**
-     * @param contactItemService
-     *            Only for UTs
-     */
-    public void setContactItemService(ContactItemService contactItemService) {
-        this.m_contactItemService = contactItemService;
     }
 
 }
