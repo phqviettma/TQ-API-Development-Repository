@@ -6,16 +6,16 @@ provider:
   name: aws
   runtime: java8
   stage: development
-  region: us-east-2
+  region: us-east-1
   memorySize: 1024 # optional, in MB, default is 1024
   timeout: 10 # optional, in seconds, default is 6
   environment:
-    AWS_ACCESS_KEY_ID: "AKIAJA5A2IZXAIFZB4LQ"
-    AWS_SECRET_ACCESS_KEY: "wxPcGpDtnjisN+SOT7U2aXVxk3XmP4JGvs0LqEE"
-    CLICK_FUNNEL_CONTACT_TABLE: "click-funnel-client"
-    CLICK_FUNNEL_ORDER_TABLE: "click-funnel-order"
-    INFUSIONSOFT_API_NAME: "https://uf238.infusionsoft.com/api/xmlrpc"
-    INFUSIONSOFT_API_KEY: "da2083451dab102fbd9122c05629fe63"
+    AWS_ACCESS_KEY_ID: ""
+    AWS_SECRET_ACCESS_KEY: ""
+    CLICK_FUNNEL_CONTACT_TABLE: "Contact"
+    CLICK_FUNNEL_ORDER_TABLE: "Order"
+    INFUSIONSOFT_API_NAME: ""
+    INFUSIONSOFT_API_KEY: ""
     SIMPLY_BOOK_SERVICE_URL_lOGIN: "https://user-api.simplybook.me/login"
     SIMPLY_BOOK_SERVICE_URL: "https://user-api.simplybook.me/"
     SIMPLY_BOOK_ADMIN_SERVICE_URL: "https://user-api.simplybook.me/admin/"
@@ -40,26 +40,26 @@ custom:
 
 functions:
   createContact:
-    handler: com.tq.clickfunnel.lambda.handler.CreateContactHandler
+    handler: com.tq.clickfunnel.lambda.handler.InterceptorEventPayloadProxy
     description: Creating the new contact
     events: # All events associated with this function
       - http:
-          path: contact/create
+          path: contact?event=contact-created
           method: post
       - http:
-          path: contact/update
+          path: contact?event=contact-updated
           method: post
   createOrder:
-    handler: com.tq.clickfunnel.lambda.handler.CreateOrderHandler
+    handler: com.tq.clickfunnel.lambda.handler.InterceptorEventPayloadProxy
     description: Creating the new Order
     events:
       - http:
-          path: order/create
+          path: order?event=order-created
           method: post
   updateOrder:
-    handler: com.tq.clickfunnel.lambda.handler.UpdateOrderHandler
+    handler: com.tq.clickfunnel.lambda.handler.InterceptorEventPayloadProxy
     description: Updating the existing Order
     events:
       - http:
-          path: order/update
+          path: order?event=order-updated
           method: post
