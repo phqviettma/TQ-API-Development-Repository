@@ -23,7 +23,6 @@ import com.tq.clickfunnel.lambda.service.CFLambdaService;
 import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.OrderQuery;
-import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.OrderServiceInf;
 
 public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution {
@@ -33,7 +32,6 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
 
     @Override
     public AwsProxyResponse execute(AwsProxyRequest input, CFLambdaContext proxyContext) {
-        log.info("create order:" + input.getBody());
         log.info("{}", input.getQueryStringParameters());
         AwsProxyResponse resp = new AwsProxyResponse();
         m_cfLambdaService = proxyContext.getCFLambdaService();
@@ -46,13 +44,13 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
                 // 1. Load the contact already existed in DynamoDB based on email
                 ContactItem contactItem = loadContactAtDB(contact.getEmail());
 
-                // 2. Load Product that contact pruchased in DynamoDB
+                // 2. Load Product that contact purchased in DynamoDB
                 ProductItem productItem = loadProductAtDB(contactPayLoad);
 
                 // 3. Create Order under email on Infusion soft.
                 addOrderToINF(contactItem, productItem);
                 
-                //4 Save the Order to Dynamodb
+                //4 Save the Order to DynamoDB
 
             }
         } catch (IOException e) {
