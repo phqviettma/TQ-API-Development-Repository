@@ -10,11 +10,10 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.configuration.Config;
 import com.tq.clickfunnel.lambda.dynamodb.model.ClientInfo;
 import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
-import com.tq.clickfunnel.lambda.exception.ClickFunnelLambdaException;
+import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFContactPayload;
 import com.tq.clickfunnel.lambda.service.CFLambdaContext;
@@ -36,8 +35,6 @@ import com.tq.simplybook.service.TokenServiceSbm;
 public class HandleEventContactExection extends AbstractEventPayloadExecution {
 
     private static final Logger log = LoggerFactory.getLogger(HandleEventContactExection.class);
-    private ObjectMapper m_mapper = new ObjectMapper();
-
     private CFLambdaService m_cfLambdaService;
 
     @Override
@@ -60,7 +57,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
                 // 4. Saving the client & contact ID into DynamoDB.
                 contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, proxyContext.getCFLambdaServiceRepository());
             }
-        } catch (IOException e) {
+        } catch (IOException | CFLambdaException e) {
             log.error("Can't create contact in SMB/ INF or Dynamodb : ", e);
             String rebuild = String.format("{\"error\": \"%s\"}", e.getMessage());
             resp.setBody(rebuild);
@@ -71,19 +68,6 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
         // 5. Handle respond
         handleResponse(input, resp, contactItem);
         return resp;
-    }
-
-    private void handleResponse(AwsProxyRequest input, AwsProxyResponse resp, ContactItem contactItem) {
-        String rebuild = null;
-        try {
-            rebuild = contactItem == null ? String.format("{\"error\": \"%s\"}", "null") : m_mapper.writeValueAsString(contactItem);
-        } catch (JsonProcessingException e) {
-            log.error("", e);
-            // ignore
-        }
-        resp.setBody(rebuild);
-        resp.setHeaders(input.getHeaders());
-        resp.setStatusCode(200);
     }
 
     private ContactItem persitClientVoInDB(CFContact funnelContact, Integer clientSbmId, Integer contactInfId,
@@ -105,7 +89,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
      * @param funnelContact
      * @return contact id See more https://developer.infusionsoft.com/docs/table-schema/ For Contact table
      */
-    private Integer addContactToInfusionsoft(CFContact funnelContact) {
+    private Integer addContactToInfusionsoft(CFContact funnelContact) throws CFLambdaException {
         Integer contactId = null;
         try {
             Map<String, String> dataRecord = new HashMap<>();
@@ -121,7 +105,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             contactId = contactServiceInf.addWithDupCheck(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY,
                     new AddNewContactQuery().withDataRecord(dataRecord));
         } catch (InfSDKExecption e) {
-            throw new ClickFunnelLambdaException(e);
+            throw new CFLambdaException(e);
         }
         return contactId;
     }
@@ -137,7 +121,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             clientSbmId = clientServiceSbm.addClient(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_ADMIN_SERVICE_URL, userToken,
                     client);
         } catch (SbmSDKException e) {
-            throw new ClickFunnelLambdaException(e);
+            throw new CFLambdaException(e);
         }
         return clientSbmId;
     }

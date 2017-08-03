@@ -20,5 +20,4 @@ public class ContactItemServiceImplTest {
         ContactItem contactItem = m_contactItemService.get("tnnha124@gmail.com");
         log.info("{}", contactItem);
     }
-
 }

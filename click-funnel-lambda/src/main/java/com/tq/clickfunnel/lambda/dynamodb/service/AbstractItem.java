@@ -40,4 +40,8 @@ public abstract class AbstractItem<Item, ID> implements GenericItem<Item, ID> {
         return dymapper.load(item, hashKey);
     }
     
+    protected Item loadItem(ID hashKey) {
+        return loadItem(getItem(), hashKey);
+    }
+    
 }

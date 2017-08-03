@@ -22,7 +22,7 @@ public class CFPurchase {
     private Date createdAt;
 
     @JsonProperty("updatedAt")
-    private Date updated_at;
+    private Date updatedAt;
 
     @JsonProperty("subscription_id")
     private Integer subscriptionId;
@@ -33,9 +33,73 @@ public class CFPurchase {
     @JsonProperty("products")
     private List<CFProducts> products;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public CFContact getContact() {
+        return contact;
+    }
+
+    public void setContact(CFContact contact) {
+        this.contact = contact;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Integer getSubscriptionId() {
+        return subscriptionId;
+    }
+
+    public void setSubscriptionId(Integer subscriptionId) {
+        this.subscriptionId = subscriptionId;
+    }
+
+    public Integer getChargeId() {
+        return chargeId;
+    }
+
+    public void setChargeId(Integer chargeId) {
+        this.chargeId = chargeId;
+    }
+
+    public List<CFProducts> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<CFProducts> products) {
+        this.products = products;
+    }
+
     @Override
     public String toString() {
         return "CFPurchase [id=" + id + ", contact=" + contact + ", status=" + status + ", createdAt=" + createdAt + ", updated_at="
-                + updated_at + ", subscriptionId=" + subscriptionId + ", chargeId=" + chargeId + ", products=" + products + "]";
+                + updatedAt + ", subscriptionId=" + subscriptionId + ", chargeId=" + chargeId + ", products=" + products + "]";
     }
 }

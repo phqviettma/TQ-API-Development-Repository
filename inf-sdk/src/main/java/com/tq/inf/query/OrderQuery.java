@@ -9,10 +9,10 @@ public class OrderQuery {
     private Integer planID;
     private List<Integer> productionIDs;
     private List<Integer> subscriptionIDs;
-    private Boolean processSpecials;
+    private Boolean processSpecials = Boolean.FALSE;
     private List<String> promoCodes;
-    private Integer leadAffiliateID;
-    private Integer saleAffiliateID;
+    private Integer leadAffiliateID = 0;
+    private Integer saleAffiliateID = 0;
 
     public Integer getContactID() {
         return contactID;

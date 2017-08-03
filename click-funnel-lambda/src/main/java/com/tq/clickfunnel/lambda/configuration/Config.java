@@ -10,6 +10,8 @@ public class Config {
     public static final String INFUSIONSOFT_API_NAME = "https://uf238.infusionsoft.com/api/xmlrpc";
 
     public static final String INFUSIONSOFT_API_KEY = "";
+    
+    public static final String INFUSION_ORDER_PROMO_CODE = "TIOwner";
 
     // Simply book
     public static final String SIMPLY_BOOK_SERVICE_URL = "https://user-api.simplybook.me/";
