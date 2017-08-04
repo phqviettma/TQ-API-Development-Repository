@@ -33,7 +33,7 @@ public class OrderServiceImpl implements OrderServiceInf {
                 return params;
             }
         }
-        return (Map<?, ?>) XmlRqcUtils.execute(apiName, apiKey, new PlaceOrderService(), "DataService.add");
+        return (Map<?, ?>) XmlRqcUtils.execute(apiName, apiKey, new PlaceOrderService(), "OrderService.placeOrder");
     }
 
 }

@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.junit.Before;
@@ -11,16 +12,24 @@ import org.junit.Test;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.services.lambda.runtime.Context;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.configuration.Config;
 import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
+import com.tq.clickfunnel.lambda.dynamodb.model.ProductItem;
 import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
+import com.tq.clickfunnel.lambda.dynamodb.service.OrderItemService;
+import com.tq.clickfunnel.lambda.dynamodb.service.ProductItemService;
 import com.tq.clickfunnel.lambda.service.CFLambdaContext;
 import com.tq.clickfunnel.lambda.service.CFLambdaService;
 import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
 import com.tq.clickfunnel.lambda.utils.JsonUtils;
 import com.tq.inf.exception.InfSDKExecption;
+import com.tq.inf.impl.OrderServiceImpl;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.service.ContactServiceInf;
+import com.tq.inf.service.OrderServiceInf;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.ClientData;
 import com.tq.simplybook.service.ClientServiceSbm;
@@ -41,6 +50,12 @@ public class InterceptorEventPayloadProxyTest {
     private CFLambdaServiceRepository m_cfLambdaServiceRepo;
     
     private ContactItemService m_contactItemService;
+    
+    private ProductItemService m_productItemService;
+    
+    private OrderItemService m_orderItemService;
+    
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Before
     public void init() {
@@ -64,13 +79,20 @@ public class InterceptorEventPayloadProxyTest {
         m_cfLambdaServiceRepo = mock(CFLambdaServiceRepository.class);
         m_contactItemService = mock(ContactItemService.class);
         when(m_cfLambdaServiceRepo.getContactItemService()).thenReturn(m_contactItemService);
+        
+        m_orderItemService = mock(OrderItemService.class);
+        when(m_cfLambdaServiceRepo.getOrderItemService()).thenReturn(m_orderItemService);
+        
+        m_productItemService = mock(ProductItemService.class);
+        when(m_cfLambdaServiceRepo.getProductItemService()).thenReturn(m_productItemService);
+        
         // mock repository service to populate DynamoDB
         when(cfLambdaContext.getCFLambdaServiceRepository()).thenReturn(m_cfLambdaServiceRepo);
     }
 
     @SuppressWarnings("serial")
     @Test
-    public void testEventCreatedContact() throws SbmSDKException, InfSDKExecption {
+    public void testEventCreatedContact() throws SbmSDKException, InfSDKExecption, Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
         String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("contactpayload.json"));
@@ -94,6 +116,34 @@ public class InterceptorEventPayloadProxyTest {
 
         when(m_contactItemService.put(any(ContactItem.class))).thenReturn(true);
         m_interceptorEvent.handleRequest(req, context);
-
+    }
+    
+    @SuppressWarnings("serial")
+    @Test
+    public void  testEventCreatedOrder() throws JsonParseException, JsonMappingException, IOException {
+        Context context = mock(Context.class);
+        AwsProxyRequest req = new AwsProxyRequest();
+        String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("order-payload.json"));
+        req.setBody(jsonString);
+        req.setQueryStringParameters(new HashMap<String, String>() {
+            {
+                put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
+            }
+        });
+        
+        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("contactItem-dummy-uf238.json"));
+        ContactItem contactDummy = mapper.readValue(jsonString, ContactItem.class);
+        when(m_contactItemService.get("dev1tma@gmail.com")).thenReturn(contactDummy );
+        
+        
+        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("product-dummy-uf238.json"));
+        ProductItem productItem = mapper.readValue(jsonString, ProductItem.class);
+        when(m_productItemService.load(961884)).thenReturn(productItem);
+        
+        OrderServiceInf infOrderService = new OrderServiceImpl();
+        //here want to test external Infusion soft.
+        when(m_cfLambdaService.getOrderServiceInf()).thenReturn(infOrderService );
+        
+        m_interceptorEvent.handleRequest(req, context);
     }
 }

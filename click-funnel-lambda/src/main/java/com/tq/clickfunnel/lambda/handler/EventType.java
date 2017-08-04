@@ -6,7 +6,7 @@ public interface EventType {
     
     public static final String ORDER_CREATED = "order-created";
     
-    public static final String ORDER_UPDATED = "order-created";
+    public static final String ORDER_UPDATED = "order-updated";
     
     public static final String EVENT_PARAMETER_NAME = "event";
 }

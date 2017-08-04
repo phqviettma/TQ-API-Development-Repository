@@ -16,11 +16,11 @@ public class OrderInf {
 
     private String updatedAt;
 
-    private Boolean successfull = Boolean.FALSE; // status of credit card charge
+    private String successfull ="false"; // status of credit card charge
 
     private String message;
 
-    private Integer refNum;
+    private String refNum;
 
     private String code;
 
@@ -80,11 +80,11 @@ public class OrderInf {
         this.updatedAt = updatedAt;
     }
 
-    public Boolean getSuccessfull() {
+    public String getSuccessfull() {
         return successfull;
     }
 
-    public void setSuccessfull(Boolean successfull) {
+    public void setSuccessfull(String successfull) {
         this.successfull = successfull;
     }
 
@@ -96,11 +96,11 @@ public class OrderInf {
         this.message = message;
     }
 
-    public Integer getRefNum() {
+    public String getRefNum() {
         return refNum;
     }
 
-    public void setRefNum(Integer refNum) {
+    public void setRefNum(String refNum) {
         this.refNum = refNum;
     }
 
@@ -148,7 +148,7 @@ public class OrderInf {
         return this;
     }
 
-    public OrderInf withSuccessfull(Boolean successfull) {
+    public OrderInf withSuccessfull(String successfull) {
         this.successfull = successfull;
         return this;
     }
@@ -158,7 +158,7 @@ public class OrderInf {
         return this;
     }
 
-    public OrderInf withRefNum(Integer refNum) {
+    public OrderInf withRefNum(String refNum) {
         this.refNum = refNum;
         return this;
     }

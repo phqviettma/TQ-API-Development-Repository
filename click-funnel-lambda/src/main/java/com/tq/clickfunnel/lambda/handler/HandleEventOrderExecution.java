@@ -25,7 +25,7 @@ public abstract class HandleEventOrderExecution extends AbstractEventPayloadExec
 
     protected ProductItem loadProductAtDB(CFOrderPayload contactPayLoad, CFLambdaServiceRepository cfServiceRepo) {
         List<CFProducts> products = contactPayLoad.getPurchase().getProducts();
-        if (products == null) {
+        if (products == null || products.isEmpty()) {
             log.info("{}", contactPayLoad);
             throw new CFLambdaException("The contact has not purchased any products.");
         }

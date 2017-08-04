@@ -68,20 +68,24 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         OrderItem orderItem = null;
         try {
             INFProduct infProduct = productItem.getInfProduct();
-            OrderQuery orderRecord = new OrderQuery().withContactID(infContactId).withCardID(infProduct.getCartId())
-                    .withProductionIDs(Arrays.asList(infProduct.getId())).withPromoCodes(Arrays.asList(Config.INFUSION_ORDER_PROMO_CODE))
-                    .withSubscriptionIDs(Arrays.asList(infProduct.getSubscriptionPlanId()));
+            OrderQuery orderRecord = new OrderQuery()
+                    .withContactID(infContactId)
+                    .withCardID(infProduct.getCartId())
+                    .withPlanID(infProduct.getPlanId())
+                    .withProductionIDs(Arrays.asList(infProduct.getId()))
+                    .withSubscriptionIDs(Arrays.asList(infProduct.getSubscriptionPlanId()))
+                    .withPromoCodes(Arrays.asList(Config.INFUSION_ORDER_PROMO_CODE));
 
             OrderServiceInf orderServiceInf = m_cfLambdaService.getOrderServiceInf();
             // Adding Order to Infusion soft
             Map<?, ?> addOrder = orderServiceInf.addOrder(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY, orderRecord);
 
-            Integer orderId = (Integer) addOrder.get("OrderId");
-            Integer invoiceId = (Integer) addOrder.get("InvoiceId");
-            Integer refNum = (Integer) addOrder.get("RefNum");
-            String code = (String) addOrder.get("Code");
+            Integer orderId = Integer.valueOf((String)addOrder.get("OrderId"));
+            Integer invoiceId = Integer.valueOf((String)addOrder.get("InvoiceId"));
+            String refNum = (String)addOrder.get("RefNum");
+            String code =  (String) addOrder.get("Code");
             String message = (String) addOrder.get("Message");
-            Boolean successful = (Boolean) addOrder.get("Successful");
+            String successful = (String) addOrder.get("Successful");
 
             String createdAt = Config.DATE_FORMAT_24_H.format(new Date());// dynamoDB still does not supported Date.
 

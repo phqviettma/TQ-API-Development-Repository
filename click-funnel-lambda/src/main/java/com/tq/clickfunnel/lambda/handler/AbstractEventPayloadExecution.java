@@ -29,7 +29,7 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
     
     @Override
     public AwsProxyResponse execute(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
-        AwsProxyResponse resp = null;
+        AwsProxyResponse resp = new AwsProxyResponse();
          try {
              resp = handleLambdaProxy(input, cfLambdaContext);
          } catch (CFLambdaException cfLambdaException) {
