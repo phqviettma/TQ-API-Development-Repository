@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,13 +31,12 @@ import com.tq.simplybook.service.TokenServiceSbm;
  */
 public class HandleEventContactExection extends AbstractEventPayloadExecution {
 
-    private static final Logger log = LoggerFactory.getLogger(HandleEventContactExection.class);
     private CFLambdaService m_cfLambdaService;
 
     @Override
-    public AwsProxyResponse execute(AwsProxyRequest input, CFLambdaContext proxyContext) {
+    public AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
         AwsProxyResponse resp = new AwsProxyResponse();
-        m_cfLambdaService = proxyContext.getCFLambdaService();
+        m_cfLambdaService = cfLambdaContext.getCFLambdaService();
         ContactItem contactItem = null;
         try {
             // 1. building Client of Click Funnel from incoming AWS proxy request.
@@ -55,15 +51,10 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
                 Integer contactInfId = addContactToInfusionsoft(funnelContact);
 
                 // 4. Saving the client & contact ID into DynamoDB.
-                contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, proxyContext.getCFLambdaServiceRepository());
+                contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, cfLambdaContext.getCFLambdaServiceRepository());
             }
         } catch (IOException | CFLambdaException e) {
-            log.error("Can't create contact in SMB/ INF or Dynamodb : ", e);
-            String rebuild = String.format("{\"error\": \"%s\"}", e.getMessage());
-            resp.setBody(rebuild);
-            resp.setHeaders(input.getHeaders());
-            resp.setStatusCode(503);
-            return resp;
+            throw new CFLambdaException("Can't create Contact in Simplybook.me/Infusionsoft or Dynamodb.", e);
         }
         // 5. Handle respond
         handleResponse(input, resp, contactItem);
@@ -125,5 +116,4 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
         }
         return clientSbmId;
     }
-
 }

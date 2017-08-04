@@ -7,6 +7,8 @@ import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tq.clickfunnel.lambda.exception.CFLambdaException;
+import com.tq.clickfunnel.lambda.service.CFLambdaContext;
 
 public abstract class AbstractEventPayloadExecution implements EventPayloadExecution {
     private static final Logger log = LoggerFactory.getLogger(AbstractEventPayloadExecution.class);
@@ -24,4 +26,21 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
         resp.setHeaders(input.getHeaders());
         resp.setStatusCode(200);
     }
+    
+    @Override
+    public AwsProxyResponse execute(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
+        AwsProxyResponse resp = null;
+         try {
+             resp = handleLambdaProxy(input, cfLambdaContext);
+         } catch (CFLambdaException cfLambdaException) {
+             log.error("", cfLambdaException);
+             String rebuild = String.format("{\"error\": \"%s\"}", cfLambdaException.getMessage());
+             resp.setBody(rebuild);
+             resp.setHeaders(input.getHeaders());
+             resp.setStatusCode(200);
+             return resp;
+         }
+        return resp;
+    }
+    public abstract AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException;
 }

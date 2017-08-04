@@ -6,16 +6,9 @@ import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.service.CFLambdaContext;
 
 public class HandleNotFoundEventExecution extends AbstractEventPayloadExecution {
-
     @Override
-    public AwsProxyResponse execute(AwsProxyRequest input, CFLambdaContext proxyContext) throws CFLambdaException {
-        AwsProxyResponse resp = new AwsProxyResponse();
+    public AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
         String event = input.getQueryStringParameters().get(EventType.EVENT_PARAMETER_NAME);
-        String rebuild = String.format("{\"error\": \"%s\"}", "Not found " + event + " .");
-        resp.setBody(rebuild);
-        resp.setHeaders(input.getHeaders());
-        resp.setStatusCode(503);
-        return resp;
+        throw new CFLambdaException("Not found " + event + " .");
     }
-
 }

@@ -10,4 +10,15 @@ public class OrderItemServiceImpl extends AbstractItem<OrderItem, String> implem
     public OrderItemServiceImpl(AmazonDynamoDB client) {
         super(client, OrderItem.class);
     }
+
+    @Override
+    public boolean put(OrderItem orderItem) {
+        putItem(orderItem);
+        return true;
+    }
+
+    @Override
+    public OrderItem load(String email) {
+        return load(email);
+    }
 }

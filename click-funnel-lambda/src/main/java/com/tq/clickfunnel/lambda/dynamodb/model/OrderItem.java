@@ -21,7 +21,13 @@ public class OrderItem {
     @DynamoDBTypeConvertedJson
     @DynamoDBAttribute(attributeName = "infOrders")
     private List<OrderInf> infOrders;
+    public OrderItem() {
+    }
 
+    public OrderItem(String email) {
+        this.email = email;
+    }
+    
     public String getEmail() {
         return email;
     }
@@ -36,6 +42,11 @@ public class OrderItem {
 
     public void setInfOrders(List<OrderInf> infOrders) {
         this.infOrders = infOrders;
+    }
+    
+    public OrderItem withInfOrders(List<OrderInf> infOrders) {
+        this.infOrders = infOrders;
+        return this;
     }
 
     @Override
