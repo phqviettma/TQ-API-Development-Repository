@@ -17,9 +17,10 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
     public <T> void handleResponse(AwsProxyRequest input, AwsProxyResponse resp, T item) {
         String rebuild = null;
         try {
-            rebuild = item == null ? String.format("{\"contact\": \"%s\"}", "null") : m_mapper.writeValueAsString(item);
+            rebuild = item == null ? String.format("{\"item\": \"%s\"}", "null") : m_mapper.writeValueAsString(item);
         } catch (JsonProcessingException e) {
             log.error("", e);
+            rebuild = String.format("{\"error\": \"%s\"}", e.getMessage());
             // ignore
         }
         resp.setBody(rebuild);
