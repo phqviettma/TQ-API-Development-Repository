@@ -2,6 +2,8 @@ package com.tq.simplybook.utils;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,4 +62,5 @@ public final class SbmUtils {
             throw new SbmSDKException("Error during reading response error : " + jsonResp, e1);
         }
     }
+
 }

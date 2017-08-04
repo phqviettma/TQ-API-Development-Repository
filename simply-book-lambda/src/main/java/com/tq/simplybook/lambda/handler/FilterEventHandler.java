@@ -49,7 +49,14 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 
     @Override
     public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
-        AwsProxyResponse res = new AwsProxyResponse();
+        AwsProxyResponse resp = new AwsProxyResponse();
+        
+        m_log.info("Received one request with body " + input.getBody());
+        m_log.info("Received one request with header " + input.getHeaders());
+        m_log.info("Received one request with StageVariables " + input.getStageVariables());
+        m_log.info("Received one request with rescource " + input.getResource());
+        m_log.info("Received one request with queryString " + input.getQueryString());
+        m_log.info("Received one request with queryStringParameters " + input.getQueryStringParameters());
         
         PayloadCallback payLoad = getPayloadCallback(input.getBody());
         boolean ignored = true;
@@ -74,13 +81,20 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 
             } catch (SbmSDKException e) {
                 m_log.error("Processed notification: " + payLoad.getNotification_type() + " for booking ID: " 
-                                    + payLoad.getBooking_id() + " results in error: %s", e);
+                                    + payLoad.getBooking_id() + " results in error: ", e);
+                String rebuild = String.format("{\"error\": \"%s\"}", e.getMessage());
+                resp.setBody(rebuild);
+                resp.setHeaders(input.getHeaders());
+                resp.setStatusCode(503);
+                return resp;
             }
         }
-
-        return res;
+        
+        handleResponse(input, resp);
+        
+        return resp;
     }
-
+    
     public PayloadCallback getPayloadCallback(String value) {
         PayloadCallback payLoad = null;
         try {
@@ -89,5 +103,10 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
             m_log.error("Error during parsing {} : {} .", value, e);
         }
         return payLoad;
+    }
+    
+    private void handleResponse(AwsProxyRequest input, AwsProxyResponse resp) {
+        resp.setHeaders(input.getHeaders());
+        resp.setStatusCode(200);
     }
 }

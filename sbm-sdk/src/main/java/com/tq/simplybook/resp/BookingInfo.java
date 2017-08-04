@@ -1,6 +1,7 @@
 package com.tq.simplybook.resp;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,6 +18,7 @@ public class BookingInfo implements Serializable {
 	private String event_duration;
 	private String unit_name;
 	private String unit_email;
+	private String unit_description;
 	private String start_date_time;
 	private String end_date_time;
 	private String record_date;
@@ -31,10 +33,9 @@ public class BookingInfo implements Serializable {
 	private String client_country_id;
 	private String company_login;
 	private String company_name;
+	private List<String> location;
 	
-	private PriceInfo price;
-	
-	public Integer getIs_confirmed() {
+    public Integer getIs_confirmed() {
 		return is_confirmed;
 	}
 	public void setIs_confirmed(Integer is_confirmed) {
@@ -65,7 +66,14 @@ public class BookingInfo implements Serializable {
 	public void setUnit_name(String unit_name) {
 		this.unit_name = unit_name;
 	}
-	public String getStart_date_time() {
+	public String getUnit_description() {
+        return unit_description;
+    }
+	
+    public void setUnit_description(String unit_description) {
+        this.unit_description = unit_description;
+    }
+    public String getStart_date_time() {
 		return start_date_time;
 	}
 	public void setStart_date_time(String start_date_time) {
@@ -101,13 +109,6 @@ public class BookingInfo implements Serializable {
 	}
 	public void setClient_name(String client_name) {
 		this.client_name = client_name;
-	}
-	
-	public PriceInfo getPrice() {
-		return price;
-	}
-	public void setPrice(PriceInfo price) {
-		this.price = price;
 	}
 	
 	public String getUnit_email() {
@@ -170,6 +171,15 @@ public class BookingInfo implements Serializable {
 	public void setCompany_name(String company_name) {
 		this.company_name = company_name;
 	}
+	
+	public List<String> getLocation() {
+        return location;
+    }
+	
+    public void setLocation(List<String> location) {
+        this.location = location;
+    }
+	
 	@Override
 	public String toString() {
 		return "is_confirmed=" + is_confirmed + ", comment=" + comment + ", event_id=" + event_id
@@ -179,7 +189,7 @@ public class BookingInfo implements Serializable {
 				+ client_name + ", client_phone=" + client_phone + ", client_email=" + client_email
 				+ ", client_address1=" + client_address1 + ", client_address2=" + client_address2 + ", client_city="
 				+ client_city + ", client_zip=" + client_zip + ", client_country_id=" + client_country_id
-				+ ", company_login=" + company_login + ", company_name=" + company_name + ", " + price;
+				+ ", company_login=" + company_login + ", company_name=" + company_name;
 	}
 	
 	

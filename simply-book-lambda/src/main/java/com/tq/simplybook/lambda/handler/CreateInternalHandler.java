@@ -7,6 +7,7 @@ import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
 import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddDataQuery;
+import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.lambda.context.Env;
@@ -39,8 +40,14 @@ public class CreateInternalHandler implements InternalHandler {
         String adminEndPoint = m_env.getSimplyBookAdminServiceUrl();
         String infusionSoftApiName = m_env.getInfusionSoftApiName();
         String infusionSoftApiKey = m_env.getInfusionSoftApiKey();
-        String infusionSoftCustomFiledName = m_env.getInfusionSoftCustomFieldName();
-
+        
+        String infusionSoftAppointmentTimeField = m_env.getInfusionSoftAppointmentTimeField();
+        String infusionSoftAppointmentLocationField = m_env.getInfusionSoftAppointmentLocationField();
+        String infusionSoftServiceProviderField = m_env.getInfusionSoftServiceProviderField();
+        String infusionSoftAppointmentInstructionField = m_env.getInfusionSoftAppointmentInstructionField();
+        
+        int appliedTagId = m_env.getInfusionSoftCreateAppliedTag();
+        
         Long bookingId = payload.getBooking_id();
 
         String token = m_tss.getUserToken(companyLogin, user, password, loginEndPoint);
@@ -61,7 +68,11 @@ public class CreateInternalHandler implements InternalHandler {
 
         Integer ifContactId = contactItem.getClient().getContactId();
         Map<String, String> updateRecord = new HashMap<>();
-        updateRecord.put(infusionSoftCustomFiledName, bookingInfo.toString());
+        
+        updateRecord.put(infusionSoftAppointmentTimeField, buildApppointmentTime(bookingInfo.getStart_date_time(), bookingInfo.getEnd_date_time()));
+        updateRecord.put(infusionSoftAppointmentLocationField, (bookingInfo.getLocation() == null || bookingInfo.getLocation().isEmpty()) ? "" : bookingInfo.getLocation().toString());
+        updateRecord.put(infusionSoftServiceProviderField, bookingInfo.getUnit_name());
+        updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getUnit_description());
 
         try {
 
@@ -70,6 +81,18 @@ public class CreateInternalHandler implements InternalHandler {
         } catch (InfSDKExecption e) {
             throw new SbmSDKException("Updating custom field to Infusion Soft failed", e);
         }
+        
+        try {
+            ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
+
+            m_csi.appyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
+        } catch (InfSDKExecption e) {
+            throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
+        }
+    }
+
+    private static String buildApppointmentTime(String start_date_time, String end_date_time) {
+        return start_date_time + ((end_date_time == null || end_date_time.isEmpty() ? "" : " - " + end_date_time ));
     }
 
 }

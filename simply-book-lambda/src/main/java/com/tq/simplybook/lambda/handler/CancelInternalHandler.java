@@ -40,7 +40,12 @@ public class CancelInternalHandler implements InternalHandler {
         String adminEndPoint = m_env.getSimplyBookAdminServiceUrl();
         String infusionSoftApiName = m_env.getInfusionSoftApiName();
         String infusionSoftApiKey = m_env.getInfusionSoftApiKey();
-        String infusionSoftCustomFiledName = m_env.getInfusionSoftCustomFieldName();
+        
+        String infusionSoftAppointmentTimeField = m_env.getInfusionSoftAppointmentTimeField();
+        String infusionSoftAppointmentLocationField = m_env.getInfusionSoftAppointmentLocationField();
+        String infusionSoftServiceProviderField = m_env.getInfusionSoftServiceProviderField();
+        String infusionSoftAppointmentInstructionField = m_env.getInfusionSoftAppointmentInstructionField();
+        
         int appliedTagId = m_env.getInfusionSoftCancelAppliedTag();
         Long bookingId = payload.getBooking_id();
 
@@ -65,7 +70,10 @@ public class CancelInternalHandler implements InternalHandler {
         Integer ifContactId = contactItem.getClient().getContactId();
 
         Map<String, String> updateRecord = new HashMap<>();
-        updateRecord.put(infusionSoftCustomFiledName, "");
+        updateRecord.put(infusionSoftAppointmentTimeField, "");
+        updateRecord.put(infusionSoftAppointmentLocationField, "");
+        updateRecord.put(infusionSoftServiceProviderField, "");
+        updateRecord.put(infusionSoftAppointmentInstructionField, "");
 
         try {
             m_csi.update(infusionSoftApiName, infusionSoftApiKey, new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
@@ -79,7 +87,7 @@ public class CancelInternalHandler implements InternalHandler {
 
             m_csi.appyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
         } catch (InfSDKExecption e) {
-            throw new SbmSDKException("Applying Tag 643 to contact Infusion Soft failed", e);
+            throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
         }
     }
 }
