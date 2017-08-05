@@ -33,12 +33,12 @@ public class Config {
     /**
      * AWS Access key
      */
-    public static final String AWS_ACCESS_KEY = Env.getEnv("AWS_ACCESS_KEY");
+    public static final String AWS_ACCESS_KEY = Env.getEnv("AMAZON_ACCESS_KEY");
     
     /**
      * AWS SECRET ACCESS KEY
      */
-    public static final String AWS_SECRET_ACCESS_KEY = Env.getEnv("AWS_SECRET_ACCESS_KEY");
+    public static final String AWS_SECRET_ACCESS_KEY = Env.getEnv("AMAZON_SECRET_ACCESS_KEY");
     
     /**
      * Locally end point DynamoDB for connecting to locally DynamoDB
