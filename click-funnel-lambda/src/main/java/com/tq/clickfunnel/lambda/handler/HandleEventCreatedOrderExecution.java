@@ -64,39 +64,50 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
     }
 
     private OrderItem addOrderToINF(ContactItem contactItem, ProductItem productItem) {
+        long start = System.currentTimeMillis();
         Integer infContactId = contactItem.getClient().getContactId();
         OrderItem orderItem = null;
         try {
             INFProduct infProduct = productItem.getInfProduct();
-            OrderQuery orderRecord = new OrderQuery()
-                    .withContactID(infContactId)
-                    .withCardID(infProduct.getCartId())
-                    .withPlanID(infProduct.getPlanId())
-                    .withProductionIDs(Arrays.asList(infProduct.getId()))
-                    .withSubscriptionIDs(Arrays.asList(infProduct.getSubscriptionPlanId()))
-                    .withPromoCodes(Arrays.asList(Config.INFUSION_ORDER_PROMO_CODE));
-
+            OrderQuery orderRecord = buildOrderQuery(infContactId, infProduct);
             OrderServiceInf orderServiceInf = m_cfLambdaService.getOrderServiceInf();
             // Adding Order to Infusion soft
             Map<?, ?> addOrder = orderServiceInf.addOrder(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY, orderRecord);
 
-            Integer orderId = Integer.valueOf((String)addOrder.get("OrderId"));
-            Integer invoiceId = Integer.valueOf((String)addOrder.get("InvoiceId"));
-            String refNum = (String)addOrder.get("RefNum");
-            String code =  (String) addOrder.get("Code");
-            String message = (String) addOrder.get("Message");
-            String successful = (String) addOrder.get("Successful");
-
-            String createdAt = Config.DATE_FORMAT_24_H.format(new Date());// dynamoDB still does not supported Date.
-
-            OrderInf orderInf = new OrderInf().withContactId(infContactId).withEmail(contactItem.getEmail()).withOrderId(orderId)
-                    .withInvoiceId(invoiceId).withCreatedAt(createdAt).withUpdatedAt(createdAt).withSuccessfull(successful)
-                    .withRefNum(refNum).withCode(code).withMessage(message);
-
+            OrderInf orderInf = buildOrderItem(contactItem, infContactId, addOrder);
             orderItem = new OrderItem(contactItem.getEmail()).withInfOrders(Arrays.asList(orderInf));
+            
         } catch (InfSDKExecption e) {
             throw new CFLambdaException("Cannot add Order to infusion soft ", e);
         }
+        log.info("addInfOrder() = {} ms", System.currentTimeMillis() -start);
         return orderItem;
+    }
+
+    private OrderInf buildOrderItem(ContactItem contactItem, Integer infContactId, Map<?, ?> addOrder) {
+        Integer orderId = Integer.valueOf((String)addOrder.get("OrderId"));
+        Integer invoiceId = Integer.valueOf((String)addOrder.get("InvoiceId"));
+        String refNum = (String)addOrder.get("RefNum");
+        String code =  (String) addOrder.get("Code");
+        String message = (String) addOrder.get("Message");
+        String successful = (String) addOrder.get("Successful");
+
+        String createdAt = Config.DATE_FORMAT_24_H.format(new Date());// dynamoDB still does not supported Date.
+
+        OrderInf orderInf = new OrderInf().withContactId(infContactId).withEmail(contactItem.getEmail()).withOrderId(orderId)
+                .withInvoiceId(invoiceId).withCreatedAt(createdAt).withUpdatedAt(createdAt).withSuccessfull(successful)
+                .withRefNum(refNum).withCode(code).withMessage(message);
+        return orderInf;
+    }
+
+    private OrderQuery buildOrderQuery(Integer infContactId, INFProduct infProduct) {
+        OrderQuery orderRecord = new OrderQuery()
+                .withContactID(infContactId)
+                .withCardID(infProduct.getCartId())
+                .withPlanID(infProduct.getPlanId())
+                .withProductionIDs(Arrays.asList(infProduct.getId()))
+                .withSubscriptionIDs(Arrays.asList(infProduct.getSubscriptionPlanId()))
+                .withPromoCodes(Arrays.asList(Config.INFUSION_ORDER_PROMO_CODE));
+        return orderRecord;
     }
 }

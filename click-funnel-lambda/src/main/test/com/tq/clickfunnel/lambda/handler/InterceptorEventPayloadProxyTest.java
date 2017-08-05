@@ -17,8 +17,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.configuration.Config;
 import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
+import com.tq.clickfunnel.lambda.dynamodb.model.CountryItem;
 import com.tq.clickfunnel.lambda.dynamodb.model.ProductItem;
 import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
+import com.tq.clickfunnel.lambda.dynamodb.service.CountryItemService;
 import com.tq.clickfunnel.lambda.dynamodb.service.OrderItemService;
 import com.tq.clickfunnel.lambda.dynamodb.service.ProductItemService;
 import com.tq.clickfunnel.lambda.service.CFLambdaContext;
@@ -55,6 +57,8 @@ public class InterceptorEventPayloadProxyTest {
     
     private OrderItemService m_orderItemService;
     
+    private CountryItemService m_countryItemService;
+    
     private ObjectMapper mapper = new ObjectMapper();
 
     @Before
@@ -86,6 +90,9 @@ public class InterceptorEventPayloadProxyTest {
         m_productItemService = mock(ProductItemService.class);
         when(m_cfLambdaServiceRepo.getProductItemService()).thenReturn(m_productItemService);
         
+        m_countryItemService = mock(CountryItemService.class);
+        when(m_cfLambdaServiceRepo.getCountryItemService()).thenReturn(m_countryItemService);
+        
         // mock repository service to populate DynamoDB
         when(cfLambdaContext.getCFLambdaServiceRepository()).thenReturn(m_cfLambdaServiceRepo);
     }
@@ -115,6 +122,8 @@ public class InterceptorEventPayloadProxyTest {
                 .thenReturn(infContactId);
 
         when(m_contactItemService.put(any(ContactItem.class))).thenReturn(true);
+        CountryItem countryItem = new CountryItem("Viet Nam", "VN");
+        when(m_countryItemService.load("Viet Nam")).thenReturn(countryItem);
         m_interceptorEvent.handleRequest(req, context);
     }
     

@@ -2,9 +2,11 @@ package com.tq.clickfunnel.lambda.impl;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.tq.clickfunnel.lambda.dynamodb.impl.ContactItemServiceImpl;
+import com.tq.clickfunnel.lambda.dynamodb.impl.CountryItemServiceImpl;
 import com.tq.clickfunnel.lambda.dynamodb.impl.OrderItemServiceImpl;
 import com.tq.clickfunnel.lambda.dynamodb.impl.ProductItemServiceImpl;
 import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
+import com.tq.clickfunnel.lambda.dynamodb.service.CountryItemService;
 import com.tq.clickfunnel.lambda.dynamodb.service.OrderItemService;
 import com.tq.clickfunnel.lambda.dynamodb.service.ProductItemService;
 import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
@@ -30,6 +32,10 @@ public class CFLambdaServiceRepositoryImpl implements CFLambdaServiceRepository 
     @Override
     public OrderItemService getOrderItemService() {
         return new OrderItemServiceImpl(m_amazonDynamoDB);
+    }
+    @Override
+    public CountryItemService getCountryItemService() {
+        return new CountryItemServiceImpl(m_amazonDynamoDB);
     }
 
 }

@@ -4,18 +4,24 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tq.clickfunnel.lambda.configuration.Config;
 import com.tq.clickfunnel.lambda.dynamodb.model.ClientInfo;
 import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
+import com.tq.clickfunnel.lambda.dynamodb.model.CountryItem;
+import com.tq.clickfunnel.lambda.dynamodb.service.CountryItemService;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFContactPayload;
 import com.tq.clickfunnel.lambda.service.CFLambdaContext;
 import com.tq.clickfunnel.lambda.service.CFLambdaService;
 import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
+import com.tq.clickfunnel.lambda.utils.CommonUtils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.service.ContactServiceInf;
@@ -30,13 +36,18 @@ import com.tq.simplybook.service.TokenServiceSbm;
  *
  */
 public class HandleEventContactExection extends AbstractEventPayloadExecution {
+    
+    private static final Logger log = LoggerFactory.getLogger(HandleEventContactExection.class);
+    private static final String TOKEN_STRING = " ";
 
     private CFLambdaService m_cfLambdaService;
+    private CFLambdaServiceRepository m_cfLambdaServiceRepository;
 
     @Override
     public AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
         AwsProxyResponse resp = new AwsProxyResponse();
         m_cfLambdaService = cfLambdaContext.getCFLambdaService();
+        m_cfLambdaServiceRepository = cfLambdaContext.getCFLambdaServiceRepository();
         ContactItem contactItem = null;
         try {
             // 1. building Client of Click Funnel from incoming AWS proxy request.
@@ -63,7 +74,8 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
 
     private ContactItem persitClientVoInDB(CFContact funnelContact, Integer clientSbmId, Integer contactInfId,
             CFLambdaServiceRepository repository) throws JsonProcessingException {
-        // build client to save Dynomadb
+        // build client to save DynomaDB
+        long start = System.currentTimeMillis();
         ClientInfo clientInfo = new ClientInfo().withClientId(clientSbmId).withContactId(contactInfId).withEmail(funnelContact.getEmail())
                 .withFirstName(funnelContact.getFirstName()).withLastName(funnelContact.getLastName()).withPhone1(funnelContact.getPhone())
                 .withAddress1(funnelContact.getAddress()).withCountry(funnelContact.getCountry())
@@ -73,6 +85,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
         ContactItem contactItem = new ContactItem().withEmail(funnelContact.getEmail()) // unique key
                 .withContactInfo(clientInfo);
         repository.getContactItemService().put(contactItem);
+        log.info("addDBContact()= {} ms" , (System.currentTimeMillis() - start));
         return contactItem;
     }
 
@@ -82,6 +95,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
      */
     private Integer addContactToInfusionsoft(CFContact funnelContact) throws CFLambdaException {
         Integer contactId = null;
+        long start = System.currentTimeMillis();
         try {
             Map<String, String> dataRecord = new HashMap<>();
             dataRecord.put("Email", funnelContact.getEmail());
@@ -98,22 +112,39 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
         } catch (InfSDKExecption e) {
             throw new CFLambdaException(e);
         }
+        log.info("addINFContact()= {} ms.", (System.currentTimeMillis() - start));
         return contactId;
     }
 
     private Integer addClientToSimplyBookMe(CFContact funnelContact) {
+        long start = System.currentTimeMillis();
         Integer clientSbmId = null;
         try {
             TokenServiceSbm tokenServiceSbm = m_cfLambdaService.getTokenServiceSbm();
             ClientServiceSbm clientServiceSbm = m_cfLambdaService.getClientServiceSbm();
+            ClientData client = buildSBMContact(funnelContact);
+            
             String userToken = tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER,
                     Config.SIMPLY_BOOK_PASSWORD, Config.SIMPLY_BOOK_SERVICE_URL_lOGIN);
-            ClientData client = new ClientData(funnelContact.getFirstName(), funnelContact.getEmail(), funnelContact.getPhone());
             clientSbmId = clientServiceSbm.addClient(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_ADMIN_SERVICE_URL, userToken,
                     client);
         } catch (SbmSDKException e) {
             throw new CFLambdaException(e);
         }
+        log.info("addSBMClient()={} ms.", (System.currentTimeMillis() - start));
         return clientSbmId;
+    }
+
+    private ClientData buildSBMContact(CFContact funnelContact) {
+        String rebuilName = CommonUtils.joinValues(TOKEN_STRING, funnelContact.getFirstName(), funnelContact.getLastName());
+        CountryItemService countryItemService = m_cfLambdaServiceRepository.getCountryItemService();
+        CountryItem countryItem = countryItemService.load(funnelContact.getCountry());
+        String countryId = countryItem == null || CommonUtils.isEmpty(countryItem.getName()) ? funnelContact.getCountry()
+                : countryItem.getCode();
+        
+        ClientData client = new ClientData().withEmail(funnelContact.getEmail()).withName(rebuilName)
+                .withPhone(funnelContact.getPhone()).withAddress1(funnelContact.getAddress()).withCity(funnelContact.getCity())
+                .withCountry_id(countryId);
+        return client;
     }
 }
