@@ -1,5 +1,6 @@
 package com.tq.clickfunnel.lambda.impl;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.clickfunnel.lambda.configuration.Config;
@@ -19,8 +20,8 @@ public class CFLambdaContextImpl implements CFLambdaContext {
     private CFLambdaServiceRepository m_cfLambdaServiceRepository;
 
     public CFLambdaContextImpl() {
-        this(CFLambdaServiceImpl.defaults(),
-                DynanodbUtils.getAmazonDynamoDB(Config.DYNAMODB_DEFAULT_REGION, Config.AWS_ACCESS_KEY, Config.AWS_SECRET_ACCESS_KEY));
+        this(CFLambdaServiceImpl.defaults(), DynanodbUtils.getAmazonDynamoDB(Regions.fromName(Config.DYNAMODB_AWS_REGION),
+                Config.AWS_ACCESS_KEY, Config.AWS_SECRET_ACCESS_KEY));
 
     }
 

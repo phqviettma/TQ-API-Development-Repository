@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
@@ -21,7 +22,7 @@ public class DynamodbRequestUtilsTest {
 
     @Test
     public void testExternalAWSListAllTable() throws InterruptedException {
-        AmazonDynamoDB locallyDynamoDB = DynanodbUtils.getAmazonDynamoDB(Config.DYNAMODB_DEFAULT_REGION, Config.AWS_ACCESS_KEY,
+        AmazonDynamoDB locallyDynamoDB = DynanodbUtils.getAmazonDynamoDB(Regions.fromName("us-east-1"), Config.AWS_ACCESS_KEY,
                 Config.AWS_SECRET_ACCESS_KEY);
         ListTablesResult listTables = locallyDynamoDB.listTables();
         System.out.println(listTables.getTableNames());

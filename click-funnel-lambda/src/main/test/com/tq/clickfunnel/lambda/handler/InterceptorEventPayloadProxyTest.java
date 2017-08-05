@@ -62,7 +62,7 @@ public class InterceptorEventPayloadProxyTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Before
-    public void init() {
+    public void init() throws IOException {
         CFLambdaContext cfLambdaContext = mock(CFLambdaContext.class);
         m_interceptorEvent = new InterceptorEventPayloadProxy(cfLambdaContext);
 
@@ -95,6 +95,9 @@ public class InterceptorEventPayloadProxyTest {
         
         // mock repository service to populate DynamoDB
         when(cfLambdaContext.getCFLambdaServiceRepository()).thenReturn(m_cfLambdaServiceRepo);
+        
+        // Initialize the environment for testing
+        CFLambdaMockUtils.initDefaultsEnvOnWin();
     }
 
     @SuppressWarnings("serial")
@@ -111,7 +114,7 @@ public class InterceptorEventPayloadProxyTest {
         });
 
         String adminToken = "adminToken";
-        when(m_tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER, Config.SIMPLY_BOOK_PASSWORD,
+        when(m_tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER_NAME, Config.SIMPLY_BOOK_PASSWORD,
                 Config.SIMPLY_BOOK_SERVICE_URL_lOGIN)).thenReturn(adminToken);
         Integer smbContactId = Integer.valueOf(100000);
         when(m_clientServiceSbm.addClient(any(String.class), any(String.class), any(String.class), any(ClientData.class)))

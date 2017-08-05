@@ -124,7 +124,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             ClientServiceSbm clientServiceSbm = m_cfLambdaService.getClientServiceSbm();
             ClientData client = buildSBMContact(funnelContact);
             
-            String userToken = tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER,
+            String userToken = tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER_NAME,
                     Config.SIMPLY_BOOK_PASSWORD, Config.SIMPLY_BOOK_SERVICE_URL_lOGIN);
             clientSbmId = clientServiceSbm.addClient(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_ADMIN_SERVICE_URL, userToken,
                     client);

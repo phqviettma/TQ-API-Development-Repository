@@ -3,42 +3,42 @@ package com.tq.clickfunnel.lambda.configuration;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import com.amazonaws.regions.Regions;
+import com.tq.clickfunnel.lambda.utils.Env;
 
 public class Config {
 
-    public static final String INFUSIONSOFT_API_NAME = "https://uf238.infusionsoft.com/api/xmlrpc";
+    public static final String INFUSIONSOFT_API_NAME = Env.getEnv("INFUSIONSOFT_API_NAME");
 
-    public static final String INFUSIONSOFT_API_KEY = "da2083451dab102fbd9122c05629fe63";
+    public static final String INFUSIONSOFT_API_KEY = Env.getEnv("INFUSIONSOFT_API_KEY");
     
-    public static final String INFUSION_ORDER_PROMO_CODE = "TIOwner";
+    public static final String INFUSION_ORDER_PROMO_CODE = Env.getEnv("INFUSION_ORDER_PROMO_CODE");
 
     // Simply book
-    public static final String SIMPLY_BOOK_SERVICE_URL = "https://user-api.simplybook.me/";
+    public static final String SIMPLY_BOOK_SERVICE_URL = Env.getEnv("SIMPLY_BOOK_SERVICE_URL");
     
-    public static final String SIMPLY_BOOK_SERVICE_URL_lOGIN = "https://user-api.simplybook.me/login";
+    public static final String SIMPLY_BOOK_SERVICE_URL_lOGIN = Env.getEnv("SIMPLY_BOOK_SERVICE_URL_lOGIN");
     
-    public static final String SIMPLY_BOOK_ADMIN_SERVICE_URL = "https://user-api.simplybook.me/admin/";
+    public static final String SIMPLY_BOOK_ADMIN_SERVICE_URL = Env.getEnv("SIMPLY_BOOK_ADMIN_SERVICE_URL");
     
-    public static final String SIMPLY_BOOK_COMPANY_LOGIN = "phqviet93gmailcom";
+    public static final String SIMPLY_BOOK_COMPANY_LOGIN = Env.getEnv("SIMPLY_BOOK_COMPANY_LOGIN");
     
-    public static final String SIMPLY_BOOK_API_KEY = "4de2a2545aed8e5e19861ee91221460c7e7e0ec90bff6dcad96fcc4d68c8e228";
+    public static final String SIMPLY_BOOK_API_KEY = Env.getEnv("SIMPLY_BOOK_API_KEY");
     
-    public static final String SIMPLY_BOOK_USER = "admin";
+    public static final String SIMPLY_BOOK_USER_NAME = Env.getEnv("SIMPLY_BOOK_USER_NAME");
 
-    public static final String SIMPLY_BOOK_PASSWORD = "12345678x@X";
+    public static final String SIMPLY_BOOK_PASSWORD =  Env.getEnv("SIMPLY_BOOK_PASSWORD");
     
-    public static final String SIMPLY_BOOK_SECRET_KEY = "c9c8476bdedc3a2294a5fc69c9d0019e2af44dbe126ccb10f7431739a720b1ef";
+    public static final String SIMPLY_BOOK_SECRET_KEY = Env.getEnv("SIMPLY_BOOK_SECRET_KEY");
     
     /**
      * AWS Access key
      */
-    public static final String AWS_ACCESS_KEY = "";
+    public static final String AWS_ACCESS_KEY = Env.getEnv("AWS_ACCESS_KEY");
     
     /**
      * AWS SECRET ACCESS KEY
      */
-    public static final String AWS_SECRET_ACCESS_KEY = "";
+    public static final String AWS_SECRET_ACCESS_KEY = Env.getEnv("AWS_SECRET_ACCESS_KEY");
     
     /**
      * Locally end point DynamoDB for connecting to locally DynamoDB
@@ -51,17 +51,23 @@ public class Config {
      */
     public static final String DYNAMODB_LOCAL_REGION_ECLIPSE = "local";
     
-    public static final Regions DYNAMODB_DEFAULT_REGION = Regions.US_EAST_1;
-    
     /**
-     * Contact table is used for saving the contact into DynamoDB
+     * "us-east-1",
+     * "us-east-2",
+     * "us-west-1",
+     * "eu-west-1",
+     * "eu-west-2",
+     * "eu-central-1",
+     * "ap-south-1"
+     * "ap-southeast-1",
+     * "ap-southeast-2",
+     * "ap-northeast-1",
+     * "ap-northeast-2",
+     * "sa-east-1",
+     * "cn-north-1",
+     * "ca-central-1"
      */
-    public static final String CLICK_FUNNEL_CONTACT = "Contact";
-
-    /**
-     * Order table is used for saving the order into DynamoDB
-     */
-    public static final String CLICK_FUNNEL_ORDER = "Order";
+    public static final String DYNAMODB_AWS_REGION = Env.getEnv("DYNAMODB_AWS_REGION");
     
     /**
      * AWS DynamoDB is not supported the Date, so need to format default 24h

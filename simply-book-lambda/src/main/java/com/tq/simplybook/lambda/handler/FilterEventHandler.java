@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -36,7 +37,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
     private ObjectMapper m_jsonMapper = new ObjectMapper();
     public DataServiceInf dataServiceInf = new DataServiceImpl();
     private Env m_env = Env.load();
-    private AmazonDynamoDB m_amazonDynamoDB = DynanodbUtils.getAmazonDynamoDB(Config.DYNAMODB_DEFAULT_REGION, m_env.getAwsAccessKeyId(),
+    private AmazonDynamoDB m_amazonDynamoDB = DynanodbUtils.getAmazonDynamoDB(Regions.fromName(Config.DYNAMODB_AWS_REGION), m_env.getAwsAccessKeyId(),
             m_env.getAwsSecretAccessKey());
 
     private ContactServiceInf m_csi = new ContactServiceImpl();
