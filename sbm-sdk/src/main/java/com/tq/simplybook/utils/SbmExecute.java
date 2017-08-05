@@ -17,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.SbmReq;
-import com.tq.simplybook.resp.SbmErrorResp;
 
 public final class SbmExecute {
     public static <T extends Serializable> String executeWithNoneToken(String endpoint, String method, T object) throws Exception {
@@ -33,7 +32,6 @@ public final class SbmExecute {
     public static <T extends Serializable> String executeWithToken(String companyLogin, String endpoint, String token, String method,
             T object) throws Exception {
         String json = getJsonRequest(method, object);
-        System.out.println(json);
         return invokeRequest(endpoint, json, new SbmHttpPostReq() {
             @Override
             public HttpPost buildPost(String endpoint) {
