@@ -25,13 +25,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Servlet implementation class CallbackPayLoadContact
+ * Servlet implementation class CFCallbackPayLoad
+ * configuration callback URL : 
+ * http://elasticbeanstalk-env.com/clickfunnel?event=
+ * 
+ * Here, elasticbeanstalk-env URK : 
+ * when you deploy an application on Elastic Beanstalk, it will automacally generate the URL associated with environment
+ * So, assumed the elasticbeanstalk-env is URL
  */
-@WebServlet("/clickfunnel/contact")
-public class CallbackPayLoadContact extends HttpServlet {
+@WebServlet("/clickfunnel")
+public class CFEventCallbackPayLoad extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = LoggerFactory.getLogger(CallbackPayLoadContact.class);
+    private static final Logger log = LoggerFactory.getLogger(CFEventCallbackPayLoad.class);
     
     public static final String CONTACT_EVENT_CREATED = "contact?event=contact-created";
     public static final String ORDER_EVENT_CREATED = "order?event=order-created";
@@ -49,7 +55,7 @@ public class CallbackPayLoadContact extends HttpServlet {
     /**
      * Default constructor.
      */
-    public CallbackPayLoadContact() {
+    public CFEventCallbackPayLoad() {
         // TODO Auto-generated constructor stub
     }
 
