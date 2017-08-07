@@ -19,6 +19,9 @@ public class ContactItemServiceImpl extends AbstractItem<ContactItem, String> im
 
     @Override
     public ContactItem get(String email) {
+        //Error 'no HASH key value present'
+        if (email == null || email.isEmpty())
+            return null;
         return loadItem(getItem(), email);
     }
 

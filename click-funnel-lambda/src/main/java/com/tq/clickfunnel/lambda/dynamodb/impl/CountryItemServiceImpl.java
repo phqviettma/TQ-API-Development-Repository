@@ -19,6 +19,8 @@ public class CountryItemServiceImpl extends AbstractItem<CountryItem, String> im
 
     @Override
     public CountryItem load(String name) {
+        //Error 'no HASH key value present'
+        if (name == null || name.isEmpty()) return null;
         return loadItem(name);
     }
 }

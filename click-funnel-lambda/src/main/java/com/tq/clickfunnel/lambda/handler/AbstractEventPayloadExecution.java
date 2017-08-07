@@ -33,9 +33,9 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
         AwsProxyResponse resp = new AwsProxyResponse();
          try {
              resp = handleLambdaProxy(input, cfLambdaContext);
-         } catch (CFLambdaException cfLambdaException) {
-             log.error("", cfLambdaException);
-             String rebuild = String.format("{\"error\": \"%s\"}", cfLambdaException.getMessage());
+         } catch (Exception e) {
+             log.error("", e);
+             String rebuild = String.format("{\"error\": \"%s\"}", e.getMessage());
              resp.setBody(rebuild);
              resp.setHeaders(input.getHeaders());
              resp.setStatusCode(200);
