@@ -2,7 +2,6 @@ package com.tq.bridge.servlet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Enumeration;
 
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +24,7 @@ public class CFEventUtils {
 
     public static final String API_GATEWAY_STAGES = "prod/";
 
-    public static final String TQ_API_GATEGAY_CF_EVENT = "shttps://yhy9f83hp2.execute-api.us-east-1.amazonaws.com/" + API_GATEWAY_STAGES;
+    public static final String TQ_API_GATEGAY_CF_EVENT = "https://yhy9f83hp2.execute-api.us-east-1.amazonaws.com/" + API_GATEWAY_STAGES;
 
     public static void makeRequest(HttpServletRequest request, HttpServletResponse response, String apiGatewayResource) throws IOException {
         // get Json from incoming request to build new request
@@ -33,10 +32,10 @@ public class CFEventUtils {
         // making request to AWS lambda
         String awsRes = null;
         try {
-            String endpoint = CFEventUtils.TQ_API_GATEGAY_CF_EVENT + apiGatewayResource;
+            String endpoint = TQ_API_GATEGAY_CF_EVENT + apiGatewayResource;
             awsRes = CFEventUtils.makeAwsLambdaRequest(endpoint, jsonBuff.toString(), request);
         } catch (Exception e) {
-            log.error("error bridge project.", e);
+            log.error("Error bridge project.", e);
             CFEventUtils.handleErrorResponse(response, e.getMessage());
             return;
         }
@@ -49,7 +48,6 @@ public class CFEventUtils {
                 SSLConnectionSocketFactory.getDefaultHostnameVerifier());
         try (CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslsf).build();) {
             HttpPost postRequest = new HttpPost(endpoint);
-            rebuildForwardHeader(postRequest, request);
             postRequest.addHeader("Content-type", "application/json; charset=UTF-8");
             StringEntity input = new StringEntity(json, "UTF-8");
             postRequest.setEntity(input);
@@ -59,15 +57,6 @@ public class CFEventUtils {
             log.error("{}", e);
         }
         return "";
-    }
-
-    private static void rebuildForwardHeader(HttpPost postRequest, HttpServletRequest request) {
-        Enumeration<?> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = (String) headerNames.nextElement();
-            String value = request.getHeader(key);
-            postRequest.addHeader(key, value);
-        }
     }
 
     private static StringBuilder getJsonFromRequest(HttpServletRequest request) {
