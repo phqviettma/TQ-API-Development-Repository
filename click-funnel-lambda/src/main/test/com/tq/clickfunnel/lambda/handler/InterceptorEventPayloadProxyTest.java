@@ -5,20 +5,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.configuration.Config;
 import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
 import com.tq.clickfunnel.lambda.dynamodb.model.CountryItem;
-import com.tq.clickfunnel.lambda.dynamodb.model.ProductItem;
+import com.tq.clickfunnel.lambda.dynamodb.model.OrderItem;
 import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
 import com.tq.clickfunnel.lambda.dynamodb.service.CountryItemService;
 import com.tq.clickfunnel.lambda.dynamodb.service.OrderItemService;
@@ -28,10 +29,9 @@ import com.tq.clickfunnel.lambda.service.CFLambdaService;
 import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
 import com.tq.clickfunnel.lambda.utils.JsonUtils;
 import com.tq.inf.exception.InfSDKExecption;
-import com.tq.inf.impl.OrderServiceImpl;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.service.ContactServiceInf;
-import com.tq.inf.service.OrderServiceInf;
+import com.tq.inf.service.RecurringOrderInf;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.ClientData;
 import com.tq.simplybook.service.ClientServiceSbm;
@@ -59,6 +59,8 @@ public class InterceptorEventPayloadProxyTest {
     
     private CountryItemService m_countryItemService;
     
+    private RecurringOrderInf m_recurringOrderInf ;
+    
     private ObjectMapper mapper = new ObjectMapper();
 
     @Before
@@ -68,17 +70,18 @@ public class InterceptorEventPayloadProxyTest {
 
         // mock service of infusion soft
         m_contactServiceInf = mock(ContactServiceInf.class);
+        m_recurringOrderInf = mock(RecurringOrderInf.class);
 
         // mock services of simplybook.me
         m_tokenServiceSbm = mock(TokenServiceSbm.class);
         m_clientServiceSbm = mock(ClientServiceSbm.class);
-
-        // mock internal service
+        
+        
         m_cfLambdaService = mock(CFLambdaService.class);
         when(m_cfLambdaService.getClientServiceSbm()).thenReturn(m_clientServiceSbm);
         when(m_cfLambdaService.getTokenServiceSbm()).thenReturn(m_tokenServiceSbm);
         when(m_cfLambdaService.getContactServiceInf()).thenReturn(m_contactServiceInf);
-
+        when(m_cfLambdaService.getRecurringOrderInf()).thenReturn(m_recurringOrderInf);
         when(cfLambdaContext.getCFLambdaService()).thenReturn(m_cfLambdaService);
         m_cfLambdaServiceRepo = mock(CFLambdaServiceRepository.class);
         m_contactItemService = mock(ContactItemService.class);
@@ -132,7 +135,7 @@ public class InterceptorEventPayloadProxyTest {
     
     @SuppressWarnings("serial")
     @Test
-    public void  testEventCreatedOrder() throws JsonParseException, JsonMappingException, IOException {
+    public void  testEventCreatedOrder() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
         String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("order-payload.json"));
@@ -147,15 +150,28 @@ public class InterceptorEventPayloadProxyTest {
         ContactItem contactDummy = mapper.readValue(jsonString, ContactItem.class);
         when(m_contactItemService.get("dev1tma@gmail.com")).thenReturn(contactDummy );
         
-        
-        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("product-dummy-uf238.json"));
-        ProductItem productItem = mapper.readValue(jsonString, ProductItem.class);
-        when(m_productItemService.load(961884)).thenReturn(productItem);
-        
-        OrderServiceInf infOrderService = new OrderServiceImpl();
-        //here want to test external Infusion soft.
-        when(m_cfLambdaService.getOrderServiceInf()).thenReturn(infOrderService );
-        
+        Object[] recurringOrders = new Object[1] ;
+        Integer contactId = 10308;
+        buildRecurringOrder(recurringOrders, contactId);
+        List<String> selectedFields = Arrays.asList("Id", "ContactId", "OriginatingOrderId", "ProductId", "StartDate", "EndDate",
+                "LastBillDate", "NextBillDate", "Status", "AutoCharge", "SubscriptionPlanId");
+        when(m_recurringOrderInf.getAllRecurringOrder(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY, contactId, selectedFields)).thenReturn(recurringOrders);
+        when(m_orderItemService.put(any(OrderItem.class))).thenReturn(true);
         m_interceptorEvent.handleRequest(req, context);
+    }
+
+    private void buildRecurringOrder(Object[] recurringOrders, Integer contactId) {
+        HashMap<Object, Object> hashMap = new HashMap<>();
+        hashMap.put("Id", 1);
+        hashMap.put("ProductId", 1000);
+        hashMap.put("ContactId", contactId);
+        hashMap.put("OriginatingOrderId", 4000);
+        hashMap.put("StartDate", new Date());
+        hashMap.put("EndDate", new Date());
+        hashMap.put("LastBillDate", new Date());
+        hashMap.put("NextBillDate", new Date());
+        hashMap.put("AutoCharge",1 );
+        hashMap.put("Status", "success");
+        recurringOrders[0] = hashMap;
     }
 }

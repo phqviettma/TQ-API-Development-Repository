@@ -1,7 +1,9 @@
 package com.tq.clickfunnel.lambda.impl;
 
 import com.tq.inf.service.ContactServiceInf;
+import com.tq.inf.service.DataServiceInf;
 import com.tq.inf.service.OrderServiceInf;
+import com.tq.inf.service.RecurringOrderInf;
 import com.tq.simplybook.service.ClientServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -32,6 +34,16 @@ public class ClickFunnelContextBuilder {
     
     public ClickFunnelContextBuilder registerINFOrder(OrderServiceInf orderServiceInf) {
         m_context.setOrderServiceInf(orderServiceInf);
+        return this;
+    }
+    
+    public ClickFunnelContextBuilder registerDataServiceInf(DataServiceInf dataServiceInf) {
+        m_context.setDataServiceInf(dataServiceInf);
+        return this;
+    }
+    
+    public ClickFunnelContextBuilder registerRecurringOrderServiceInf(RecurringOrderInf recurringOrderInf) {
+        m_context.setRecurringOrderServiceInf(recurringOrderInf);
         return this;
     }
 

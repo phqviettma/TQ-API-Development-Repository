@@ -65,7 +65,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
                 contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, cfLambdaContext.getCFLambdaServiceRepository());
             }
         } catch (IOException | CFLambdaException e) {
-            throw new CFLambdaException("Can't create Contact in Simplybook.me/Infusionsoft or Dynamodb.", e);
+            throw new CFLambdaException(e.getMessage(), e);
         }
         // 5. Handle respond
         handleResponse(input, resp, contactItem);

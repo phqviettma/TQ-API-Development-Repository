@@ -22,6 +22,6 @@ public class OrderItemServiceImpl extends AbstractItem<OrderItem, String> implem
         //Error 'no HASH key value present'
         if (email == null || email.isEmpty())
             return null;
-        return load(email);
+        return loadItem(email);
     }
 }
