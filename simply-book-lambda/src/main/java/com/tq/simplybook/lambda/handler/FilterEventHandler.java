@@ -32,6 +32,8 @@ import com.tq.simplybook.service.TokenServiceSbm;
  */
 public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
     private static final Logger m_log = LoggerFactory.getLogger(FilterEventHandler.class);
+    private static int STATUS_CODE = 200;
+    
     private ObjectMapper m_jsonMapper = new ObjectMapper();
     public DataServiceInf dataServiceInf = new DataServiceImpl();
     private Env m_env = Env.load();
@@ -51,15 +53,12 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
         AwsProxyResponse resp = new AwsProxyResponse();
         
         m_log.info("Received one request with body " + input.getBody());
-        m_log.info("Received one request with header " + input.getHeaders());
-        m_log.info("Received one request with StageVariables " + input.getStageVariables());
-        m_log.info("Received one request with rescource " + input.getResource());
-        m_log.info("Received one request with queryString " + input.getQueryString());
-        m_log.info("Received one request with queryStringParameters " + input.getQueryStringParameters());
         
         PayloadCallback payLoad = getPayloadCallback(input.getBody());
         boolean ignored = true;
-
+        
+        Throwable error = null;
+        
         if (payLoad != null) {
             try {
                 if ("create".equalsIgnoreCase(payLoad.getNotification_type())) {
@@ -81,15 +80,11 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
             } catch (SbmSDKException e) {
                 m_log.error("Processed notification: " + payLoad.getNotification_type() + " for booking ID: " 
                                     + payLoad.getBooking_id() + " results in error: ", e);
-                String rebuild = String.format("{\"error\": \"%s\"}", e.getMessage());
-                resp.setBody(rebuild);
-                resp.setHeaders(input.getHeaders());
-                resp.setStatusCode(503);
-                return resp;
+                error = e;
             }
-        }
+        } 
         
-        handleResponse(input, resp);
+        handleResponse(input, resp, payLoad,  error);
         
         return resp;
     }
@@ -104,8 +99,20 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
         return payLoad;
     }
     
-    private void handleResponse(AwsProxyRequest input, AwsProxyResponse resp) {
+    private void handleResponse(AwsProxyRequest input, AwsProxyResponse resp, PayloadCallback pc, Throwable t) {
+        String body = null;
+        if(pc != null) {
+            if (t != null){
+                body = "ERROR";
+            } else {
+                body = "OK: ";
+            }
+        } else {
+            body = "Invalid request body";
+        }
+        
+        resp.setBody(body);
         resp.setHeaders(input.getHeaders());
-        resp.setStatusCode(200);
+        resp.setStatusCode(STATUS_CODE);
     }
 }

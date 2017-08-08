@@ -70,7 +70,7 @@ public class CreateInternalHandler implements InternalHandler {
         Map<String, String> updateRecord = new HashMap<>();
         
         updateRecord.put(infusionSoftAppointmentTimeField, buildApppointmentTime(bookingInfo.getStart_date_time(), bookingInfo.getEnd_date_time()));
-        updateRecord.put(infusionSoftAppointmentLocationField, (bookingInfo.getLocation() == null || bookingInfo.getLocation().isEmpty()) ? "" : bookingInfo.getLocation().toString());
+        updateRecord.put(infusionSoftAppointmentLocationField, bookingInfo.getLocation() == null ? "" : String.valueOf(bookingInfo.getLocation().getTitle()));
         updateRecord.put(infusionSoftServiceProviderField, bookingInfo.getUnit_name());
         updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getUnit_description());
 
