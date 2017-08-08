@@ -110,7 +110,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             contactId = contactServiceInf.addWithDupCheck(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY,
                     new AddNewContactQuery().withDataRecord(dataRecord));
         } catch (InfSDKExecption e) {
-            throw new CFLambdaException(e);
+            throw new CFLambdaException(e.getMessage(), e);
         }
         log.info("addINFContact()= {} ms.", (System.currentTimeMillis() - start));
         return contactId;
@@ -129,7 +129,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             clientSbmId = clientServiceSbm.addClient(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_ADMIN_SERVICE_URL, userToken,
                     client);
         } catch (SbmSDKException e) {
-            throw new CFLambdaException(e);
+            throw new CFLambdaException(e.getMessage(), e);
         }
         log.info("addSBMClient()={} ms.", (System.currentTimeMillis() - start));
         return clientSbmId;

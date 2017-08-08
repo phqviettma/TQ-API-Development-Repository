@@ -1,6 +1,5 @@
 package com.tq.clickfunnel.lambda.handler;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,7 +53,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
                     m_cfServiceRepo.getOrderItemService().put(addOrder);
                 }
             }
-        } catch (IOException | CFLambdaException e) {
+        } catch (Exception e) {
             log.error("", e);
             throw new CFLambdaException(e.getMessage(), e);
         }
