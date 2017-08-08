@@ -92,6 +92,11 @@ public class ClientData implements Serializable {
         this.zip = zip;
     }
     
+    public ClientData withZip(String zip) {
+        this.zip = zip;
+        return this;
+    }
+    
     @JsonIgnore
     public ClientData withName(String name) {
         this.name = name;

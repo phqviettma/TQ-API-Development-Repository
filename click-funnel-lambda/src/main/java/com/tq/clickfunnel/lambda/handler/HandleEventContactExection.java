@@ -102,9 +102,10 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             dataRecord.put("FirstName", funnelContact.getFirstName());
             dataRecord.put("LastName", funnelContact.getLastName());
             dataRecord.put("Phone1", funnelContact.getPhone());
-            dataRecord.put("Country", funnelContact.getCountry());
-            dataRecord.put("City", funnelContact.getCity());
-            dataRecord.put("StreetAddress1", funnelContact.getAddress());
+            dataRecord.put("Country", getCountry(funnelContact));
+            dataRecord.put("City", getCity(funnelContact));
+            dataRecord.put("State", getState(funnelContact));
+            dataRecord.put("StreetAddress1", getAddress(funnelContact));
 
             ContactServiceInf contactServiceInf = m_cfLambdaService.getContactServiceInf();
             contactId = contactServiceInf.addWithDupCheck(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY,
@@ -138,13 +139,40 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
     private ClientData buildSBMContact(CFContact funnelContact) {
         String rebuilName = CommonUtils.joinValues(TOKEN_STRING, funnelContact.getFirstName(), funnelContact.getLastName());
         CountryItemService countryItemService = m_cfLambdaServiceRepository.getCountryItemService();
-        CountryItem countryItem = countryItemService.load(funnelContact.getCountry());
-        String countryId = countryItem == null || CommonUtils.isEmpty(countryItem.getName()) ? funnelContact.getCountry()
-                : countryItem.getCode();
-        
+        String country = getCountry(funnelContact);
+        CountryItem countryItem = countryItemService.load(country);
+        //verify country or shipping country
+        String countryId = countryItem == null ? country : countryItem.getCode();
+        String address = getAddress(funnelContact);
+        String city = getCity(funnelContact) ;
+        String zip = getZip(funnelContact) ;
         ClientData client = new ClientData().withEmail(funnelContact.getEmail()).withName(rebuilName)
-                .withPhone(funnelContact.getPhone()).withAddress1(funnelContact.getAddress()).withCity(funnelContact.getCity())
+                .withPhone(funnelContact.getPhone()).withAddress1(address).withCity(city).withZip(zip )
                 .withCountry_id(countryId);
         return client;
     }
+
+    private String getZip(CFContact funnelContact) {
+        return CommonUtils.isEmpty(funnelContact.getZip()) ?  funnelContact.getShippingZip() : funnelContact.getZip();
+    }
+
+    private String getCity(CFContact funnelContact) {
+        return CommonUtils.isEmpty(funnelContact.getCity()) ? funnelContact.getShippingCity() : funnelContact.getCity();
+    }
+
+    private String getAddress(CFContact funnelContact) {
+        return CommonUtils.isEmpty(funnelContact.getAddress()) ? funnelContact.getShippingAddress() : funnelContact.getAddress();
+    }
+
+    private String getCountry(CFContact funnelContact) {
+        String country = CommonUtils.isEmpty(funnelContact.getCountry()) ? funnelContact.getShippingCountry()
+                : funnelContact.getCountry();
+        return country;
+    }
+    
+    private String getState(CFContact funnelContact) {
+        String stage = CommonUtils.isEmpty(funnelContact.getState()) ? funnelContact.getShippingState() : funnelContact.getState();
+        return stage;
+    }
+
 }

@@ -145,7 +145,7 @@ public class InterceptorEventPayloadProxyTest {
     public void testEventCreatedOrder() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("order-payload.json"));
+        String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload.json"));
         req.setBody(jsonString);
         req.setQueryStringParameters(new HashMap<String, String>() {
             {
