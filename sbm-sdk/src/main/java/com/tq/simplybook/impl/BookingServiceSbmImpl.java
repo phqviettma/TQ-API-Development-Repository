@@ -17,7 +17,7 @@ public class BookingServiceSbmImpl implements BookingServiceSbm {
 			BookingDetails readValueForObject = SbmUtils.readValueForObject(jsonResp, BookingDetails.class);
 			return readValueForObject.getResult();
 		} catch (Exception e) {
-			throw new SbmSDKException(e);
+			throw new SbmSDKException(e.getMessage() +" during getBookingDetails()", e);
 		}
 	}
 	

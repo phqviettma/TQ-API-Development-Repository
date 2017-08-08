@@ -25,7 +25,7 @@ public class ClientServiceImpl implements ClientServiceSbm {
             String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpointAdmin, userToken, "addClient", new AddClientReq(clientData));
             return SbmUtils.readValueForObject(jsonResp, ClientID.class).getClientId();
         } catch (Exception e) {
-            throw new SbmSDKException("addClient", e);
+            throw new SbmSDKException(e.getMessage() +" during addClient()", e);
         }
     }
     
@@ -35,7 +35,7 @@ public class ClientServiceImpl implements ClientServiceSbm {
             String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpointAdmin, userToken, "editClient", new EditEclientReq(clientId, clientData));
             return SbmUtils.readValueForObject(jsonResp, ClientID.class).getClientId();
         } catch (Exception e) {
-            throw new SbmSDKException("editClient", e);
+            throw new SbmSDKException(e.getMessage() +" during editClient()", e);
         }
     }
 
@@ -47,7 +47,7 @@ public class ClientServiceImpl implements ClientServiceSbm {
             ClientInfo readValueForObject = SbmUtils.readValueForObject(jsonResp, ClientInfo.class);
             return readValueForObject != null ? readValueForObject.getResult() : null;
         } catch (Exception e) {
-            throw new SbmSDKException("getClient", e);
+            throw new SbmSDKException(e.getMessage() +" during getClient()", e);
         }
     }
 

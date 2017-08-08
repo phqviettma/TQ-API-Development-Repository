@@ -77,7 +77,7 @@ public final class SbmExecute {
             HttpResponse response = httpClient.execute(postRequest);
             return EntityUtils.toString(response.getEntity(), "UTF-8");
         } catch (Exception e) {
-            throw new SbmSDKException("Error during making request to Simplybook.me", e);
+            throw new SbmSDKException(e.getMessage(), e);
         }
     }
     

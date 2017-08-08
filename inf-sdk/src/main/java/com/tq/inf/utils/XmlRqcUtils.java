@@ -43,7 +43,7 @@ public final class XmlRqcUtils {
             log.info("Took {} to execute {} .", System.currentTimeMillis() - start,  methodName);
             return result;
         } catch (MalformedURLException | XmlRpcException e) {
-            throw new InfSDKExecption(e);
+            throw new InfSDKExecption(e.getMessage(), e);
         }
     }
 
