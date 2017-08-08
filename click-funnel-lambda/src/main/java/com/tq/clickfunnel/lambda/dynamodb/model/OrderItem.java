@@ -21,8 +21,8 @@ public class OrderItem {
     private Integer contactId;
 
     @DynamoDBTypeConvertedJson
-    @DynamoDBAttribute(attributeName = "recurringOrders")
-    private List<RecurringOrder> recurringOrders;
+    @DynamoDBAttribute(attributeName = "orderDetails")
+    private List<OrderDetail> orderDetails; 
 
     public OrderItem() {
     }
@@ -47,19 +47,6 @@ public class OrderItem {
         this.contactId = contactId;
     }
 
-    public OrderItem withRecurringOrders(List<RecurringOrder> recurringOrders) {
-        this.recurringOrders = recurringOrders;
-        return this;
-    }
-
-    public List<RecurringOrder> getRecurringOrders() {
-        return recurringOrders;
-    }
-
-    public void setRecurringOrders(List<RecurringOrder> recurringOrders) {
-        this.recurringOrders = recurringOrders;
-    }
-
     public OrderItem withEmail(String email) {
         this.email = email;
         return this;
@@ -70,8 +57,21 @@ public class OrderItem {
         return this;
     }
 
+    public List<OrderDetail> getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
+    }
+    
+    public OrderItem withOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
+        return this;
+    }
+
     @Override
     public String toString() {
-        return "OrderItem [email=" + email + ", contactId=" + contactId + ", recurringOrders=" + recurringOrders + "]";
+        return "OrderItem [email=" + email + ", contactId=" + contactId + ", orderDetails=" + orderDetails + "]";
     }
 }

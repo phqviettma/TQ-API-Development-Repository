@@ -10,8 +10,6 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tq.clickfunnel.lambda.dynamodb.model.CFProduct;
-import com.tq.clickfunnel.lambda.dynamodb.model.INFProduct;
 import com.tq.clickfunnel.lambda.dynamodb.model.ProductItem;
 import com.tq.clickfunnel.lambda.dynamodb.service.ProductItemService;
 import com.tq.clickfunnel.lambda.handler.JsonRunner;
@@ -25,30 +23,6 @@ public class ProductItemServiceImplTest {
     private ProductItemService m_productItemService = new ProductItemServiceImpl(m_amazonDynamoDB);
     
     private ObjectMapper mapper = new ObjectMapper();
-    
-    @Test
-    public void testPutProductItem() {
-        ProductItem item = new ProductItem();
-        item.setId(967487);
-        CFProduct cfProduct = new CFProduct();
-        cfProduct.setId(967487);
-        cfProduct.setCurrency("usd");
-        cfProduct.setName("Test Subscription Product");
-        item.setCfProduct(cfProduct);
-
-        INFProduct infProduct = new INFProduct();
-        infProduct.setId(10308);
-        infProduct.setCartId(0);
-        infProduct.setPlanId(0);
-        infProduct.setProductName("Test client subscription");
-        infProduct.setSku("CS1");
-        infProduct.setProductPrice(0.00);
-        infProduct.setSubscriptionPlanId(11344);
-        infProduct.setDescription("Test subscription");
-        infProduct.setProductType("Product");
-        item.setInfProduct(infProduct);
-        m_productItemService.put(item);
-    }
     
     @Test
     public void testLoadAlreadPrudctionItem() {

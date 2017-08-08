@@ -53,6 +53,11 @@ public class OrderQuery {
     public void setSubscriptionIDs(List<Integer> subscriptionIDs) {
         this.subscriptionIDs = subscriptionIDs;
     }
+    
+    public OrderQuery withSubscriptionIDs(List<Integer> subscriptionIDs) {
+        this.subscriptionIDs = subscriptionIDs;
+        return this;
+    }
 
     public Boolean getProcessSpecials() {
         return processSpecials;
@@ -103,11 +108,6 @@ public class OrderQuery {
 
     public OrderQuery withProductionIDs(List<Integer> productionIDs) {
         this.productionIDs = productionIDs;
-        return this;
-    }
-
-    public OrderQuery withSubscriptionIDs(List<Integer> subscriptionIDs) {
-        this.subscriptionIDs = subscriptionIDs;
         return this;
     }
 

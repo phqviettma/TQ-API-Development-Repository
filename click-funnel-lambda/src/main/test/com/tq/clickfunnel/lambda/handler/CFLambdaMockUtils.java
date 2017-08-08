@@ -15,7 +15,7 @@ public class CFLambdaMockUtils {
         ProcessBuilder pb = new ProcessBuilder("CMD", "/C", "SET");
         Map<String, String> env = pb.environment();
         
-        env.put("INFUSIONSOFT_API_KEY", "https://uf238.infusionsoft.com/api/xmlrpc");
+        env.put("INFUSIONSOFT_API_NAME", "https://uf238.infusionsoft.com/api/xmlrpc");
         env.put("INFUSIONSOFT_API_KEY", "");
         env.put("INFUSION_ORDER_PROMO_CODE", "");
         

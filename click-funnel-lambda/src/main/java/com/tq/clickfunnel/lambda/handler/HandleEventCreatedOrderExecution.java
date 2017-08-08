@@ -1,32 +1,28 @@
 package com.tq.clickfunnel.lambda.handler;
 
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Date;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.tq.clickfunnel.lambda.configuration.Config;
 import com.tq.clickfunnel.lambda.dynamodb.model.ClientInfo;
 import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
+import com.tq.clickfunnel.lambda.dynamodb.model.INFProduct;
+import com.tq.clickfunnel.lambda.dynamodb.model.OrderDetail;
 import com.tq.clickfunnel.lambda.dynamodb.model.OrderItem;
-import com.tq.clickfunnel.lambda.dynamodb.model.RecurringOrder;
+import com.tq.clickfunnel.lambda.dynamodb.model.ProductItem;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFOrderPayload;
 import com.tq.clickfunnel.lambda.service.CFLambdaContext;
 import com.tq.clickfunnel.lambda.service.CFLambdaService;
 import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
-import com.tq.clickfunnel.lambda.utils.CommonUtils;
-import com.tq.inf.exception.InfSDKExecption;
-import com.tq.inf.service.RecurringOrderInf;
+import com.tq.inf.query.OrderQuery;
+import com.tq.inf.service.OrderServiceInf;
 
 public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution {
-    private static final Logger log = LoggerFactory.getLogger(HandleEventCreatedOrderExecution.class);
     private CFLambdaService m_cfLambdaService;
     private CFLambdaServiceRepository m_cfServiceRepo;
 
@@ -43,18 +39,19 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
 
                 // 1. Load the contact already existed in DynamoDB based on email
                 ContactItem contactItem = loadContactAtDB(contact.getEmail(), m_cfServiceRepo);
-                /**
-                 * 2. Create Order under email on Infusion soft. We already configured on Click funnel to handle for adding new Order to infusion soft via
-                 * Payment Integration so here, we just need to get the new order to save into database for further.
-                 */
-                addOrder = retrieveOrderItem(contactItem);
+
+                // 2. Load Product in DynamoDB that contact is being purchased.
+                ProductItem productItem = loadProductAtDB(contactPayLoad, m_cfServiceRepo);
+
+                //3. Create Order under email on infusion soft
+                addOrder = addOrderToInf(contactItem, productItem);
+
                 // 3. Save the Order to DynamoDB for handling in further
                 if (addOrder != null) {
                     m_cfServiceRepo.getOrderItemService().put(addOrder);
                 }
             }
         } catch (Exception e) {
-            log.error("", e);
             throw new CFLambdaException(e.getMessage(), e);
         }
         // 5. handle successfully
@@ -62,47 +59,44 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         return resp;
     }
 
-    @SuppressWarnings("rawtypes")
-    private OrderItem retrieveOrderItem(ContactItem contactItem) {
+    private OrderItem addOrderToInf(ContactItem contactItem, ProductItem productItem) {
         OrderItem orderItem = null;
+        ClientInfo client = contactItem.getClient();
+        Integer contactId = client.getContactId();
         try {
-            RecurringOrderInf recurringOrderInf = m_cfLambdaService.getRecurringOrderInf();
+            INFProduct infProduct = productItem.getInfProduct();
+            OrderQuery orderQuery = buildOrderQuery(contactId, infProduct);
+            OrderServiceInf orderServiceInf = m_cfLambdaService.getOrderServiceInf();
+            Map<?, ?> order = (Map<?, ?>)orderServiceInf.addOrder(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY, orderQuery);
+           if (order == null) return null;
+            OrderDetail orderDtail = buildOrderDetail(productItem, infProduct, order);
+            orderItem = new OrderItem().withContactId(contactId).withEmail(client.getEmail()).withOrderDetails(Arrays.asList(orderDtail));
 
-            ClientInfo client = contactItem.getClient();
-            List<String> selectedFields = Arrays.asList("Id", "ContactId", "OriginatingOrderId", "ProductId", "StartDate", "EndDate",
-                    "LastBillDate", "NextBillDate", "Status", "AutoCharge", "SubscriptionPlanId");
-            Object[] recurringOrders = recurringOrderInf.getAllRecurringOrder(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY,
-                    client.getContactId(), selectedFields);
-            if (recurringOrders == null || recurringOrders.length == 0)
-                return null;
-
-            List<RecurringOrder> lsRecurringOrders = new LinkedList<>();
-            for (Object obj : recurringOrders) {
-                Map<?, ?> mapOrder = (Map) obj;
-                RecurringOrder reOder = buildRecurringOrder(mapOrder);
-                lsRecurringOrders.add(reOder);
-            }
-            orderItem = new OrderItem()
-                    .withEmail(client.getEmail()).withContactId(client.getContactId())
-                    .withRecurringOrders(lsRecurringOrders);
-        } catch (InfSDKExecption e) {
-            new CFLambdaException(e.getMessage(), e);
+        } catch (Exception e) {
+            throw new CFLambdaException(e.getMessage(), e);
         }
         return orderItem;
     }
 
-    private RecurringOrder buildRecurringOrder(Map<?, ?> mapOrder) {
-        RecurringOrder reOder = new RecurringOrder().withId((Integer) mapOrder.get("Id"))
-                .withProductId((Integer) mapOrder.get("ProductId"))
-                .withSubscriptionPlanId((Integer) mapOrder.get("SubscriptionPlanId"))
-                .withAutoCharge((Integer) mapOrder.get("AutoCharge"))
-                .withOriginatingOrderId((Integer) mapOrder.get("OriginatingOrderId"))
-                .withStatus((String) mapOrder.get("Status"))
-                .withStartDate(CommonUtils.formatDate(mapOrder.get("StartDate")))
-                .withEndDate(CommonUtils.formatDate(mapOrder.get("EndDate")))
-                .withNextBillDate(CommonUtils.formatDate(mapOrder.get("NextBillDate")))
-                .withLastBillDate(CommonUtils.formatDate(mapOrder.get("LastBillDate")));
-        return reOder;
+    private OrderDetail buildOrderDetail(ProductItem productItem, INFProduct infProduct, Map<?, ?> order) {
+        Integer orderId = Integer.valueOf((String) order.get("OrderId"));
+        Integer invoiceId = Integer.valueOf((String) order.get("InvoiceId"));
+        String refNum = (String) order.get("RefNum");
+        String message = (String) order.get("Message");
+        String successful = (String) order.get("Successful");
+        String code = (String) order.get("Code");
+        String createdAt = Config.DATE_FORMAT_24_H.format(new Date());
+
+        OrderDetail orderDtail = new OrderDetail().withInvoiceInf(invoiceId).withOrderIdInf(orderId).withMessage(message).withRefNum(refNum)
+                .withMessage(message).withSuccessful(successful).withCreatedAt(createdAt).withUpdatedAt(createdAt)
+                .withProductIdInf(infProduct.getProductIds()).withProductCf(productItem.getCfProduct().getId()).withCode(code);
+        return orderDtail;
     }
 
+    private OrderQuery buildOrderQuery(Integer contactId, INFProduct infProduct) {
+        OrderQuery orderQuery = new OrderQuery().withContactID(contactId).withCardID(infProduct.getCartId())
+                .withPlanID(infProduct.getPlanId()).withProductionIDs(infProduct.getProductIds())
+                .withSubscriptionIDs(infProduct.getSubscriptionPlanIds()).withPromoCodes(Arrays.asList(Config.INFUSION_ORDER_PROMO_CODE));
+        return orderQuery;
+    }
 }

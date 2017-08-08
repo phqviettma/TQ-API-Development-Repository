@@ -1,4 +1,7 @@
 package com.tq.clickfunnel.lambda.dynamodb.model;
+
+import java.util.List;
+
 /**
  * 
  * @author phqviet
@@ -9,7 +12,7 @@ public class INFProduct {
     /**
      * Production ID in Infusion soft
      */
-    private Integer id;
+    private List<Integer> productIds;
 
     private String productName;
 
@@ -19,22 +22,22 @@ public class INFProduct {
 
     private String description;
 
-    private Integer subscriptionPlanId;
+    private  List<Integer> subscriptionPlanIds;
 
     private Integer cartId;
 
     private Integer planId;
 
     private String productType;
-
-    public Integer getId() {
-        return id;
+    
+    public  List<Integer> getProductIds() {
+        return productIds;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setProductIds( List<Integer> productIds) {
+        this.productIds = productIds;
     }
-
+    
     public String getProductName() {
         return productName;
     }
@@ -67,14 +70,6 @@ public class INFProduct {
         this.description = description;
     }
 
-    public Integer getSubscriptionPlanId() {
-        return subscriptionPlanId;
-    }
-
-    public void setSubscriptionPlanId(Integer subscriptionPlanId) {
-        this.subscriptionPlanId = subscriptionPlanId;
-    }
-
     public Integer getCartId() {
         return cartId;
     }
@@ -99,10 +94,18 @@ public class INFProduct {
         this.productType = productType;
     }
 
+    public  List<Integer> getSubscriptionPlanIds() {
+        return subscriptionPlanIds;
+    }
+
+    public void setSubscriptionPlanIds( List<Integer> subscriptionPlanIds) {
+        this.subscriptionPlanIds = subscriptionPlanIds;
+    }
+
     @Override
     public String toString() {
-        return "INFProduct [id=" + id + ", productName=" + productName + ", productPrice=" + productPrice + ", sku=" + sku
-                + ", description=" + description + ", subscriptionPlanId=" + subscriptionPlanId + ", cartId=" + cartId + ", planId="
+        return "INFProduct [productIds=" + productIds + ", productName=" + productName + ", productPrice=" + productPrice + ", sku=" + sku
+                + ", description=" + description + ", subscriptionPlanIds=" + subscriptionPlanIds + ", cartId=" + cartId + ", planId="
                 + planId + ", productType=" + productType + "]";
     }
 }
