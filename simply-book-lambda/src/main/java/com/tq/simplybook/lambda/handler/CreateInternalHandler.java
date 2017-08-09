@@ -3,8 +3,8 @@ package com.tq.simplybook.lambda.handler;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
-import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddDataQuery;
 import com.tq.inf.query.ApplyTagQuery;
@@ -60,7 +60,7 @@ public class CreateInternalHandler implements InternalHandler {
         String clientEmail = bookingInfo.getClient_email();
         
         // get
-        ContactItem contactItem = m_cis.get(clientEmail);
+        ContactItem contactItem = m_cis.load(clientEmail);
         
         if (contactItem == null || contactItem.getClient() == null || contactItem.getClient().getContactId() == null) {
             throw new SbmSDKException("There is no contact on Infusion Soft asociated to the email: " + clientEmail);

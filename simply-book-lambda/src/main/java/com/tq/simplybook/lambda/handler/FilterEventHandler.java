@@ -11,9 +11,10 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tq.clickfunnel.lambda.dynamodb.impl.ContactItemServiceImpl;
-import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
-import com.tq.clickfunnel.lambda.utils.DynanodbUtils;
+import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
+import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
+import com.tq.common.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.impl.DataServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
@@ -37,13 +38,13 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
     private ObjectMapper m_jsonMapper = new ObjectMapper();
     public DataServiceInf dataServiceInf = new DataServiceImpl();
     private Env m_env = Env.load();
-    private AmazonDynamoDB m_amazonDynamoDB = DynanodbUtils.getAmazonDynamoDB(m_env.getRegions(), m_env.getAwsAccessKeyId(),
+    private AmazonDynamoDB m_amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(m_env.getRegions(), m_env.getAwsAccessKeyId(),
             m_env.getAwsSecretAccessKey());
 
     private ContactServiceInf m_csi = new ContactServiceImpl();
     private BookingServiceSbm m_bss = new BookingServiceSbmImpl();
     private TokenServiceSbm m_tss = new TokenServiceImpl();
-    private ContactItemService m_cis = new ContactItemServiceImpl(m_amazonDynamoDB);
+    private ContactItemService m_cis = new ContactItemServiceImpl(new ContactItemDaoImpl(m_amazonDynamoDB));
 
     private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis);
     private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis);

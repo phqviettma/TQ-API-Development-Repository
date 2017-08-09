@@ -11,29 +11,30 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tq.clickfunnel.lambda.configuration.Config;
-import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
-import com.tq.clickfunnel.lambda.dynamodb.model.CountryItem;
-import com.tq.clickfunnel.lambda.dynamodb.model.OrderItem;
-import com.tq.clickfunnel.lambda.dynamodb.model.ProductItem;
-import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
-import com.tq.clickfunnel.lambda.dynamodb.service.CountryItemService;
-import com.tq.clickfunnel.lambda.dynamodb.service.OrderItemService;
-import com.tq.clickfunnel.lambda.dynamodb.service.ProductItemService;
-import com.tq.clickfunnel.lambda.service.CFLambdaContext;
-import com.tq.clickfunnel.lambda.service.CFLambdaService;
-import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
-import com.tq.clickfunnel.lambda.utils.JsonUtils;
+import com.tq.clickfunnel.lambda.context.CFLambdaContext;
+import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.context.LambdaContext;
+import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.model.CountryItem;
+import com.tq.common.lambda.dynamodb.model.OrderItem;
+import com.tq.common.lambda.dynamodb.model.ProductItem;
+import com.tq.common.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.dynamodb.service.CountryItemService;
+import com.tq.common.lambda.dynamodb.service.OrderItemService;
+import com.tq.common.lambda.dynamodb.service.ProductItemService;
+import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.query.OrderQuery;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.OrderServiceInf;
-import com.tq.inf.service.RecurringOrderInf;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.ClientData;
 import com.tq.simplybook.service.ClientServiceSbm;
@@ -43,69 +44,16 @@ public class InterceptorEventPayloadProxyTest {
 
     private InterceptorEventPayloadProxy m_interceptorEvent;
 
-    private ContactServiceInf m_contactServiceInf;
-
-    private OrderServiceInf m_orderServiceInf;
-
-    private TokenServiceSbm m_tokenServiceSbm;
-
-    private ClientServiceSbm m_clientServiceSbm;
-
-    private CFLambdaService m_cfLambdaService;
-
-    private CFLambdaServiceRepository m_cfLambdaServiceRepo;
-
-    private ContactItemService m_contactItemService;
-
-    private ProductItemService m_productItemService;
-
-    private OrderItemService m_orderItemService;
-
-    private CountryItemService m_countryItemService;
-
-    private RecurringOrderInf m_recurringOrderInf;
+    private LambdaContext m_lambdaContext;
 
     private ObjectMapper mapper = new ObjectMapper();
 
     @Before
     public void init() throws IOException {
         CFLambdaContext cfLambdaContext = mock(CFLambdaContext.class);
+        CFLambdaMockUtils.mockCFLambdaContext(cfLambdaContext);
+        m_lambdaContext = cfLambdaContext.getLambdaContext();
         m_interceptorEvent = new InterceptorEventPayloadProxy(cfLambdaContext);
-
-        // mock service of infusion soft
-        m_contactServiceInf = mock(ContactServiceInf.class);
-        m_recurringOrderInf = mock(RecurringOrderInf.class);
-        m_orderServiceInf = mock(OrderServiceInf.class);
-
-        // mock services of simplybook.me
-        m_tokenServiceSbm = mock(TokenServiceSbm.class);
-        m_clientServiceSbm = mock(ClientServiceSbm.class);
-
-        m_cfLambdaService = mock(CFLambdaService.class);
-        // infusion soft mockink
-        when(m_cfLambdaService.getClientServiceSbm()).thenReturn(m_clientServiceSbm);
-        when(m_cfLambdaService.getTokenServiceSbm()).thenReturn(m_tokenServiceSbm);
-        when(m_cfLambdaService.getContactServiceInf()).thenReturn(m_contactServiceInf);
-        when(m_cfLambdaService.getRecurringOrderInf()).thenReturn(m_recurringOrderInf);
-        when(cfLambdaContext.getCFLambdaService()).thenReturn(m_cfLambdaService);
-        when(m_cfLambdaService.getOrderServiceInf()).thenReturn(m_orderServiceInf);
-
-        m_cfLambdaServiceRepo = mock(CFLambdaServiceRepository.class);
-        m_contactItemService = mock(ContactItemService.class);
-        when(m_cfLambdaServiceRepo.getContactItemService()).thenReturn(m_contactItemService);
-
-        m_orderItemService = mock(OrderItemService.class);
-        when(m_cfLambdaServiceRepo.getOrderItemService()).thenReturn(m_orderItemService);
-
-        m_productItemService = mock(ProductItemService.class);
-        when(m_cfLambdaServiceRepo.getProductItemService()).thenReturn(m_productItemService);
-
-        m_countryItemService = mock(CountryItemService.class);
-        when(m_cfLambdaServiceRepo.getCountryItemService()).thenReturn(m_countryItemService);
-
-        // mock repository service to populate DynamoDB
-        when(cfLambdaContext.getCFLambdaServiceRepository()).thenReturn(m_cfLambdaServiceRepo);
-
         // Initialize the environment for testing
         CFLambdaMockUtils.initDefaultsEnvOnWin();
     }
@@ -114,6 +62,7 @@ public class InterceptorEventPayloadProxyTest {
     @Test
     public void testEventCreatedContact() throws SbmSDKException, InfSDKExecption, Exception {
         Context context = mock(Context.class);
+
         AwsProxyRequest req = new AwsProxyRequest();
         String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("contactpayload.json"));
         req.setBody(jsonString);
@@ -124,19 +73,30 @@ public class InterceptorEventPayloadProxyTest {
         });
 
         String adminToken = "adminToken";
-        when(m_tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER_NAME, Config.SIMPLY_BOOK_PASSWORD,
+        TokenServiceSbm tokenServiceSbm = m_lambdaContext.getTokenServiceSbm();
+        ClientServiceSbm clientServiceSbm = m_lambdaContext.getClientServiceSbm();
+        when(tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER_NAME, Config.SIMPLY_BOOK_PASSWORD,
                 Config.SIMPLY_BOOK_SERVICE_URL_lOGIN)).thenReturn(adminToken);
         Integer smbContactId = Integer.valueOf(100000);
-        when(m_clientServiceSbm.addClient(any(String.class), any(String.class), any(String.class), any(ClientData.class)))
+        when(clientServiceSbm.addClient(any(String.class), any(String.class), any(String.class), any(ClientData.class)))
                 .thenReturn(smbContactId);
 
         Integer infContactId = Integer.valueOf(20000);
-        when(m_contactServiceInf.addWithDupCheck(any(String.class), any(String.class), any(AddNewContactQuery.class)))
+        ContactServiceInf contactServiceInf = m_lambdaContext.getContactServiceInf();
+        when(contactServiceInf.addWithDupCheck(any(String.class), any(String.class), any(AddNewContactQuery.class)))
                 .thenReturn(infContactId);
 
-        when(m_contactItemService.put(any(ContactItem.class))).thenReturn(true);
+        ContactItemService contactItemService = m_lambdaContext.getContactItemService();
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                return null;
+            }
+        }).when(contactItemService).put(any(ContactItem.class));
+
         CountryItem countryItem = new CountryItem("Viet Nam", "VN");
-        when(m_countryItemService.load("Viet Nam")).thenReturn(countryItem);
+        CountryItemService countryItemService = m_lambdaContext.getCountryItemService();
+        when(countryItemService.load("Viet Nam")).thenReturn(countryItem);
         m_interceptorEvent.handleRequest(req, context);
     }
 
@@ -155,12 +115,14 @@ public class InterceptorEventPayloadProxyTest {
 
         jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("contactItem-dummy-uf238.json"));
         ContactItem contactDummy = mapper.readValue(jsonString, ContactItem.class);
-        when(m_contactItemService.get("dev1tma@gmail.com")).thenReturn(contactDummy);
+        ContactItemService contactItemService = m_lambdaContext.getContactItemService();
+        when(contactItemService.load("dev1tma@gmail.com")).thenReturn(contactDummy);
 
         jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("product-dummy-uf238.json"));
         ProductItem productItem = mapper.readValue(jsonString, ProductItem.class);
 
-        when(m_productItemService.load(anyInt())).thenReturn(productItem);
+        ProductItemService productItemService = m_lambdaContext.getProductItemService();
+        when(productItemService.load(anyInt())).thenReturn(productItem);
 
         Map<Object, Object> order = new HashMap<Object, Object>();
         order.put("OrderId", "1");
@@ -169,8 +131,17 @@ public class InterceptorEventPayloadProxyTest {
         order.put("RefNum", "2879922578");
         order.put("Message", "DECLINE - Response code(200)");
         order.put("Successful", "false");
-        when(m_orderServiceInf.addOrder(any(), any(), any(OrderQuery.class))).thenReturn(order);
-        when(m_orderItemService.put(any(OrderItem.class))).thenReturn(true);
+        // Adding order into infusion soft mock
+        OrderServiceInf orderServiceInf = m_lambdaContext.getOrderServiceInf();
+        when(orderServiceInf.addOrder(any(), any(), any(OrderQuery.class))).thenReturn(order);
+        // Adding order into DynamoDB mock
+        OrderItemService orderItemService = m_lambdaContext.getOrderItemService();
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                return null;
+            }
+        }).when(orderItemService).put(any(OrderItem.class));
         m_interceptorEvent.handleRequest(req, context);
     }
 }

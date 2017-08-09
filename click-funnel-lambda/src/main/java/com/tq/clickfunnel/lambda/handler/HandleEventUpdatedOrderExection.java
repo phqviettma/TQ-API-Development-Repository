@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
+import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
-import com.tq.clickfunnel.lambda.service.CFLambdaContext;
 
 public class HandleEventUpdatedOrderExection extends HandleEventOrderExecution {
     private static final Logger log = LoggerFactory.getLogger(HandleEventUpdatedOrderExection.class);

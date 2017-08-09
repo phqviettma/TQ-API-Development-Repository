@@ -7,8 +7,8 @@ import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
-import com.tq.clickfunnel.lambda.service.CFLambdaContext;
 
 public abstract class AbstractEventPayloadExecution implements EventPayloadExecution {
     private static final Logger log = LoggerFactory.getLogger(AbstractEventPayloadExecution.class);

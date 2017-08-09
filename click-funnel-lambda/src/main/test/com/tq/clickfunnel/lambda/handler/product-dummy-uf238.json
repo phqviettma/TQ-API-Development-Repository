@@ -6,11 +6,11 @@
       "currency":"usd"
    },
    "infProduct":{
-      "productIds": [10308],
-      "productName":"Test client subscription",
+      "productIds": [4],
+      "productName":"Test Product",
       "productPrice":0.0,
       "sku":"CS1",
-      "description":"Test subscription",
+      "description":"Test Product",
       "subscriptionPlanIds": [
             11344
         ],

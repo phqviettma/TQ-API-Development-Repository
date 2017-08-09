@@ -10,18 +10,17 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tq.clickfunnel.lambda.configuration.Config;
-import com.tq.clickfunnel.lambda.dynamodb.model.ClientInfo;
-import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
-import com.tq.clickfunnel.lambda.dynamodb.model.CountryItem;
-import com.tq.clickfunnel.lambda.dynamodb.service.CountryItemService;
+import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFContactPayload;
-import com.tq.clickfunnel.lambda.service.CFLambdaContext;
-import com.tq.clickfunnel.lambda.service.CFLambdaService;
-import com.tq.clickfunnel.lambda.service.CFLambdaServiceRepository;
-import com.tq.clickfunnel.lambda.utils.CommonUtils;
+import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.context.LambdaContext;
+import com.tq.common.lambda.dynamodb.model.ClientInfo;
+import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.model.CountryItem;
+import com.tq.common.lambda.dynamodb.service.CountryItemService;
+import com.tq.common.lambda.utils.Utils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.service.ContactServiceInf;
@@ -36,18 +35,14 @@ import com.tq.simplybook.service.TokenServiceSbm;
  *
  */
 public class HandleEventContactExection extends AbstractEventPayloadExecution {
-    
+
     private static final Logger log = LoggerFactory.getLogger(HandleEventContactExection.class);
     private static final String TOKEN_STRING = " ";
-
-    private CFLambdaService m_cfLambdaService;
-    private CFLambdaServiceRepository m_cfLambdaServiceRepository;
 
     @Override
     public AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
         AwsProxyResponse resp = new AwsProxyResponse();
-        m_cfLambdaService = cfLambdaContext.getCFLambdaService();
-        m_cfLambdaServiceRepository = cfLambdaContext.getCFLambdaServiceRepository();
+        LambdaContext lambdaContext = cfLambdaContext.getLambdaContext();
         ContactItem contactItem = null;
         try {
             // 1. building Client of Click Funnel from incoming AWS proxy request.
@@ -56,13 +51,13 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
                 CFContact funnelContact = contactPayLoad.getContact();
 
                 // 2. creating the client based on Contact of Click Funnel on Simplybook.me
-                Integer clientSbmId = addClientToSimplyBookMe(funnelContact);
+                Integer clientSbmId = addClientToSimplyBookMe(funnelContact, lambdaContext);
 
                 // 3. creating the contact based on Contact of Click Funnel on Infusion soft
-                Integer contactInfId = addContactToInfusionsoft(funnelContact);
+                Integer contactInfId = addContactToInfusionsoft(funnelContact, lambdaContext);
 
                 // 4. Saving the client & contact ID into DynamoDB.
-                contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, cfLambdaContext.getCFLambdaServiceRepository());
+                contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, lambdaContext);
             }
         } catch (IOException | CFLambdaException e) {
             throw new CFLambdaException(e.getMessage(), e);
@@ -72,8 +67,8 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
         return resp;
     }
 
-    private ContactItem persitClientVoInDB(CFContact funnelContact, Integer clientSbmId, Integer contactInfId,
-            CFLambdaServiceRepository repository) throws JsonProcessingException {
+    private ContactItem persitClientVoInDB(CFContact funnelContact, Integer clientSbmId, Integer contactInfId, LambdaContext lambdaContext)
+            throws JsonProcessingException {
         // build client to save DynomaDB
         long start = System.currentTimeMillis();
         ClientInfo clientInfo = new ClientInfo().withClientId(clientSbmId).withContactId(contactInfId).withEmail(funnelContact.getEmail())
@@ -84,16 +79,17 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
 
         ContactItem contactItem = new ContactItem().withEmail(funnelContact.getEmail()) // unique key
                 .withContactInfo(clientInfo);
-        repository.getContactItemService().put(contactItem);
-        log.info("addDBContact()= {} ms" , (System.currentTimeMillis() - start));
+        lambdaContext.getContactItemService().put(contactItem);
+        log.info("addDBContact()= {} ms", (System.currentTimeMillis() - start));
         return contactItem;
     }
 
     /**
      * @param funnelContact
+     * @param lambdaContext
      * @return contact id See more https://developer.infusionsoft.com/docs/table-schema/ For Contact table
      */
-    private Integer addContactToInfusionsoft(CFContact funnelContact) throws CFLambdaException {
+    private Integer addContactToInfusionsoft(CFContact funnelContact, LambdaContext lambdaContext) throws CFLambdaException {
         Integer contactId = null;
         long start = System.currentTimeMillis();
         try {
@@ -107,7 +103,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             dataRecord.put("State", getState(funnelContact));
             dataRecord.put("StreetAddress1", getAddress(funnelContact));
 
-            ContactServiceInf contactServiceInf = m_cfLambdaService.getContactServiceInf();
+            ContactServiceInf contactServiceInf = lambdaContext.getContactServiceInf();
             contactId = contactServiceInf.addWithDupCheck(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY,
                     new AddNewContactQuery().withDataRecord(dataRecord));
         } catch (InfSDKExecption e) {
@@ -117,14 +113,14 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
         return contactId;
     }
 
-    private Integer addClientToSimplyBookMe(CFContact funnelContact) {
+    private Integer addClientToSimplyBookMe(CFContact funnelContact, LambdaContext lambdaContext) {
         long start = System.currentTimeMillis();
         Integer clientSbmId = null;
         try {
-            TokenServiceSbm tokenServiceSbm = m_cfLambdaService.getTokenServiceSbm();
-            ClientServiceSbm clientServiceSbm = m_cfLambdaService.getClientServiceSbm();
-            ClientData client = buildSBMContact(funnelContact);
-            
+            TokenServiceSbm tokenServiceSbm = lambdaContext.getTokenServiceSbm();
+            ClientServiceSbm clientServiceSbm = lambdaContext.getClientServiceSbm();
+            ClientData client = buildSBMContact(funnelContact, lambdaContext);
+
             String userToken = tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER_NAME,
                     Config.SIMPLY_BOOK_PASSWORD, Config.SIMPLY_BOOK_SERVICE_URL_lOGIN);
             clientSbmId = clientServiceSbm.addClient(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_ADMIN_SERVICE_URL, userToken,
@@ -136,42 +132,40 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
         return clientSbmId;
     }
 
-    private ClientData buildSBMContact(CFContact funnelContact) {
-        String rebuilName = CommonUtils.joinValues(TOKEN_STRING, funnelContact.getFirstName(), funnelContact.getLastName());
-        CountryItemService countryItemService = m_cfLambdaServiceRepository.getCountryItemService();
+    private ClientData buildSBMContact(CFContact funnelContact, LambdaContext lambdaContext) {
+        String rebuilName = Utils.joinValues(TOKEN_STRING, funnelContact.getFirstName(), funnelContact.getLastName());
+        CountryItemService countryItemService = lambdaContext.getCountryItemService();
         String country = getCountry(funnelContact);
         CountryItem countryItem = countryItemService.load(country);
-        //verify country or shipping country
+        // verify country or shipping country
         String countryId = countryItem == null ? country : countryItem.getCode();
         String address = getAddress(funnelContact);
-        String city = getCity(funnelContact) ;
-        String zip = getZip(funnelContact) ;
-        ClientData client = new ClientData().withEmail(funnelContact.getEmail()).withName(rebuilName)
-                .withPhone(funnelContact.getPhone()).withAddress1(address).withCity(city).withZip(zip )
-                .withCountry_id(countryId);
+        String city = getCity(funnelContact);
+        String zip = getZip(funnelContact);
+        ClientData client = new ClientData().withEmail(funnelContact.getEmail()).withName(rebuilName).withPhone(funnelContact.getPhone())
+                .withAddress1(address).withCity(city).withZip(zip).withCountry_id(countryId);
         return client;
     }
 
     private String getZip(CFContact funnelContact) {
-        return CommonUtils.isEmpty(funnelContact.getZip()) ?  funnelContact.getShippingZip() : funnelContact.getZip();
+        return Utils.isEmpty(funnelContact.getZip()) ? funnelContact.getShippingZip() : funnelContact.getZip();
     }
 
     private String getCity(CFContact funnelContact) {
-        return CommonUtils.isEmpty(funnelContact.getCity()) ? funnelContact.getShippingCity() : funnelContact.getCity();
+        return Utils.isEmpty(funnelContact.getCity()) ? funnelContact.getShippingCity() : funnelContact.getCity();
     }
 
     private String getAddress(CFContact funnelContact) {
-        return CommonUtils.isEmpty(funnelContact.getAddress()) ? funnelContact.getShippingAddress() : funnelContact.getAddress();
+        return Utils.isEmpty(funnelContact.getAddress()) ? funnelContact.getShippingAddress() : funnelContact.getAddress();
     }
 
     private String getCountry(CFContact funnelContact) {
-        String country = CommonUtils.isEmpty(funnelContact.getCountry()) ? funnelContact.getShippingCountry()
-                : funnelContact.getCountry();
+        String country = Utils.isEmpty(funnelContact.getCountry()) ? funnelContact.getShippingCountry() : funnelContact.getCountry();
         return country;
     }
-    
+
     private String getState(CFContact funnelContact) {
-        String stage = CommonUtils.isEmpty(funnelContact.getState()) ? funnelContact.getShippingState() : funnelContact.getState();
+        String stage = Utils.isEmpty(funnelContact.getState()) ? funnelContact.getShippingState() : funnelContact.getState();
         return stage;
     }
 

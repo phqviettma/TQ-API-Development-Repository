@@ -2,8 +2,8 @@ package com.tq.clickfunnel.lambda.handler;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
+import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
-import com.tq.clickfunnel.lambda.service.CFLambdaContext;
 
 public class HandleNotFoundEventExecution extends AbstractEventPayloadExecution {
     @Override

@@ -4,6 +4,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 
+import static org.mockito.Mockito.*;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.tq.clickfunnel.lambda.context.CFLambdaContext;
+import com.tq.common.lambda.context.LambdaContext;
+import com.tq.common.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.dynamodb.service.CountryItemService;
+import com.tq.common.lambda.dynamodb.service.OrderItemService;
+import com.tq.common.lambda.dynamodb.service.ProductItemService;
+import com.tq.common.lambda.services.ISExternalService;
+import com.tq.common.lambda.services.RepositoryService;
+import com.tq.common.lambda.services.SBMExternalService;
+import com.tq.inf.service.ContactServiceInf;
+import com.tq.inf.service.DataServiceInf;
+import com.tq.inf.service.OrderServiceInf;
+import com.tq.inf.service.RecurringOrderInf;
+import com.tq.simplybook.service.ClientServiceSbm;
+import com.tq.simplybook.service.TokenServiceSbm;
+
 public class CFLambdaMockUtils {
     /**
      * the script command for setting up the environment
@@ -41,4 +60,47 @@ public class CFLambdaMockUtils {
             System.out.println(buf);
         }
     }
+    
+    public static CFLambdaContext mockCFLambdaContext(CFLambdaContext mock) {
+        Context context = mock(Context.class);
+        LambdaContext lambdaContext = mock(LambdaContext.class);
+        when(mock.getAwsProxyContext()).thenReturn(context);
+        when(mock.getLambdaContext()).thenReturn(lambdaContext);
+        
+        RepositoryService repositoryService = mock(RepositoryService.class);
+        when(lambdaContext.getRepositoryService()).thenReturn(repositoryService);
+        SBMExternalService sbmExternalService = mock(SBMExternalService.class);
+        when(lambdaContext.getSBMExternalService()).thenReturn(sbmExternalService);
+        ISExternalService isExternalService = mock(ISExternalService.class);
+        when(lambdaContext.getISExternalService()).thenReturn(isExternalService);
+
+        // mock service of RepositoryService
+        ContactItemService contactItemService = mock(ContactItemService.class);
+        CountryItemService countryItemService = mock(CountryItemService.class);
+        OrderItemService orderItemService = mock(OrderItemService.class);
+        ProductItemService productItemService = mock(ProductItemService.class);
+        when(repositoryService.getContactItemService()).thenReturn(contactItemService);
+        when(repositoryService.getCountryItemService()).thenReturn(countryItemService);
+        when(repositoryService.getOrderItemService()).thenReturn(orderItemService);
+        when(repositoryService.getProductItemService()).thenReturn(productItemService);
+        
+        // mock service of SBMExternalService
+        TokenServiceSbm tokenServiceSbm = mock(TokenServiceSbm.class);
+        when(sbmExternalService.getTokenServiceSbm()).thenReturn(tokenServiceSbm);
+        ClientServiceSbm clientServiceSbm = mock(ClientServiceSbm.class);
+        when(sbmExternalService.getClientServiceSbm()).thenReturn(clientServiceSbm);
+        
+        // mock service of ISExternalService
+        ContactServiceInf contactServiceInf = mock(ContactServiceInf.class);
+        DataServiceInf dataServiceInf = mock(DataServiceInf.class);
+        OrderServiceInf orderServiceInf = mock(OrderServiceInf.class);
+        RecurringOrderInf recurringOrderInf = mock(RecurringOrderInf.class);
+        when(isExternalService.getContactServiceInf()).thenReturn(contactServiceInf);
+        when(isExternalService.getDataServiceInf()).thenReturn(dataServiceInf);
+        when(isExternalService.getOrderServiceInf()).thenReturn(orderServiceInf);
+        when(isExternalService.getRecurringOrderInf()).thenReturn(recurringOrderInf);
+        
+        return mock;
+    }
+    
 }

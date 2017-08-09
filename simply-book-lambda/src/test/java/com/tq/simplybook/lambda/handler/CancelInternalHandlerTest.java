@@ -4,9 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.tq.clickfunnel.lambda.dynamodb.model.ClientInfo;
-import com.tq.clickfunnel.lambda.dynamodb.model.ContactItem;
-import com.tq.clickfunnel.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.dynamodb.model.ClientInfo;
+import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.exception.SbmSDKException;
@@ -28,7 +28,7 @@ public class CancelInternalHandlerTest {
         ClientInfo ci = new ClientInfo();
         ci.setContactId(10304);
         contactItem.setClient(ci);
-        when(cis.get(any())).thenReturn(contactItem);
+        when(cis.load(any())).thenReturn(contactItem);
 
         Env env = MockUtil.mockEnv();
         CancelInternalHandler handler = new CancelInternalHandler(env, tss, bss, csi, cis);
