@@ -5,6 +5,8 @@ import java.util.List;
 
 public class OrderDetail implements Serializable{
     private static final long serialVersionUID = 1791419276554527113L;
+    
+    private Integer contactId;
 
     private Integer orderIdInf;
 
@@ -25,6 +27,20 @@ public class OrderDetail implements Serializable{
     private String refNum;
 
     private String code;
+    
+
+    public Integer getContactId() {
+        return contactId;
+    }
+
+    public void setContactId(Integer contactId) {
+        this.contactId = contactId;
+    }
+    
+    public OrderDetail withContactId(Integer contactId) {
+        this.contactId = contactId;
+        return this;
+    }
 
     public Integer getOrderIdInf() {
         return orderIdInf;
@@ -158,8 +174,8 @@ public class OrderDetail implements Serializable{
 
     @Override
     public String toString() {
-        return "OrderDetail [orderIdInf=" + orderIdInf + ", invoiceInf=" + invoiceInf + ", productIdInfs=" + productIdInfs + ", productCf="
-                + productCf + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", successful=" + successful + ", message="
-                + message + ", refNum=" + refNum + ", code=" + code + "]";
+        return "OrderDetail [contactId=" + contactId + ", orderIdInf=" + orderIdInf + ", invoiceInf=" + invoiceInf + ", productIdInfs="
+                + productIdInfs + ", productCf=" + productCf + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", successful="
+                + successful + ", message=" + message + ", refNum=" + refNum + ", code=" + code + "]";
     }
 }

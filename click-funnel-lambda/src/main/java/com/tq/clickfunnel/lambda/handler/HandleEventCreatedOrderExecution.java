@@ -10,6 +10,7 @@ import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFOrderPayload;
+import com.tq.clickfunnel.lambda.modle.CFPurchase;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
@@ -25,38 +26,32 @@ import com.tq.inf.service.OrderServiceInf;
 public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution {
 
     @Override
-    public AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
+    protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload contactPayLoad,
+            CFLambdaContext cfLambdaContext) {
         AwsProxyResponse resp = new AwsProxyResponse();
         LambdaContext lambdaContext = cfLambdaContext.getLambdaContext();
-        OrderItem addOrder = null;
-        try {
-            CFOrderPayload contactPayLoad = m_mapper.readValue(input.getBody(), CFOrderPayload.class);
-            if (contactPayLoad != null) {
-                CFContact contact = contactPayLoad.getPurchase().getContact();
+        CFPurchase purchase = contactPayLoad.getPurchase();
+        CFContact contact = purchase.getContact();
 
-                // 1. Load the contact already existed in DynamoDB based on email
-                ContactItem contactItem = loadContactAtDB(contact.getEmail(), lambdaContext);
+        // 1. Load the contact already existed in DynamoDB based on email
+        ContactItem contactItem = loadContactAtDB(contact.getEmail(), lambdaContext);
 
-                // 2. Load Product in DynamoDB that contact is being purchased.
-                ProductItem productItem = loadProductAtDB(contactPayLoad, lambdaContext);
+        // 2. Load Product in DynamoDB that contact is being purchased.
+        ProductItem productItem = loadProductAtDB(contactPayLoad, purchase, lambdaContext);
 
-                // 3. Create Order under email on infusion soft
-                addOrder = addOrderToInf(contactItem, productItem, lambdaContext);
+        // 3. Create Order under email on infusion soft
+        OrderItem addOrder = addOrderToInf(contactItem, productItem, purchase, lambdaContext);
 
-                // 3. Save the Order to DynamoDB for handling in further
-                if (addOrder != null) {
-                    lambdaContext.getOrderItemService().put(addOrder);
-                }
-            }
-        } catch (Exception e) {
-            throw new CFLambdaException(e.getMessage(), e);
+        // 4. Save the Order to DynamoDB for handling in further
+        if (addOrder != null) {
+            lambdaContext.getOrderItemService().put(addOrder);
         }
-        // 5. handle successfully
+        // 4. handle successfully
         handleResponse(input, resp, addOrder);
         return resp;
     }
 
-    private OrderItem addOrderToInf(ContactItem contactItem, ProductItem productItem, LambdaContext lambdaContext) {
+    private OrderItem addOrderToInf(ContactItem contactItem, ProductItem productItem, CFPurchase purchase, LambdaContext lambdaContext) {
         OrderItem orderItem = null;
         ClientInfo client = contactItem.getClient();
         Integer contactId = client.getContactId();
@@ -70,8 +65,9 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
                     envVar.getEnv(Config.INFUSIONSOFT_API_KEY), orderQuery);
             if (order == null)
                 return null;
-            OrderDetail orderDtail = buildOrderDetail(productItem, infProduct, order);
-            orderItem = new OrderItem().withContactId(contactId).withEmail(client.getEmail()).withOrderDetails(Arrays.asList(orderDtail));
+            OrderDetail orderDtail = buildOrderDetail(client, productItem, infProduct, order);
+            orderItem = new OrderItem().withPurchaseId(purchase.getId()) // as hash key
+                    .withEmail(client.getEmail()).withOrderDetails(Arrays.asList(orderDtail));
 
         } catch (Exception e) {
             throw new CFLambdaException(e.getMessage(), e);
@@ -79,7 +75,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         return orderItem;
     }
 
-    private OrderDetail buildOrderDetail(ProductItem productItem, INFProduct infProduct, Map<?, ?> order) {
+    private OrderDetail buildOrderDetail(ClientInfo client, ProductItem productItem, INFProduct infProduct, Map<?, ?> order) {
         Integer orderId = Integer.valueOf((String) order.get("OrderId"));
         Integer invoiceId = Integer.valueOf((String) order.get("InvoiceId"));
         String refNum = (String) order.get("RefNum");
@@ -88,9 +84,13 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         String code = (String) order.get("Code");
         String createdAt = Config.DATE_FORMAT_24_H.format(new Date());
 
-        OrderDetail orderDtail = new OrderDetail().withInvoiceInf(invoiceId).withOrderIdInf(orderId).withMessage(message).withRefNum(refNum)
+        OrderDetail orderDtail = new OrderDetail()
+                .withInvoiceInf(invoiceId).withOrderIdInf(orderId) // Infusion soft response
+                .withMessage(message).withRefNum(refNum)
+                .withContactId(client.getContactId())
                 .withMessage(message).withSuccessful(successful).withCreatedAt(createdAt).withUpdatedAt(createdAt)
-                .withProductIdInf(infProduct.getProductIds()).withProductCf(productItem.getCfProduct().getId()).withCode(code);
+                .withProductIdInf(infProduct.getProductIds()).withProductCf(productItem.getCfProduct().getId())
+                .withCode(code);
         return orderDtail;
     }
 

@@ -13,18 +13,31 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConvertedJson;
  */
 @DynamoDBTable(tableName = "Order")
 public class OrderItem {
+    
+    @DynamoDBHashKey(attributeName = "purchaseId")
+    private Integer purchaseId;
 
-    @DynamoDBHashKey(attributeName = "email")
+    @DynamoDBAttribute(attributeName = "email")
     private String email;
-
-    @DynamoDBAttribute(attributeName = "contactId")
-    private Integer contactId;
-
+    
     @DynamoDBTypeConvertedJson
     @DynamoDBAttribute(attributeName = "orderDetails")
     private List<OrderDetail> orderDetails; 
 
     public OrderItem() {
+    }
+    
+    public Integer getPurchaseId() {
+        return purchaseId;
+    }
+
+    public void setPurchaseId(Integer purchaseId) {
+        this.purchaseId = purchaseId;
+    }
+    
+    public OrderItem withPurchaseId(Integer purchaseId) {
+        this.purchaseId = purchaseId;
+        return this;
     }
 
     public OrderItem(String email) {
@@ -39,21 +52,8 @@ public class OrderItem {
         this.email = email;
     }
 
-    public Integer getContactId() {
-        return contactId;
-    }
-
-    public void setContactId(Integer contactId) {
-        this.contactId = contactId;
-    }
-
     public OrderItem withEmail(String email) {
         this.email = email;
-        return this;
-    }
-
-    public OrderItem withContactId(Integer contactId) {
-        this.contactId = contactId;
         return this;
     }
 
@@ -68,10 +68,5 @@ public class OrderItem {
     public OrderItem withOrderDetails(List<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "OrderItem [email=" + email + ", contactId=" + contactId + ", orderDetails=" + orderDetails + "]";
     }
 }

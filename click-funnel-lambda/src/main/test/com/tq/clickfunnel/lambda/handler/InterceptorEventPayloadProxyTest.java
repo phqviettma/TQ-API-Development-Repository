@@ -16,6 +16,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
+import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
@@ -40,6 +41,8 @@ import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.ClientData;
 import com.tq.simplybook.service.ClientServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
+
+import junit.framework.Assert;
 
 public class InterceptorEventPayloadProxyTest {
 
@@ -98,7 +101,10 @@ public class InterceptorEventPayloadProxyTest {
         CountryItem countryItem = new CountryItem("Viet Nam", "VN");
         CountryItemService countryItemService = m_lambdaContext.getCountryItemService();
         when(countryItemService.load("Viet Nam")).thenReturn(countryItem);
-        m_interceptorEvent.handleRequest(req, context);
+        AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
+        ContactItem contactItem = mapper.readValue(response.getBody(), ContactItem.class);
+        Assert.assertNotNull(contactItem);
+        Assert.assertEquals(contactItem.getClient().getContactId(), infContactId);
     }
 
     @SuppressWarnings("serial")
@@ -134,7 +140,7 @@ public class InterceptorEventPayloadProxyTest {
         order.put("Successful", "false");
         // Adding order into infusion soft mock
         OrderServiceInf orderServiceInf = m_lambdaContext.getOrderServiceInf();
-        when(orderServiceInf.addOrder(any(), any(), any(OrderQuery.class))).thenReturn(order);
+        when(orderServiceInf.addOrder(any(String.class), any(String.class), any(OrderQuery.class))).thenReturn(order);
         // Adding order into DynamoDB mock
         OrderItemService orderItemService = m_lambdaContext.getOrderItemService();
         Mockito.doAnswer(new Answer<Void>() {
@@ -143,6 +149,7 @@ public class InterceptorEventPayloadProxyTest {
                 return null;
             }
         }).when(orderItemService).put(any(OrderItem.class));
-        m_interceptorEvent.handleRequest(req, context);
+        AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
+        
     }
 }
