@@ -28,6 +28,7 @@ public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution 
     @Override
     protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload contactPayLoad, CFLambdaContext cfLambdaContext)
             throws CFLambdaException {
+        long start = System.currentTimeMillis();
         AwsProxyResponse resp = new AwsProxyResponse();
         CFPurchase purchase = contactPayLoad.getPurchase();
         LambdaContext lambdaContext = cfLambdaContext.getLambdaContext();
@@ -54,11 +55,11 @@ public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution 
         // 2.3. Delete the subscription after
         readyToDeleteSubscription(apiName, apiKey, subscriptionId, invoiceServiceInf);
 
-        // 3: Delete the already purchase order in Dynamodb
+        // 3: Delete the already purchase order in DynamoDB
         orderItemService.delete(subscriptionId);
-
         DeletedOrderResp itemResp = buildResponseItem(purchase, orderDetail, subscriptionId);
         handleResponse(input, resp, itemResp);
+        log.info(String.format("deleteOrder()= %d ms", (System.currentTimeMillis() - start)));
         return resp;
     }
 

@@ -80,7 +80,7 @@ public class HandleEventContactExecution extends AbstractEventPayloadExecution {
         ContactItem contactItem = new ContactItem().withEmail(funnelContact.getEmail()) // unique key
                 .withContactInfo(clientInfo);
         lambdaContext.getContactItemService().put(contactItem);
-        log.info(String.format("addDBContact()= {} ms", (System.currentTimeMillis() - start)));
+        log.info(String.format("addDBContact()= %d ms", (System.currentTimeMillis() - start)));
         return contactItem;
     }
 
@@ -110,7 +110,7 @@ public class HandleEventContactExecution extends AbstractEventPayloadExecution {
         } catch (InfSDKExecption e) {
             throw new CFLambdaException(e.getMessage(), e);
         }
-        log.info(String.format("addINFContact()= {} ms", (System.currentTimeMillis() - start)));
+        log.info(String.format("addINFContact()= %d ms", (System.currentTimeMillis() - start)));
         return contactId;
     }
 
@@ -130,7 +130,7 @@ public class HandleEventContactExecution extends AbstractEventPayloadExecution {
         } catch (SbmSDKException e) {
             throw new CFLambdaException(e.getMessage(), e);
         }
-        log.info(String.format("addSBMClient()= {} ms", (System.currentTimeMillis() - start)));
+        log.info(String.format("addSBMClient()= %d ms", (System.currentTimeMillis() - start)));
         return clientSbmId;
     }
 

@@ -77,7 +77,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         } catch (Exception e) {
             throw new CFLambdaException(e.getMessage(), e);
         }
-        log.info(String.format("addOrderToInf()= {} ms", (System.currentTimeMillis() - start)));
+        log.info(String.format("addOrderToInf()= %d ms", (System.currentTimeMillis() - start)));
         return orderItem;
     }
 
