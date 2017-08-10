@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
@@ -24,6 +26,8 @@ import com.tq.inf.query.OrderQuery;
 import com.tq.inf.service.OrderServiceInf;
 
 public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution {
+    
+    private static final Logger log = Logger.getLogger(HandleEventCreatedOrderExecution.class);
 
     @Override
     protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload contactPayLoad,
@@ -52,6 +56,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
     }
 
     private OrderItem addOrderToInf(ContactItem contactItem, ProductItem productItem, CFPurchase purchase, LambdaContext lambdaContext) {
+        long start = System.currentTimeMillis();
         OrderItem orderItem = null;
         ClientInfo client = contactItem.getClient();
         Integer contactId = client.getContactId();
@@ -72,6 +77,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         } catch (Exception e) {
             throw new CFLambdaException(e.getMessage(), e);
         }
+        log.info(String.format("addOrderToInf()= {} ms", (System.currentTimeMillis() - start)));
         return orderItem;
     }
 

@@ -21,6 +21,7 @@ import com.tq.common.lambda.services.RepositoryService;
 import com.tq.common.lambda.services.SBMExternalService;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
+import com.tq.inf.service.InvoiceServiceInf;
 import com.tq.inf.service.OrderServiceInf;
 import com.tq.inf.service.RecurringOrderInf;
 import com.tq.simplybook.service.ClientServiceSbm;
@@ -86,10 +87,12 @@ public class CFLambdaMockUtils {
         DataServiceInf dataServiceInf = mock(DataServiceInf.class);
         OrderServiceInf orderServiceInf = mock(OrderServiceInf.class);
         RecurringOrderInf recurringOrderInf = mock(RecurringOrderInf.class);
+        InvoiceServiceInf invoiceServiceInf = mock(InvoiceServiceInf.class);
         when(isExternalService.getContactServiceInf()).thenReturn(contactServiceInf);
         when(isExternalService.getDataServiceInf()).thenReturn(dataServiceInf);
         when(isExternalService.getOrderServiceInf()).thenReturn(orderServiceInf);
         when(isExternalService.getRecurringOrderInf()).thenReturn(recurringOrderInf);
+        when(isExternalService.getInvoiceServiceInf()).thenReturn(invoiceServiceInf);
 
         // LambdaContext mock for services
         when(lambdaContext.getClientServiceSbm()).thenReturn(clientServiceSbm);
@@ -99,6 +102,7 @@ public class CFLambdaMockUtils {
         when(lambdaContext.getDataServiceInf()).thenReturn(dataServiceInf);
         when(lambdaContext.getOrderServiceInf()).thenReturn(orderServiceInf);
         when(lambdaContext.getRecurringOrderInf()).thenReturn(recurringOrderInf);
+        when(lambdaContext.getInvoiceServiceInf()).thenReturn(invoiceServiceInf);
 
         when(lambdaContext.getCountryItemService()).thenReturn(countryItemService);
         when(lambdaContext.getProductItemService()).thenReturn(productItemService);

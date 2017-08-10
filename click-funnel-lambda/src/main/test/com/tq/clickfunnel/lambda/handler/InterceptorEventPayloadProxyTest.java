@@ -2,6 +2,8 @@ package com.tq.clickfunnel.lambda.handler;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +22,7 @@ import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
+import com.tq.clickfunnel.lambda.resp.DeletedOrderResp;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
@@ -36,7 +39,9 @@ import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.query.OrderQuery;
 import com.tq.inf.service.ContactServiceInf;
+import com.tq.inf.service.InvoiceServiceInf;
 import com.tq.inf.service.OrderServiceInf;
+import com.tq.inf.service.RecurringOrderInf;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.ClientData;
 import com.tq.simplybook.service.ClientServiceSbm;
@@ -133,7 +138,7 @@ public class InterceptorEventPayloadProxyTest {
 
         Map<String, String> order = new HashMap<>();
         order.put("OrderId", "1");
-        order.put("InvoiceId", "1000");
+        order.put("InvoiceId", "4206");
         order.put("Code", "None");
         order.put("RefNum", "2879922578");
         order.put("Message", "DECLINE - Response code(200)");
@@ -150,9 +155,56 @@ public class InterceptorEventPayloadProxyTest {
             }
         }).when(orderItemService).put(any(OrderItem.class));
         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
+        System.out.println(response.getBody());
         OrderItem orderItem = mapper.readValue(response.getBody(), OrderItem.class);
         Assert.assertNotNull(orderItem);
         Assert.assertEquals(Integer.valueOf(order.get("OrderId")), orderItem.getOrderDetails().get(0).getOrderIdInf());
+    }
+    
+    @SuppressWarnings("serial")
+    @Test
+    public void testEventDeletedOrder() throws Exception {
+        Context context = mock(Context.class);
+        AwsProxyRequest req = new AwsProxyRequest();
+        String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload.json"));
+        req.setBody(jsonString);
+        req.setQueryStringParameters(new HashMap<String, String>() {
+            {
+                put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);
+            }
+        });
         
+        OrderItemService orderItemService = m_lambdaContext.getOrderItemService();
+        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("orderItem-dummy.json"));
+        OrderItem orderItem = mapper.readValue(jsonString, OrderItem.class);
+        when(orderItemService.load(17059575)).thenReturn(orderItem);
+        
+        //Mock the RecurringOrder (subscription) from infusion soft.
+        RecurringOrderInf recurringOrderInf = m_lambdaContext.getRecurringOrderInf();
+        Object[] recurringOrders = new Object[1];
+        HashMap<Object, Object> recordSubs = new HashMap<>();
+        recordSubs.put("Id", 1); // subscription id. see more manageJobRecurring.jsp?view=edit&ID=[number of sub]
+        recurringOrders[0] = recordSubs;
+        when(recurringOrderInf.getRecurringOrderFromOriginatingOrderId(anyString(), anyString(), anyInt(), anyInt(), anyList())).thenReturn(recurringOrders );
+        
+        //delete firstly Invoice purchased via shopping cart or API Order.
+        InvoiceServiceInf invoiceServiceInf = m_lambdaContext.getInvoiceServiceInf();
+        when(invoiceServiceInf.deleteInvoice(anyString(), anyString(), anyInt())).thenReturn(1);
+        
+        //Delete subscription associated with firstly Invoice
+        when(invoiceServiceInf.deleteSubscription(anyString(), anyString(), anyInt())).thenReturn(1);
+        
+        // Mock the order item will be delete DynamoDB
+        Mockito.doAnswer(new Answer<Integer>() {
+            @Override
+            public Integer answer(InvocationOnMock invocation) throws Throwable {
+                return null;
+            }
+        }).when(orderItemService).delete(17059575);
+        
+        AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
+        DeletedOrderResp delOrder = mapper.readValue(response.getBody(), DeletedOrderResp.class);
+        Assert.assertNotNull(delOrder);
+        Assert.assertEquals(new Integer(1), delOrder.getSubscriptionId());
     }
 }

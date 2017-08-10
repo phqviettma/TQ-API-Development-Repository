@@ -42,7 +42,7 @@ public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution 
         OrderDetail orderDetail = purchasedProduct.getOrderDetails().get(0);
         RecurringOrderInf recurringOrderInf = lambdaContext.getRecurringOrderInf();
         String apiName = envVar.getEnv(Config.INFUSIONSOFT_API_NAME);
-        String apiKey = envVar.getEnv(Config.INFUSIONSOFT_API_NAME);
+        String apiKey = envVar.getEnv(Config.INFUSIONSOFT_API_KEY);
 
         // 2.1 Retrieve subscription to handle its delete
         Integer subscriptionId = retrieveRecurringOrder(orderDetail, recurringOrderInf, apiName, apiKey);

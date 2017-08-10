@@ -69,4 +69,9 @@ public class OrderItem {
         this.orderDetails = orderDetails;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "OrderItem [purchaseId=" + purchaseId + ", email=" + email + ", orderDetails=" + orderDetails + "]";
+    }
 }

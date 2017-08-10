@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
@@ -37,7 +36,7 @@ import com.tq.simplybook.service.TokenServiceSbm;
  */
 public class HandleEventContactExecution extends AbstractEventPayloadExecution {
 
-    private static final Logger log = LoggerFactory.getLogger(HandleEventContactExecution.class);
+    private static final Logger log = Logger.getLogger(HandleEventContactExecution.class);
     private static final String TOKEN_STRING = " ";
 
     @Override
@@ -81,7 +80,7 @@ public class HandleEventContactExecution extends AbstractEventPayloadExecution {
         ContactItem contactItem = new ContactItem().withEmail(funnelContact.getEmail()) // unique key
                 .withContactInfo(clientInfo);
         lambdaContext.getContactItemService().put(contactItem);
-        log.info("addDBContact()= {} ms", (System.currentTimeMillis() - start));
+        log.info(String.format("addDBContact()= {} ms", (System.currentTimeMillis() - start)));
         return contactItem;
     }
 
@@ -111,7 +110,7 @@ public class HandleEventContactExecution extends AbstractEventPayloadExecution {
         } catch (InfSDKExecption e) {
             throw new CFLambdaException(e.getMessage(), e);
         }
-        log.info("addINFContact()= {} ms.", (System.currentTimeMillis() - start));
+        log.info(String.format("addINFContact()= {} ms", (System.currentTimeMillis() - start)));
         return contactId;
     }
 
@@ -131,7 +130,7 @@ public class HandleEventContactExecution extends AbstractEventPayloadExecution {
         } catch (SbmSDKException e) {
             throw new CFLambdaException(e.getMessage(), e);
         }
-        log.info("addSBMClient()={} ms.", (System.currentTimeMillis() - start));
+        log.info(String.format("addSBMClient()= {} ms", (System.currentTimeMillis() - start)));
         return clientSbmId;
     }
 

@@ -7,9 +7,15 @@ public class FactoryEventHandleExecution {
     private Map<EventCallback, EventPayloadExecution> m_eventExecution = new HashMap<>();
 
     public FactoryEventHandleExecution() {
+        // registration for Event Contact
         regis(EventCallback.CONTACT_CREATED, new HandleEventContactExecution());
+        
+        // registration for Event Order/Payment
         regis(EventCallback.ORDER_CREATED, new HandleEventCreatedOrderExecution());
+        regis(EventCallback.ORDER_UPDATED, new HandleEventUpdatedOrderExecution());
         regis(EventCallback.ORDER_DELETED, new HandleEventDeletedOrderExecution());
+        
+        // registration for not existed event
         regis(EventCallback.NOT_FOUND, new HandleNotFoundEventExecution());
     }
 
