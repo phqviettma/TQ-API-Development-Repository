@@ -131,7 +131,7 @@ public class InterceptorEventPayloadProxyTest {
         ProductItemService productItemService = m_lambdaContext.getProductItemService();
         when(productItemService.load(anyInt())).thenReturn(productItem);
 
-        Map<Object, Object> order = new HashMap<Object, Object>();
+        Map<String, String> order = new HashMap<>();
         order.put("OrderId", "1");
         order.put("InvoiceId", "1000");
         order.put("Code", "None");
@@ -150,6 +150,9 @@ public class InterceptorEventPayloadProxyTest {
             }
         }).when(orderItemService).put(any(OrderItem.class));
         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
+        OrderItem orderItem = mapper.readValue(response.getBody(), OrderItem.class);
+        Assert.assertNotNull(orderItem);
+        Assert.assertEquals(Integer.valueOf(order.get("OrderId")), orderItem.getOrderDetails().get(0).getOrderIdInf());
         
     }
 }

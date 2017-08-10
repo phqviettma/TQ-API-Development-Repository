@@ -2,10 +2,12 @@ package com.tq.common.lambda.services;
 
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.impl.DataServiceImpl;
+import com.tq.inf.impl.InvoiceServiceImpl;
 import com.tq.inf.impl.OrderServiceImpl;
 import com.tq.inf.impl.RecurringOrderImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
+import com.tq.inf.service.InvoiceServiceInf;
 import com.tq.inf.service.OrderServiceInf;
 import com.tq.inf.service.RecurringOrderInf;
 
@@ -15,16 +17,18 @@ public class ISExternalServiceImpl implements ISExternalService {
     private ContactServiceInf m_contactServiceInf;
     private OrderServiceInf m_orderServiceInf;
     private RecurringOrderInf m_recurringOrderInf;
+    private InvoiceServiceInf m_invoiceServiceInf;
 
     public ISExternalServiceImpl() {
         this(buildDefault());
     }
 
     public ISExternalServiceImpl(ISExternalServiceImpl.ISExternalServiceBuilder builder) {
-        this.m_dataServiceInf = builder.dataServiceInf;
-        this.m_contactServiceInf = builder.contactServiceInf;
-        this.m_orderServiceInf = builder.orderServiceIn;
-        this.m_recurringOrderInf = builder.recurringOrderInf;
+        m_dataServiceInf = builder.dataServiceInf;
+        m_contactServiceInf = builder.contactServiceInf;
+        m_orderServiceInf = builder.orderServiceIn;
+        m_recurringOrderInf = builder.recurringOrderInf;
+        m_invoiceServiceInf = builder.invoiceServiceInf;
     }
 
     public static ISExternalServiceBuilder builder() {
@@ -37,7 +41,8 @@ public class ISExternalServiceImpl implements ISExternalService {
                 withContactServiceInf(new ContactServiceImpl())
                 .withDataServiceInf(dataServiceInf)
                 .withOrderServiceIn(new OrderServiceImpl())
-                .withRecurringOrderInf(new RecurringOrderImpl(dataServiceInf));
+                .withRecurringOrderInf(new RecurringOrderImpl(dataServiceInf))
+                .withInvoiceServiceInf(new InvoiceServiceImpl());
     }
 
     @Override
@@ -59,12 +64,18 @@ public class ISExternalServiceImpl implements ISExternalService {
     public RecurringOrderInf getRecurringOrderInf() {
         return m_recurringOrderInf;
     }
+    
+    @Override
+    public InvoiceServiceInf getInvoiceServiceInf() {
+        return m_invoiceServiceInf;
+    }
 
     public static class ISExternalServiceBuilder {
         private DataServiceInf dataServiceInf;
         private ContactServiceInf contactServiceInf;
         private OrderServiceInf orderServiceIn;
         private RecurringOrderInf recurringOrderInf;
+        private InvoiceServiceInf invoiceServiceInf;
 
         public DataServiceInf getDataServiceInf() {
             return dataServiceInf;
@@ -121,6 +132,18 @@ public class ISExternalServiceImpl implements ISExternalService {
         public ISExternalService build() {
             return new ISExternalServiceImpl(this);
         }
-    }
 
+        public InvoiceServiceInf getInvoiceServiceInf() {
+            return invoiceServiceInf;
+        }
+
+        public void setInvoiceServiceInf(InvoiceServiceInf invoiceServiceInf) {
+            this.invoiceServiceInf = invoiceServiceInf;
+        }
+        
+        public ISExternalServiceBuilder withInvoiceServiceInf(InvoiceServiceInf invoiceServiceInf) {
+            this.invoiceServiceInf = invoiceServiceInf;
+            return this;
+        }
+    }
 }

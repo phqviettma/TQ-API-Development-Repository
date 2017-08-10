@@ -1,7 +1,6 @@
 package com.tq.clickfunnel.lambda.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
@@ -11,7 +10,7 @@ import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 
 public abstract class AbstractEventPayloadExecution implements EventPayloadExecution {
-    private static final Logger log = LoggerFactory.getLogger(AbstractEventPayloadExecution.class);
+    private static final Logger log = Logger.getLogger(AbstractEventPayloadExecution.class);
     protected ObjectMapper m_mapper = new ObjectMapper();
     
     public <T> void handleResponse(AwsProxyRequest input, AwsProxyResponse resp, T item) {

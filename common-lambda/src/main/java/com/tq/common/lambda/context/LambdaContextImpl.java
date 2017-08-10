@@ -16,6 +16,7 @@ import com.tq.common.lambda.services.SBMExternalServiceImpl;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
+import com.tq.inf.service.InvoiceServiceInf;
 import com.tq.inf.service.OrderServiceInf;
 import com.tq.inf.service.RecurringOrderInf;
 import com.tq.simplybook.service.ClientServiceSbm;
@@ -132,6 +133,11 @@ public class LambdaContextImpl implements LambdaContext {
     @Override
     public RecurringOrderInf getRecurringOrderInf() {
         return m_iSExternalService.getRecurringOrderInf();
+    }
+    
+    @Override
+    public InvoiceServiceInf getInvoiceServiceInf() {
+        return m_iSExternalService.getInvoiceServiceInf();
     }
     
     public static class LambdaContextBuilder {

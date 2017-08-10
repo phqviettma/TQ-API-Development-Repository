@@ -29,4 +29,18 @@ public class RecurringOrderImpl implements RecurringOrderInf {
         return m_dataServiceInf.query(apiName, apiKey, dataQuery);
     }
 
+    @Override
+    @SuppressWarnings("serial")
+    public Object[] getRecurringOrderFromOriginatingOrderId(String apiName, String apiKey, Integer contactId, Integer originatingOrderId,
+            List<String> selectedFields) throws InfSDKExecption {
+        DataQuery dataQuery = new DataQuery()
+                .withTable("RecurringOrder")
+                .withFilter(new HashMap<Object, Object>(){{
+                    put("ContactId", contactId);
+                    put("OriginatingOrderId", originatingOrderId);
+                }})
+                .withSelectedFields(selectedFields);
+        return m_dataServiceInf.query(apiName, apiKey, dataQuery);
+    }
+
 }

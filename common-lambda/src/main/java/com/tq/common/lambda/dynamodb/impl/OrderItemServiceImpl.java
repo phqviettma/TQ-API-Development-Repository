@@ -18,7 +18,12 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public OrderItem load(String email) {
-        return m_orderItemDao.loadItem(email);
+    public OrderItem load(Integer pruchaseId) {
+        return m_orderItemDao.loadItem(pruchaseId);
+    }
+
+    @Override
+    public void delete(Integer key) {
+        m_orderItemDao.deleteItem(key);
     }
 }

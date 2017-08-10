@@ -1,7 +1,6 @@
 package com.tq.clickfunnel.lambda.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
@@ -17,7 +16,7 @@ import com.tq.clickfunnel.lambda.context.CFLambdaContextImpl;
  */
 public class InterceptorEventPayloadProxy implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 
-    private static final Logger log = LoggerFactory.getLogger(InterceptorEventPayloadProxy.class);
+    private static final Logger log = Logger.getLogger(InterceptorEventPayloadProxy.class);
     private CFLambdaContext m_customContext;
 
     public InterceptorEventPayloadProxy() {
@@ -28,7 +27,7 @@ public class InterceptorEventPayloadProxy implements RequestHandler<AwsProxyRequ
     public AwsProxyResponse handleRequest(AwsProxyRequest req, Context context) {
         m_customContext.wrapAwsProxyContext(context);
         String event = req.getQueryStringParameters().get(EventType.EVENT_PARAMETER_NAME);
-        log.info("event={}", event);
+        log.info("event=" + event);
         EventPayloadExecution execution = FactoryEventHandleExecution
                 .standards().ofExecution(EventCallback.on(event));
         return execution.execute(req, m_customContext);
