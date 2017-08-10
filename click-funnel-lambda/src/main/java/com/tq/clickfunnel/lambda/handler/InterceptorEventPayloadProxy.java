@@ -28,7 +28,7 @@ public class InterceptorEventPayloadProxy implements RequestHandler<AwsProxyRequ
     public AwsProxyResponse handleRequest(AwsProxyRequest req, Context context) {
         m_customContext.wrapAwsProxyContext(context);
         String event = req.getQueryStringParameters().get(EventType.EVENT_PARAMETER_NAME);
-        log.info("event=", event);
+        log.info("event={}", event);
         EventPayloadExecution execution = FactoryEventHandleExecution
                 .standards().ofExecution(EventCallback.on(event));
         return execution.execute(req, m_customContext);

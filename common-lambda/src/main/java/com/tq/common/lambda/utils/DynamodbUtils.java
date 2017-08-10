@@ -28,7 +28,7 @@ public class DynamodbUtils {
     }
     
     public static AmazonDynamoDB getAmazonDynamoDBInEnv() {
-        return getAmazonDynamoDB(Regions.fromName(Config.DYNAMODB_AWS_REGION), Config.AWS_ACCESS_KEY, Config.AWS_SECRET_ACCESS_KEY);
+        return getAmazonDynamoDB(Regions.fromName(Config.DYNAMODB_AWS_REGION), Config.AMAZON_ACCESS_KEY, Config.AMAZON_SECRET_ACCESS_KEY);
     }
     
     public static AmazonDynamoDB getLocallyDynamoDB() {

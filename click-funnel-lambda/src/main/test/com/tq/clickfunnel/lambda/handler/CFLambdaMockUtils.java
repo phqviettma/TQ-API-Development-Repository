@@ -100,6 +100,20 @@ public class CFLambdaMockUtils {
         when(isExternalService.getOrderServiceInf()).thenReturn(orderServiceInf);
         when(isExternalService.getRecurringOrderInf()).thenReturn(recurringOrderInf);
         
+        // LambdaContext mock for services
+        when(lambdaContext.getClientServiceSbm()).thenReturn(clientServiceSbm);
+        when(lambdaContext.getTokenServiceSbm()).thenReturn(tokenServiceSbm);
+        
+        when(lambdaContext.getContactServiceInf()).thenReturn(contactServiceInf);
+        when(lambdaContext.getDataServiceInf()).thenReturn(dataServiceInf);
+        when(lambdaContext.getOrderServiceInf()).thenReturn(orderServiceInf);
+        when(lambdaContext.getRecurringOrderInf()).thenReturn(recurringOrderInf);
+        
+        when(lambdaContext.getCountryItemService()).thenReturn(countryItemService);
+        when(lambdaContext.getProductItemService()).thenReturn(productItemService);
+        when(lambdaContext.getContactItemService()).thenReturn(contactItemService);
+        when(lambdaContext.getOrderItemService()).thenReturn(orderItemService);
+        
         return mock;
     }
     
