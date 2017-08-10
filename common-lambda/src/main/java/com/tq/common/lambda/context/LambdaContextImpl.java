@@ -1,6 +1,8 @@
 package com.tq.common.lambda.context;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.tq.common.lambda.config.EnvVar;
+import com.tq.common.lambda.config.SystemEnvVar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.OrderItemService;
@@ -28,12 +30,15 @@ public class LambdaContextImpl implements LambdaContext {
     private ISExternalService m_iSExternalService;
 
     private SBMExternalService m_sbmExternalService;
+    
+    private EnvVar m_envVar;
 
     public LambdaContextImpl() {
-        this(builderDefauls());
+        this(builderDefauls(), new SystemEnvVar());
     }
 
-    public LambdaContextImpl(LambdaContextBuilder builder) {
+    public LambdaContextImpl(LambdaContextBuilder builder, EnvVar envVar) {
+        m_envVar = envVar;
         this.m_client = builder.client;
         this.m_repositoryService = builder.repositoryService;
         this.m_iSExternalService = builder.iSExternalService;
@@ -47,10 +52,16 @@ public class LambdaContextImpl implements LambdaContext {
     public static LambdaContextBuilder builderDefauls() {
         AmazonDynamoDB client = DynamodbUtils.getAmazonDynamoDBInEnv();
         return builder()
+                .withEnvVar(new SystemEnvVar())
                 .withClient(client)
                 .withRepositoryService(new RepositoryServiceImpl(client))
                 .withiSExternalService(new ISExternalServiceImpl())
                 .withSbmExternalService(new SBMExternalServiceImpl());
+    }
+    
+    @Override
+    public EnvVar getEnvVar() {
+        return m_envVar;
     }
 
     @Override
@@ -124,6 +135,9 @@ public class LambdaContextImpl implements LambdaContext {
     }
     
     public static class LambdaContextBuilder {
+        
+        private EnvVar envVar;
+        
         private AmazonDynamoDB client;
 
         private RepositoryService repositoryService;
@@ -184,8 +198,21 @@ public class LambdaContextImpl implements LambdaContext {
             return this;
         }
 
+        public EnvVar getEnvVar() {
+            return envVar;
+        }
+
+        public void setEnvVar(EnvVar envVar) {
+            this.envVar = envVar;
+        }
+        
+        public LambdaContextBuilder withEnvVar(EnvVar envVar) {
+            this.envVar = envVar;
+            return this;
+        }
+        
         public LambdaContext build() {
-            return new LambdaContextImpl(this);
+            return new LambdaContextImpl(this, envVar);
         }
     }
 }

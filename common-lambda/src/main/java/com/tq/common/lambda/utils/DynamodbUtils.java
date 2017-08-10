@@ -39,7 +39,7 @@ public class DynamodbUtils {
             
             @Override
             public AWSCredentials getCredentials() {
-                return new BasicAWSCredentials("AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
+                return new BasicAWSCredentials(Config.LOCALLY_AMAZON_ACCESS_KEY, Config.LOCALLY_AMAZON_SECRET_ACCESS_KEY);
             }
         };
         AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()

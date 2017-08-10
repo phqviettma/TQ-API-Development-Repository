@@ -11,6 +11,7 @@ import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFOrderPayload;
 import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
@@ -39,7 +40,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
                 // 2. Load Product in DynamoDB that contact is being purchased.
                 ProductItem productItem = loadProductAtDB(contactPayLoad, lambdaContext);
 
-                //3. Create Order under email on infusion soft
+                // 3. Create Order under email on infusion soft
                 addOrder = addOrderToInf(contactItem, productItem, lambdaContext);
 
                 // 3. Save the Order to DynamoDB for handling in further
@@ -60,11 +61,15 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         ClientInfo client = contactItem.getClient();
         Integer contactId = client.getContactId();
         try {
+            EnvVar envVar = lambdaContext.getEnvVar();
             INFProduct infProduct = productItem.getInfProduct();
-            OrderQuery orderQuery = buildOrderQuery(contactId, infProduct);
+            String promoCode = lambdaContext.getEnvVar().getEnv(Config.INFUSION_ORDER_PROMO_CODE);
+            OrderQuery orderQuery = buildOrderQuery(contactId, infProduct, promoCode);
             OrderServiceInf orderServiceInf = lambdaContext.getOrderServiceInf();
-            Map<?, ?> order = (Map<?, ?>)orderServiceInf.addOrder(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY, orderQuery);
-           if (order == null) return null;
+            Map<?, ?> order = (Map<?, ?>) orderServiceInf.addOrder(envVar.getEnv(Config.INFUSIONSOFT_API_NAME),
+                    envVar.getEnv(Config.INFUSIONSOFT_API_KEY), orderQuery);
+            if (order == null)
+                return null;
             OrderDetail orderDtail = buildOrderDetail(productItem, infProduct, order);
             orderItem = new OrderItem().withContactId(contactId).withEmail(client.getEmail()).withOrderDetails(Arrays.asList(orderDtail));
 
@@ -89,10 +94,10 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         return orderDtail;
     }
 
-    private OrderQuery buildOrderQuery(Integer contactId, INFProduct infProduct) {
+    private OrderQuery buildOrderQuery(Integer contactId, INFProduct infProduct, String promoCode) {
         OrderQuery orderQuery = new OrderQuery().withContactID(contactId).withCardID(infProduct.getCartId())
                 .withPlanID(infProduct.getPlanId()).withProductionIDs(infProduct.getProductIds())
-                .withSubscriptionIDs(infProduct.getSubscriptionPlanIds()).withPromoCodes(Arrays.asList(Config.INFUSION_ORDER_PROMO_CODE));
+                .withSubscriptionIDs(infProduct.getSubscriptionPlanIds()).withPromoCodes(Arrays.asList(promoCode));
         return orderQuery;
     }
 }

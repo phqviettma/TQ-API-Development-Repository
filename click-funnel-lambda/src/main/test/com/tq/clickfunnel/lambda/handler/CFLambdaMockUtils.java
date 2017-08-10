@@ -1,13 +1,16 @@
 package com.tq.clickfunnel.lambda.handler;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Map;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import static org.mockito.Mockito.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
+import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.config.MockEnvVar;
 import com.tq.common.lambda.context.LambdaContext;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
@@ -25,48 +28,36 @@ import com.tq.simplybook.service.TokenServiceSbm;
 
 public class CFLambdaMockUtils {
     /**
-     * the script command for setting up the environment
-     * See more Config.java 
+     * the script command for setting up the environment See more Config.java
+     * 
      * @throws IOException
      */
-    public static void initDefaultsEnvOnWin() throws IOException {
-        
-        ProcessBuilder pb = new ProcessBuilder("CMD", "/C", "SET");
-        Map<String, String> env = pb.environment();
-        
+    private static MockEnvVar initMockEnv() {
+        MockEnvVar  mockEnv =new MockEnvVar();
+        Map<String, String> env = new HashMap<>();
         env.put("INFUSIONSOFT_API_NAME", "https://uf238.infusionsoft.com/api/xmlrpc");
         env.put("INFUSIONSOFT_API_KEY", "");
-        env.put("INFUSION_ORDER_PROMO_CODE", "");
-        
-        env.put("SIMPLY_BOOK_SERVICE_URL", "https://user-api.simplybook.me/");
-        env.put("SIMPLY_BOOK_SERVICE_URL_lOGIN", "https://user-api.simplybook.me/login");
-        env.put("SIMPLY_BOOK_ADMIN_SERVICE_URL", "https://user-api.simplybook.me/admin/");
+        env.put("INFUSION_ORDER_PROMO_CODE", "TIOwner");
         env.put("SIMPLY_BOOK_COMPANY_LOGIN", "phqviet93gmailcom");
         env.put("SIMPLY_BOOK_USER_NAME", "admin");
         env.put("SIMPLY_BOOK_PASSWORD", "");
         env.put("SIMPLY_BOOK_SECRET_KEY", "");
-        
-        env.put("AMAZON_ACCESS_KEY", "");
-        env.put("AMAZON_SECRET_ACCESS_KEY", "");
-        env.put("DYNAMODB_AWS_REGION", "us-east-1");
-        
-        Process p = pb.start();
-        InputStreamReader isr = new InputStreamReader(p.getInputStream());
-        char[] buf = new char[1024];
-        while (!isr.ready()) {
-            ;
-        }
-        while (isr.read(buf) != -1) {
-            System.out.println(buf);
-        }
+        env.put("AMAZON_ACCESS_KEY", Config.LOCALLY_AMAZON_ACCESS_KEY);
+        env.put("AMAZON_SECRET_ACCESS_KEY", Config.LOCALLY_AMAZON_SECRET_ACCESS_KEY);
+        env.put("DYNAMODB_AWS_REGION", Config.DYNAMODB_LOCAL_REGION_ECLIPSE);
+        mockEnv.setValueSystems(env);
+        return mockEnv;
     }
-    
+
     public static CFLambdaContext mockCFLambdaContext(CFLambdaContext mock) {
         Context context = mock(Context.class);
         LambdaContext lambdaContext = mock(LambdaContext.class);
         when(mock.getAwsProxyContext()).thenReturn(context);
         when(mock.getLambdaContext()).thenReturn(lambdaContext);
         
+        //Mock environment
+        MockEnvVar environment = initMockEnv();
+        when(lambdaContext.getEnvVar()).thenReturn(environment);
         RepositoryService repositoryService = mock(RepositoryService.class);
         when(lambdaContext.getRepositoryService()).thenReturn(repositoryService);
         SBMExternalService sbmExternalService = mock(SBMExternalService.class);
@@ -83,13 +74,13 @@ public class CFLambdaMockUtils {
         when(repositoryService.getCountryItemService()).thenReturn(countryItemService);
         when(repositoryService.getOrderItemService()).thenReturn(orderItemService);
         when(repositoryService.getProductItemService()).thenReturn(productItemService);
-        
+
         // mock service of SBMExternalService
         TokenServiceSbm tokenServiceSbm = mock(TokenServiceSbm.class);
         when(sbmExternalService.getTokenServiceSbm()).thenReturn(tokenServiceSbm);
         ClientServiceSbm clientServiceSbm = mock(ClientServiceSbm.class);
         when(sbmExternalService.getClientServiceSbm()).thenReturn(clientServiceSbm);
-        
+
         // mock service of ISExternalService
         ContactServiceInf contactServiceInf = mock(ContactServiceInf.class);
         DataServiceInf dataServiceInf = mock(DataServiceInf.class);
@@ -99,22 +90,22 @@ public class CFLambdaMockUtils {
         when(isExternalService.getDataServiceInf()).thenReturn(dataServiceInf);
         when(isExternalService.getOrderServiceInf()).thenReturn(orderServiceInf);
         when(isExternalService.getRecurringOrderInf()).thenReturn(recurringOrderInf);
-        
+
         // LambdaContext mock for services
         when(lambdaContext.getClientServiceSbm()).thenReturn(clientServiceSbm);
         when(lambdaContext.getTokenServiceSbm()).thenReturn(tokenServiceSbm);
-        
+
         when(lambdaContext.getContactServiceInf()).thenReturn(contactServiceInf);
         when(lambdaContext.getDataServiceInf()).thenReturn(dataServiceInf);
         when(lambdaContext.getOrderServiceInf()).thenReturn(orderServiceInf);
         when(lambdaContext.getRecurringOrderInf()).thenReturn(recurringOrderInf);
-        
+
         when(lambdaContext.getCountryItemService()).thenReturn(countryItemService);
         when(lambdaContext.getProductItemService()).thenReturn(productItemService);
         when(lambdaContext.getContactItemService()).thenReturn(contactItemService);
         when(lambdaContext.getOrderItemService()).thenReturn(orderItemService);
-        
+
         return mock;
     }
-    
+
 }

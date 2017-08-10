@@ -20,6 +20,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.CountryItem;
@@ -47,15 +48,14 @@ public class InterceptorEventPayloadProxyTest {
     private LambdaContext m_lambdaContext;
 
     private ObjectMapper mapper = new ObjectMapper();
-
+    
     @Before
     public void init() throws IOException {
+        // Initialize the environment for testing
         CFLambdaContext cfLambdaContext = mock(CFLambdaContext.class);
         CFLambdaMockUtils.mockCFLambdaContext(cfLambdaContext);
         m_lambdaContext = cfLambdaContext.getLambdaContext();
         m_interceptorEvent = new InterceptorEventPayloadProxy(cfLambdaContext);
-        // Initialize the environment for testing
-        CFLambdaMockUtils.initDefaultsEnvOnWin();
     }
 
     @SuppressWarnings("serial")
@@ -75,8 +75,9 @@ public class InterceptorEventPayloadProxyTest {
         String adminToken = "adminToken";
         TokenServiceSbm tokenServiceSbm = m_lambdaContext.getTokenServiceSbm();
         ClientServiceSbm clientServiceSbm = m_lambdaContext.getClientServiceSbm();
-        when(tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER_NAME, Config.SIMPLY_BOOK_PASSWORD,
-                Config.SIMPLY_BOOK_SERVICE_URL_lOGIN)).thenReturn(adminToken);
+        EnvVar envVar = m_lambdaContext.getEnvVar();
+        when(tokenServiceSbm.getUserToken(envVar.getEnv(Config.SIMPLY_BOOK_COMPANY_LOGIN), envVar.getEnv(Config.SIMPLY_BOOK_USER_NAME), envVar.getEnv(Config.SIMPLY_BOOK_PASSWORD),
+                Config.DEFAULT_SIMPLY_BOOK_SERVICE_URL_lOGIN)).thenReturn(adminToken);
         Integer smbContactId = Integer.valueOf(100000);
         when(clientServiceSbm.addClient(any(String.class), any(String.class), any(String.class), any(ClientData.class)))
                 .thenReturn(smbContactId);

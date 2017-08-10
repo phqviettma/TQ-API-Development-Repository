@@ -15,6 +15,7 @@ import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFContactPayload;
 import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
@@ -91,6 +92,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
      */
     private Integer addContactToInfusionsoft(CFContact funnelContact, LambdaContext lambdaContext) throws CFLambdaException {
         Integer contactId = null;
+        EnvVar envVar = lambdaContext.getEnvVar();
         long start = System.currentTimeMillis();
         try {
             Map<String, String> dataRecord = new HashMap<>();
@@ -104,7 +106,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             dataRecord.put("StreetAddress1", getAddress(funnelContact));
 
             ContactServiceInf contactServiceInf = lambdaContext.getContactServiceInf();
-            contactId = contactServiceInf.addWithDupCheck(Config.INFUSIONSOFT_API_NAME, Config.INFUSIONSOFT_API_KEY,
+            contactId = contactServiceInf.addWithDupCheck(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY),
                     new AddNewContactQuery().withDataRecord(dataRecord));
         } catch (InfSDKExecption e) {
             throw new CFLambdaException(e.getMessage(), e);
@@ -114,6 +116,7 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
     }
 
     private Integer addClientToSimplyBookMe(CFContact funnelContact, LambdaContext lambdaContext) {
+        EnvVar envVar = lambdaContext.getEnvVar();
         long start = System.currentTimeMillis();
         Integer clientSbmId = null;
         try {
@@ -121,9 +124,9 @@ public class HandleEventContactExection extends AbstractEventPayloadExecution {
             ClientServiceSbm clientServiceSbm = lambdaContext.getClientServiceSbm();
             ClientData client = buildSBMContact(funnelContact, lambdaContext);
 
-            String userToken = tokenServiceSbm.getUserToken(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_USER_NAME,
-                    Config.SIMPLY_BOOK_PASSWORD, Config.SIMPLY_BOOK_SERVICE_URL_lOGIN);
-            clientSbmId = clientServiceSbm.addClient(Config.SIMPLY_BOOK_COMPANY_LOGIN, Config.SIMPLY_BOOK_ADMIN_SERVICE_URL, userToken,
+            String userToken = tokenServiceSbm.getUserToken(envVar.getEnv(Config.SIMPLY_BOOK_COMPANY_LOGIN), envVar.getEnv(Config.SIMPLY_BOOK_USER_NAME),
+                    envVar.getEnv(Config.SIMPLY_BOOK_PASSWORD), Config.DEFAULT_SIMPLY_BOOK_SERVICE_URL_lOGIN);
+            clientSbmId = clientServiceSbm.addClient(envVar.getEnv(Config.SIMPLY_BOOK_COMPANY_LOGIN), Config.DEFAULT_SIMPLY_BOOK_ADMIN_SERVICE_URL, userToken,
                     client);
         } catch (SbmSDKException e) {
             throw new CFLambdaException(e.getMessage(), e);
