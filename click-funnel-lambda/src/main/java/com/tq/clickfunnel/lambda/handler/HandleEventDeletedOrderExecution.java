@@ -22,8 +22,8 @@ import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.service.InvoiceServiceInf;
 import com.tq.inf.service.RecurringOrderInf;
 
-public class HandleEventUpdatedOrderExection extends HandleEventOrderExecution {
-    public static final Logger log = Logger.getLogger(HandleEventUpdatedOrderExection.class);
+public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution {
+    public static final Logger log = Logger.getLogger(HandleEventDeletedOrderExecution.class);
 
     @Override
     protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload contactPayLoad, CFLambdaContext cfLambdaContext)

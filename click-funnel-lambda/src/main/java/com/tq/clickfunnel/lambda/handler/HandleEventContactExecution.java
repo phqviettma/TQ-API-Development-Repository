@@ -35,9 +35,9 @@ import com.tq.simplybook.service.TokenServiceSbm;
  * @author phqviet The class will handle for update, create event on contact of click funnel
  *
  */
-public class HandleEventContactExection extends AbstractEventPayloadExecution {
+public class HandleEventContactExecution extends AbstractEventPayloadExecution {
 
-    private static final Logger log = LoggerFactory.getLogger(HandleEventContactExection.class);
+    private static final Logger log = LoggerFactory.getLogger(HandleEventContactExecution.class);
     private static final String TOKEN_STRING = " ";
 
     @Override
