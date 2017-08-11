@@ -92,10 +92,10 @@ public class InterceptorEventPayloadExternalProxyTest {
     }
     
     @Test
-    public void testCreatedExternalOrder() throws IOException {
+    public void testCreatedExternalStripeOrderIntegration() throws IOException {
         // Simulator for receiving Order of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("order-payload.json"));
+        String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("order-payload-stripe.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
@@ -105,10 +105,10 @@ public class InterceptorEventPayloadExternalProxyTest {
     }
     
     @Test
-    public void testDeletedExternalOrder() throws IOException {
+    public void testDeletedExternalStripeOrderIntegration() throws IOException {
         // Simulator for receiving Order of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("order-payload.json"));
+        String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("order-payload-stripe.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);

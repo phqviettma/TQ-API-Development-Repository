@@ -33,7 +33,6 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
          try {
              resp = handleLambdaProxy(input, cfLambdaContext);
          } catch (Exception e) {
-             System.out.println(e);
              log.error("", e);
              String rebuild = String.format("{\"error\": \"%s\"}", e.getMessage());
              resp.setBody(rebuild);

@@ -119,10 +119,10 @@ public class InterceptorEventPayloadProxyTest {
     }
 
     @Test
-    public void testEventCreatedOrder() throws Exception {
+    public void testEventCreatedStripeOrderIntegratioin() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload.json"));
+        String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload-stripe.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
@@ -165,10 +165,10 @@ public class InterceptorEventPayloadProxyTest {
     }
     
     @Test
-    public void testEventDeletedOrder() throws Exception {
+    public void testEventDeletedStripeOrderIntegration() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload.json"));
+        String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload-stripe.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);
