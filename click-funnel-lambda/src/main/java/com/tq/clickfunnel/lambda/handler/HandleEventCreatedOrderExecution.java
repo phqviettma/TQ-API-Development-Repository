@@ -28,16 +28,16 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         if (products == null || products.isEmpty()) {
             throw new CFLambdaException("No any products is purchased with " + purchase.getId() + " identification.");
         }
-        // currently we just support 1 product
+        // Currently we just support 1 product
         CFProducts cfProducts = purchase.getProducts().get(0);
-        // 3. Create Order under email on infusion soft
+        //1. Create Order under email on infusion soft
         OrderBillingIntergtion billingIntegration = FactoryOrderBillingIntegration.getBillingIntegration(cfProducts.getBillingIntegration());
         OrderItem addOrder = billingIntegration.createBilling(orderPayload, lambdaContext);
-        // 4. Save the Order to DynamoDB for handling in further
+        //2. Save the Order to DynamoDB for handling in further
         if (addOrder != null) {
             lambdaContext.getOrderItemService().put(addOrder);
         }
-        // 4. handle successfully
+        //3. handle successfully
         handleResponse(input, resp, addOrder);
         return resp;
     }

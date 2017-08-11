@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConvertedJson;
 import com.tq.common.lambda.dynamodb.mapping.OrderDetailsListJsonMarshaller;
 
 /**
@@ -14,20 +15,30 @@ import com.tq.common.lambda.dynamodb.mapping.OrderDetailsListJsonMarshaller;
  */
 @DynamoDBTable(tableName = "Order")
 public class OrderItem {
-    
+
     @DynamoDBHashKey(attributeName = "purchaseId")
     private Integer purchaseId;
 
     @DynamoDBAttribute(attributeName = "email")
     private String email;
-    
+
+    /**
+     * The attribute will save the detailed order in case Stripe Payment billing being integrated on Click Funnel.
+     */
     @DynamoDBTypeConverted(converter = OrderDetailsListJsonMarshaller.class)
     @DynamoDBAttribute(attributeName = "orderDetails")
-    private List<OrderDetail> orderDetails; 
+    private List<OrderDetail> orderDetails;
+
+    /**
+     * The attribute will save the detailed order in case Infusion Soft Payment billing being integrated on Click Funnel.
+     */
+    @DynamoDBTypeConvertedJson
+    @DynamoDBAttribute(attributeName = "orderDetails")
+    private RecurringOrder recurringOrder;
 
     public OrderItem() {
     }
-    
+
     public Integer getPurchaseId() {
         return purchaseId;
     }
@@ -35,7 +46,7 @@ public class OrderItem {
     public void setPurchaseId(Integer purchaseId) {
         this.purchaseId = purchaseId;
     }
-    
+
     public OrderItem withPurchaseId(Integer purchaseId) {
         this.purchaseId = purchaseId;
         return this;
@@ -65,14 +76,28 @@ public class OrderItem {
     public void setOrderDetails(List<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;
     }
-    
+
     public OrderItem withOrderDetails(List<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;
         return this;
     }
 
+    public RecurringOrder getRecurringOrder() {
+        return recurringOrder;
+    }
+
+    public void setRecurringOrder(RecurringOrder recurringOrder) {
+        this.recurringOrder = recurringOrder;
+    }
+
+    public OrderItem withRecurringOrder(RecurringOrder recurringOrder) {
+        this.recurringOrder = recurringOrder;
+        return this;
+    }
+
     @Override
     public String toString() {
-        return "OrderItem [purchaseId=" + purchaseId + ", email=" + email + ", orderDetails=" + orderDetails + "]";
+        return "OrderItem [purchaseId=" + purchaseId + ", email=" + email + ", orderDetails=" + orderDetails + ", recurringOrder="
+                + recurringOrder + "]";
     }
 }

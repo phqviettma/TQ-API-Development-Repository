@@ -11,7 +11,7 @@ public class DataQuery {
     private List<String> selectedFields;
     private Map<?, ?> filter;
     private String orderBy; // sorted based on which column
-    private Boolean ascending;//Boolean.FALSE or Boolean.TRUE
+    private Boolean ascending;//Boolean.FALSE or Boolean.TRUE // defaults descending
 
     public Integer getLimit() {
         return limit;

@@ -43,6 +43,11 @@ public class RecurringOrder {
     public void setOriginatingOrderId(Integer originatingOrderId) {
         this.originatingOrderId = originatingOrderId;
     }
+    
+    public RecurringOrder withtOriginatingOrderId(Integer originatingOrderId) {
+        this.originatingOrderId = originatingOrderId;
+        return this;
+    }
 
     public Integer getProductId() {
         return productId;

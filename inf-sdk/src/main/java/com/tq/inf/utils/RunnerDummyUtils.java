@@ -2,6 +2,7 @@ package com.tq.inf.utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.impl.DataServiceImpl;
@@ -17,8 +18,8 @@ public class RunnerDummyUtils {
     private static final String API_KEY = "";
 
     public static void main(String[] args) throws InfSDKExecption {
-        //getAllRecurringOrders();
-        deleteInvoice();
+        getAllRecurringOrders();
+        //deleteInvoice();
     }
 
     public static void getAllRecurringOrders() throws InfSDKExecption {
@@ -28,10 +29,13 @@ public class RunnerDummyUtils {
         List<String> selectedFields=  Arrays.asList("Id", "ContactId", "OriginatingOrderId", "ProductId", "StartDate", "EndDate", "LastBillDate",
                 "NextBillDate", "Status", "AutoCharge", "CC1", "CC2", "MerchantAccountId");
         
-        Object[] allRecuringOrder = recurringOrderInf.getAllRecurringOrder(API_NAME, API_KEY, 28, selectedFields);
+        Map<?, ?> latestRecurringOrderFromProduct = recurringOrderInf.getLatestRecurringOrderFromProduct(API_NAME, API_KEY, 10314, 11340, selectedFields);
+        System.out.println(latestRecurringOrderFromProduct);
+        
+      /*  Object[] allRecuringOrder = recurringOrderInf.getAllRecurringOrder(API_NAME, API_KEY, 28, selectedFields);
         for (Object bj : allRecuringOrder ) {
             System.out.println(bj);
-        }
+        }*/
     }
     
     public static void deleteInvoice() throws InfSDKExecption {

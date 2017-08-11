@@ -8,7 +8,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConvertedJson;
 @DynamoDBTable(tableName = "Product")
 public class ProductItem {
     /**
-     * Click Funnel Product id as hash key
+     * Click Funnel Product id as hash key (purchase Id )
      */
     @DynamoDBHashKey(attributeName = "id")
     private Integer id;

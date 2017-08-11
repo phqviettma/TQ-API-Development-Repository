@@ -11,6 +11,7 @@ public class INFProduct {
 
     /**
      * Production ID in Infusion soft
+     * At the moment, we just support 1 product.
      */
     private List<Integer> productIds;
 

@@ -2,6 +2,7 @@ package com.tq.inf.impl;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.DataQuery;
@@ -41,6 +42,24 @@ public class RecurringOrderImpl implements RecurringOrderInf {
                 }})
                 .withSelectedFields(selectedFields);
         return m_dataServiceInf.query(apiName, apiKey, dataQuery);
+    }
+
+    @Override
+    public Map<?, ?> getLatestRecurringOrderFromProduct(String apiName, String apiKey, Integer contactId, Integer productId,
+            List<String> selectedFields) throws InfSDKExecption {
+        HashMap<Object, Object> fillter = new  HashMap<>();
+        fillter.put("ContactId", contactId);
+        fillter.put("ProductId", productId);
+        DataQuery dataQuery = new DataQuery()
+                .withTable("RecurringOrder")
+                .withFilter(fillter)
+                .withLimit(1) // just get one record
+                .withOrderBy("Id") // increase belong to Id
+                .withAscending(Boolean.FALSE)
+                .withSelectedFields(selectedFields);
+        Object[] query = m_dataServiceInf.query(apiName, apiKey, dataQuery);
+        if (query == null || query.length == 0) return null;
+        return (Map<?, ?>) query[0];
     }
 
 }

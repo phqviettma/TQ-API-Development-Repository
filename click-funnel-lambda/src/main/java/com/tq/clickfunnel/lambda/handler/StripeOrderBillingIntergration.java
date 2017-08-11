@@ -8,10 +8,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
-import com.tq.clickfunnel.lambda.modle.CFContact;
-import com.tq.clickfunnel.lambda.modle.CFOrderPayload;
 import com.tq.clickfunnel.lambda.modle.CFPurchase;
-import com.tq.clickfunnel.lambda.resp.DeletedOrderResp;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
@@ -21,18 +18,15 @@ import com.tq.common.lambda.dynamodb.model.INFProduct;
 import com.tq.common.lambda.dynamodb.model.OrderDetail;
 import com.tq.common.lambda.dynamodb.model.OrderItem;
 import com.tq.common.lambda.dynamodb.model.ProductItem;
-import com.tq.common.lambda.dynamodb.service.OrderItemService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.OrderQuery;
-import com.tq.inf.service.InvoiceServiceInf;
 import com.tq.inf.service.OrderServiceInf;
 import com.tq.inf.service.RecurringOrderInf;
 
 /**
  * 
- * @author phqviet
- *  When Click Funnel integrated Stripe in the Payment Integration for product, 
- *  we will create the Order under the contact ID and with the mapped Product ID.
+ * @author phqviet When Click Funnel integrated Stripe in the Payment Integration for product, we will create the Order under the contact ID and with the mapped
+ *         Product ID.
  *
  */
 public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergtion {
@@ -40,42 +34,21 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
     private static final Logger log = Logger.getLogger(StripeOrderBillingIntergration.class);
 
     @Override
-    public OrderItem createBilling(CFOrderPayload orderPayload, LambdaContext lambdaContext) throws CFLambdaException {
-        CFPurchase cfPurchase = orderPayload.getPurchase();
-        CFContact contact = cfPurchase.getContact();
-        // 1. Load the contact already existed in DynamoDB based on email
-        ContactItem contactItem = loadContactAtDB(contact.getEmail(), lambdaContext);
-        // 2. Load Product in DynamoDB that contact is being purchased.
-        ProductItem productItem = loadProductAtDB(orderPayload, cfPurchase, lambdaContext);
-        // add Order under the contact on Infusion soft App.
+    public OrderItem handleCreateBillingOrder(CFPurchase cfPurchase, ContactItem contactItem, ProductItem productItem,
+            LambdaContext lambdaContext) {
         return addOrderToInf(contactItem, productItem, cfPurchase, lambdaContext);
     }
 
     @Override
-    public DeletedOrderResp deleteBilling(OrderItem orderItem, LambdaContext lambdaContext) throws CFLambdaException {
-        // 2. Handle infusion soft subscription.
-        EnvVar envVar = lambdaContext.getEnvVar();
+    protected Integer getSubscriptionId(OrderItem orderItem, LambdaContext lambdaContext) {
         List<OrderDetail> orderDetails = orderItem.getOrderDetails();
         OrderDetail orderDetail = orderDetails.iterator().next();
         RecurringOrderInf recurringOrderInf = lambdaContext.getRecurringOrderInf();
+        EnvVar envVar = lambdaContext.getEnvVar();
         String apiName = envVar.getEnv(Config.INFUSIONSOFT_API_NAME);
         String apiKey = envVar.getEnv(Config.INFUSIONSOFT_API_KEY);
-
-        // 2.1 Retrieve subscription to handle its delete
-        Integer subscriptionId = retrieveRecurringOrder(orderDetail, recurringOrderInf, apiName, apiKey);
-
-        // 2.2 delete Invoice associated with subscription first.
-        InvoiceServiceInf invoiceServiceInf = lambdaContext.getInvoiceServiceInf();
-        deleteInvoiceFirst(invoiceServiceInf, orderDetail, apiName, apiKey);
-
-        // 2.3. Delete the subscription after
-        readyToDeleteSubscription(apiName, apiKey, subscriptionId, invoiceServiceInf);
-        
-        OrderItemService orderItemService = lambdaContext.getOrderItemService();
-        // 3: Delete the already purchase order in DynamoDB
-        orderItemService.delete(subscriptionId);
-        DeletedOrderResp itemResp = buildResponseItem(orderDetail, subscriptionId);
-        return itemResp;
+        // Retrieve subscription to handle its delete
+        return retrieveRecurringOrder(orderDetail, recurringOrderInf, apiName, apiKey);
     }
 
     private OrderItem addOrderToInf(ContactItem contactItem, ProductItem productItem, CFPurchase purchase, LambdaContext lambdaContext) {
@@ -126,26 +99,6 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
                 .withSubscriptionIDs(infProduct.getSubscriptionPlanIds()).withPromoCodes(Arrays.asList(promoCode));
         return orderQuery;
     }
-    
-
-    private DeletedOrderResp buildResponseItem(OrderDetail orderDetail, Integer subscriptionId) {
-        DeletedOrderResp itemResp = new DeletedOrderResp()
-                .withContactId(orderDetail.getContactId())
-                .withInvoiceId(orderDetail.getInvoiceInf())
-                .withSubscriptionId(subscriptionId);
-        return itemResp;
-    }
-
-    private Boolean readyToDeleteSubscription(String apiName, String apiKey, Integer subscriptionId, InvoiceServiceInf invoiceServiceInf) {
-        Boolean deleteSubscription;
-        try {
-            deleteSubscription = invoiceServiceInf.deleteSubscription(apiName, apiKey, subscriptionId);
-            log.info("delete subscription " + deleteSubscription);
-        } catch (InfSDKExecption e) {
-            throw new CFLambdaException("Could not delete subcription " + subscriptionId + " due to " + e.getMessage(), e);
-        }
-        return deleteSubscription;
-    }
 
     private Integer retrieveRecurringOrder(OrderDetail orderDetail, RecurringOrderInf recurringOrderInf, String apiName, String apiKey) {
         Object[] subcruptions;
@@ -164,17 +117,4 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
         }
         return subscriptionId;
     }
-
-    private Boolean deleteInvoiceFirst(InvoiceServiceInf invoiceServiceInf, OrderDetail orderDetail, String apiName, String apiKey) {
-        Boolean deletedInvoice;
-        try {
-            deletedInvoice = invoiceServiceInf.deleteInvoice(apiName, apiKey, orderDetail.getInvoiceInf());
-            log.info("delete invoice " + deletedInvoice);
-        } catch (InfSDKExecption e) {
-            throw new CFLambdaException("The invoice " + orderDetail.getInvoiceInf() + " could not be deleted.", e);
-        }
-        return deletedInvoice;
-    }
-
-
 }
