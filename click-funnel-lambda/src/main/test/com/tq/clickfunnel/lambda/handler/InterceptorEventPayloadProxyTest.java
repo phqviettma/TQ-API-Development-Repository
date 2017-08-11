@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -51,6 +52,8 @@ import junit.framework.Assert;
 
 public class InterceptorEventPayloadProxyTest {
 
+    private static final Logger log = Logger.getLogger(InterceptorEventPayloadProxyTest.class);
+    
     private InterceptorEventPayloadProxy m_interceptorEvent;
 
     private LambdaContext m_lambdaContext;
@@ -63,10 +66,14 @@ public class InterceptorEventPayloadProxyTest {
         CFLambdaContext cfLambdaContext = mock(CFLambdaContext.class);
         CFLambdaMockUtils.mockCFLambdaContext(cfLambdaContext);
         m_lambdaContext = cfLambdaContext.getLambdaContext();
-        m_interceptorEvent = new InterceptorEventPayloadProxy(cfLambdaContext);
+        m_interceptorEvent = new InterceptorEventPayloadProxy(m_lambdaContext) {
+            @Override
+            protected CFLambdaContext initialize(Context context, LambdaContext lambdaContext) {
+                return cfLambdaContext;
+            }
+        };
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void testEventCreatedContact() throws SbmSDKException, InfSDKExecption, Exception {
         Context context = mock(Context.class);
@@ -74,11 +81,9 @@ public class InterceptorEventPayloadProxyTest {
         AwsProxyRequest req = new AwsProxyRequest();
         String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("contactpayload.json"));
         req.setBody(jsonString);
-        req.setQueryStringParameters(new HashMap<String, String>() {
-            {
-                put(EventType.EVENT_PARAMETER_NAME, EventType.COTACT_CREATED);
-            }
-        });
+        HashMap<String, String> event = new HashMap<>();
+        event.put(EventType.EVENT_PARAMETER_NAME, EventType.COTACT_CREATED);
+        req.setQueryStringParameters(event);
 
         String adminToken = "adminToken";
         TokenServiceSbm tokenServiceSbm = m_lambdaContext.getTokenServiceSbm();
@@ -107,23 +112,21 @@ public class InterceptorEventPayloadProxyTest {
         CountryItemService countryItemService = m_lambdaContext.getCountryItemService();
         when(countryItemService.load("Viet Nam")).thenReturn(countryItem);
         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
+        log.info(response.getBody());
         ContactItem contactItem = mapper.readValue(response.getBody(), ContactItem.class);
         Assert.assertNotNull(contactItem);
         Assert.assertEquals(contactItem.getClient().getContactId(), infContactId);
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void testEventCreatedOrder() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
         String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload.json"));
         req.setBody(jsonString);
-        req.setQueryStringParameters(new HashMap<String, String>() {
-            {
-                put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
-            }
-        });
+        HashMap<String, String> event = new HashMap<>();
+        event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
+        req.setQueryStringParameters(event);
 
         jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("contactItem-dummy-uf238.json"));
         ContactItem contactDummy = mapper.readValue(jsonString, ContactItem.class);
@@ -155,24 +158,21 @@ public class InterceptorEventPayloadProxyTest {
             }
         }).when(orderItemService).put(any(OrderItem.class));
         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
-        System.out.println(response.getBody());
+        log.info(response.getBody());
         OrderItem orderItem = mapper.readValue(response.getBody(), OrderItem.class);
         Assert.assertNotNull(orderItem);
         Assert.assertEquals(Integer.valueOf(order.get("OrderId")), orderItem.getOrderDetails().get(0).getOrderIdInf());
     }
     
-    @SuppressWarnings("serial")
     @Test
     public void testEventDeletedOrder() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
         String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload.json"));
         req.setBody(jsonString);
-        req.setQueryStringParameters(new HashMap<String, String>() {
-            {
-                put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);
-            }
-        });
+        HashMap<String, String> event = new HashMap<>();
+        event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);
+        req.setQueryStringParameters(event);
         
         OrderItemService orderItemService = m_lambdaContext.getOrderItemService();
         jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("orderItem-dummy.json"));
@@ -189,10 +189,10 @@ public class InterceptorEventPayloadProxyTest {
         
         //delete firstly Invoice purchased via shopping cart or API Order.
         InvoiceServiceInf invoiceServiceInf = m_lambdaContext.getInvoiceServiceInf();
-        when(invoiceServiceInf.deleteInvoice(anyString(), anyString(), anyInt())).thenReturn(1);
+        when(invoiceServiceInf.deleteInvoice(anyString(), anyString(), anyInt())).thenReturn(true);
         
         //Delete subscription associated with firstly Invoice
-        when(invoiceServiceInf.deleteSubscription(anyString(), anyString(), anyInt())).thenReturn(1);
+        when(invoiceServiceInf.deleteSubscription(anyString(), anyString(), anyInt())).thenReturn(true);
         
         // Mock the order item will be delete DynamoDB
         Mockito.doAnswer(new Answer<Integer>() {
@@ -203,6 +203,7 @@ public class InterceptorEventPayloadProxyTest {
         }).when(orderItemService).delete(17059575);
         
         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
+        log.info(response.getBody());
         DeletedOrderResp delOrder = mapper.readValue(response.getBody(), DeletedOrderResp.class);
         Assert.assertNotNull(delOrder);
         Assert.assertEquals(new Integer(1), delOrder.getSubscriptionId());

@@ -1,10 +1,8 @@
 package com.tq.common.lambda.dynamodb.model;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class OrderDetail implements Serializable{
-    private static final long serialVersionUID = 1791419276554527113L;
+public class OrderDetail{
     
     private Integer contactId;
 

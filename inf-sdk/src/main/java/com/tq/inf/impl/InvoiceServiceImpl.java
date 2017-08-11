@@ -18,8 +18,8 @@ import com.tq.inf.utils.XmlRqcUtils;
 public class InvoiceServiceImpl implements InvoiceServiceInf {
 
     @Override
-    public Integer deleteSubscription(String apiName, String apiKey, final Integer subscriptionId) throws InfSDKExecption {
-        return (Integer) XmlRqcUtils.execute(apiName, apiKey, new ActionCallback() {
+    public Boolean deleteSubscription(String apiName, String apiKey, final Integer subscriptionId) throws InfSDKExecption {
+        return (Boolean) XmlRqcUtils.execute(apiName, apiKey, new ActionCallback() {
             @Override
             public List<?> getParameters(ApiContext apiContext) {
                 List<Object> params = new LinkedList<>();
@@ -31,8 +31,8 @@ public class InvoiceServiceImpl implements InvoiceServiceInf {
     }
 
     @Override
-    public Integer deleteInvoice(String apiName, String apiKey, final Integer invoiceID) throws InfSDKExecption {
-        return (Integer) XmlRqcUtils.execute(apiName, apiKey, new ActionCallback() {
+    public Boolean deleteInvoice(String apiName, String apiKey, final Integer invoiceID) throws InfSDKExecption {
+        return (Boolean) XmlRqcUtils.execute(apiName, apiKey, new ActionCallback() {
             @Override
             public List<?> getParameters(ApiContext apiContext) {
                 List<Object> params = new LinkedList<>();

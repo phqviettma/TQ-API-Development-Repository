@@ -8,9 +8,9 @@ public interface InvoiceServiceInf {
     
     Integer createBlankOrder(String apiName, String apiKey, BlankOrderQuery baBlankOrder) throws InfSDKExecption;
     
-    Integer deleteSubscription(String apiName, String apiKey, Integer subscriptionId) throws InfSDKExecption;
+    Boolean deleteSubscription(String apiName, String apiKey, Integer subscriptionId) throws InfSDKExecption;
     
-    Integer deleteInvoice(String apiName, String apiKey, Integer invoiceID) throws InfSDKExecption;
+    Boolean deleteInvoice(String apiName, String apiKey, Integer invoiceID) throws InfSDKExecption;
     
     Integer addRecurringOrder(String apiName, String apiKey, AddSubscriptionQuery subQuery) throws InfSDKExecption;
     

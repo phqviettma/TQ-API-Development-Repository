@@ -8,4 +8,6 @@ public interface CFLambdaContext {
     public void wrapAwsProxyContext(com.amazonaws.services.lambda.runtime.Context context);
     
     public LambdaContext getLambdaContext();
+    
+    public void setLambdaContext(LambdaContext lambdaContext);
 }

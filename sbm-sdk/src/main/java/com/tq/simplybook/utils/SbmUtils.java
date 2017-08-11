@@ -3,8 +3,7 @@ package com.tq.simplybook.utils;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.simplybook.exception.SbmSDKException;
@@ -13,7 +12,7 @@ import com.tq.simplybook.resp.SbmErrorResp;
 
 public final class SbmUtils {
     private static ObjectMapper JSON_MAPPER = new ObjectMapper();
-    private static final Logger log = LoggerFactory.getLogger(SbmUtils.class);
+    private static final Logger log = Logger.getLogger(SbmUtils.class);
 
     public static <T extends Serializable> String invokeTokenSignIn(String method, String endpoint, T req) throws SbmSDKException {
         String jsonResp = null;
@@ -56,7 +55,7 @@ public final class SbmUtils {
             SbmError error = resp.getError();
             throw new SbmSDKException(error.getCode() + ":" + error.getMessage(), e);
         } catch (IOException e1) {
-            log.error("{}", e1.getMessage());
+            log.error(e1.getMessage());
             throw new SbmSDKException("Error during reading response error : " + jsonResp, e1);
         }
     }

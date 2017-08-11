@@ -36,4 +36,9 @@ public class CFLambdaContextImpl implements CFLambdaContext {
     public void wrapAwsProxyContext(Context context) {
         this.m_context = context;
     }
+
+    @Override
+    public void setLambdaContext(LambdaContext lambdaContext) {
+        m_lambdaContext = lambdaContext;
+    }
 }

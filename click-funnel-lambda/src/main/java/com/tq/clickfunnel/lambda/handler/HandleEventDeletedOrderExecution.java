@@ -1,6 +1,7 @@
 package com.tq.clickfunnel.lambda.handler;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -40,7 +41,9 @@ public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution 
 
         // 2. Handle infusion soft subscription.
         EnvVar envVar = lambdaContext.getEnvVar();
-        OrderDetail orderDetail = purchasedProduct.getOrderDetails().get(0);
+        log.info(purchasedProduct);
+        List<OrderDetail> orderDetails = purchasedProduct.getOrderDetails();
+        OrderDetail orderDetail = orderDetails.iterator().next();
         RecurringOrderInf recurringOrderInf = lambdaContext.getRecurringOrderInf();
         String apiName = envVar.getEnv(Config.INFUSIONSOFT_API_NAME);
         String apiKey = envVar.getEnv(Config.INFUSIONSOFT_API_KEY);
@@ -71,10 +74,11 @@ public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution 
         return itemResp;
     }
 
-    private Integer readyToDeleteSubscription(String apiName, String apiKey, Integer subscriptionId, InvoiceServiceInf invoiceServiceInf) {
-        Integer deleteSubscription;
+    private Boolean readyToDeleteSubscription(String apiName, String apiKey, Integer subscriptionId, InvoiceServiceInf invoiceServiceInf) {
+        Boolean deleteSubscription;
         try {
             deleteSubscription = invoiceServiceInf.deleteSubscription(apiName, apiKey, subscriptionId);
+            log.info("delete subscription " + deleteSubscription);
         } catch (InfSDKExecption e) {
             throw new CFLambdaException("Could not delete subcription " + subscriptionId + " due to " + e.getMessage(), e);
         }
@@ -99,10 +103,11 @@ public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution 
         return subscriptionId;
     }
 
-    private Integer deleteInvoiceFirst(InvoiceServiceInf invoiceServiceInf, OrderDetail orderDetail, String apiName, String apiKey) {
-        Integer deletedInvoice;
+    private Boolean deleteInvoiceFirst(InvoiceServiceInf invoiceServiceInf, OrderDetail orderDetail, String apiName, String apiKey) {
+        Boolean deletedInvoice;
         try {
             deletedInvoice = invoiceServiceInf.deleteInvoice(apiName, apiKey, orderDetail.getInvoiceInf());
+            log.info("delete invoice " + deletedInvoice);
         } catch (InfSDKExecption e) {
             throw new CFLambdaException("The invoice " + orderDetail.getInvoiceInf() + " could not be deleted.", e);
         }

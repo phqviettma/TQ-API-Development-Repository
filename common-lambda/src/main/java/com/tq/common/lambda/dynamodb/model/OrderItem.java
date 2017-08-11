@@ -5,7 +5,8 @@ import java.util.List;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConvertedJson;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
+import com.tq.common.lambda.dynamodb.mapping.OrderDetailsListJsonMarshaller;
 
 /**
  * 
@@ -20,7 +21,7 @@ public class OrderItem {
     @DynamoDBAttribute(attributeName = "email")
     private String email;
     
-    @DynamoDBTypeConvertedJson
+    @DynamoDBTypeConverted(converter = OrderDetailsListJsonMarshaller.class)
     @DynamoDBAttribute(attributeName = "orderDetails")
     private List<OrderDetail> orderDetails; 
 

@@ -1,7 +1,7 @@
 package com.tq.simplybook.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.log4j.Logger;
 
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.ClientIDReq;
@@ -17,7 +17,7 @@ import com.tq.simplybook.utils.SbmUtils;
 
 public class ClientServiceImpl implements ClientServiceSbm {
 
-    public static final Logger log = LoggerFactory.getLogger(ClientServiceImpl.class);
+    public static final Logger log = Logger.getLogger(ClientServiceImpl.class);
 
     @Override
     public Integer addClient(String companyLogin, String endpointAdmin, String userToken,  ClientData clientData) throws SbmSDKException {
