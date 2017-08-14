@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFPurchase;
+import com.tq.clickfunnel.lambda.resp.DeletedOrderResp;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
@@ -14,12 +15,13 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.OrderItem;
 import com.tq.common.lambda.dynamodb.model.ProductItem;
 import com.tq.common.lambda.dynamodb.model.RecurringOrder;
+import com.tq.common.lambda.dynamodb.service.OrderItemService;
 import com.tq.common.lambda.utils.Utils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.service.RecurringOrderInf;
 
 /**
- * @author phqviet In Integration Infusion soft in Payment Billing of Click funnel. CLick funnel will automatically create the Order under the email contact,
+ * @author phqviet In Integrating Infusion soft in Payment Billing of Click funnel. CLick funnel will automatically create the Order under the email contact,
  *         So, in this case, we will get that Order and save for handling in further.
  */
 public class InfOrderBillingIntegration extends AbstractOrderBillingIntergtion {
@@ -31,6 +33,32 @@ public class InfOrderBillingIntegration extends AbstractOrderBillingIntergtion {
         OrderItem orderItem = new OrderItem().withEmail(contactItem.getEmail()).withPurchaseId(cfPurchase.getId())
                 .withRecurringOrder(recurringOrder);
         return orderItem;
+    }
+    
+    @Override
+    public DeletedOrderResp deleteBilling(OrderItem orderItem, LambdaContext lambdaContext) throws CFLambdaException {
+        EnvVar envVar = lambdaContext.getEnvVar();
+        //1. Retrieve subscription to handle its delete
+        Integer subscriptionId = getSubscriptionId(orderItem, lambdaContext);
+        RecurringOrder recurringOrder = orderItem.getRecurringOrder();
+        String apiName = envVar.getEnv(Config.INFUSIONSOFT_API_NAME);
+        String apiKey = envVar.getEnv(Config.INFUSIONSOFT_API_KEY);
+        
+        //2. Delete Invoice associated with subscription first.
+        deleteInvoiceFirst(recurringOrder.getOriginatingOrderId(), apiName, apiKey, lambdaContext);
+        
+        //3. Delete the subscription after
+        deleteSubscription(apiName, apiKey, subscriptionId, lambdaContext);
+        OrderItemService orderItemService = lambdaContext.getOrderItemService();
+        
+        //4. Delete the already purchase order in DynamoDB
+        orderItemService.delete(orderItem.getPurchaseId());
+        DeletedOrderResp itemResp = new DeletedOrderResp()
+                .withPurchaseId(orderItem.getPurchaseId())
+                .withContactId(recurringOrder.getContactId())
+                .withInvoiceId(recurringOrder.getOriginatingOrderId())
+                .withSubscriptionId(subscriptionId);
+        return itemResp;
     }
 
     @Override
@@ -49,20 +77,21 @@ public class InfOrderBillingIntegration extends AbstractOrderBillingIntergtion {
                 "LastBillDate", "NextBillDate", "Status", "AutoCharge", "CC1", "CC2", "MerchantAccountId");
         RecurringOrder recurringOrder = null;
         try {
-            Map<?, ?> latestSubscriptionOrder = recurringOrderInf.getLatestRecurringOrderFromProduct(apiName, apiKey, client.getContactId(),
+            Map<?, ?> latestSubscriptionOrder = (Map<?, ?>) recurringOrderInf.getLatestRecurringOrderFromProduct(apiName, apiKey, client.getContactId(),
                     productIds.get(0), selectedFields);
             if (latestSubscriptionOrder == null)
                 throw new CFLambdaException(String.format("Could not found the latest order of %d product under the contact %d .",
                         productIds.get(0), client.getContactId()));
-            recurringOrder = buildRecurringOrder(latestSubscriptionOrder);
+            recurringOrder = buildRecurringOrder(latestSubscriptionOrder, client.getContactId());
         } catch (InfSDKExecption e) {
             throw new CFLambdaException(e.getMessage(), e);
         }
         return recurringOrder;
     }
 
-    private RecurringOrder buildRecurringOrder(Map<?, ?> mapOrder) {
+    private RecurringOrder buildRecurringOrder(Map<?, ?> mapOrder, Integer contactId) {
         RecurringOrder reOder = new RecurringOrder().withId((Integer) mapOrder.get("Id")).withProductId((Integer) mapOrder.get("ProductId"))
+                .withContactId(contactId)
                 .withSubscriptionPlanId((Integer) mapOrder.get("SubscriptionPlanId")).withAutoCharge((Integer) mapOrder.get("AutoCharge"))
                 .withOriginatingOrderId((Integer) mapOrder.get("OriginatingOrderId")).withStatus((String) mapOrder.get("Status"))
                 .withStartDate(Utils.formatDate(mapOrder.get("StartDate"))).withEndDate(Utils.formatDate(mapOrder.get("EndDate")))

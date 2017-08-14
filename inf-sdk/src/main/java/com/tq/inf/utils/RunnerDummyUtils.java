@@ -29,7 +29,7 @@ public class RunnerDummyUtils {
         List<String> selectedFields=  Arrays.asList("Id", "ContactId", "OriginatingOrderId", "ProductId", "StartDate", "EndDate", "LastBillDate",
                 "NextBillDate", "Status", "AutoCharge", "CC1", "CC2", "MerchantAccountId");
         
-        Map<?, ?> latestRecurringOrderFromProduct = recurringOrderInf.getLatestRecurringOrderFromProduct(API_NAME, API_KEY, 10314, 11340, selectedFields);
+        Map<?, ?> latestRecurringOrderFromProduct = (Map<?, ?>) recurringOrderInf.getLatestRecurringOrderFromProduct(API_NAME, API_KEY, 10314, 11340, selectedFields);
         System.out.println(latestRecurringOrderFromProduct);
         
       /*  Object[] allRecuringOrder = recurringOrderInf.getAllRecurringOrder(API_NAME, API_KEY, 28, selectedFields);

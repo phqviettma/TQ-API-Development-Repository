@@ -27,6 +27,8 @@ public class RecurringOrder {
     private Integer autoCharge;
 
     private Integer subscriptionPlanId;
+    
+    private Integer contactId;
 
     public Integer getId() {
         return id;
@@ -163,10 +165,16 @@ public class RecurringOrder {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "RecurringOrder [id=" + id + ", originatingOrderId=" + originatingOrderId + ", productId=" + productId + ", startDate="
-                + startDate + ", endDate=" + endDate + ", lastBillDate=" + lastBillDate + ", nextBillDate=" + nextBillDate + ", status="
-                + status + ", autoCharge=" + autoCharge + ", subscriptionPlanId=" + subscriptionPlanId + "]";
+    public Integer getContactId() {
+        return contactId;
+    }
+
+    public void setContactId(Integer contactId) {
+        this.contactId = contactId;
+    }
+    
+    public RecurringOrder withContactId(Integer contactId) {
+        this.contactId = contactId;
+        return this;
     }
 }

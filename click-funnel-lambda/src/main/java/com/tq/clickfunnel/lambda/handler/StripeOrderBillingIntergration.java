@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFPurchase;
+import com.tq.clickfunnel.lambda.resp.DeletedOrderResp;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
@@ -18,6 +19,7 @@ import com.tq.common.lambda.dynamodb.model.INFProduct;
 import com.tq.common.lambda.dynamodb.model.OrderDetail;
 import com.tq.common.lambda.dynamodb.model.OrderItem;
 import com.tq.common.lambda.dynamodb.model.ProductItem;
+import com.tq.common.lambda.dynamodb.service.OrderItemService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.OrderQuery;
 import com.tq.inf.service.OrderServiceInf;
@@ -37,6 +39,26 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
     public OrderItem handleCreateBillingOrder(CFPurchase cfPurchase, ContactItem contactItem, ProductItem productItem,
             LambdaContext lambdaContext) {
         return addOrderToInf(contactItem, productItem, cfPurchase, lambdaContext);
+    }
+    
+    @Override
+    public DeletedOrderResp deleteBilling(OrderItem orderItem, LambdaContext lambdaContext) throws CFLambdaException {
+        EnvVar envVar = lambdaContext.getEnvVar();
+        //1. Retrieve subscription to handle its delete
+        Integer subscriptionId = getSubscriptionId(orderItem, lambdaContext);
+        List<OrderDetail> orderDetails = orderItem.getOrderDetails();
+        OrderDetail orderDetail = orderDetails.iterator().next();
+        String apiName = envVar.getEnv(Config.INFUSIONSOFT_API_NAME);
+        String apiKey = envVar.getEnv(Config.INFUSIONSOFT_API_KEY);
+        //2. Delete Invoice associated with subscription first.
+        deleteInvoiceFirst(orderDetail.getInvoiceInf(), apiName, apiKey, lambdaContext);
+        //3. Delete the subscription after
+        deleteSubscription(apiName, apiKey, subscriptionId, lambdaContext);
+        OrderItemService orderItemService = lambdaContext.getOrderItemService();
+        //4. Delete the already purchase order in DynamoDB
+        orderItemService.delete(orderItem.getPurchaseId());
+        DeletedOrderResp itemResp = buildResponseItem(orderDetail, subscriptionId);
+        return itemResp;
     }
 
     @Override

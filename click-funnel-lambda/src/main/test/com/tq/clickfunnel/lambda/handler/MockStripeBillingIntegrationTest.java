@@ -50,9 +50,9 @@ import com.tq.simplybook.service.TokenServiceSbm;
 
 import junit.framework.Assert;
 
-public class InterceptorEventPayloadProxyTest {
+public class MockStripeBillingIntegrationTest {
 
-    private static final Logger log = Logger.getLogger(InterceptorEventPayloadProxyTest.class);
+    private static final Logger log = Logger.getLogger(MockStripeBillingIntegrationTest.class);
     
     private InterceptorEventPayloadProxy m_interceptorEvent;
 
@@ -79,7 +79,7 @@ public class InterceptorEventPayloadProxyTest {
         Context context = mock(Context.class);
 
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(InterceptorEventPayloadProxyTest.class.getResourceAsStream("contactpayload.json"));
+        String jsonString = JsonUtils.getJsonString(MockStripeBillingIntegrationTest.class.getResourceAsStream("contactpayload.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.COTACT_CREATED);
@@ -175,7 +175,7 @@ public class InterceptorEventPayloadProxyTest {
         req.setQueryStringParameters(event);
         
         OrderItemService orderItemService = m_lambdaContext.getOrderItemService();
-        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("orderItem-dummy.json"));
+        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("orderItem-dummy-billing-stripe.json"));
         OrderItem orderItem = mapper.readValue(jsonString, OrderItem.class);
         when(orderItemService.load(17059575)).thenReturn(orderItem);
         
