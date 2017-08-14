@@ -23,7 +23,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Override
-    public void delete(Integer key) {
-        m_orderItemDao.deleteItem(key);
+    public void delete(OrderItem orderItem) {
+        m_orderItemDao.deleteItem(orderItem);
     }
 }

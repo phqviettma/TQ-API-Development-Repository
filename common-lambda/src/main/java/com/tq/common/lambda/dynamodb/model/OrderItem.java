@@ -33,7 +33,7 @@ public class OrderItem {
      * The attribute will save the detailed order in case Infusion Soft Payment billing being integrated on Click Funnel.
      */
     @DynamoDBTypeConvertedJson
-    @DynamoDBAttribute(attributeName = "orderDetails")
+    @DynamoDBAttribute(attributeName = "recurringOrder")
     private RecurringOrder recurringOrder;
 
     public OrderItem() {

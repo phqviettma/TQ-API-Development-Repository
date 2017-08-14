@@ -200,7 +200,7 @@ public class MockStripeBillingIntegrationTest {
             public Integer answer(InvocationOnMock invocation) throws Throwable {
                 return null;
             }
-        }).when(orderItemService).delete(17059575);
+        }).when(orderItemService).delete(any(OrderItem.class));
         
         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
         log.info(response.getBody());

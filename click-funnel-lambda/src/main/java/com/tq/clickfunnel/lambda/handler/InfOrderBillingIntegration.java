@@ -52,7 +52,7 @@ public class InfOrderBillingIntegration extends AbstractOrderBillingIntergtion {
         OrderItemService orderItemService = lambdaContext.getOrderItemService();
         
         //4. Delete the already purchase order in DynamoDB
-        orderItemService.delete(orderItem.getPurchaseId());
+        orderItemService.delete(orderItem);
         DeletedOrderResp itemResp = new DeletedOrderResp()
                 .withPurchaseId(orderItem.getPurchaseId())
                 .withContactId(recurringOrder.getContactId())

@@ -136,7 +136,7 @@ public class MockInfusionsoftBillingIntegrationTest {
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 return null;
             }
-        }).when(orderItemService).delete(17059575); // dummy purchase id
+        }).when(orderItemService).delete(any(OrderItem.class)); // dummy purchase id
         
         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
         log.info(response.getBody());

@@ -56,7 +56,7 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
         deleteSubscription(apiName, apiKey, subscriptionId, lambdaContext);
         OrderItemService orderItemService = lambdaContext.getOrderItemService();
         //4. Delete the already purchase order in DynamoDB
-        orderItemService.delete(orderItem.getPurchaseId());
+        orderItemService.delete(orderItem);
         DeletedOrderResp itemResp = buildResponseItem(orderDetail, subscriptionId);
         return itemResp;
     }

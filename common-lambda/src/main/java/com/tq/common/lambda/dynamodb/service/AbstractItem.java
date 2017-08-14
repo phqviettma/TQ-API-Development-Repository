@@ -41,8 +41,8 @@ public abstract class AbstractItem<Item, ID> implements GenericItem<Item, ID> {
     }
     
     @Override
-    public void deleteItem(ID hashKey) {
+    public void deleteItem(Item item) {
         DynamoDBMapper dymapper = new DynamoDBMapper(getClient());
-        dymapper.delete(hashKey);
+        dymapper.delete(item);
     }
 }
