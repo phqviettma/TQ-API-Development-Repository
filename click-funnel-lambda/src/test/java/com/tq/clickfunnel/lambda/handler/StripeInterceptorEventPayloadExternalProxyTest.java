@@ -87,7 +87,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
     public void testCreatedExternalContact() throws IOException {
         // Simulator for receiving Contact of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(MockStripeBillingIntegrationTest.class.getResourceAsStream("contactpayload.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("contactpayload.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.COTACT_CREATED);
@@ -103,7 +103,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
     public void testCreatedExternalStripeOrderIntegration() throws IOException {
         // Simulator for receiving Order of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(MockStripeBillingIntegrationTest.class.getResourceAsStream("order-payload-stripe.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
@@ -116,7 +116,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
     public void testDeletedExternalStripeOrderIntegration() throws IOException {
         // Simulator for receiving Order of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(MockStripeBillingIntegrationTest.class.getResourceAsStream("order-payload-stripe.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);

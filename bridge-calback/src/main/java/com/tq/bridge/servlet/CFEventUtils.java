@@ -15,12 +15,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 public class CFEventUtils {
 
-    public static final Logger log = LoggerFactory.getLogger(CFEventUtils.class);
+    public static final Logger log = Logger.getLogger(CFEventUtils.class);
 
     public static final String API_GATEWAY_STAGES = "prod/";
 

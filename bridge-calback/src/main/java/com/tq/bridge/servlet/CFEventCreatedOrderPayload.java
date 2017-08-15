@@ -13,31 +13,29 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/clickfunnel/created/order")
 public class CFEventCreatedOrderPayload extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	
-	 public static final String ORDER_EVENT_CREATED_RESOURSE = "order?event=order-created";
-       
+    private static final long serialVersionUID = 1L;
+
+    public static final String ORDER_EVENT_CREATED_RESOURSE = "order?event=order-created";
+
     /**
      * @see HttpServlet#HttpServlet()
      */
     public CFEventCreatedOrderPayload() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("True Quit for creating Order");
-	}
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.getWriter().append("True Quit for creating Order");
+    }
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    CFEventUtils.makeRequest(request, response, ORDER_EVENT_CREATED_RESOURSE);
-	}
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        CFEventUtils.makeRequest(request, response, ORDER_EVENT_CREATED_RESOURSE);
+    }
 
 }

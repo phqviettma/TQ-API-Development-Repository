@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConvertedJson;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tq.common.lambda.dynamodb.mapping.OrderDetailsListJsonMarshaller;
 
 /**
@@ -14,6 +15,7 @@ import com.tq.common.lambda.dynamodb.mapping.OrderDetailsListJsonMarshaller;
  * @author phqviet email field as hash key to detect with contact is adding order. Of course, contact can add lots of Orders
  */
 @DynamoDBTable(tableName = "Order")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderItem {
 
     @DynamoDBHashKey(attributeName = "purchaseId")

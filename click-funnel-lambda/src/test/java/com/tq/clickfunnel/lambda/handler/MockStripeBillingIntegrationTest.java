@@ -79,7 +79,7 @@ public class MockStripeBillingIntegrationTest {
         Context context = mock(Context.class);
 
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(MockStripeBillingIntegrationTest.class.getResourceAsStream("contactpayload.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("contactpayload.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.COTACT_CREATED);
@@ -122,18 +122,18 @@ public class MockStripeBillingIntegrationTest {
     public void testEventCreatedStripeOrderIntegratioin() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload-stripe.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
         req.setQueryStringParameters(event);
 
-        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("contactItem-dummy-uf238.json"));
+        jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("contactItem-dummy-uf238.json"));
         ContactItem contactDummy = mapper.readValue(jsonString, ContactItem.class);
         ContactItemService contactItemService = m_lambdaContext.getContactItemService();
         when(contactItemService.load("dev1tma@gmail.com")).thenReturn(contactDummy);
 
-        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("product-dummy-uf238.json"));
+        jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("product-dummy-uf238.json"));
         ProductItem productItem = mapper.readValue(jsonString, ProductItem.class);
 
         ProductItemService productItemService = m_lambdaContext.getProductItemService();
@@ -168,14 +168,14 @@ public class MockStripeBillingIntegrationTest {
     public void testEventDeletedStripeOrderIntegration() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("order-payload-stripe.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);
         req.setQueryStringParameters(event);
         
         OrderItemService orderItemService = m_lambdaContext.getOrderItemService();
-        jsonString = JsonUtils.getJsonString(JsonRunner.class.getResourceAsStream("orderItem-dummy-billing-stripe.json"));
+        jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("orderItem-dummy-billing-stripe.json"));
         OrderItem orderItem = mapper.readValue(jsonString, OrderItem.class);
         when(orderItemService.load(17059575)).thenReturn(orderItem);
         

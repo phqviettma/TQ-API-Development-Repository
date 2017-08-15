@@ -9,13 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet implementation class CFCallbackPayLoad
- * configuration callback URL : 
- * http://elasticbeanstalk-env.com/clickfunnel?event=
+ * Servlet implementation class CFCallbackPayLoad configuration callback URL : http://elasticbeanstalk-env.com/clickfunnel?event=
  * 
- * Here, elasticbeanstalk-env URK : 
- * when you deploy an application on Elastic Beanstalk, it will automatically generate the URL associated with environment
- * So, assumed the elasticbeanstalk-env is URL
+ * Here, elasticbeanstalk-env URK : when you deploy an application on Elastic Beanstalk, it will automatically generate the URL associated with environment So,
+ * assumed the elasticbeanstalk-env is URL
  */
 @WebServlet("/clickfunnel/created/contact")
 public class CFEventCreatedContactPayLoad extends HttpServlet {
@@ -27,7 +24,7 @@ public class CFEventCreatedContactPayLoad extends HttpServlet {
      * Default constructor.
      */
     public CFEventCreatedContactPayLoad() {
-        // TODO Auto-generated constructor stub
+        super();
     }
 
     /**
