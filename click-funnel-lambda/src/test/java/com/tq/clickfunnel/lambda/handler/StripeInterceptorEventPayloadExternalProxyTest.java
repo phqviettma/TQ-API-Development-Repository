@@ -44,13 +44,21 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
     private static MockEnvVar envVar = new MockEnvVar();
     static {
         Map<String, String> env = new HashMap<>();
+        //InfusionSoft configuration
         env.put(Config.INFUSIONSOFT_API_NAME, "https://uf238.infusionsoft.com/api/xmlrpc");
         env.put(Config.INFUSIONSOFT_API_KEY, "");
         env.put(Config.INFUSION_ORDER_PROMO_CODE, "TIOwner");
+        //SimplyBookMe Configuration
         env.put(Config.SIMPLY_BOOK_COMPANY_LOGIN, "phqviet93gmailcom");
         env.put(Config.SIMPLY_BOOK_USER_NAME, "admin");
         env.put(Config.SIMPLY_BOOK_PASSWORD, "");
         env.put(Config.SIMPLY_BOOK_API_KEY, "");
+        env.put(Config.SIMPLY_BOOK_DEFAULT_USER_PASSWORD, "");
+        //AWS configuration
+        env.put(Config.AMAZON_ACCESS_KEY, "");
+        env.put(Config.AMAZON_SECRET_ACCESS_KEY, "");
+        env.put(Config.DYNAMODB_AWS_REGION, "");
+        
         envVar.setValueSystems(env);
     }
     
