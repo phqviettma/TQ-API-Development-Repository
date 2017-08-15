@@ -21,6 +21,8 @@ public class Config {
     public static final String SIMPLY_BOOK_API_KEY = "SIMPLY_BOOK_API_KEY";
     
     public static final String SIMPLY_BOOK_SECRET_KEY = "SIMPLY_BOOK_SECRET_KEY";
+    
+    public static final String SIMPLY_BOOK_DEFAULT_USER_PASSWORD = "SIMPLY_BOOK_DEFAULT_USER_PASSWORD";
 
     public static final String DEFAULT_SIMPLY_BOOK_SERVICE_URL = "https://user-api.simplybook.me/"; /* Env.getEnv("SIMPLY_BOOK_SERVICE_URL"); */
 

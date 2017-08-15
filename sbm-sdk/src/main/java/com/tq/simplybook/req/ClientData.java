@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class ClientData implements Serializable {
     
     private static final long serialVersionUID = -7181306280002845610L;
+    public static final String SIMPLY_BOOK_DEFAULT_USER_PASSWORD = "Password123";
     private String name;
     private String email;
     private String phone;
@@ -17,8 +18,8 @@ public class ClientData implements Serializable {
     private String address2;
     private String country_id;
     private String zip;
-    private String pass = "123456"; // default
-
+    private String pass = initDefaultPassword(SIMPLY_BOOK_DEFAULT_USER_PASSWORD);
+    
     public ClientData() {
     }
 
@@ -138,6 +139,12 @@ public class ClientData implements Serializable {
     
     public void setPass(String pass) {
         this.pass = pass;
+    }
+    
+    @JsonIgnore
+    private static String initDefaultPassword(String defaultValue) {
+        String envPass  = System.getenv(SIMPLY_BOOK_DEFAULT_USER_PASSWORD);
+        return envPass == null || envPass.isEmpty() ? defaultValue : envPass;
     }
 
     @Override
