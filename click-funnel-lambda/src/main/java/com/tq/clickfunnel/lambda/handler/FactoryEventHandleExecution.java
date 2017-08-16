@@ -10,6 +10,8 @@ public class FactoryEventHandleExecution {
         // registration for Event Contact
         regis(EventCallback.CONTACT_CREATED, new HandleEventContactExecution());
         
+        regis(EventCallback.AFFILICATE_SIGNUP, new HandleEventAffiliateBackpackSignupExecution());
+        
         // registration for Event Order/Payment
         regis(EventCallback.ORDER_CREATED, new HandleEventCreatedOrderExecution());
         regis(EventCallback.ORDER_UPDATED, new HandleEventUpdatedOrderExecution());

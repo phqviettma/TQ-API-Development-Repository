@@ -8,7 +8,9 @@ public class Config {
     public static final String INFUSIONSOFT_API_NAME = "INFUSIONSOFT_API_NAME";
 
     public static final String INFUSIONSOFT_API_KEY = "INFUSIONSOFT_API_KEY";
-
+    
+    public static final String INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG = "INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG";
+    
     public static final String INFUSION_ORDER_PROMO_CODE = "INFUSION_ORDER_PROMO_CODE";
 
     // Simply book
