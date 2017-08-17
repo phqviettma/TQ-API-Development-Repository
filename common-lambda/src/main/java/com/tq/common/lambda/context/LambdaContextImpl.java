@@ -51,8 +51,8 @@ public class LambdaContextImpl implements LambdaContext {
     }
 
     public static LambdaContextBuilder builderDefauls() {
-        AmazonDynamoDB client = DynamodbUtils.getAmazonDynamoDBInEnv();
         SystemEnvVar envVar = new SystemEnvVar();
+        AmazonDynamoDB client = DynamodbUtils.getAmazonDynamoDBInEnv(envVar);
         return builder()
                 .withEnvVar(envVar)
                 .withClient(client)
