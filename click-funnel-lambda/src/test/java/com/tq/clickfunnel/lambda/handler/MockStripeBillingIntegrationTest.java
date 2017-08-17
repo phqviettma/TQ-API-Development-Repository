@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -116,6 +118,11 @@ public class MockStripeBillingIntegrationTest {
         ContactItem contactItem = mapper.readValue(response.getBody(), ContactItem.class);
         Assert.assertNotNull(contactItem);
         Assert.assertEquals(contactItem.getClient().getContactId(), infContactId);
+        verify(contactServiceInf,times(1)).addWithDupCheck(any(String.class), any(String.class), any(AddNewContactQuery.class));
+        verify(contactItemService,times(1)).put(any(ContactItem.class));
+       verify(clientServiceSbm,times(1)).addClient(any(String.class), any(String.class), any(String.class), any(ClientData.class));
+       verify(tokenServiceSbm,times(1)).getUserToken(envVar.getEnv(Config.SIMPLY_BOOK_COMPANY_LOGIN), envVar.getEnv(Config.SIMPLY_BOOK_USER_NAME), envVar.getEnv(Config.SIMPLY_BOOK_PASSWORD),
+                Config.DEFAULT_SIMPLY_BOOK_SERVICE_URL_lOGIN);
     }
 
     @Test
@@ -162,6 +169,10 @@ public class MockStripeBillingIntegrationTest {
         OrderItem orderItem = mapper.readValue(response.getBody(), OrderItem.class);
         Assert.assertNotNull(orderItem);
         Assert.assertEquals(Integer.valueOf(order.get("OrderId")), orderItem.getOrderDetails().get(0).getOrderIdInf());
+        verify(productItemService,times(1)).load(anyInt());
+        verify(orderServiceInf,times(1)).addOrder(any(String.class), any(String.class), any(OrderQuery.class));
+        verify(orderItemService,times(1)).put(any(OrderItem.class));
+        verify(contactItemService,times(1)).load(anyString());
     }
     
     @Test
@@ -207,5 +218,10 @@ public class MockStripeBillingIntegrationTest {
         DeletedOrderResp delOrder = mapper.readValue(response.getBody(), DeletedOrderResp.class);
         Assert.assertNotNull(delOrder);
         Assert.assertEquals(new Integer(1), delOrder.getSubscriptionId());
+        verify(orderItemService,times(1)).load(anyInt());
+        verify(recurringOrderInf,times(1)).getRecurringOrderFromOriginatingOrderId(anyString(), anyString(), anyInt(), anyInt(), anyList());
+        verify(invoiceServiceInf,times(1)).deleteInvoice(anyString(), anyString(), anyInt());
+        verify(invoiceServiceInf,times(1)).deleteSubscription(anyString(), anyString(), anyInt());
+        verify(orderItemService,times(1)).delete(any(OrderItem.class));
     }
 }

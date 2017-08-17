@@ -5,6 +5,9 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -109,6 +112,9 @@ public class MockInfusionsoftBillingIntegrationTest {
         OrderItem orderItem = mapper.readValue(response.getBody(), OrderItem.class);
         Assert.assertNotNull(orderItem);
         Assert.assertNotNull(orderItem.getRecurringOrder());
+        verify(productItemService,times(1)).load(anyInt());
+        verify(contactItemService,times(1)).load(anyString());
+        verify(orderItemService,times(1)).put(any(OrderItem.class));
     }
     
     @Test
@@ -143,5 +149,8 @@ public class MockInfusionsoftBillingIntegrationTest {
         DeletedOrderResp delOrder = mapper.readValue(response.getBody(), DeletedOrderResp.class);
         Assert.assertNotNull(delOrder);
         Assert.assertEquals(new Integer(1), delOrder.getSubscriptionId());
+        verify(orderItemService,times(1)).load(anyInt());
+        verify(invoiceServiceInf,times(1)).deleteInvoice(anyString(), anyString(), anyInt());
+        verify(invoiceServiceInf,times(1)).deleteSubscription(anyString(), anyString(), anyInt());
     }
 }
