@@ -9,6 +9,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.config.SystemEnvVar;
 
 public class DynamodbUtils {
 
@@ -27,8 +28,11 @@ public class DynamodbUtils {
         return client;
     }
     
-    public static AmazonDynamoDB getAmazonDynamoDBInEnv() {
-        return getAmazonDynamoDB(Regions.fromName(Config.DYNAMODB_AWS_REGION), Config.AMAZON_ACCESS_KEY, Config.AMAZON_SECRET_ACCESS_KEY);
+    public static AmazonDynamoDB getAmazonDynamoDBInEnv(SystemEnvVar envVar) {
+        String awsRegion = envVar.getEnv(Config.DYNAMODB_AWS_REGION);
+        String awsAcessKey = envVar.getEnv(Config.AMAZON_ACCESS_KEY);
+        String awsSecretKey = envVar.getEnv(Config.AMAZON_SECRET_ACCESS_KEY);
+        return getAmazonDynamoDB(Regions.fromName(awsRegion), awsAcessKey, awsSecretKey);
     }
     
     public static AmazonDynamoDB getLocallyDynamoDB() {
