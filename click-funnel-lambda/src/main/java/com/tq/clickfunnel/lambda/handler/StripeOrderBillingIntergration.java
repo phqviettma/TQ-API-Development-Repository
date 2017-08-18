@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
-import com.tq.clickfunnel.lambda.modle.CFPurchase;
 import com.tq.clickfunnel.lambda.resp.DeletedOrderResp;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
@@ -36,9 +35,9 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
     private static final Logger log = Logger.getLogger(StripeOrderBillingIntergration.class);
 
     @Override
-    public OrderItem handleCreateBillingOrder(CFPurchase cfPurchase, ContactItem contactItem, ProductItem productItem,
+    public OrderItem handleCreateBillingOrder(Integer purchaseId, ContactItem contactItem, ProductItem productItem,
             LambdaContext lambdaContext) {
-        return addOrderToInf(contactItem, productItem, cfPurchase, lambdaContext);
+        return addOrderToInf(contactItem, productItem, purchaseId, lambdaContext);
     }
     
     @Override
@@ -73,7 +72,7 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
         return retrieveRecurringOrder(orderDetail, recurringOrderInf, apiName, apiKey);
     }
 
-    private OrderItem addOrderToInf(ContactItem contactItem, ProductItem productItem, CFPurchase purchase, LambdaContext lambdaContext) {
+    private OrderItem addOrderToInf(ContactItem contactItem, ProductItem productItem, Integer purchaseId, LambdaContext lambdaContext) {
         long start = System.currentTimeMillis();
         OrderItem orderItem = null;
         ClientInfo client = contactItem.getClient();
@@ -89,7 +88,7 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
             if (order == null)
                 return null;
             OrderDetail orderDtail = buildOrderDetail(client, productItem, infProduct, order);
-            orderItem = new OrderItem().withPurchaseId(purchase.getId()) // as hash key
+            orderItem = new OrderItem().withPurchaseId(purchaseId) // as hash key
                     .withEmail(client.getEmail()).withOrderDetails(Arrays.asList(orderDtail));
 
         } catch (Exception e) {

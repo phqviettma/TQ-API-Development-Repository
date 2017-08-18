@@ -1,5 +1,7 @@
 package com.tq.clickfunnel.lambda.handler;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
@@ -18,21 +20,22 @@ public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution 
     public static final Logger log = Logger.getLogger(HandleEventDeletedOrderExecution.class);
 
     @Override
-    protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload contactPayLoad, CFLambdaContext cfLambdaContext)
+    protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload orderPayload, CFLambdaContext cfLambdaContext)
             throws CFLambdaException {
         long start = System.currentTimeMillis();
         AwsProxyResponse resp = new AwsProxyResponse();
-        CFPurchase purchase = contactPayLoad.getPurchase();
         LambdaContext lambdaContext = cfLambdaContext.getLambdaContext();
         OrderItemService orderItemService = lambdaContext.getOrderItemService();
 
+        CFPurchase cfPurchase = orderPayload.getPurchase();
+        Integer purchaseId = cfPurchase == null ? orderPayload.getId() : cfPurchase.getId();
         // 1. Get the purchase from database.
-        OrderItem purchasedProduct = orderItemService.load(purchase.getId());
+        OrderItem purchasedProduct = orderItemService.load(purchaseId);
         if (purchasedProduct == null)
-            throw new CFLambdaException("The " + purchase.getId() + " has not bean purchased.");
+            throw new CFLambdaException("The " + purchaseId + " has not bean purchased.");
         //2. Execute handle delete Infusion soft & Stripe integrations.
-        CFProducts cfProduct = purchase.getProducts().get(0);
-        String billingName = cfProduct.getBillingIntegration();
+        List<CFProducts> cfProduct = (cfPurchase == null) ? orderPayload.getProducts() : cfPurchase.getProducts();
+        String billingName = cfProduct.get(0).getBillingIntegration();
         log.info("In deleting the " + billingName +" payment integration.");
         
         OrderBillingIntergtion billingIntegration = FactoryOrderBillingIntegration.getBillingIntegration(billingName);

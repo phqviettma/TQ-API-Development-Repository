@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
-import com.tq.clickfunnel.lambda.modle.CFPurchase;
 import com.tq.clickfunnel.lambda.resp.DeletedOrderResp;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
@@ -27,10 +26,10 @@ import com.tq.inf.service.RecurringOrderInf;
 public class InfOrderBillingIntegration extends AbstractOrderBillingIntergtion {
 
     @Override
-    public OrderItem handleCreateBillingOrder(CFPurchase cfPurchase, ContactItem contactItem, ProductItem productItem,
+    public OrderItem handleCreateBillingOrder(Integer purchaseId, ContactItem contactItem, ProductItem productItem,
             LambdaContext lambdaContext) {
         RecurringOrder recurringOrder = retrieveLatestSubscriptionOrder(contactItem, productItem, lambdaContext);
-        OrderItem orderItem = new OrderItem().withEmail(contactItem.getEmail()).withPurchaseId(cfPurchase.getId())
+        OrderItem orderItem = new OrderItem().withEmail(contactItem.getEmail()).withPurchaseId(purchaseId)
                 .withRecurringOrder(recurringOrder);
         return orderItem;
     }

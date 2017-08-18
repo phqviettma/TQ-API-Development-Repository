@@ -8,6 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CFOrderPayload {
     
+    @JsonProperty("id")
+    private Integer id; // as purchase id
+    
     @JsonProperty("event")
     private String event;
     
@@ -52,8 +55,17 @@ public class CFOrderPayload {
         this.contact = contact;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
-        return "CFOrderPayload [event=" + event + ", products=" + products + ", purchase=" + purchase + ", contact=" + contact + "]";
+        return "CFOrderPayload [id=" + id + ", event=" + event + ", products=" + products + ", purchase=" + purchase + ", contact="
+                + contact + "]";
     }
 }

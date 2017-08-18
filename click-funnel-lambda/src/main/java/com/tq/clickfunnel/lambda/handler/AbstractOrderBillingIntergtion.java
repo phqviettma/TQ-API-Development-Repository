@@ -30,13 +30,15 @@ public abstract class AbstractOrderBillingIntergtion implements OrderBillingInte
         // 2. Load Product in DynamoDB that contact is being purchased.
         List<CFProducts> products = (cfPurchase == null) ? orderPayload.getProducts() : cfPurchase.getProducts();
         ProductItem productItem = loadProductAtDB(orderPayload, products.get(0), lambdaContext);
+        
+        Integer purchaseId = cfPurchase == null ? orderPayload.getId() :  cfPurchase.getId();
         //3. Handle for creating order based on Billing integration ( Infusion soft, Stripe )
-        return handleCreateBillingOrder(cfPurchase, contactItem, productItem, lambdaContext);
+        return handleCreateBillingOrder(purchaseId, contactItem, productItem, lambdaContext);
     }
     
     protected abstract Integer getSubscriptionId(OrderItem orderItem, LambdaContext lambdaContext);
 
-    public abstract OrderItem handleCreateBillingOrder(CFPurchase cfPurchase, ContactItem contactItem, ProductItem productItem, LambdaContext lambdaContext);
+    public abstract OrderItem handleCreateBillingOrder(Integer purchaseId, ContactItem contactItem, ProductItem productItem, LambdaContext lambdaContext);
     
     
     protected ContactItem loadContactAtDB(String email, LambdaContext lambdaContext) {
