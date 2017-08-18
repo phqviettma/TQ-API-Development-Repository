@@ -9,7 +9,6 @@ repositories {
 }
 
 dependencies {
-    compile project(':inf-sdk')
     compile project(':sbm-sdk')
     compile project(':common-lambda')
     compile (

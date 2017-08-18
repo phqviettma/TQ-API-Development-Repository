@@ -5,45 +5,45 @@ import com.amazonaws.regions.Regions;
 public class Env {
     private Regions regions = Regions.valueOf(System.getenv("REGIONS"));
 
-    private String awsAccessKeyId = new String(System.getenv("AWS_ACC_KEY_ID"));
-    private String awsSecretAccessKey = new String(System.getenv("AWS_SEC_ACC_KEY"));
-    private String infusionSoftApiName = System.getenv("IS_API_NAME");
-    private String infusionSoftApiKey = new String(System.getenv("IS_API_KEY"));
-    private Integer infusionSoftCancelAppliedTag = Integer.valueOf(System.getenv("IS_CANCEL_TAG"));
-    private Integer infusionSoftCreateAppliedTag = Integer.valueOf(System.getenv("IS_CREATE_TAG"));
+    private String awsAccessKeyId = new String(System.getenv("AMAZON_ACCESS_KEY"));
+    private String awsSecretAccessKey = new String(System.getenv("AMAZON_SECRET_ACCESS_KEY"));
+    private String infusionSoftApiName = System.getenv("INFUSIONSOFT_API_NAME");
+    private String infusionSoftApiKey = new String(System.getenv("INFUSIONSOFT_API_KEY"));
+    private Integer infusionSoftCancelAppliedTag = Integer.valueOf(System.getenv("INFUSIONSOFT_SBM_CANCEL_TAG"));
+    private Integer infusionSoftCreateAppliedTag = Integer.valueOf(System.getenv("INFUSIONSOFT_SBM_CREATE_TAG"));
     
-    private String infusionSoftAppointmentTimeField = System.getenv("IS_APT_TIME_FILED");
-    private String infusionSoftAppointmentLocationField = System.getenv("IS_APT_LOC_FIELD");
-    private String infusionSoftServiceProviderField = System.getenv("IS_SER_PROV_FIELD");
-    private String infusionSoftAppointmentInstructionField = System.getenv("IS_APT_INST_FIELD");
+    private String infusionSoftAppointmentTimeField = System.getenv("INFUSIONSOFT_APT_TIME_FILED");
+    private String infusionSoftAppointmentLocationField = System.getenv("INFUSIONSOFT_APT_LOC_FIELD");
+    private String infusionSoftServiceProviderField = System.getenv("INFUSIONSOFT_SER_PROV_FIELD");
+    private String infusionSoftAppointmentInstructionField = System.getenv("INFUSIONSOFT_APT_INST_FIELD");
     
-    private String simplyBookServiceUrlLogin = System.getenv("SBM_SRV_URL_LOGIN");
-    private String simplyBookAdminServiceUrl = System.getenv("SBM_ADM_SRV_URL");
-    private String simplyBookCompanyLogin = System.getenv("SBM_COMP_LOGIN");
-    private String simplyBookUser = System.getenv("SBM_USER");
-    private String simplyBookPassword = new String(System.getenv("SBM_PASSWORD"));
-    private String simplyBookApiKey = new String(System.getenv("SBM_KEY"));
-    private String simplyBookSecretKey = new String(System.getenv("SBM_SECRET_KEY"));
+    private String simplyBookServiceUrlLogin = System.getenv("SIMPLY_BOOK_SERVICE_URL_lOGIN");
+    private String simplyBookAdminServiceUrl = System.getenv("SIMPLY_BOOK_ADMIN_SERVICE_URL");
+    private String simplyBookCompanyLogin = System.getenv("SIMPLY_BOOK_COMPANY_LOGIN");
+    private String simplyBookUser = System.getenv("SIMPLY_BOOK_USER_NAME");
+    private String simplyBookPassword = new String(System.getenv("SIMPLY_BOOK_PASSWORD"));
+    private String simplyBookApiKey = new String(System.getenv("SIMPLY_BOOK_API_KEY"));
+    private String simplyBookSecretKey = new String(System.getenv("SIMPLY_BOOK_SECRET_KEY"));
 
     private Env() {
         assertVar(regions, "REGIONS");
-        assertVar(awsAccessKeyId, "AWS_ACC_KEY_ID");
-        assertVar(awsSecretAccessKey, "AWS_SEC_ACC_KEY");
-        assertVar(infusionSoftApiName, "IS_API_NAME");
-        assertVar(infusionSoftApiKey, "IS_API_KEY");
-        assertVar(infusionSoftCancelAppliedTag, "IS_CANCEL_TAG");
-        assertVar(infusionSoftCreateAppliedTag, "IS_CREATE_TAG");
-        assertVar(infusionSoftAppointmentTimeField, "IS_APT_TIME_FILED");
-        assertVar(infusionSoftAppointmentLocationField, "IS_APT_LOC_FIELD");
-        assertVar(infusionSoftServiceProviderField, "IS_SER_PROV_FIELD");
-        assertVar(infusionSoftAppointmentInstructionField, "IS_APT_INST_FIELD");
-        assertVar(simplyBookServiceUrlLogin, "SBM_SRV_URL_LOGIN");
-        assertVar(simplyBookAdminServiceUrl, "SBM_ADM_SRV_URL");
-        assertVar(simplyBookCompanyLogin, "SBM_COMP_LOGIN");
-        assertVar(simplyBookUser, "SBM_USER");
-        assertVar(simplyBookPassword, "SBM_PASSWORD");
-        assertVar(simplyBookApiKey, "SBM_KEY");
-        assertVar(simplyBookSecretKey, "SBM_SECRET_KEY");
+        assertVar(awsAccessKeyId, "AMAZON_ACCESS_KEY");
+        assertVar(awsSecretAccessKey, "AMAZON_SECRET_ACCESS_KEY");
+        assertVar(infusionSoftApiName, "INFUSIONSOFT_API_NAME");
+        assertVar(infusionSoftApiKey, "INFUSIONSOFT_API_KEY");
+        assertVar(infusionSoftCancelAppliedTag, "INFUSIONSOFT_SBM_CANCEL_TAG");
+        assertVar(infusionSoftCreateAppliedTag, "INFUSIONSOFT_SBM_CREATE_TAG");
+        assertVar(infusionSoftAppointmentTimeField, "INFUSIONSOFT_APT_TIME_FILED");
+        assertVar(infusionSoftAppointmentLocationField, "INFUSIONSOFT_APT_LOC_FIELD");
+        assertVar(infusionSoftServiceProviderField, "INFUSIONSOFT_SER_PROV_FIELD");
+        assertVar(infusionSoftAppointmentInstructionField, "INFUSIONSOFT_APT_INST_FIELD");
+        assertVar(simplyBookServiceUrlLogin, "SIMPLY_BOOK_SERVICE_URL_lOGIN");
+        assertVar(simplyBookAdminServiceUrl, "SIMPLY_BOOK_ADMIN_SERVICE_URL");
+        assertVar(simplyBookCompanyLogin, "SIMPLY_BOOK_COMPANY_LOGIN");
+        assertVar(simplyBookUser, "SIMPLY_BOOK_USER_NAME");
+        assertVar(simplyBookPassword, "SIMPLY_BOOK_PASSWORD");
+        assertVar(simplyBookApiKey, "SIMPLY_BOOK_API_KEY");
+        assertVar(simplyBookSecretKey, "SIMPLY_BOOK_SECRET_KEY");
     }
     
     private static Env instance;

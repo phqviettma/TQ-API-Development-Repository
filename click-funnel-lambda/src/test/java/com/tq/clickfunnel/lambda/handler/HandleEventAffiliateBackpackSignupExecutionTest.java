@@ -35,7 +35,7 @@ public class HandleEventAffiliateBackpackSignupExecutionTest {
         Map<String, String> env = new HashMap<>();
         //InfusionSoft configuration
         env.put(Config.INFUSIONSOFT_API_NAME, "https://uf238.infusionsoft.com/api/xmlrpc");
-        env.put(Config.INFUSIONSOFT_API_KEY, "da2083451dab102fbd9122c05629fe63");
+        env.put(Config.INFUSIONSOFT_API_KEY, "");
         env.put(Config.INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG, "300");
         envVar.setValueSystems(env);
         
