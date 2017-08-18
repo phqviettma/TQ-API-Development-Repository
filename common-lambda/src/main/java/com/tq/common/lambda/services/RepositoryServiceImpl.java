@@ -5,14 +5,17 @@ import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.CountryItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.OrderItemDaoimpl;
 import com.tq.common.lambda.dynamodb.dao.ProductItemDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.SignupItemDaoImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.CountryItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.OrderItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ProductItemServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.SignupItemServiceImpl;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.OrderItemService;
 import com.tq.common.lambda.dynamodb.service.ProductItemService;
+import com.tq.common.lambda.dynamodb.service.SignupItemService;
 
 public class RepositoryServiceImpl implements RepositoryService {
     
@@ -40,6 +43,11 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     public ProductItemService getProductItemService() {
         return new ProductItemServiceImpl(new ProductItemDaoImpl(m_client));
+    }
+
+    @Override
+    public SignupItemService getSignupItemService() {
+        return new SignupItemServiceImpl(new SignupItemDaoImpl(m_client));
     }
 
 }

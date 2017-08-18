@@ -20,7 +20,7 @@ import com.tq.inf.service.ContactServiceInf;
 
 public abstract class AbstractEventContactExecution extends AbstractEventPayloadExecution {
 
-    private static final Logger log = Logger.getLogger(AbstractEventContactExecution.class);
+    protected static final Logger log = Logger.getLogger(AbstractEventContactExecution.class);
 
     protected ContactItem persitClientVoInDB(CFContact funnelContact, Integer clientSbmId, Integer contactInfId, LambdaContext lambdaContext)
             throws JsonProcessingException {

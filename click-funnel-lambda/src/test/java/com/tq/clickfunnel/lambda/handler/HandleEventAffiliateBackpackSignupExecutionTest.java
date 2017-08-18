@@ -62,7 +62,7 @@ public class HandleEventAffiliateBackpackSignupExecutionTest {
     public void test() throws Exception {
         Context context = mock(Context.class);
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("contact-affilicate-backpack-singup.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("contact-affilicate-backpack-singup-new.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.AFFILICATE_SIGNUP);

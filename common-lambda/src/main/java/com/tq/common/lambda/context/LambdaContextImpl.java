@@ -7,6 +7,7 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.OrderItemService;
 import com.tq.common.lambda.dynamodb.service.ProductItemService;
+import com.tq.common.lambda.dynamodb.service.SignupItemService;
 import com.tq.common.lambda.services.ISExternalService;
 import com.tq.common.lambda.services.ISExternalServiceImpl;
 import com.tq.common.lambda.services.RepositoryService;
@@ -89,6 +90,11 @@ public class LambdaContextImpl implements LambdaContext {
     @Override
     public ContactItemService getContactItemService() {
         return m_repositoryService.getContactItemService();
+    }
+    
+    @Override
+    public SignupItemService getSignupItemService() {
+        return m_repositoryService.getSignupItemService();
     }
 
     @Override

@@ -1,0 +1,21 @@
+{
+   "purchaseId":17059575,
+   "email":"dev1tma@gmail.com",
+   "orderDetails":[
+      {
+         "contactId":10308,
+         "orderIdInf":1,
+         "invoiceInf":4206,
+         "productIdInfs":[
+            4
+         ],
+         "productCf":961884,
+         "createdAt":"2017-08-10 17:59:28",
+         "updatedAt":"2017-08-10 17:59:28",
+         "successful":"false",
+         "message":"DECLINE - Response code(200)",
+         "refNum":"2879922578",
+         "code":"None"
+      }
+   ]
+}
