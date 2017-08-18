@@ -112,7 +112,7 @@ public class InfusionsoftInterceptorEventPayloadExternalProxyTest {
 	         HashMap<String, String> event = new HashMap<>();
 	         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);
 	         req.setQueryStringParameters(event);
-	         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, m_context);
+	         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
 	         log.info(response.getBody());
 	         DeletedOrderResp delOrder = mapper.readValue(response.getBody(),DeletedOrderResp.class);
 	         Assert.assertNotNull(delOrder);

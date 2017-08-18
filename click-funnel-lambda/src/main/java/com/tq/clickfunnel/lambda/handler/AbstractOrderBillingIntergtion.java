@@ -24,11 +24,12 @@ public abstract class AbstractOrderBillingIntergtion implements OrderBillingInte
     @Override
     public OrderItem createBilling(CFOrderPayload orderPayload, LambdaContext lambdaContext) throws CFLambdaException {
         CFPurchase cfPurchase = orderPayload.getPurchase();
-        CFContact contact = cfPurchase.getContact();
+        CFContact contact = (cfPurchase == null) ? orderPayload.getContact() : cfPurchase.getContact();
         // 1. Load the contact already existed in DynamoDB based on email
         ContactItem contactItem = loadContactAtDB(contact.getEmail(), lambdaContext);
         // 2. Load Product in DynamoDB that contact is being purchased.
-        ProductItem productItem = loadProductAtDB(orderPayload, cfPurchase, lambdaContext);
+        List<CFProducts> products = (cfPurchase == null) ? orderPayload.getProducts() : cfPurchase.getProducts();
+        ProductItem productItem = loadProductAtDB(orderPayload, products.get(0), lambdaContext);
         //3. Handle for creating order based on Billing integration ( Infusion soft, Stripe )
         return handleCreateBillingOrder(cfPurchase, contactItem, productItem, lambdaContext);
     }
@@ -45,12 +46,8 @@ public abstract class AbstractOrderBillingIntergtion implements OrderBillingInte
         return contactItem;
     }
 
-    protected ProductItem loadProductAtDB(CFOrderPayload contactPayLoad, CFPurchase purchase, LambdaContext lambdaContext) {
-        List<CFProducts> products = purchase.getProducts();
-        if (products == null || products.isEmpty()) {
-            throw new CFLambdaException("No any products is purchased with " + purchase.getId() + " identification.");
-        }
-        Integer cfProudctionID = products.get(0).getId();
+    protected ProductItem loadProductAtDB(CFOrderPayload contactPayLoad, CFProducts product, LambdaContext lambdaContext) {
+        Integer cfProudctionID = product.getId();
         ProductItem productItem = lambdaContext.getProductItemService().load(cfProudctionID);
         if (productItem == null)
             throw new CFLambdaException(cfProudctionID + " not found.");

@@ -45,9 +45,9 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
     static {
         Map<String, String> env = new HashMap<>();
         //InfusionSoft configuration
-        env.put(Config.INFUSIONSOFT_API_NAME, "https://uf238.infusionsoft.com/api/xmlrpc");
+        env.put(Config.INFUSIONSOFT_API_NAME, "https://bh321.infusionsoft.com/api/xmlrpc");
         env.put(Config.INFUSIONSOFT_API_KEY, "");
-        env.put(Config.INFUSION_ORDER_PROMO_CODE, "TIOwner");
+        env.put(Config.INFUSION_ORDER_PROMO_CODE, "");
         //SimplyBookMe Configuration
         env.put(Config.SIMPLY_BOOK_COMPANY_LOGIN, "phqviet93gmailcom");
         env.put(Config.SIMPLY_BOOK_USER_NAME, "admin");
@@ -57,7 +57,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
         //AWS configuration
         env.put(Config.AMAZON_ACCESS_KEY, "");
         env.put(Config.AMAZON_SECRET_ACCESS_KEY, "");
-        env.put(Config.DYNAMODB_AWS_REGION, "");
+        env.put(Config.DYNAMODB_AWS_REGION, "us-east-1");
         
         envVar.setValueSystems(env);
     }
@@ -65,7 +65,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
     @Before
     public void init() throws IOException {
         // Initialize the external environment for testing locally
-        AmazonDynamoDB client = DynamodbUtils.getLocallyDynamoDB();
+        AmazonDynamoDB client = DynamodbUtils.getAmazonDynamoDBInEnv(envVar);
         m_lambdaContext = LambdaContextImpl.builder()
                 .withClient(client)
                 .withEnvVar(envVar)
@@ -103,7 +103,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
     public void testCreatedExternalStripeOrderIntegration() throws IOException {
         // Simulator for receiving Order of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe2.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
@@ -116,7 +116,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
     public void testDeletedExternalStripeOrderIntegration() throws IOException {
         // Simulator for receiving Order of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();
-        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe.json"));
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe2.json"));
         req.setBody(jsonString);
         HashMap<String, String> event = new HashMap<>();
         event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_DELETED);
