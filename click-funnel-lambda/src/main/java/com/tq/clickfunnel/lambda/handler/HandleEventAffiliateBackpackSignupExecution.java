@@ -4,16 +4,14 @@ import java.io.IOException;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
-import com.tq.clickfunnel.lambda.modle.CFAffilicateSingupPayload;
 import com.tq.clickfunnel.lambda.modle.CFContact;
+import com.tq.clickfunnel.lambda.modle.CFContactPayload;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
-import com.tq.common.lambda.dynamodb.model.SignupInfo;
-import com.tq.common.lambda.dynamodb.model.SignupItem;
+import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.ApplyTagQuery;
 
@@ -29,12 +27,12 @@ public class HandleEventAffiliateBackpackSignupExecution extends AbstractEventCo
     public AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
         AwsProxyResponse resp = new AwsProxyResponse();
         LambdaContext lambdaContext = cfLambdaContext.getLambdaContext();
-        SignupItem contactItem = null;
+        ContactItem contactItem = null;
         try {
             // 1. building Client of Click Funnel from incoming AWS proxy request.
-            CFAffilicateSingupPayload contactPayLoad = m_mapper.readValue(input.getBody(), CFAffilicateSingupPayload.class);
-            if (contactPayLoad != null && contactPayLoad.getContact_profile() != null) {
-                CFContact funnelContact = contactPayLoad.getContact_profile();
+            CFContactPayload contactPayLoad = m_mapper.readValue(input.getBody(), CFContactPayload.class);
+            if (contactPayLoad != null && contactPayLoad.getContact() != null) {
+                CFContact funnelContact = contactPayLoad.getContact();
 
                 // 2. creating the contact based on Contact of Click Funnel on Infusion soft
                 Integer contactInfId = addContactToInfusionsoft(funnelContact, lambdaContext);
@@ -43,7 +41,7 @@ public class HandleEventAffiliateBackpackSignupExecution extends AbstractEventCo
                 applyInfusionSoftTagToContact(lambdaContext, contactInfId);
 
                 // 4. Saving the client & contact ID into DynamoDB.
-                contactItem = persitSignupVoInDB(funnelContact, contactInfId, lambdaContext);
+                contactItem = persitClientVoInDB(funnelContact, null, contactInfId, lambdaContext);
             }
         } catch (IOException | CFLambdaException | InfSDKExecption e) {
             throw new CFLambdaException(e.getMessage(), e);
@@ -53,25 +51,6 @@ public class HandleEventAffiliateBackpackSignupExecution extends AbstractEventCo
         return resp;
     }
 
-    protected SignupItem persitSignupVoInDB(CFContact funnelContact, Integer contactInfId, LambdaContext lambdaContext)
-            throws JsonProcessingException {
-        // build client to save DynomaDB
-        long start = System.currentTimeMillis();
-        SignupInfo clientInfo = new SignupInfo().withContactId(contactInfId).withEmail(funnelContact.getEmail())
-                .withFirstName(funnelContact.getFirstName()).withLastName(funnelContact.getLastName()).withPhone1(funnelContact.getPhone())
-                .withAddress1(funnelContact.getAddress()).withCountry(funnelContact.getCountry())
-                .withCreatedAt(Config.DATE_FORMAT_24_H.format(funnelContact.getCreateAt()))
-                .withUpdatedAt(Config.DATE_FORMAT_24_H.format(funnelContact.getUpdateAt()));
-
-        SignupItem signupItem = new SignupItem().withEmail(funnelContact.getEmail()) // unique
-                                                                                        // key
-                .withContactInfo(clientInfo);
-        lambdaContext.getSignupItemService().put(signupItem);
-        log.info(String.format("addDBSignup()= %d ms", (System.currentTimeMillis() - start)));
-        
-        return signupItem;
-    }
-    
     private void applyInfusionSoftTagToContact(LambdaContext lambdaContext, Integer contactInfId) throws InfSDKExecption {
         EnvVar envVar = lambdaContext.getEnvVar();
         Integer appliedTagId = Integer.valueOf(envVar.getEnv(Config.INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG));
