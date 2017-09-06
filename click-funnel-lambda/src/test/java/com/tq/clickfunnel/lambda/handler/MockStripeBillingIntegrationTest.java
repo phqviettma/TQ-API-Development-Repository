@@ -25,6 +25,7 @@ import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
+import com.tq.clickfunnel.lambda.handler.HandleEventCreatedOrderExecution.AlreadyProccessedOrder;
 import com.tq.clickfunnel.lambda.resp.DeletedOrderResp;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;
@@ -173,6 +174,53 @@ public class MockStripeBillingIntegrationTest {
         verify(orderServiceInf,times(1)).addOrder(any(String.class), any(String.class), any(OrderQuery.class));
         verify(orderItemService,times(1)).put(any(OrderItem.class));
         verify(contactItemService,times(1)).load(anyString());
+    }
+    
+    @Test
+    public void testEventCreatedStripeOrderIntegrationForOrderAlreadyProcessed() throws Exception {
+        Context context = mock(Context.class);
+        AwsProxyRequest req = new AwsProxyRequest();
+        String jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("order-payload-stripe.json"));
+        req.setBody(jsonString);
+        HashMap<String, String> event = new HashMap<>();
+        event.put(EventType.EVENT_PARAMETER_NAME, EventType.ORDER_CREATED);
+        req.setQueryStringParameters(event);
+
+        jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("contactItem-dummy-uf238.json"));
+        ContactItem contactDummy = mapper.readValue(jsonString, ContactItem.class);
+        ContactItemService contactItemService = m_lambdaContext.getContactItemService();
+        when(contactItemService.load("dev1tma@gmail.com")).thenReturn(contactDummy);
+
+        jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("product-dummy-uf238.json"));
+        ProductItem productItem = mapper.readValue(jsonString, ProductItem.class);
+
+        ProductItemService productItemService = m_lambdaContext.getProductItemService();
+        when(productItemService.load(anyInt())).thenReturn(productItem);
+
+        Map<String, String> order = new HashMap<>();
+        order.put("OrderId", "1");
+        order.put("InvoiceId", "4206");
+        order.put("Code", "None");
+        order.put("RefNum", "2879922578");
+        order.put("Message", "DECLINE - Response code(200)");
+        order.put("Successful", "false");
+        // Adding order into infusion soft mock
+        OrderServiceInf orderServiceInf = m_lambdaContext.getOrderServiceInf();
+        when(orderServiceInf.addOrder(any(String.class), any(String.class), any(OrderQuery.class))).thenReturn(order);
+        // Adding order into DynamoDB mock
+        OrderItemService orderItemService = m_lambdaContext.getOrderItemService();
+        OrderItem alreadyProcessOrder = new OrderItem();
+        alreadyProcessOrder.setPurchaseId(123);
+        when(orderItemService.load(anyInt())).thenReturn(alreadyProcessOrder);
+        AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
+        log.info(response.getBody());
+        HandleEventCreatedOrderExecution.AlreadyProccessedOrder orderItem = mapper.readValue(response.getBody(), HandleEventCreatedOrderExecution.AlreadyProccessedOrder.class);
+        Assert.assertNotNull(orderItem);
+        verify(productItemService,times(0)).load(anyInt());
+        verify(orderServiceInf,times(0)).addOrder(any(String.class), any(String.class), any(OrderQuery.class));
+        verify(orderItemService,times(0)).put(any(OrderItem.class));
+        verify(orderItemService,times(1)).load(anyInt());
+        verify(contactItemService,times(0)).load(anyString());
     }
     
     @Test

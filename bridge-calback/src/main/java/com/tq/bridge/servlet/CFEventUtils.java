@@ -23,13 +23,13 @@ public class CFEventUtils {
 
     public static final String API_GATEWAY_STAGES = "prod/";
 
-    public static final String TQ_API_GATEGAY_CF_EVENT = "https://7xwmw4k933.execute-api.us-east-1.amazonaws.com/" + API_GATEWAY_STAGES;
+    public static final String TQ_API_GATEGAY_CF_EVENT = "https://tn1t3stem3.execute-api.us-east-1.amazonaws.com/" + API_GATEWAY_STAGES;
 
     public static void makeRequest(HttpServletRequest request, HttpServletResponse response, String apiGatewayResource) throws IOException {
         // get Json from incoming request to build new request
         StringBuilder jsonBuff = CFEventUtils.getJsonFromRequest(request);
         // making request to AWS lambda
-        String awsRes = null;
+        Resp awsRes = null;
         try {
             String endpoint = TQ_API_GATEGAY_CF_EVENT + apiGatewayResource;
             awsRes = CFEventUtils.makeAwsLambdaRequest(endpoint, jsonBuff.toString(), request);
@@ -38,10 +38,11 @@ public class CFEventUtils {
             CFEventUtils.handleErrorResponse(response, e.getMessage());
             return;
         }
+        
         CFEventUtils.handleResponse(response, awsRes);
     }
 
-    private static String makeAwsLambdaRequest(String endpoint, String json, HttpServletRequest request) throws Exception {
+    private static Resp makeAwsLambdaRequest(String endpoint, String json, HttpServletRequest request) throws Exception {
         SSLContext sslcontext = SSLContexts.custom().build();
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1.1", "TLSv1.2" }, null,
                 SSLConnectionSocketFactory.getDefaultHostnameVerifier());
@@ -51,11 +52,11 @@ public class CFEventUtils {
             StringEntity input = new StringEntity(json, "UTF-8");
             postRequest.setEntity(input);
             HttpResponse response = httpClient.execute(postRequest);
-            return EntityUtils.toString(response.getEntity(), "UTF-8");
+            return new Resp(response.getStatusLine().getStatusCode(), EntityUtils.toString(response.getEntity(), "UTF-8"));
         } catch (Exception e) {
             log.error("{}", e);
         }
-        return "";
+        return null;
     }
 
     private static StringBuilder getJsonFromRequest(HttpServletRequest request) {
@@ -73,15 +74,35 @@ public class CFEventUtils {
         return jsonBuff;
     }
 
-    private static void handleResponse(HttpServletResponse response, String awsResJson) throws IOException {
+    private static void handleResponse(HttpServletResponse response, Resp res) throws IOException {
+    	String awsResJson = res != null ? res.getBody() : null;
         String rebuild = awsResJson == null ? "{\"aws\": \"Response not found.\"}" : awsResJson;
         response.setContentType("application/json");
         response.getWriter().write(rebuild);
+        response.setStatus(res.getStatusCode());
     }
 
     private static void handleErrorResponse(HttpServletResponse response, String error) throws IOException {
         String rebuild = String.format("{\"error\": \"%s\"}", error);
         response.setContentType("application/json");
         response.getWriter().write(rebuild);
+        response.setStatus(400);
+    }
+    
+    private static class Resp {
+    	private final int statusCode;
+    	private final String body;
+    	
+    	private Resp(int statusCode, String body) {
+			this.statusCode = statusCode;
+			this.body = body;
+		}
+		
+		public int getStatusCode() {
+			return statusCode;
+		}
+		public String getBody() {
+			return body;
+		}
     }
 }

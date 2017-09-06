@@ -32,7 +32,7 @@ public class HandleEventDeletedOrderExecution extends HandleEventOrderExecution 
         // 1. Get the purchase from database.
         OrderItem purchasedProduct = orderItemService.load(purchaseId);
         if (purchasedProduct == null)
-            throw new CFLambdaException("The " + purchaseId + " has not bean purchased.");
+            throw new CFLambdaException("The " + purchaseId + " has not been purchased.");
         //2. Execute handle delete Infusion soft & Stripe integrations.
         List<CFProducts> cfProduct = (cfPurchase == null) ? orderPayload.getProducts() : cfPurchase.getProducts();
         String billingName = cfProduct.get(0).getBillingIntegration();
