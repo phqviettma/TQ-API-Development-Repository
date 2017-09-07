@@ -23,7 +23,7 @@ public class CFEventUtils {
 
     public static final String API_GATEWAY_STAGES = "prod/";
 
-    public static final String TQ_API_GATEGAY_CF_EVENT = "https://tn1t3stem3.execute-api.us-east-1.amazonaws.com/" + API_GATEWAY_STAGES;
+    public static final String TQ_API_GATEGAY_CF_EVENT = "https://bacwgg46if.execute-api.us-east-1.amazonaws.com/" + API_GATEWAY_STAGES;
 
     public static void makeRequest(HttpServletRequest request, HttpServletResponse response, String apiGatewayResource) throws IOException {
         // get Json from incoming request to build new request

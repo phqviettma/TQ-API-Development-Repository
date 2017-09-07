@@ -28,8 +28,10 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         List<CFProducts> products = null;
         CFPurchase purchase = orderPayload.getPurchase();
         
-        if(purchase.getId() != null) {
-        	OrderItem purchasedOrder = lambdaContext.getOrderItemService().load(purchase.getId());
+        Integer purchaseId = (purchase == null) ? orderPayload.getId() :  purchase.getId();
+        
+        if(purchaseId != null) {
+        	OrderItem purchasedOrder = lambdaContext.getOrderItemService().load(purchaseId);
         	if(purchasedOrder != null) {
         		handleResponse(input, resp, new AlreadyProccessedOrder(purchasedOrder));
         	} else {
