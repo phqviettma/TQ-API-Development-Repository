@@ -5,11 +5,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TestClinikoClient {
-	
-	@Test
 	public void testGet() throws Exception {
 		Env env = mock(Env.class);
-		when(env.getApiKey()).thenReturn("b66b4caab8e4fd3e03b1dc88aa064339");
+		when(env.getApiKey()).thenReturn("");
 		when(env.getApiUrl()).thenReturn("https://api.cliniko.com/v1");
 		String response = ClinikoClient.request(new GetAppointmentsApiReq(env, null));
 		System.out.println(response);
