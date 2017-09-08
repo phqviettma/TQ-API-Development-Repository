@@ -13,8 +13,8 @@ public class ClinikoSbm implements Serializable {
 	 */
 	private static final long serialVersionUID = 6828809468118857668L;
 	private int clinikoId;
-	private String clinikoUnavailableTime;
-	private String sbmUnavailableTime;
+	private String clinikoBlockTime;
+	private String sbmBlockTime;
 
 	@DynamoDBHashKey(attributeName = "clinikoId")
 	public int getClinikoId() {
@@ -25,28 +25,28 @@ public class ClinikoSbm implements Serializable {
 		this.clinikoId = clinikoId;
 	}
 
-	@DynamoDBAttribute(attributeName = "clinikoUnvailableTime")
-	public String getClinikoUnavailableTime() {
-		return clinikoUnavailableTime;
+	@DynamoDBAttribute(attributeName = "clinikoBlockTime")
+	public String getclinikoBlockTime() {
+		return clinikoBlockTime;
 	}
 
-	public void setClinikoUnavailableTime(String clinikoUnavailableTime) {
-		this.clinikoUnavailableTime = clinikoUnavailableTime;
+	public void setclinikoBlockTime(String clinikoBlockTime) {
+		this.clinikoBlockTime = clinikoBlockTime;
 	}
 
-	@DynamoDBAttribute(attributeName = "sbmUnavailableTime")
-	public String getSbmUnavailableTime() {
-		return sbmUnavailableTime;
+	@DynamoDBAttribute(attributeName = "sbmBlockTime")
+	public String getsbmBlockTime() {
+		return sbmBlockTime;
 	}
 
-	public void setSbmUnavailableTime(String sbmUnavailableTime) {
-		this.sbmUnavailableTime = sbmUnavailableTime;
+	public void setsbmBlockTime(String sbmBlockTime) {
+		this.sbmBlockTime = sbmBlockTime;
 	}
 
 	@Override
 	public String toString() {
-		return "ClinikoSbm [clinikoId=" + clinikoId + ", clinikoUnavailableTime=" + clinikoUnavailableTime
-				+ ", sbmUnavailableTime=" + sbmUnavailableTime + "]";
+		return "ClinikoSbm [clinikoId=" + clinikoId + ", clinikoBlockTime=" + clinikoBlockTime
+				+ ", sbmBlockTime=" + sbmBlockTime + "]";
 	}
 
 }
