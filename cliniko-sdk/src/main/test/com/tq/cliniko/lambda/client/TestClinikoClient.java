@@ -35,21 +35,22 @@ public class TestClinikoClient {
 		System.out.println(responseCreateAppointment);
 
 	}
-
+	
 	public void testGetAppointment() throws Exception {
 		Env env = mock(Env.class);
 		when(env.getApiKey()).thenReturn("");
 		when(env.getApiUrl()).thenReturn("https://api.cliniko.com/v1");
-		String response = ClinikoClient.request(new GetAppointmentApiReq(env, "82978145"));
+		String response = ClinikoClient.request(new GetAppointmentApiReq(env, "82977543"));
 		System.out.println(response);
 
 	}
+
 
 	public void testDeleteAppointment() throws Exception {
 		Env env = mock(Env.class);
 		when(env.getApiKey()).thenReturn("");
 		when(env.getApiUrl()).thenReturn("https://api.cliniko.com/v1");
-		String response = ClinikoClient.request(new DeleteAppointmentApiReq(env, "appointments/82978145"));
+		String response = ClinikoClient.request(new DeleteAppointmentApiReq(env, "appointments/82977543"));
 		System.out.println(response);
 
 	}
