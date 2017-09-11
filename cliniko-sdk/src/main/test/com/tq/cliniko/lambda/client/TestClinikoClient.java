@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TestClinikoClient {
+	@Test
 	public void testGet() throws Exception {
 		Env env = mock(Env.class);
 		when(env.getApiKey()).thenReturn("");

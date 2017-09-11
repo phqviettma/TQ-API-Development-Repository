@@ -1,4 +1,4 @@
-package com.tq.cliniko.lambda.utils;
+package com.tq.cliniko.test;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -14,6 +14,7 @@ import com.tq.cliniko.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.cliniko.lambda.model.ClinikoSbm;
 import com.tq.cliniko.lambda.model.SbmCliniko;
 import com.tq.common.lambda.utils.DynamodbUtils;
+
 
 public class TestClinikoSbmSync {
 	static AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().build();
