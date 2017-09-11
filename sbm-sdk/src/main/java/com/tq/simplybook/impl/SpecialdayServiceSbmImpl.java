@@ -2,12 +2,8 @@ package com.tq.simplybook.impl;
 
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.DayInfoReq;
-import com.tq.simplybook.req.SpecialDayReq;
-
 import com.tq.simplybook.resp.WorkTimeDetail;
-import com.tq.simplybook.resp.WorkdayDetail;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
-import com.tq.simplybook.test.WorkdayInfo;
 import com.tq.simplybook.utils.SbmExecute;
 import com.tq.simplybook.utils.SbmUtils;
 
@@ -42,5 +38,4 @@ public class SpecialdayServiceSbmImpl implements SpecialdayServiceSbm {
 
 	}
 
-	
 }
