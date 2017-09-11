@@ -68,6 +68,7 @@ public class ClinikoClient {
 		SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext,
 				new String[] { "TLSv1.1", "TLSv1.2" }, null, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 		try (CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslsf).build();) {
+			System.out.println(req);
 			HttpResponse response = httpClient.execute(req);
 			return EntityUtils.toString(response.getEntity(), "UTF-8");
 		} catch (Exception e) {

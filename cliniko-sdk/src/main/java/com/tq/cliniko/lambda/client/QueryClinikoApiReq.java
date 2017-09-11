@@ -5,18 +5,18 @@ import java.net.URLEncoder;
 
 public abstract class QueryClinikoApiReq extends GenericClinikoApiReq {
 	
-	private final String m_queyStatement;
+	private final String m_queryStatement;
 	
-	public QueryClinikoApiReq(Env env, String httpMethod, String resource, String cotent, String queyStatement, String json) {
-		super(env, httpMethod, resource, cotent, json);
-		m_queyStatement = queyStatement;
+	public QueryClinikoApiReq(String baseApiUrl, String apiKey, String httpMethod, String resource, String content, String queryStatement, String json) {
+		super(baseApiUrl,apiKey, httpMethod, resource, content, json);
+		m_queryStatement = queryStatement;
 	}
 	
 	@Override
 	public String getEnpoint() {
-		if(m_queyStatement != null) {
+		if(m_queryStatement != null) {
 			try {
-				return super.getEnpoint() + "?q[]=" + URLEncoder.encode(m_queyStatement, "UTF-8");
+				return super.getEnpoint() + "?q[]=" + URLEncoder.encode(m_queryStatement, "UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				throw new RuntimeException(e);
 			}

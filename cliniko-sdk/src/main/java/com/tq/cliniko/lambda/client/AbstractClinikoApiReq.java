@@ -1,23 +1,26 @@
 package com.tq.cliniko.lambda.client;
 
 public abstract class AbstractClinikoApiReq implements ClinikoApiReq {
+	protected final static String JSON_MEDIA_TYPE = "application/json";
+	protected final static String USER_AGENT = "TrueQuit";
+	
 	private final String m_httpMethod;
 	private final String m_baseApiUrl;
 	private final String m_apiKey;
 	private final String m_accept;
 	private final String m_userAgent;
-	private final String m_cotent;
-	private final String m_object;	
+	private final String m_content;
+	private final Object m_object;	
 	private String m_endpoint = null;
 	
-	public AbstractClinikoApiReq(String httpMethod, String baseApiUrl, String apiKey, String resource, String accept, String userAgent, String cotent, String json) {
+	public AbstractClinikoApiReq(String baseApiUrl, String apiKey, String httpMethod, String resource, String accept, String userAgent, String content, Object object) {
 		this.m_httpMethod = httpMethod;
 		this.m_baseApiUrl = baseApiUrl;
 		this.m_apiKey = apiKey;
 		this.m_accept = accept;
 		this.m_userAgent = userAgent;
-		this.m_cotent = cotent;
-		this.m_object = json;
+		this.m_content = content;
+		this.m_object = object;
 		
 		this.m_endpoint = m_baseApiUrl + "/" + resource;
 	}
@@ -49,11 +52,11 @@ public abstract class AbstractClinikoApiReq implements ClinikoApiReq {
 
 	@Override
 	public String getCotent() {
-		return m_cotent;
+		return m_content;
 	}
 
 	@Override
-	public String getObject() {
+	public Object getObject() {
 		return m_object;
 	}
 	
