@@ -10,20 +10,19 @@ import com.tq.cliniko.lambda.model.AppointmentInfo;
 public class TestClinikoClient {
 
 	public void testGet() throws Exception {
-		Env env = mock(Env.class);
-		when(env.getApiKey()).thenReturn("");
-		when(env.getApiUrl()).thenReturn("https://api.cliniko.com/v1");
-		String response = ClinikoClient.request(new GetAppointmentsApiReq(env, null));
-		System.out.println(response);
-		response = ClinikoClient.request(new GetAppointmentsApiReq(env, "appointment_start:>2019-09-11T03:30:00.000Z"));
-		System.out.println(response);
 
+		
+	/*	String response = ClinikoClient.request(
+				new GetAppointmentsApiReq("b66b4caab8e4fd3e03b1dc88aa064339",null));
+		System.out.println(response);
+		response = ClinikoClient.request(new GetAppointmentsApiReq("https://api.cliniko.com/v1",
+				"b66b4caab8e4fd3e03b1dc88aa064339", "appointment_start:>2019-09-11T03:30:00.000Z"));
+		System.out.println(response);
+*/
 	}
 
 	public void testCreatAppointment() throws Exception {
-		Env env = mock(Env.class);
-		when(env.getApiKey()).thenReturn("");
-		when(env.getApiUrl()).thenReturn("https://api.cliniko.com/v1");
+	
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00.000Z");
 		appointmentInfo.setPatient_id(44083214);
@@ -31,26 +30,25 @@ public class TestClinikoClient {
 		appointmentInfo.setBusiness_id(53724);
 		appointmentInfo.setPractitioner_id(80819);
 
-		String responseCreateAppointment = ClinikoClient.request(new CreateAppointmentApiReq(env, appointmentInfo));
+		String responseCreateAppointment = UtilsExecutor.request(new PostClinikoApiReq("https://api.cliniko.com/v1", "",appointmentInfo));
 		System.out.println(responseCreateAppointment);
 
 	}
-	
+
 	public void testGetAppointment() throws Exception {
 		Env env = mock(Env.class);
 		when(env.getApiKey()).thenReturn("");
 		when(env.getApiUrl()).thenReturn("https://api.cliniko.com/v1");
-		String response = ClinikoClient.request(new GetAppointmentApiReq(env, "82977543"));
+		String response = UtilsExecutor.request(new GetAppointmentApiReq("", ""));
 		System.out.println(response);
 
 	}
-
 
 	public void testDeleteAppointment() throws Exception {
 		Env env = mock(Env.class);
 		when(env.getApiKey()).thenReturn("");
 		when(env.getApiUrl()).thenReturn("https://api.cliniko.com/v1");
-		String response = ClinikoClient.request(new DeleteAppointmentApiReq(env, "appointments/82977543"));
+		String response = UtilsExecutor.request(new DeleteAppointmentApiReq("https://api.cliniko.com/v1", "", ""));
 		System.out.println(response);
 
 	}
