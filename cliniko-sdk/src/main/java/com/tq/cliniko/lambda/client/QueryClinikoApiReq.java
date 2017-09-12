@@ -7,8 +7,8 @@ public abstract class QueryClinikoApiReq extends GenericClinikoApiReq {
 	
 	private final String m_queryStatement;
 	
-	public QueryClinikoApiReq(String baseApiUrl, String apiKey, String httpMethod, String resource, String content, String queryStatement, String json) {
-		super(baseApiUrl,apiKey, httpMethod, resource, content, json);
+	public QueryClinikoApiReq(String apiKey, String httpMethod, String resource, String queryStatement) {
+		super(apiKey, httpMethod, resource, null, null);
 		m_queryStatement = queryStatement;
 	}
 	

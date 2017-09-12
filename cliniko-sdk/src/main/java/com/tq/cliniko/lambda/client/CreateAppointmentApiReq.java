@@ -1,8 +1,7 @@
 package com.tq.cliniko.lambda.client;
 
-public class CreateAppointmentApiReq extends CreateClinikoApiReq {
-
-	public CreateAppointmentApiReq(String baseApiUrl, String apiKey, Object object) {
-		super(baseApiUrl, apiKey, "appointments", object);
+public class CreateAppointmentApiReq extends PostClinikoApiReq {
+	public CreateAppointmentApiReq(String apiKey, Object object) {
+		super(apiKey, "appointments", object);
 	}
 }

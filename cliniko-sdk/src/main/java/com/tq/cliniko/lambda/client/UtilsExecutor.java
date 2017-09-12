@@ -20,7 +20,7 @@ import org.apache.http.util.EntityUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 
-public class ClinikoClient {
+public class UtilsExecutor {
 	private static final ObjectMapper m_mapper = new ObjectMapper();
 
 	public static String request(ClinikoApiReq apiReq) throws Exception {
