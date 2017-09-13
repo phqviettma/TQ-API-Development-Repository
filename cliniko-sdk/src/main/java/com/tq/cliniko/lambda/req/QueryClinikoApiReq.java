@@ -1,4 +1,4 @@
-package com.tq.cliniko.lambda.client;
+package com.tq.cliniko.lambda.req;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -7,8 +7,8 @@ public abstract class QueryClinikoApiReq extends GenericClinikoApiReq {
 	
 	private final String m_queryStatement;
 	
-	public QueryClinikoApiReq(String apiKey, String httpMethod, String resource, String queryStatement) {
-		super(apiKey, httpMethod, resource, null, null);
+	public QueryClinikoApiReq(String apiKey, String resource, String queryStatement) {
+		super(apiKey, "GET", resource, null, null);
 		m_queryStatement = queryStatement;
 	}
 	

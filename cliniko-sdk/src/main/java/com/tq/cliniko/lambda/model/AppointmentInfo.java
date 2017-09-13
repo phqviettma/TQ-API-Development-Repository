@@ -2,11 +2,17 @@ package com.tq.cliniko.lambda.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AppointmentInfo implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1658636344780671983L;
+	private Long id;
 	private String appointment_start;
 	private String appointment_end;
 	private boolean did_not_arrive;
@@ -106,12 +112,24 @@ public class AppointmentInfo implements Serializable {
 	public void setCancellation_reason(String cancellation_reason) {
 		this.cancellation_reason = cancellation_reason;
 	}
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	@Override
 	public String toString() {
-		return "AppointmentInfo [appointment_start=" + appointment_start + ", patient_id=" + patient_id
-				+ ", practitioner_id=" + practitioner_id + ", appointment_type_id=" + appointment_type_id
-				+ ", business_id=" + business_id + "]";
+		return "AppointmentInfo [id=" + id + ", appointment_start=" + appointment_start + ", appointment_end="
+				+ appointment_end + ", did_not_arrive=" + did_not_arrive + ", notes=" + notes + ", cancellation_time="
+				+ cancellation_time + ", cancellation_note=" + cancellation_note + ", cancellation_reason="
+				+ cancellation_reason + ", patient_id=" + patient_id + ", practitioner_id=" + practitioner_id
+				+ ", appointment_type_id=" + appointment_type_id + ", business_id=" + business_id + "]";
 	}
+
+	
 
 }

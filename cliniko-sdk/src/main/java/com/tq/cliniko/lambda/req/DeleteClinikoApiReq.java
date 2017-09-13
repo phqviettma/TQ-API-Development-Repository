@@ -1,4 +1,4 @@
-package com.tq.cliniko.lambda.client;
+package com.tq.cliniko.lambda.req;
 
 public class DeleteClinikoApiReq extends GenericClinikoApiReq {
 	public DeleteClinikoApiReq(String apiKey, String resource) {

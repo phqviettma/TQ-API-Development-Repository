@@ -11,6 +11,7 @@ public class SbmClinikoSyncDaoImpl extends AbstractItem<SbmCliniko, Integer> imp
 		super(client, SbmCliniko.class);
 		
 	}
+	
 	@Override
 	public SbmCliniko loadItem(Integer sbmId)
 	{

@@ -1,4 +1,4 @@
-package com.tq.cliniko.lambda.client;
+package com.tq.cliniko.lambda.req;
 
 public abstract class AbstractClinikoApiReq implements ClinikoApiReq {
 	protected final static String JSON_MEDIA_TYPE = "application/json";

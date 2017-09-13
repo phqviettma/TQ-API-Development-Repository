@@ -1,4 +1,4 @@
-package com.tq.cliniko.lambda.client;
+package com.tq.cliniko.lambda.req;
 
 import java.net.URI;
 
@@ -70,7 +70,7 @@ public class UtilsExecutor {
 		try (CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslsf).build();) {
 			System.out.println(req);
 			HttpResponse response = httpClient.execute(req);
-			return EntityUtils.toString(response.getEntity(), "UTF-8");
+			return response.getEntity() == null ? null : EntityUtils.toString(response.getEntity(), "UTF-8");
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e.getMessage(), e);
 		}
