@@ -1,4 +1,4 @@
-package com.tq.cliniko.test;
+package com.tq.cliniko.impl;
 
 import static org.junit.Assert.*;
 

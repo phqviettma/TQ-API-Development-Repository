@@ -12,7 +12,7 @@ public class UtcTimeUtil {
 		return interim + "Z";
 	}
 	
-	public static String toUtcToBasicFormat(String utcDatetime) {
+	public static String utcToBasicFormat(String utcDatetime) {
 		return utcDatetime.replace("T", " ").replace("Z", "");
 	}
 }
