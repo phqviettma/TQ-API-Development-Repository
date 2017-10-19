@@ -77,7 +77,7 @@ public class MockStripeBillingIntegrationTest {
         };
     }
 
-    @Test
+   @Test
     public void testEventCreatedContact() throws SbmSDKException, InfSDKExecption, Exception {
         Context context = mock(Context.class);
 
@@ -189,7 +189,7 @@ public class MockStripeBillingIntegrationTest {
         jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("contactItem-dummy-uf238.json"));
         ContactItem contactDummy = mapper.readValue(jsonString, ContactItem.class);
         ContactItemService contactItemService = m_lambdaContext.getContactItemService();
-        when(contactItemService.load("dev1tma@gmail.com")).thenReturn(contactDummy);
+        when(contactItemService.load("dev001@gmail.com")).thenReturn(contactDummy);
 
         jsonString = JsonUtils.getJsonString(this.getClass().getClassLoader().getResourceAsStream("product-dummy-uf238.json"));
         ProductItem productItem = mapper.readValue(jsonString, ProductItem.class);

@@ -36,9 +36,9 @@ public class CFLambdaMockUtils {
     private static MockEnvVar initMockEnv() {
         MockEnvVar  mockEnv =new MockEnvVar();
         Map<String, String> env = new HashMap<>();
-        env.put("INFUSIONSOFT_API_NAME", "https://uf238.infusionsoft.com/api/xmlrpc");
+        env.put("INFUSIONSOFT_API_NAME", "https://bh321.infusionsoft.com/api/xmlrpc");
         env.put("INFUSIONSOFT_API_KEY", "");
-        env.put("INFUSION_ORDER_PROMO_CODE", "TIOwner");
+        env.put("INFUSION_ORDER_PROMO_CODE", "SIMPLY_BOOK_SERVICE_URL");
         env.put("SIMPLY_BOOK_COMPANY_LOGIN", "phqviet93gmailcom");
         env.put("SIMPLY_BOOK_USER_NAME", "admin");
         env.put("SIMPLY_BOOK_PASSWORD", "");
@@ -46,6 +46,7 @@ public class CFLambdaMockUtils {
         env.put("AMAZON_ACCESS_KEY", Config.LOCALLY_AMAZON_ACCESS_KEY);
         env.put("AMAZON_SECRET_ACCESS_KEY", Config.LOCALLY_AMAZON_SECRET_ACCESS_KEY);
         env.put("DYNAMODB_AWS_REGION", Config.DYNAMODB_LOCAL_REGION_ECLIPSE);
+        env.put("INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG","110");
         mockEnv.setValueSystems(env);
         return mockEnv;
     }

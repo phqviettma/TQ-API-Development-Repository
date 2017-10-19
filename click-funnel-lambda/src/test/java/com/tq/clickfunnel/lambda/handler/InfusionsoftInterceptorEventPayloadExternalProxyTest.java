@@ -47,12 +47,12 @@ public class InfusionsoftInterceptorEventPayloadExternalProxyTest {
 	    static {
 	        Map<String, String> env = new HashMap<>();
 	        //Infusion soft configuration
-	        env.put(Config.INFUSIONSOFT_API_NAME, "https://uf238.infusionsoft.com/api/xmlrpc");
+	        env.put(Config.INFUSIONSOFT_API_NAME, "https://bh321.infusionsoft.com/api/xmlrpc");
 	        env.put(Config.INFUSIONSOFT_API_KEY, "");
-	        env.put(Config.INFUSION_ORDER_PROMO_CODE, "TIOwner");
+	        env.put(Config.INFUSION_ORDER_PROMO_CODE, "SIMPLY_BOOK_SERVICE_URL");
 	        //Simplybookme Configuration
-	        env.put(Config.SIMPLY_BOOK_COMPANY_LOGIN, "phqviet93gmailcom");
-	        env.put(Config.SIMPLY_BOOK_USER_NAME, "admin");
+	        env.put(Config.SIMPLY_BOOK_COMPANY_LOGIN, "");
+	        env.put(Config.SIMPLY_BOOK_USER_NAME, "");
 	        env.put(Config.SIMPLY_BOOK_PASSWORD, "");
 	        env.put(Config.SIMPLY_BOOK_API_KEY, "");
 	        env.put(Config.SIMPLY_BOOK_DEFAULT_USER_PASSWORD, "");
