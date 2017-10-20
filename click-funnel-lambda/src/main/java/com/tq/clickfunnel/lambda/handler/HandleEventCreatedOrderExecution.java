@@ -27,15 +27,15 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
     public static final Logger log = Logger.getLogger(HandleEventCreatedOrderExecution.class);
 
     @Override
-    protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload orderPayload, CFLambdaContext cfLambdaContext) {
+    protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload orderPayload, CFLambdaContext cfLambdaContext) throws InfSDKExecption {
         AwsProxyResponse resp = new AwsProxyResponse();
         LambdaContext lambdaContext = cfLambdaContext.getLambdaContext();
         List<CFProducts> products = null;
         CFPurchase purchase = orderPayload.getPurchase();
         ContactItem contactItem = lambdaContext.getContactItemService().load(orderPayload.getPurchase().getContact().getEmail());
-        
+        Integer contactId = contactItem.getClient().getContactId();
         Integer purchaseId = (purchase == null) ? orderPayload.getId() :  purchase.getId();
-        
+        Integer appliedTagId = Integer.valueOf(lambdaContext.getEnvVar().getEnv(Config.INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG));
         if(purchaseId != null) {
         	OrderItem purchasedOrder = lambdaContext.getOrderItemService().load(purchaseId);
         	if(purchasedOrder != null) {
@@ -51,7 +51,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
                 OrderBillingIntergtion billingIntegration = FactoryOrderBillingIntegration
                         .getBillingIntegration(cfProducts.getBillingIntegration());
                 OrderItem addOrder = billingIntegration.createBilling(orderPayload, lambdaContext);
-                applyTagToInfusionsoft(contactItem, lambdaContext);
+                applyTagToInfusionsoft(lambdaContext, contactId, appliedTagId);
                 // 2. Save the Order to DynamoDB for handling in further
                 if (addOrder != null) {
                     lambdaContext.getOrderItemService().put(addOrder);
@@ -63,20 +63,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         
         return resp;
     }
-    private void applyTagToInfusionsoft(ContactItem contactItem, LambdaContext lambdaContext)
-    {
-    	String infusionsoftApiName = lambdaContext.getEnvVar().getEnv(Config.INFUSIONSOFT_API_NAME);
-        String infusionsoftApiKey = lambdaContext.getEnvVar().getEnv(Config.INFUSIONSOFT_API_KEY);
-      Integer infusionsoftTag = Integer.valueOf(lambdaContext.getEnvVar().getEnv(Config.INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG));
-      Integer contactId = contactItem.getClient().getContactId();
-        try {
-        ApplyTagQuery applyTagQuery =new ApplyTagQuery().withContactID(contactId).withTagID(infusionsoftTag);
-       
-			lambdaContext.getContactServiceInf().appyTag(infusionsoftApiName, infusionsoftApiKey, applyTagQuery);
-		} catch (InfSDKExecption e) {
-			throw new CFLambdaException(e.getMessage());
-		}
-    }
+   
     
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -8,6 +8,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
+import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.config.EnvVar;
+import com.tq.common.lambda.context.LambdaContext;
+import com.tq.inf.exception.InfSDKExecption;
+import com.tq.inf.query.ApplyTagQuery;
 
 public abstract class AbstractEventPayloadExecution implements EventPayloadExecution {
     private static final Logger log = Logger.getLogger(AbstractEventPayloadExecution.class);
@@ -42,6 +47,12 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
              return resp;
          }
         return resp;
+    }
+    public void applyTagToInfusionsoft(LambdaContext lambdaContext,Integer contactId, Integer appliedTagId ) throws InfSDKExecption
+    {
+    	  EnvVar envVar = lambdaContext.getEnvVar();
+          ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(contactId).withTagID(appliedTagId);
+          lambdaContext.getContactServiceInf().appyTag(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY), applyTagQuery);
     }
     public abstract AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException;
 }
