@@ -114,8 +114,7 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
          
 			contactServiceInf.appyTag(infusionsoftApiName, infusionsoftApiKey, applyTagQuery);
 		} catch (InfSDKExecption e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new CFLambdaException(e.getMessage(),e);
 		}
     }
 
