@@ -2,8 +2,6 @@ package com.tq.simplybook.resp;
 
 import java.io.Serializable;
 
-import com.tq.simplybook.req.DayInfoReq;
-
 public class WorkTimeDetail implements Serializable{
 	
 	/**

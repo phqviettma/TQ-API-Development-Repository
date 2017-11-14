@@ -1,14 +1,16 @@
 package com.tq.simplybook.service;
 
 import com.tq.simplybook.exception.SbmSDKException;
-import com.tq.simplybook.req.DayInfoReq;
+import com.tq.simplybook.req.SetWorkDayInfo;
+import com.tq.simplybook.resp.DayInfo;
 
 public interface SpecialdayServiceSbm {
-	public boolean blockTimeSlot(String companyLogin, String endpoint, String token, DayInfoReq info)
+	boolean blockTimeSlot(String companyLogin, String endpoint, String token, SetWorkDayInfo info)
 			throws SbmSDKException;
 
-	public boolean unlockTimeSlot(String companyLogin, String endpoint, String token, DayInfoReq info)
+	boolean unlockTimeSlot(String companyLogin, String endpoint, String token, SetWorkDayInfo info)
 			throws SbmSDKException;
-
+	
+	DayInfo getWorkDaysInfo(String companyLogin, String endpoint, String token);
 	
 }

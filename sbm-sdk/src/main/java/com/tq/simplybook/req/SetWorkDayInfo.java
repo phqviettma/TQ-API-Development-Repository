@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.tq.simplybook.resp.DayInfo;
 
-public class DayInfoReq implements Serializable {
+public class SetWorkDayInfo implements Serializable {
 
 	/**
 	 * 
@@ -13,7 +13,7 @@ public class DayInfoReq implements Serializable {
 	
 	private DayInfo info;
 	
-	public DayInfoReq(DayInfo info) {
+	public SetWorkDayInfo(DayInfo info) {
 		this.info = info;
 	}
 

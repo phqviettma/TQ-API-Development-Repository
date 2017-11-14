@@ -6,7 +6,7 @@ import java.util.List;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.req.DayInfoReq;
+import com.tq.simplybook.req.SetWorkDayInfo;
 import com.tq.simplybook.resp.Breaktime;
 import com.tq.simplybook.resp.DayInfo;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
@@ -28,7 +28,7 @@ public class TestBlockTimeSlot {
 		String token = tokenService.getUserToken(COMPANY_LOGIN, USERNAME, PASSWORD, ENDPOINT_SBM_LOGIN);
 		DayInfo info = new DayInfo("08:20", "18:00", 0, breakTime, 0, "", "2017-09-8", "1", "");
 		//Boolean s = timeSlotService.unlockTimeSlot(COMPANY_LOGIN, END_POINT, token, new DayInfoReq(info));
-		 Boolean s = timeSlotService.blockTimeSlot(COMPANY_LOGIN, END_POINT, token, new DayInfoReq(info));
+		 Boolean s = timeSlotService.blockTimeSlot(COMPANY_LOGIN, END_POINT, token, new SetWorkDayInfo(info));
 		System.out.println(s);
 		
 		
