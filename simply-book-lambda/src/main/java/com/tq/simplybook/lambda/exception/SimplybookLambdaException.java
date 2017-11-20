@@ -1,6 +1,6 @@
 package com.tq.simplybook.lambda.exception;
 
-public class SimplybookLambdaException extends RuntimeException {
+public class SimplybookLambdaException extends Exception {
 
     private static final long serialVersionUID = 1695872757341111677L;
 

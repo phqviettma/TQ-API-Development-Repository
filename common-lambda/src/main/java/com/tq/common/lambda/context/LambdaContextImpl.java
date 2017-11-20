@@ -5,8 +5,10 @@ import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.config.SystemEnvVar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
+import com.tq.common.lambda.dynamodb.service.LatestClinikoApptService;
 import com.tq.common.lambda.dynamodb.service.OrderItemService;
 import com.tq.common.lambda.dynamodb.service.ProductItemService;
+import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.services.ISExternalService;
 import com.tq.common.lambda.services.ISExternalServiceImpl;
 import com.tq.common.lambda.services.RepositoryService;
@@ -140,6 +142,17 @@ public class LambdaContextImpl implements LambdaContext {
     public InvoiceServiceInf getInvoiceServiceInf() {
         return m_iSExternalService.getInvoiceServiceInf();
     }
+    @Override
+	public LatestClinikoApptService getClinikoApptService() {
+		
+		return m_repositoryService.getClinikoApptService();
+	}
+    @Override
+	public SbmClinikoSyncService getSimplybookService() {
+	
+		return m_repositoryService.getSimplybookService();
+	}
+
     
     public static class LambdaContextBuilder {
         
@@ -222,4 +235,10 @@ public class LambdaContextImpl implements LambdaContext {
             return new LambdaContextImpl(this, envVar);
         }
     }
+
+
+	
+
+	
+	
 }

@@ -1,4 +1,4 @@
-package com.tq.cliniko.lambda.model;
+package com.tq.common.lambda.dynamodb.model;
 
 import java.io.Serializable;
 
@@ -14,16 +14,16 @@ public class ClinikoSbm implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 6828809468118857668L;
-	private int clinikoId;
+	private Long clinikoId;
 	private String clinikoBlockTime;
 	private String sbmBlockTime;
 
 	@DynamoDBHashKey(attributeName = "clinikoId")
-	public int getClinikoId() {
+	public Long getClinikoId() {
 		return clinikoId;
 	}
 
-	public void setClinikoId(int clinikoId) {
+	public void setClinikoId(Long clinikoId) {
 		this.clinikoId = clinikoId;
 	}
 

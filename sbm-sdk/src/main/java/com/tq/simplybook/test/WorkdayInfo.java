@@ -2,6 +2,10 @@ package com.tq.simplybook.test;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkdayInfo implements Serializable {
 	/**
 	 * 
@@ -11,7 +15,6 @@ public class WorkdayInfo implements Serializable {
 	private String to;
 	private int unit_id;
 	private int event_id;
-	private int count;
 
 	public String getFrom() {
 		return from;
@@ -45,25 +48,18 @@ public class WorkdayInfo implements Serializable {
 		this.event_id = event_id;
 	}
 
-	public int getCount() {
-		return count;
-	}
-
-	public void setCount(int count) {
-		this.count = count;
-	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
 
-	public WorkdayInfo(String from, String to, int unit_id, int event_id, int count) {
+	public WorkdayInfo(String from, String to, int unit_id, int event_id) {
 
 		this.from = from;
 		this.to = to;
 		this.unit_id = unit_id;
 		this.event_id = event_id;
-		this.count = count;
+		
 	}
 
 	public WorkdayInfo() {

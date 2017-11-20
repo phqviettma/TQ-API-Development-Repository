@@ -25,7 +25,6 @@ import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
-import com.tq.clickfunnel.lambda.handler.HandleEventCreatedOrderExecution.AlreadyProccessedOrder;
 import com.tq.clickfunnel.lambda.resp.DeletedOrderResp;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.config.EnvVar;

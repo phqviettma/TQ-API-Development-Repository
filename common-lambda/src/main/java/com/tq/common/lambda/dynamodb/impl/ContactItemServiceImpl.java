@@ -21,4 +21,5 @@ public class ContactItemServiceImpl implements ContactItemService {
     public ContactItem load(String email) {
         return m_contactItemDao.loadItem(email);
     }
+
 }

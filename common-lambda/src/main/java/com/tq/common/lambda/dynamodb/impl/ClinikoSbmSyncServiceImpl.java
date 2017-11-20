@@ -1,8 +1,8 @@
-package com.tq.cliniko.lambda.dynamodb.impl;
+package com.tq.common.lambda.dynamodb.impl;
 
-import com.tq.cliniko.lambda.dynamodb.dao.ClinikoSbmSyncDao;
-import com.tq.cliniko.lambda.dynamodb.service.ClinikoSbmSyncService;
-import com.tq.cliniko.lambda.model.ClinikoSbm;
+import com.tq.common.lambda.dynamodb.dao.ClinikoSbmSyncDao;
+import com.tq.common.lambda.dynamodb.model.ClinikoSbm;
+import com.tq.common.lambda.dynamodb.service.ClinikoSbmSyncService;
 
 public class ClinikoSbmSyncServiceImpl implements ClinikoSbmSyncService {
 	private ClinikoSbmSyncDao m_clinikoSbmDao;
@@ -17,9 +17,10 @@ public class ClinikoSbmSyncServiceImpl implements ClinikoSbmSyncService {
 	}
 
 	@Override
-	public ClinikoSbm load(Integer clinikoId) {
+	public ClinikoSbm load(Long clinikoId) {
 
 		return m_clinikoSbmDao.loadItem(clinikoId);
 	}
+
 
 }

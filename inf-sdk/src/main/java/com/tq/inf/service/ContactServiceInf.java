@@ -15,7 +15,7 @@ public interface ContactServiceInf {
 
     Object load(String apiName, String apiKey,  LoadContactQuery loaderQuery) throws InfSDKExecption;
 
-    Object[] findByEmail(String apiName, String apiKey,  SearchEmailQuery emailQuery) throws InfSDKExecption;
+    Object findByEmail(String apiName, String apiKey,  SearchEmailQuery emailQuery) throws InfSDKExecption;
 
     Integer update(String apiName, String apiKey, AddDataQuery updateQuery) throws InfSDKExecption;
 
@@ -26,4 +26,6 @@ public interface ContactServiceInf {
     Boolean appyTag(String apiName, String apiKey, ApplyTagQuery applyTagQuery) throws InfSDKExecption;
     
     Boolean merge(String apiName, String apiKey, Integer duplicateContactId) throws InfSDKExecption;
+    
+  
 }

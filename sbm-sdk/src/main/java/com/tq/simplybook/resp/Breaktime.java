@@ -32,9 +32,13 @@ public class Breaktime implements Serializable {
 	}
 
 	public Breaktime(String start_time, String end_time) {
-		super();
+		
 		this.start_time = start_time;
 		this.end_time = end_time;
+	}
+
+	public Breaktime() {
+		
 	}
 	
 }

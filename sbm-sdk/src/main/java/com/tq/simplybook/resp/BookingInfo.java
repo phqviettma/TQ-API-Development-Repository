@@ -15,6 +15,7 @@ public class BookingInfo implements Serializable {
     private String event_id;
     private String event_name;
     private String event_duration;
+    private String unit_id;
     private String unit_name;
     private String unit_email;
     private String unit_description;
@@ -37,8 +38,19 @@ public class BookingInfo implements Serializable {
     public Integer getIs_confirmed() {
         return is_confirmed;
     }
+    
 
-    public void setIs_confirmed(Integer is_confirmed) {
+    public String getUnit_id() {
+		return unit_id;
+	}
+
+
+	public void setUnit_id(String unit_id) {
+		this.unit_id = unit_id;
+	}
+
+
+	public void setIs_confirmed(Integer is_confirmed) {
         this.is_confirmed = is_confirmed;
     }
 
@@ -218,15 +230,21 @@ public class BookingInfo implements Serializable {
         this.location = location;
     }
 
-    @Override
-    public String toString() {
-        return "BookingInfo [is_confirmed=" + is_confirmed + ", comment=" + comment + ", event_id=" + event_id + ", event_name=" + event_name
-                + ", event_duration=" + event_duration + ", unit_name=" + unit_name + ", unit_email=" + unit_email + ", unit_description=" + unit_description
-                + ", start_date_time=" + start_date_time + ", end_date_time=" + end_date_time + ", record_date=" + record_date + ", client_id=" + client_id
-                + ", client_name=" + client_name + ", client_phone=" + client_phone + ", client_email=" + client_email + ", client_address1=" + client_address1
-                + ", client_address2=" + client_address2 + ", client_city=" + client_city + ", client_zip=" + client_zip + ", client_country_id="
-                + client_country_id + ", company_login=" + company_login + ", company_name=" + company_name + ", location=" + location + "]";
-    }
+
+	@Override
+	public String toString() {
+		return "BookingInfo [is_confirmed=" + is_confirmed + ", comment=" + comment + ", event_id=" + event_id
+				+ ", event_name=" + event_name + ", event_duration=" + event_duration + ", unit_id=" + unit_id
+				+ ", unit_name=" + unit_name + ", unit_email=" + unit_email + ", unit_description=" + unit_description
+				+ ", start_date_time=" + start_date_time + ", end_date_time=" + end_date_time + ", record_date="
+				+ record_date + ", client_id=" + client_id + ", client_name=" + client_name + ", client_phone="
+				+ client_phone + ", client_email=" + client_email + ", client_address1=" + client_address1
+				+ ", client_address2=" + client_address2 + ", client_city=" + client_city + ", client_zip=" + client_zip
+				+ ", client_country_id=" + client_country_id + ", company_login=" + company_login + ", company_name="
+				+ company_name + ", location=" + location + "]";
+	}
+
+    
     
 
 }

@@ -14,4 +14,5 @@ public class OrderItemDaoimpl extends AbstractItem<OrderItem, Integer> implement
     public OrderItem loadItem(Integer pruchaseId) {
         return super.loadItem(pruchaseId);
     }
+
 }

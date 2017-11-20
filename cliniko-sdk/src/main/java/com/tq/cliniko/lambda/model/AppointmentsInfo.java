@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class AppointmentsInfo {
 	private List<AppointmentInfo> appointments;
 
+
 	public List<AppointmentInfo> getAppointments() {
 		return appointments;
 	}

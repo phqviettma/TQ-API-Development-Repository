@@ -2,7 +2,12 @@ package com.tq.simplybook.resp;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DayInfo implements Serializable{
 	/**
 	 * 
@@ -11,7 +16,7 @@ public class DayInfo implements Serializable{
 	private String start_time;
 	private String end_time;
 	private int is_day_off;
-	private List<Breaktime> breaktime;
+	private Set<Breaktime> breaktime;
 	private int index;
 	private String name;
 	private String date;
@@ -42,27 +47,12 @@ public class DayInfo implements Serializable{
 		this.is_day_off = is_day_off;
 	}
 
-	public List<Breaktime> getBreaktime() {
+	public Set<Breaktime> getBreaktime() {
 		return breaktime;
 	}
 
-	public void setBreaktime(List<Breaktime> breaktime) {
+	public void setBreaktime(Set<Breaktime> breaktime) {
 		this.breaktime = breaktime;
-	}
-
-	
-	public DayInfo(String start_time, String end_time, int is_day_off, List<Breaktime> breaktime, int index,
-			String name, String date, String unit_group_id, String event_id) {
-		super();
-		this.start_time = start_time;
-		this.end_time = end_time;
-		this.is_day_off = is_day_off;
-		this.breaktime = breaktime;
-		this.index = index;
-		this.name = name;
-		this.date = date;
-		this.unit_group_id = unit_group_id;
-		this.event_id = event_id;
 	}
 
 	public int getIndex() {
@@ -111,6 +101,20 @@ public class DayInfo implements Serializable{
 
 	public DayInfo() {
 		super();
+	}
+
+	public DayInfo(String start_time, String end_time, int is_day_off, Set<Breaktime> breaktime, int index, String name,
+			String date, String unit_group_id, String event_id) {
+		super();
+		this.start_time = start_time;
+		this.end_time = end_time;
+		this.is_day_off = is_day_off;
+		this.breaktime = breaktime;
+		this.index = index;
+		this.name = name;
+		this.date = date;
+		this.unit_group_id = unit_group_id;
+		this.event_id = event_id;
 	}
 	
 }

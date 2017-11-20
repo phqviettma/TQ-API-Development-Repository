@@ -21,4 +21,5 @@ public class CountryItemServiceImpl implements CountryItemService {
     public CountryItem load(String name) {
         return m_countryItemDao.loadItem(name);
     }
+
 }

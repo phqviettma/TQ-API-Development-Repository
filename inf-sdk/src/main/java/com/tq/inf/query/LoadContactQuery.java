@@ -3,37 +3,33 @@ package com.tq.inf.query;
 import java.util.List;
 
 public class LoadContactQuery {
-    private Integer contactID;
-    private List<?> selectedFields;
+	private Integer contactID;
+	private List<String> fields;
 
-    public Integer getContactID() {
-        return contactID;
-    }
+	public List<String> getFields() {
+		return fields;
+	}
 
-    public void setContactID(Integer contactID) {
-        this.contactID = contactID;
-    }
+	public void setFields(List<String> fields) {
+		this.fields = fields;
+	}
 
-    public List<?> getSelectedFields() {
-        return selectedFields;
-    }
+	public LoadContactQuery withSelectedFields(List<String> selectedFields) {
+		this.fields = selectedFields;
+		return this;
+	}
 
-    public void setSelectedFields(List<?> selectedFields) {
-        this.selectedFields = selectedFields;
-    }
+	public Integer getContactID() {
+		return contactID;
+	}
 
-    public LoadContactQuery withContactId(Integer contactId) {
-        this.contactID = contactId;
-        return this;
-    }
+	public void setContactID(Integer contactID) {
+		this.contactID = contactID;
+	}
 
-    public LoadContactQuery withSelectedFields(List<?> selectedFields) {
-        this.selectedFields = selectedFields;
-        return this;
-    }
+	@Override
+	public String toString() {
+		return "LoadContactQuery [contactID=" + contactID + ", fields=" + fields + "]";
+	}
 
-    @Override
-    public String toString() {
-        return "LoadContactQuery [contactID=" + contactID + ", selectedFields=" + selectedFields + "]";
-    }
 }

@@ -1,10 +1,25 @@
 package com.tq.simplybook.lambda.handler;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.SaveBehavior;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.tq.cliniko.exception.ClinikoSDKExeption;
+import com.tq.cliniko.service.ClinikoAppointmentService;
+import com.tq.common.lambda.config.Config;
+import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
+import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.dynamodb.service.LatestClinikoApptService;
+import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddDataQuery;
 import com.tq.inf.query.ApplyTagQuery;
@@ -17,77 +32,110 @@ import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
 public class CancelInternalHandler implements InternalHandler {
-    private Env m_env = null;
-    private ContactServiceInf m_csi = null;
-    private BookingServiceSbm m_bss = null;
-    private TokenServiceSbm m_tss = null;
-    private com.tq.common.lambda.dynamodb.service.ContactItemService m_cis = null;
+	private Env env = null;
+	private ContactServiceInf contactService = null;
+	private BookingServiceSbm bookingService = null;
+	private TokenServiceSbm tokenService = null;
+	private LatestClinikoApptServiceWrapper latestApptService = null;
+	private com.tq.common.lambda.dynamodb.service.ContactItemService contactItemService = null;
+	private SbmClinikoSyncService sbmClinikoService = null;
+	private ClinikoAppointmentService clinikoAppointmentService = null;
 
-    public CancelInternalHandler(Env env, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi, ContactItemService cis) {
-        m_env = env;
-        m_tss = tss;
-        m_bss = bss;
-        m_csi = csi;
-        m_cis = cis;
-    }
+	public CancelInternalHandler(Env m_env, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
+			ContactItemService cis, SbmClinikoSyncService scs, LatestClinikoApptServiceWrapper lcsw, ClinikoAppointmentService cas) {
+		env = m_env;
+		tokenService = tss;
+		bookingService = bss;
+		contactService = csi;
+		contactItemService = cis;
+		latestApptService = lcsw;
+		sbmClinikoService = scs;
+		clinikoAppointmentService = cas;
+	}
 
-    @Override
-    public void handle(PayloadCallback payload) throws SbmSDKException {
-        String companyLogin = m_env.getSimplyBookCompanyLogin();
-        String user = m_env.getSimplyBookUser();
-        String password = m_env.getSimplyBookPassword();
-        String loginEndPoint = m_env.getSimplyBookServiceUrlLogin();
-        String adminEndPoint = m_env.getSimplyBookAdminServiceUrl();
-        String infusionSoftApiName = m_env.getInfusionSoftApiName();
-        String infusionSoftApiKey = m_env.getInfusionSoftApiKey();
-        
-        String infusionSoftAppointmentTimeField = m_env.getInfusionSoftAppointmentTimeField();
-        String infusionSoftAppointmentLocationField = m_env.getInfusionSoftAppointmentLocationField();
-        String infusionSoftServiceProviderField = m_env.getInfusionSoftServiceProviderField();
-        String infusionSoftAppointmentInstructionField = m_env.getInfusionSoftAppointmentInstructionField();
-        
-        int appliedTagId = m_env.getInfusionSoftCancelAppliedTag();
-        Long bookingId = payload.getBooking_id();
+	@Override
+	public void handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption {
+		executeWithCliniko(executeWithInfusionSoft(payload));
+	}
 
-        String token = m_tss.getUserToken(companyLogin, user, password, loginEndPoint);
+	private PayloadCallback executeWithInfusionSoft(PayloadCallback payload) throws SbmSDKException {
+		String companyLogin = env.getSimplyBookCompanyLogin();
+		String user = env.getSimplyBookUser();
+		String password = env.getSimplyBookPassword();
+		String loginEndPoint = env.getSimplyBookServiceUrlLogin();
+		String adminEndPoint = env.getSimplyBookAdminServiceUrl();
+		String infusionSoftApiName = env.getInfusionSoftApiName();
+		String infusionSoftApiKey = env.getInfusionSoftApiKey();
 
-        BookingInfo bookingInfo = m_bss.getBookingInfo(companyLogin, adminEndPoint, token, bookingId);
+		String infusionSoftAppointmentTimeField = env.getInfusionSoftAppointmentTimeField();
+		String infusionSoftAppointmentLocationField = env.getInfusionSoftAppointmentLocationField();
+		String infusionSoftServiceProviderField = env.getInfusionSoftServiceProviderField();
+		String infusionSoftAppointmentInstructionField = env.getInfusionSoftAppointmentInstructionField();
 
-        if (bookingInfo == null) {
-            throw new SbmSDKException("There is no booking content asociated to the booking id: " + bookingId);
-        }
+		int appliedTagId = env.getInfusionSoftCancelAppliedTag();
+		Long bookingId = payload.getBooking_id();
 
-        // load with email as id from DynamoDB
-        String clientEmail = bookingInfo.getClient_email();
-        
-        // get
-        ContactItem contactItem = m_cis.load(clientEmail);
+		String token = tokenService.getUserToken(companyLogin, user, password, loginEndPoint);
 
-        if (contactItem == null || contactItem.getClient() == null || contactItem.getClient().getContactId() == null) {
-            throw new SbmSDKException("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
-        }
+		BookingInfo bookingInfo = bookingService.getBookingInfo(companyLogin, adminEndPoint, token, bookingId);
 
-        Integer ifContactId = contactItem.getClient().getContactId();
+		if (bookingInfo == null) {
+			throw new SbmSDKException("There is no booking content asociated to the booking id: " + bookingId);
+		}
 
-        Map<String, String> updateRecord = new HashMap<>();
-        updateRecord.put(infusionSoftAppointmentTimeField, "");
-        updateRecord.put(infusionSoftAppointmentLocationField, "");
-        updateRecord.put(infusionSoftServiceProviderField, "");
-        updateRecord.put(infusionSoftAppointmentInstructionField, "");
+		// load with email as id from DynamoDB
+		String clientEmail = bookingInfo.getClient_email();
 
-        try {
-            m_csi.update(infusionSoftApiName, infusionSoftApiKey, new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
+		// get
+		ContactItem contactItem = contactItemService.load(clientEmail);
 
-        } catch (InfSDKExecption e) {
-            throw new SbmSDKException("Updating custom field to Infusion Soft failed", e);
-        }
+		if (contactItem == null || contactItem.getClient() == null || contactItem.getClient().getContactId() == null) {
+			throw new SbmSDKException("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
+		}
 
-        try {
-            ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
+		Integer ifContactId = contactItem.getClient().getContactId();
 
-            m_csi.appyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
-        } catch (InfSDKExecption e) {
-            throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
-        }
-    }
+		Map<String, String> updateRecord = new HashMap<>();
+		updateRecord.put(infusionSoftAppointmentTimeField, "");
+		updateRecord.put(infusionSoftAppointmentLocationField, "");
+		updateRecord.put(infusionSoftServiceProviderField, "");
+		updateRecord.put(infusionSoftAppointmentInstructionField, "");
+
+		try {
+			contactService.update(infusionSoftApiName, infusionSoftApiKey,
+					new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
+
+		} catch (InfSDKExecption e) {
+			throw new SbmSDKException("Updating custom field to Infusion Soft failed", e);
+		}
+
+		try {
+			ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
+
+			contactService.appyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
+		} catch (InfSDKExecption e) {
+			throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
+		}
+
+		return payload;
+	}
+
+	private void executeWithCliniko(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption {
+		SbmCliniko sbmCliniko = sbmClinikoService.load(payload.getBooking_id());
+	
+		LatestClinikoAppts latestClinikoAppts = latestApptService.load();
+		Set<Long> createdId = latestClinikoAppts.getCreated();
+		createdId.remove(sbmCliniko.getClinikoId());
+		Set<Long> removeId = latestClinikoAppts.getRemoved();
+		removeId.add(sbmCliniko.getClinikoId());
+		Date date = new Date();
+		latestClinikoAppts.setCreated(createdId);
+		latestClinikoAppts.setRemoved(removeId);
+		latestClinikoAppts.setLatestUpdateTime(Config.DATE_FORMAT_24_H.format(date));
+		latestApptService.put(latestClinikoAppts);
+		clinikoAppointmentService.deleteAppointment(sbmCliniko.getClinikoId());
+		
+		
+
+	}
 }

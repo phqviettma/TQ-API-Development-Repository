@@ -11,6 +11,8 @@ public class Config {
     
     public static final String INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG = "INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG";
     
+    public static final String INFUSIONSOFT_CLINIKO_PRACTITIONER_TAG = "INFUSIONSOFT_CLINIKO_PRACTITIONER_TAG";
+    
     public static final String INFUSION_ORDER_PROMO_CODE = "INFUSION_ORDER_PROMO_CODE";
 
     // Simply book
@@ -31,7 +33,9 @@ public class Config {
     public static final String DEFAULT_SIMPLY_BOOK_SERVICE_URL_lOGIN = "https://user-api.simplybook.me/login"; /*Env.getEnv("SIMPLY_BOOK_SERVICE_URL_lOGIN");*/
 
     public static final String DEFAULT_SIMPLY_BOOK_ADMIN_SERVICE_URL = "https://user-api.simplybook.me/admin/"; /*Env.getEnv("SIMPLY_BOOK_ADMIN_SERVICE_URL");*/
-
+  
+    public static final String CLINIKO_API_KEY = "CLINIKO_API_KEY";
+    
     /**
      * AWS Access key
      */
@@ -73,4 +77,6 @@ public class Config {
      * AWS DynamoDB is not supported the Date, so need to format default 24h
      */
     public static DateFormat DATE_FORMAT_24_H = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
+    public static SimpleDateFormat CLINIKO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 }

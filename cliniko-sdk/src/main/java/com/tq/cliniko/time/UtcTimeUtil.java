@@ -45,4 +45,9 @@ public class UtcTimeUtil {
 		}	     
 		return null;
 	}
+	
+	public static String parseTimeUTC(String time) {
+		String t = time.replace(" ", "T").concat("Z");
+		return t;
+	}
 }

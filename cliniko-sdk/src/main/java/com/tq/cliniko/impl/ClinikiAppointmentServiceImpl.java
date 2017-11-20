@@ -1,8 +1,11 @@
 package com.tq.cliniko.impl;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
+import com.tq.cliniko.lambda.model.Account;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
+import com.tq.cliniko.lambda.model.Settings;
+import com.tq.cliniko.lambda.model.Account;
 import com.tq.cliniko.lambda.req.ClinikoRespParser;
 import com.tq.cliniko.lambda.req.DeleteClinikoApiReq;
 import com.tq.cliniko.lambda.req.PostClinikoApiReq;
@@ -12,7 +15,7 @@ import com.tq.cliniko.service.ClinikoAppointmentService;
 
 public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService {
 	private final String m_clinikoApiKey;
-	
+
 	public ClinikiAppointmentServiceImpl(String clinikoApiKey) {
 		this.m_clinikoApiKey = clinikoApiKey;
 	}
@@ -21,13 +24,14 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 	public AppointmentsInfo getAppointments(String startTime) throws ClinikoSDKExeption {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new GetAppointmentsApiReq(m_clinikoApiKey, "appointment_start:>" + startTime));
+			jsonResp = UtilsExecutor
+					.request(new GetAppointmentsApiReq(m_clinikoApiKey, "appointment_start:>" + startTime));
 			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);
 		}
 	}
-	
+
 	@Override
 	public AppointmentInfo getAppointment(Long id) throws ClinikoSDKExeption {
 		String jsonResp;
@@ -38,7 +42,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 			throw new ClinikoSDKExeption(e);
 		}
 	}
-	
+
 	@Override
 	public AppointmentInfo createAppointment(AppointmentInfo appt) throws ClinikoSDKExeption {
 		try {
@@ -48,43 +52,81 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 			throw new ClinikoSDKExeption(e);
 		}
 	}
-	
+
 	@Override
-	public boolean deleteAppointment(Long id) throws ClinikoSDKExeption {
+	public boolean deleteAppointment(Long i) throws ClinikoSDKExeption {
 		try {
-			UtilsExecutor.request(new DeleteAppointmentApiReq(m_clinikoApiKey, id));
+			UtilsExecutor.request(new DeleteAppointmentApiReq(m_clinikoApiKey, i));
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);
 		}
 		return true;
 	}
+
+	@Override
+	public Settings getAllSettings() throws ClinikoSDKExeption {
+		try {
+			String jsonResp = UtilsExecutor.request(new GetAllSettingApiReq(m_clinikoApiKey));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, Settings.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+
+	}
+
+	@Override
+	public AppointmentsInfo getAppointmentInfos() throws ClinikoSDKExeption {
+		try {
+			String jsonResp =UtilsExecutor.request(new GetAppointmentInfo(m_clinikoApiKey));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
 	
+		
+	}
+
 	private class GetAppointmentsApiReq extends QueryClinikoApiReq {
 		public GetAppointmentsApiReq(String apiKey, String queryStatement) {
 			super(apiKey, "appointments", queryStatement);
 		}
 	}
-	
-	private class GetAppointmentApiReq extends QueryClinikoApiReq{
+	private class GetAppointmentInfo extends QueryClinikoApiReq{
+
+		public GetAppointmentInfo(String apiKey) {
+			super(apiKey, "appointments", null);
+		
+		}
+		
+	}
+
+	private class GetAppointmentApiReq extends QueryClinikoApiReq {
 		public GetAppointmentApiReq(String apiKey, Long id) {
 			super(apiKey, "appointments" + "/" + id, null);
 		}
 	}
-	
+
 	private class PostAppointmentApiReq extends PostClinikoApiReq {
 		public PostAppointmentApiReq(String apiKey, Object object) {
 			super(apiKey, "appointments", object);
 		}
 	}
-	
+
 	private class DeleteAppointmentApiReq extends DeleteClinikoApiReq {
 		public DeleteAppointmentApiReq(String apiKey, Long id) {
 			super(apiKey, "appointments/" + id);
 		}
-		
+
 	}
 
-	
+	private class GetAllSettingApiReq extends QueryClinikoApiReq {
+
+		public GetAllSettingApiReq(String apiKey) {
+			super(apiKey, "settings", null);
+
+		}
+
+	}
 
 
 }

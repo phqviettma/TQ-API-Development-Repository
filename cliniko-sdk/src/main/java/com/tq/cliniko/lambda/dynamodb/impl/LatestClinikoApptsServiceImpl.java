@@ -2,7 +2,7 @@ package com.tq.cliniko.lambda.dynamodb.impl;
 
 import com.tq.cliniko.lambda.dynamodb.dao.LatestClinikoApptsDao;
 import com.tq.cliniko.lambda.dynamodb.service.LatestClinikoApptsService;
-import com.tq.cliniko.lambda.model.LatestClinikoAppts;
+import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 
 public class LatestClinikoApptsServiceImpl implements LatestClinikoApptsService {
 	private LatestClinikoApptsDao m_latestClinikoApptsDao;
@@ -20,5 +20,8 @@ public class LatestClinikoApptsServiceImpl implements LatestClinikoApptsService 
 	public LatestClinikoAppts load(String id) {
 		return m_latestClinikoApptsDao.loadItem(id);
 	}
+
+
+
 
 }

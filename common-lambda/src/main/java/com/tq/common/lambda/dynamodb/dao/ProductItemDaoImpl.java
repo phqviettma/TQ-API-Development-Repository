@@ -9,5 +9,5 @@ public class ProductItemDaoImpl extends AbstractItem<ProductItem, Integer> imple
     public ProductItemDaoImpl(AmazonDynamoDB client) {
         super(client, ProductItem.class);
     }
-    
+
 }

@@ -5,7 +5,7 @@ import java.util.List;
 public class SearchEmailQuery {
 
     private String email;
-    private List<?> selectedFields;
+    private List<String> selectedFields;
 
     public String getEmail() {
         return email;
@@ -19,7 +19,7 @@ public class SearchEmailQuery {
         return selectedFields;
     }
 
-    public void setSelectedFields(List<?> selectedFields) {
+    public void setSelectedFields(List<String> selectedFields) {
         this.selectedFields = selectedFields;
     }
 
@@ -28,7 +28,7 @@ public class SearchEmailQuery {
         return this;
     }
 
-    public SearchEmailQuery withSelectedFields(List<?> selectedFields) {
+    public SearchEmailQuery withSelectedFields(List<String> selectedFields) {
         this.selectedFields = selectedFields;
         return this;
     }

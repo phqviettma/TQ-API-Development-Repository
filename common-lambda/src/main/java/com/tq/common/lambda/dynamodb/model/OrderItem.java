@@ -47,6 +47,7 @@ public class OrderItem {
 
     public void setPurchaseId(Integer purchaseId) {
         this.purchaseId = purchaseId;
+        
     }
 
     public OrderItem withPurchaseId(Integer purchaseId) {

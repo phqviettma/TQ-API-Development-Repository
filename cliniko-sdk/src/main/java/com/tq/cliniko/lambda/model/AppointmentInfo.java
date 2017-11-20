@@ -25,7 +25,17 @@ public class AppointmentInfo implements Serializable {
 	private int practitioner_id;
 	private int appointment_type_id;
 	private int business_id;
-
+	public AppointmentInfo() {}
+	public AppointmentInfo(String appointment_start, String appointment_end, int patient_id, int practitioner_id,
+			int appointment_type_id, int business_id) {
+			this.appointment_start = appointment_start;
+			this.appointment_end = appointment_end;
+			this.patient_id = patient_id;
+			this.practitioner_id = practitioner_id;
+			this.appointment_type_id = appointment_type_id;
+			this.business_id = business_id;
+	}
+	
 	public String getAppointment_start() {
 		return appointment_start;
 	}

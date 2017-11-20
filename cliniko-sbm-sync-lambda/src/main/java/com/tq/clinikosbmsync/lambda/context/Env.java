@@ -20,6 +20,8 @@ public class Env {
     private String simplyBookPassword = new String(System.getenv("SIMPLY_BOOK_PASSWORD"));
     private String simplyBookApiKey = new String(System.getenv("SIMPLY_BOOK_API_KEY"));
     private String simplyBookSecretKey = new String(System.getenv("SIMPLY_BOOK_SECRET_KEY"));
+    private String cliniko_start_time = new String(System.getenv("CLINIKO_START_TIME"));
+	private String cliniko_end_time = new String(System.getenv("CLINIKO_END_TIME"));
 
     private Env() {
         assertVar(regions, "REGIONS");
@@ -32,6 +34,8 @@ public class Env {
         assertVar(simplyBookPassword, "SIMPLY_BOOK_PASSWORD");
         assertVar(simplyBookApiKey, "SIMPLY_BOOK_API_KEY");
         assertVar(simplyBookSecretKey, "SIMPLY_BOOK_SECRET_KEY");
+        assertVar(cliniko_start_time, "CLINIKO_START_TIME");
+        assertVar(cliniko_end_time, "CLINIKO_END_TIME");
     }
     
     private void assertVar(Object value, String name){
@@ -94,4 +98,13 @@ public class Env {
     public String getSimplyBookSecretKey() {
         return simplyBookSecretKey;
     }
+
+	public String getCliniko_start_time() {
+		return cliniko_start_time;
+	}
+
+	public String getCliniko_end_time() {
+		return cliniko_end_time;
+	}
+    
 }
