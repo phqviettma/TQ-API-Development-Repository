@@ -1,6 +1,5 @@
 package com.tq.clinikosbmsync.lambda.handler;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,7 +35,6 @@ import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.lambda.context.Env;
 import com.tq.simplybook.lambda.handler.SimplyBookClinikoMapping;
 import com.tq.simplybook.req.SetWorkDayInfo;
-import com.tq.simplybook.resp.Breaktime;
 import com.tq.simplybook.resp.ClinikoId;
 import com.tq.simplybook.resp.DayInfo;
 import com.tq.simplybook.resp.SimplyBookId;

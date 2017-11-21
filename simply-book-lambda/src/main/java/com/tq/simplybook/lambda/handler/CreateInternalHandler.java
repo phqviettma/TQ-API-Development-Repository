@@ -10,8 +10,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
+import com.tq.cliniko.lambda.model.Account;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
@@ -45,12 +49,13 @@ public class CreateInternalHandler implements InternalHandler {
 	private ContactItemService contactItemService = null;
 	private SbmClinikoSyncService sbmClinikoService = null;
 	private LatestClinikoApptServiceWrapper latestApptService = null;
+	private ClinikoAppointmentService clinikoApptService = null;
 
 	private SimplyBookClinikoMapping sbmClinikoMapping = null;
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SimplyBookClinikoMapping scm, SbmClinikoSyncService scs,
-			LatestClinikoApptServiceWrapper lcsw) {
+			LatestClinikoApptServiceWrapper lcsw, ClinikoAppointmentService cas) {
 		env = environtment;
 		tokenService = tss;
 		bookingService = bss;
@@ -59,6 +64,7 @@ public class CreateInternalHandler implements InternalHandler {
 		sbmClinikoMapping = scm;
 		sbmClinikoService = scs;
 		latestApptService = lcsw;
+		clinikoApptService = cas;
 
 	}
 
@@ -136,38 +142,37 @@ public class CreateInternalHandler implements InternalHandler {
 		String clinikoApiKey = env.getClinikoApiKey();
 		Integer appointmentTypeId = env.getCliniko_standard_appointment();
 		Integer clinikoPatientId = env.getClinikoPatientId();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		try {
-			Date sbmStartTime = formatter.parse(bookingInfo.getStart_date_time());
-			Date sbmEndTime = formatter.parse(bookingInfo.getEnd_date_time());
-			formatter.setTimeZone(TimeZone.getTimeZone("Europe/London"));
-			String start_time = UtcTimeUtil.parseTimeUTC(formatter.format(sbmStartTime));
-			String end_time = UtcTimeUtil.parseTimeUTC(formatter.format(sbmEndTime));
-			ClinikoId clinikoId = new ClinikoId();
-			SimplyBookId simplybookId = new SimplyBookId(bookingInfo.getEvent_id(), bookingInfo.getUnit_id());
-			clinikoId = sbmClinikoMapping.sbmClinikoMapping(simplybookId);
-			ClinikoAppointmentService clinikoService = new ClinikiAppointmentServiceImpl(clinikoApiKey);
+		Settings settings = clinikoApptService.getAllSettings();
+		String country = settings.getAccount().getCountry();
+		String time_zone = settings.getAccount().getTime_zone();
+		DateTimeZone timeZone = DateTimeZone.forID(country+"/"+time_zone);
+		String sbmStartTime = UtcTimeUtil.parseTimeUTC(bookingInfo.getStart_date_time());
+		String sbmEndTime = UtcTimeUtil.parseTimeUTC(bookingInfo.getEnd_date_time());
+		DateTime start_time = new DateTime(sbmStartTime,timeZone);
+		DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
+		DateTime endTime = new DateTime(sbmEndTime,timeZone);
+		DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
+		ClinikoId clinikoId = new ClinikoId();
+		SimplyBookId simplybookId = new SimplyBookId(bookingInfo.getEvent_id(), bookingInfo.getUnit_id());
+		clinikoId = sbmClinikoMapping.sbmClinikoMapping(simplybookId);
+		ClinikoAppointmentService clinikoService = new ClinikiAppointmentServiceImpl(clinikoApiKey);
 
-			AppointmentInfo result = clinikoService.createAppointment(new AppointmentInfo(start_time, end_time,
-					clinikoPatientId, clinikoId.getPractionerId(), appointmentTypeId, clinikoId.getBussinessId()));
+		AppointmentInfo result = clinikoService.createAppointment(new AppointmentInfo(clinikoStartTime.toString(), clinikoEndTime.toString(),
+				clinikoPatientId, clinikoId.getPractionerId(), appointmentTypeId, clinikoId.getBussinessId()));
 
-			SbmCliniko sbmCliniko = new SbmCliniko();
-			sbmCliniko.setClinikoId(result.getId());
-			sbmCliniko.setSbmId(payload.getBooking_id());
+		SbmCliniko sbmCliniko = new SbmCliniko();
+		sbmCliniko.setClinikoId(result.getId());
+		sbmCliniko.setSbmId(payload.getBooking_id());
 
-			LatestClinikoAppts latestClinikoAppts = latestApptService.load();
-			Set<Long> createdId = latestClinikoAppts.getCreated();
-			createdId.add(result.getId());
-			latestClinikoAppts.setCreated(createdId);
-			Date date = new Date();
-			latestClinikoAppts.setLatestUpdateTime(Config.DATE_FORMAT_24_H.format(date));
-			if (sbmCliniko != null) {
-				sbmClinikoService.put(sbmCliniko);
-				latestApptService.put(latestClinikoAppts);
-			}
-
-		} catch (ParseException e) {
-			e.printStackTrace();
+		LatestClinikoAppts latestClinikoAppts = latestApptService.load();
+		Set<Long> createdId = latestClinikoAppts.getCreated();
+		createdId.add(result.getId());
+		latestClinikoAppts.setCreated(createdId);
+		Date date = new Date();
+		latestClinikoAppts.setLatestUpdateTime(Config.DATE_FORMAT_24_H.format(date));
+		if (sbmCliniko != null) {
+			sbmClinikoService.put(sbmCliniko);
+			latestApptService.put(latestClinikoAppts);
 		}
 
 	}

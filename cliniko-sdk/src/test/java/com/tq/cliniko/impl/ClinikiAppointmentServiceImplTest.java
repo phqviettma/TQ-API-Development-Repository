@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -96,11 +97,15 @@ public class ClinikiAppointmentServiceImplTest {
 		Date date = formatter.parse("2017-11-20 21:04:00");
 		formatter.setTimeZone(TimeZone.getTimeZone("Europe/London"));
 		System.out.println(formatter.format(date));*/
-		String input = "2014-01-02T03:04:05";
-		DateTimeZone timeZone = DateTimeZone.forID( "Asia/Kolkata" );
+		String input = "2017-11-21T12:46:05";
+		DateTimeZone timeZone = DateTimeZone.forID( "Asia/Bangkok" );
 		DateTime dateTimeIndia = new DateTime( input, timeZone );
 		DateTime dateTimeUtcGmt = dateTimeIndia.withZone( DateTimeZone.UTC );
 		System.out.println(dateTimeIndia);
 		System.out.println(dateTimeUtcGmt);
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		formatter.setTimeZone(TimeZone.getTimeZone("Etc/GMT-0"));
+		String start_time =formatter.format(dateTimeIndia.toDate());
+		System.out.println(start_time);
 	}
 }

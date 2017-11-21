@@ -10,6 +10,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
+import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
@@ -39,8 +40,8 @@ public class CreateInternalHandlerTest {
 	private SimplyBookClinikoMapping scm = new SimplyBookClinikoMapping(env);
 	private SbmClinikoSyncService scs = mock(SbmClinikoSyncService.class);
 	private LatestClinikoApptServiceWrapper lcs = mock(LatestClinikoApptServiceWrapper.class);
-	private ClinikoAppointmentService cas = mock(ClinikoAppointmentService.class);
-	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scm, scs, lcs);
+	private ClinikoAppointmentService cas = new ClinikiAppointmentServiceImpl(env.getClinikoApiKey());
+	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scm, scs, lcs,cas);
 
 	@Test
 	public void test() throws SbmSDKException, ClinikoSDKExeption {
