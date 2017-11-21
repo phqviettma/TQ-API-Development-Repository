@@ -62,7 +62,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
     private LatestClinikoApptServiceWrapper m_lcsw = new LatestClinikoApptServiceWrapper(m_lcs);
     private SimplyBookClinikoMapping m_scm = new SimplyBookClinikoMapping(m_env);
     private ClinikoAppointmentService m_cas = new ClinikiAppointmentServiceImpl(m_env.getClinikoApiKey());
-    private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis,m_scm, m_scs, m_lcsw,m_cas);
+    private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis,m_scm, m_scs, m_lcsw);
     private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_lcsw, m_cas);
 
     @Override

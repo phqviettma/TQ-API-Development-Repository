@@ -40,7 +40,7 @@ public class CreateInternalHandlerTest {
 	private SbmClinikoSyncService scs = mock(SbmClinikoSyncService.class);
 	private LatestClinikoApptServiceWrapper lcs = mock(LatestClinikoApptServiceWrapper.class);
 	private ClinikoAppointmentService cas = mock(ClinikoAppointmentService.class);
-	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scm, scs, lcs, cas);
+	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scm, scs, lcs);
 
 	@Test
 	public void test() throws SbmSDKException, ClinikoSDKExeption {

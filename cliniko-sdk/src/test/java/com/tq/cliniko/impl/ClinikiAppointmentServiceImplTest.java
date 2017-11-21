@@ -5,8 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -81,22 +80,27 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
-	public void testGetAllSetting() throws ClinikoSDKExeption {
+	public void testGetAllSetting() throws ClinikoSDKExeption, ParseException {
 		Settings account = m_service.getAllSettings();
 		String timezone = account.getAccount().getTime_zone();
 		TimeZone tz = TimeZone.getTimeZone(account.getAccount().getCountry() + "/" + timezone);
-		System.out.println(tz.getOffset(new Date().getTime()) / 1000 / 60);
-		System.out.println(tz.getDSTSavings()/ 1000 / 60);
-		System.out.println(System.currentTimeMillis());
-		/* for(String tz : ZoneId.getAvailableZoneIds()) {
-			System.out.println(tz); */
-		DateTimeZone timeZoneLondon = DateTimeZone.forID( "Europe/London" );
-		DateTimeZone timeZoneKolkata = DateTimeZone.forID( "Australia/Melbourne");
-		DateTime nowLondon = new DateTime(timeZoneLondon);
-		DateFormat formatter = new SimpleDateFormat("dd MMM yyyy HH:mm:ss z");
+		System.out.println(tz.getOffset(new Date().getTime()) / 1000 / 60 /60);
+	
+		TimeZone currentTimeZone = TimeZone.getDefault();
+		Date now = new Date();
+		int offsetFromUtc = currentTimeZone.getOffset(now.getTime()) / 3600000;
+		String m2tTimeZoneIs = Integer.toString(offsetFromUtc);
+		System.out.println(m2tTimeZoneIs);
+		System.out.println(tz.getDSTSavings() / 1000 / 60);
+		/*SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date = formatter.parse("2017-11-20 21:04:00");
 		formatter.setTimeZone(TimeZone.getTimeZone("Europe/London"));
-
-		String newZealandTime = formatter.format("2017-01-01 09:00:00");
-		
+		System.out.println(formatter.format(date));*/
+		String input = "2014-01-02T03:04:05";
+		DateTimeZone timeZone = DateTimeZone.forID( "Asia/Kolkata" );
+		DateTime dateTimeIndia = new DateTime( input, timeZone );
+		DateTime dateTimeUtcGmt = dateTimeIndia.withZone( DateTimeZone.UTC );
+		System.out.println(dateTimeIndia);
+		System.out.println(dateTimeUtcGmt);
 	}
 }
