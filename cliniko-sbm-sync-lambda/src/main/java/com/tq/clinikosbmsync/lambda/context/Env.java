@@ -1,7 +1,6 @@
 package com.tq.clinikosbmsync.lambda.context;
 
 import com.amazonaws.regions.Regions;
-
 public class Env {
 	private static Env instance;
 	

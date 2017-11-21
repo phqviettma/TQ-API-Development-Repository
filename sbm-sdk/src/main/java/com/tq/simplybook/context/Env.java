@@ -1,5 +1,4 @@
-package com.tq.simplybook.lambda.context;
-
+package com.tq.simplybook.context;
 import java.util.Map;
 
 import com.amazonaws.regions.Regions;

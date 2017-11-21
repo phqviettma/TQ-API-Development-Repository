@@ -1,4 +1,4 @@
-package com.tq.simplybook.lambda.handler;
+package com.tq.simplybook.context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,6 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tq.simplybook.lambda.context.Env;
 import com.tq.simplybook.resp.ClinikoId;
 import com.tq.simplybook.resp.SbmClinikoModel;
 import com.tq.simplybook.resp.SimplyBookId;
@@ -18,11 +17,11 @@ public class SimplyBookClinikoMapping {
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private Env env;
+	private Map<SimplyBookId, ClinikoId> sbmClinkoMap;
+	private Map<ClinikoId, SimplyBookId> clinikoSimplyBookId;
 
 	public SimplyBookClinikoMapping(Env m_env) {
-
 		this.env = m_env;
-
 	}
 
 	public List<String> getAllEnv(Env env) {
@@ -52,7 +51,7 @@ public class SimplyBookClinikoMapping {
 
 	}
 
-	public Map<SimplyBookId, ClinikoId> putMapSbmCliniko() {
+	private Map<SimplyBookId, ClinikoId> putMapSbmCliniko() {
 		List<SbmClinikoModel> simplyBookModel = parseJson(getAllEnv(env));
 		Map<SimplyBookId, ClinikoId> simplyBookClinikoId = new HashMap<SimplyBookId, ClinikoId>();
 
@@ -72,12 +71,16 @@ public class SimplyBookClinikoMapping {
 
 	public ClinikoId sbmClinikoMapping(SimplyBookId simplybookId) {
 		ClinikoId clinikoId = new ClinikoId();
-		Map<SimplyBookId, ClinikoId> sbmClinkoMap = putMapSbmCliniko();
+		
+		if(sbmClinkoMap == null) {
+			sbmClinkoMap = putMapSbmCliniko();
+		}
+		
 		clinikoId = sbmClinkoMap.get(simplybookId);
 		return clinikoId;
 	}
 
-	public Map<ClinikoId, SimplyBookId> putMapCliniko() {
+	private Map<ClinikoId, SimplyBookId> putMapCliniko() {
 		List<SbmClinikoModel> clinikoModel = parseJson(getAllEnv(env));
 		Map<ClinikoId, SimplyBookId> clinikoSimplyBookId = new HashMap<ClinikoId, SimplyBookId>();
 		for (int i = 0; i < clinikoModel.size(); i++) {
@@ -95,10 +98,11 @@ public class SimplyBookClinikoMapping {
 
 	public SimplyBookId clinikoSbmMapping(ClinikoId clinikoId) {
 		SimplyBookId simplyBookId = new SimplyBookId();
-		Map<ClinikoId, SimplyBookId> clinikoSimplyBookId = putMapCliniko();
+		if(clinikoSimplyBookId == null) {
+			clinikoSimplyBookId = putMapCliniko();
+		}
 		simplyBookId = clinikoSimplyBookId.get(clinikoId);
 		return simplyBookId;
-
 	}
 
 }

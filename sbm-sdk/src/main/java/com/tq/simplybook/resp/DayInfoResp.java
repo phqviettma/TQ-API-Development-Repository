@@ -2,12 +2,13 @@ package com.tq.simplybook.resp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tq.simplybook.req.SetWorkDayInfoInfoReq;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DayInfoResp {
 	private String id;
-    private DayInfo dateInfo = null;
+    private SetWorkDayInfoInfoReq dateInfo = null;
     private String jsonrpc;
 
     public String getId() {
@@ -18,11 +19,11 @@ public class DayInfoResp {
         this.id = id;
     }
 
-    public DayInfo getResult() {
+    public SetWorkDayInfoInfoReq getResult() {
         return dateInfo;
     }
 
-    public void setResult(DayInfo result) {
+    public void setResult(SetWorkDayInfoInfoReq result) {
         this.dateInfo = result;
     }
 

@@ -2,14 +2,9 @@ package com.tq.simplybook.lambda.handler;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.SaveBehavior;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.config.Config;
@@ -18,16 +13,18 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
-import com.tq.common.lambda.dynamodb.service.LatestClinikoApptService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddDataQuery;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
+import com.tq.simplybook.context.Env;
+import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
-import com.tq.simplybook.lambda.context.Env;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 import com.tq.simplybook.resp.BookingInfo;
+import com.tq.simplybook.resp.ClinikoId;
+import com.tq.simplybook.resp.SimplyBookId;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -40,9 +37,11 @@ public class CancelInternalHandler implements InternalHandler {
 	private com.tq.common.lambda.dynamodb.service.ContactItemService contactItemService = null;
 	private SbmClinikoSyncService sbmClinikoService = null;
 	private ClinikoAppointmentService clinikoAppointmentService = null;
+	private SimplyBookClinikoMapping sbmClinikoMapping = null;
 
 	public CancelInternalHandler(Env m_env, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
-			ContactItemService cis, SbmClinikoSyncService scs, LatestClinikoApptServiceWrapper lcsw, ClinikoAppointmentService cas) {
+			ContactItemService cis, SbmClinikoSyncService scs, LatestClinikoApptServiceWrapper lcsw,
+			ClinikoAppointmentService cas, SimplyBookClinikoMapping scm) {
 		env = m_env;
 		tokenService = tss;
 		bookingService = bss;
@@ -51,14 +50,15 @@ public class CancelInternalHandler implements InternalHandler {
 		latestApptService = lcsw;
 		sbmClinikoService = scs;
 		clinikoAppointmentService = cas;
+		sbmClinikoMapping = scm;
 	}
 
 	@Override
 	public void handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption {
-		executeWithCliniko(executeWithInfusionSoft(payload));
+		executeWithCliniko(payload,executeWithInfusionSoft(payload));
 	}
 
-	private PayloadCallback executeWithInfusionSoft(PayloadCallback payload) throws SbmSDKException {
+	private BookingInfo executeWithInfusionSoft(PayloadCallback payload) throws SbmSDKException {
 		String companyLogin = env.getSimplyBookCompanyLogin();
 		String user = env.getSimplyBookUser();
 		String password = env.getSimplyBookPassword();
@@ -117,12 +117,20 @@ public class CancelInternalHandler implements InternalHandler {
 			throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
 		}
 
-		return payload;
+		return bookingInfo;
 	}
 
-	private void executeWithCliniko(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption {
+	private void executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo)
+			throws SbmSDKException, ClinikoSDKExeption {
+		SimplyBookId simplybookId = new SimplyBookId(bookingInfo.getEvent_id(), bookingInfo.getUnit_id());
+		ClinikoId clinikoId = sbmClinikoMapping.sbmClinikoMapping(simplybookId);
+		if (clinikoId == null) {
+			return;
+		}
 		SbmCliniko sbmCliniko = sbmClinikoService.load(payload.getBooking_id());
-	
+		if(sbmCliniko == null) {
+			 throw new SbmSDKException("Couldn't sync the cancellation to Cliniko");
+		}
 		LatestClinikoAppts latestClinikoAppts = latestApptService.load();
 		Set<Long> createdId = latestClinikoAppts.getCreated();
 		createdId.remove(sbmCliniko.getClinikoId());
@@ -132,10 +140,8 @@ public class CancelInternalHandler implements InternalHandler {
 		latestClinikoAppts.setCreated(createdId);
 		latestClinikoAppts.setRemoved(removeId);
 		latestClinikoAppts.setLatestUpdateTime(Config.DATE_FORMAT_24_H.format(date));
-		latestApptService.put(latestClinikoAppts);
+		
 		clinikoAppointmentService.deleteAppointment(sbmCliniko.getClinikoId());
-		
-		
-
+		latestApptService.put(latestClinikoAppts);
 	}
 }

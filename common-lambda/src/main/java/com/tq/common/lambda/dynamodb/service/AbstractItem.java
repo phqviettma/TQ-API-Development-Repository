@@ -2,8 +2,6 @@ package com.tq.common.lambda.dynamodb.service;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.SaveBehavior;
 
 public abstract class AbstractItem<Item, ID> implements GenericItem<Item, ID> {
 	private AmazonDynamoDB client;
@@ -48,8 +46,4 @@ public abstract class AbstractItem<Item, ID> implements GenericItem<Item, ID> {
 		dymapper.delete(item);
 	}
 
-	public void updateItem(Item item) {
-		DynamoDBMapper dbMapper = new DynamoDBMapper(getClient(), new DynamoDBMapperConfig(SaveBehavior.UPDATE));
-		dbMapper.save(item);
-	}
 }

@@ -1,21 +1,15 @@
 
 package com.tq.simplybook.lambda.handler;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
-import com.tq.cliniko.lambda.model.Account;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
@@ -26,14 +20,14 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
-import com.tq.common.lambda.dynamodb.service.LatestClinikoApptService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddDataQuery;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
+import com.tq.simplybook.context.Env;
+import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
-import com.tq.simplybook.lambda.context.Env;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 import com.tq.simplybook.resp.BookingInfo;
 import com.tq.simplybook.resp.ClinikoId;
@@ -138,27 +132,28 @@ public class CreateInternalHandler implements InternalHandler {
 
 	private void executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo)
 			throws SbmSDKException, ClinikoSDKExeption {
+		SimplyBookId simplybookId = new SimplyBookId(bookingInfo.getEvent_id(), bookingInfo.getUnit_id());
+		ClinikoId clinikoId = sbmClinikoMapping.sbmClinikoMapping(simplybookId);
+		if (clinikoId == null) {
+			return;
+		}
 
-		String clinikoApiKey = env.getClinikoApiKey();
 		Integer appointmentTypeId = env.getCliniko_standard_appointment();
 		Integer clinikoPatientId = env.getClinikoPatientId();
 		Settings settings = clinikoApptService.getAllSettings();
 		String country = settings.getAccount().getCountry();
 		String time_zone = settings.getAccount().getTime_zone();
-		DateTimeZone timeZone = DateTimeZone.forID(country+"/"+time_zone);
-		String sbmStartTime = UtcTimeUtil.parseTimeUTC(bookingInfo.getStart_date_time());
-		String sbmEndTime = UtcTimeUtil.parseTimeUTC(bookingInfo.getEnd_date_time());
-		DateTime start_time = new DateTime(sbmStartTime,timeZone);
+		DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
+		String sbmStartTime = UtcTimeUtil.parseTime(bookingInfo.getStart_date_time());
+		String sbmEndTime = UtcTimeUtil.parseTime(bookingInfo.getEnd_date_time());
+		DateTime start_time = new DateTime(sbmStartTime, timeZone);
 		DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
-		DateTime endTime = new DateTime(sbmEndTime,timeZone);
+		DateTime endTime = new DateTime(sbmEndTime, timeZone);
 		DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
-		ClinikoId clinikoId = new ClinikoId();
-		SimplyBookId simplybookId = new SimplyBookId(bookingInfo.getEvent_id(), bookingInfo.getUnit_id());
-		clinikoId = sbmClinikoMapping.sbmClinikoMapping(simplybookId);
-		ClinikoAppointmentService clinikoService = new ClinikiAppointmentServiceImpl(clinikoApiKey);
 
-		AppointmentInfo result = clinikoService.createAppointment(new AppointmentInfo(clinikoStartTime.toString(), clinikoEndTime.toString(),
-				clinikoPatientId, clinikoId.getPractionerId(), appointmentTypeId, clinikoId.getBussinessId()));
+		AppointmentInfo result = clinikoApptService
+				.createAppointment(new AppointmentInfo(clinikoStartTime.toString(), clinikoEndTime.toString(),
+						clinikoPatientId, clinikoId.getPractionerId(), appointmentTypeId, clinikoId.getBussinessId()));
 
 		SbmCliniko sbmCliniko = new SbmCliniko();
 		sbmCliniko.setClinikoId(result.getId());

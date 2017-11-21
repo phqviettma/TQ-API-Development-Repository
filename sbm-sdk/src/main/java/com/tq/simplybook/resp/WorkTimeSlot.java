@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TimeInfo implements Serializable {
+public class WorkTimeSlot implements Serializable {
 	/**
 	 * 
 	 */
@@ -16,7 +16,7 @@ public class TimeInfo implements Serializable {
 	private String from;
 	private String to;
 
-	public TimeInfo(String from, String to) {
+	public WorkTimeSlot(String from, String to) {
 		super();
 		this.from = from;
 		this.to = to;
@@ -55,7 +55,7 @@ public class TimeInfo implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TimeInfo other = (TimeInfo) obj;
+		WorkTimeSlot other = (WorkTimeSlot) obj;
 		if (from == null) {
 			if (other.from != null)
 				return false;

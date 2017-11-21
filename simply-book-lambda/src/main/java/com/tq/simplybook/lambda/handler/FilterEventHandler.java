@@ -13,10 +13,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
-import com.tq.cliniko.lambda.dynamodb.dao.LatestClinikoApptsDaoImpl;
 import com.tq.cliniko.service.ClinikoAppointmentService;
-import com.tq.common.lambda.context.LambdaContext;
-import com.tq.common.lambda.context.LambdaContextImpl;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.LatestClinikoApptsImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmClinikoSyncDaoImpl;
@@ -32,10 +29,11 @@ import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.impl.DataServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
+import com.tq.simplybook.context.Env;
+import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.lambda.context.Env;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
@@ -66,7 +64,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scm, m_scs,
 			m_lcsw, m_cas);
 	private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs,
-			m_lcsw, m_cas);
+			m_lcsw, m_cas, m_scm);
 
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {

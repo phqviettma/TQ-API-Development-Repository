@@ -2,7 +2,8 @@ package com.tq.simplybook.lambda.handler;
 
 import org.junit.Test;
 
-import com.tq.simplybook.lambda.context.Env;
+import com.tq.simplybook.context.Env;
+import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.resp.ClinikoId;
 import com.tq.simplybook.resp.SimplyBookId;
 

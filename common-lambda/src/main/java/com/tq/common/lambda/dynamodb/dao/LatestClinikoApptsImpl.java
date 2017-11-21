@@ -1,7 +1,7 @@
 package com.tq.common.lambda.dynamodb.dao;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.tq.common.lambda.dynamodb.model.*;
+import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 import com.tq.common.lambda.dynamodb.service.AbstractItem;
 
 public class LatestClinikoApptsImpl extends AbstractItem<LatestClinikoAppts, String> implements LatestClinikoApptsDao{
@@ -14,11 +14,5 @@ public class LatestClinikoApptsImpl extends AbstractItem<LatestClinikoAppts, Str
 	public LatestClinikoAppts loadItem(String hashKey) {
 		
 		return super.loadItem(hashKey);
-	}
-
-	@Override
-	public void updateItem(LatestClinikoAppts item) {
-		
-		super.updateItem(item);
 	}
 }

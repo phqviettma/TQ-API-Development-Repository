@@ -28,10 +28,11 @@ import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
+import com.tq.simplybook.context.Env;
+import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.lambda.context.Env;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
@@ -47,6 +48,7 @@ public class CancelInternalHandlerTest {
 	SbmClinikoSyncService scs = mock(SbmClinikoSyncService.class);
 	LatestClinikoApptServiceWrapper lcs = mock(LatestClinikoApptServiceWrapper.class);
 	ClinikoAppointmentService cas = new ClinikiAppointmentServiceImpl(env.getClinikoApiKey());
+	SimplyBookClinikoMapping scm = new SimplyBookClinikoMapping(env);
 
 	@Test
 	public void test() throws SbmSDKException, ClinikoSDKExeption, Exception {
@@ -55,7 +57,7 @@ public class CancelInternalHandlerTest {
 		ci.setContactId(448);
 		contactItem.setClient(ci);
 		when(cis.load(any())).thenReturn(contactItem);
-		CancelInternalHandler handler = new CancelInternalHandler(env, tss, bss, csi, cis, scs, lcs, cas);
+		CancelInternalHandler handler = new CancelInternalHandler(env, tss, bss, csi, cis, scs, lcs, cas, scm);
 		PayloadCallback payLoad = new PayloadCallback();
 		payLoad.setBooking_id(5L);
 		payLoad.setBooking_hash("784ee770544f77f25f5f713772cf6910");

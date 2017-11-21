@@ -2,24 +2,22 @@ package com.tq.simplybook.req;
 
 import java.io.Serializable;
 
-import com.tq.simplybook.test.WorkdayInfo;
-
 public class WorkdayReq implements Serializable {
 	/**
 		 * 
 		 */
 	private static final long serialVersionUID = -8145369080902277411L;
-	private WorkdayInfo workday;
+	private WorkdayInfoReq workday;
 
-	public WorkdayInfo getWorkday() {
+	public WorkdayInfoReq getWorkday() {
 		return workday;
 	}
 
-	public void setWorkday(WorkdayInfo workday) {
+	public void setWorkday(WorkdayInfoReq workday) {
 		this.workday = workday;
 	}
 
-	public WorkdayReq(WorkdayInfo workday) {
+	public WorkdayReq(WorkdayInfoReq workday) {
 		
 		this.workday = workday;
 	}

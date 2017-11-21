@@ -46,9 +46,10 @@ public class DynamodbUtils {
                 return new BasicAWSCredentials(Config.LOCALLY_AMAZON_ACCESS_KEY, Config.LOCALLY_AMAZON_SECRET_ACCESS_KEY);
             }
         };
-        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
-                .withCredentials(credentialsProvider)
-                .withEndpointConfiguration(new EndpointConfiguration(Config.DYNAMODB_LOCAL_ENDPOINT, Config.DYNAMODB_LOCAL_REGION_ECLIPSE)).build();
+        AmazonDynamoDBClientBuilder withCredentials = AmazonDynamoDBClientBuilder.standard().withCredentials(credentialsProvider);
+		EndpointConfiguration endpointConfiguration = new EndpointConfiguration(Config.DYNAMODB_LOCAL_ENDPOINT, Config.DYNAMODB_LOCAL_REGION_ECLIPSE);
+		AmazonDynamoDB client = withCredentials
+                .withEndpointConfiguration(endpointConfiguration).build();
         return client;
     }
 }
