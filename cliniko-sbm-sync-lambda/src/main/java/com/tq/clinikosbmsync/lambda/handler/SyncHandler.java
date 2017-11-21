@@ -1,6 +1,5 @@
 package com.tq.clinikosbmsync.lambda.handler;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,10 +34,9 @@ import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.req.SetWorkDayInfo;
-import com.tq.simplybook.resp.Breaktime;
+import com.tq.simplybook.req.SetWorkDayInfoInfoReq;
+import com.tq.simplybook.req.SetWorkDayInfoReq;
 import com.tq.simplybook.resp.ClinikoId;
-import com.tq.simplybook.resp.DayInfo;
 import com.tq.simplybook.resp.SimplyBookId;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
@@ -117,7 +115,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 							String start_time = UtcTimeUtil.extractTime(appt.getAppointment_start());
 							String end_time = UtcTimeUtil.extractTime(appt.getAppointment_end());
 							m_sss.blockTimeSlot(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookAdminServiceUrl(),
-									token, new SetWorkDayInfo(new DayInfo("08:20", "18:00", 0,
+									token, new SetWorkDayInfoReq(new SetWorkDayInfoInfoReq("08:20", "18:00", 0,
 											null, 0, "", date, "1", "")));
 						}
 					}

@@ -1,4 +1,4 @@
-package com.tq.simplybook.test;
+package com.tq.simplybook.req;
 
 import java.io.Serializable;
 
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class WorkdayInfo implements Serializable {
+public class WorkdayInfoReq implements Serializable {
 	/**
 	 * 
 	 */
@@ -53,7 +53,7 @@ public class WorkdayInfo implements Serializable {
 		return serialVersionUID;
 	}
 
-	public WorkdayInfo(String from, String to, int unit_id, int event_id) {
+	public WorkdayInfoReq(String from, String to, int unit_id, int event_id) {
 
 		this.from = from;
 		this.to = to;
@@ -62,7 +62,7 @@ public class WorkdayInfo implements Serializable {
 		
 	}
 
-	public WorkdayInfo() {
+	public WorkdayInfoReq() {
 
 	}
 

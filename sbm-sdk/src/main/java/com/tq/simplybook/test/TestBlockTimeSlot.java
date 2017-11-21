@@ -6,9 +6,9 @@ import java.util.Set;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.req.SetWorkDayInfo;
+import com.tq.simplybook.req.SetWorkDayInfoInfoReq;
+import com.tq.simplybook.req.SetWorkDayInfoReq;
 import com.tq.simplybook.resp.Breaktime;
-import com.tq.simplybook.resp.DayInfo;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -26,11 +26,11 @@ public class TestBlockTimeSlot {
 		
 		  Set<Breaktime> breakTime = new HashSet<Breaktime>();
 		  breakTime.add(new Breaktime("9:40", "9:45"));
-		 DayInfo info = new DayInfo("08:20", "18:00", 0, breakTime, 0, "",
+		 SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq("08:20", "18:00", 0, breakTime, 0, "",
 		  "2017-11-17", "1", "1");
 		  Boolean s =
 		  timeSlotService.unlockTimeSlot(COMPANY_LOGIN, END_POINT, token, new
-		  SetWorkDayInfo(info));
+		  SetWorkDayInfoReq(info));
 		 /* Boolean s = timeSlotService.blockTimeSlot(COMPANY_LOGIN, END_POINT, token, new
 		 SetWorkDayInfo(info)); System.out.println(s);
 		 */

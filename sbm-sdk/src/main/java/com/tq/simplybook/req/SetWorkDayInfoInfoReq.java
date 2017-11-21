@@ -1,14 +1,14 @@
-package com.tq.simplybook.resp;
+package com.tq.simplybook.req;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tq.simplybook.resp.Breaktime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DayInfo implements Serializable{
+public class SetWorkDayInfoInfoReq implements Serializable{
 	/**
 	 * 
 	 */
@@ -99,11 +99,11 @@ public class DayInfo implements Serializable{
 		return serialVersionUID;
 	}
 
-	public DayInfo() {
+	public SetWorkDayInfoInfoReq() {
 		super();
 	}
 
-	public DayInfo(String start_time, String end_time, int is_day_off, Set<Breaktime> breaktime, int index, String name,
+	public SetWorkDayInfoInfoReq(String start_time, String end_time, int is_day_off, Set<Breaktime> breaktime, int index, String name,
 			String date, String unit_group_id, String event_id) {
 		super();
 		this.start_time = start_time;
