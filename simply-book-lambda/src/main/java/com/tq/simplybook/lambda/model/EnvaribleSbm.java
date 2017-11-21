@@ -2,7 +2,7 @@ package com.tq.simplybook.lambda.model;
 
 import java.io.Serializable;
 
-import com.tq.simplybook.lambda.context.Env;
+import com.tq.simplybook.context.Env;
 
 public class EnvaribleSbm implements Serializable{
 	/**

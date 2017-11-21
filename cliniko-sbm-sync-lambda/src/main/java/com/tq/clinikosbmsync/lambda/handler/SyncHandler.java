@@ -30,11 +30,11 @@ import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 import com.tq.common.lambda.dynamodb.service.LatestClinikoApptService;
 import com.tq.common.lambda.utils.DynamodbUtils;
+import com.tq.simplybook.context.Env;
+import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.lambda.context.Env;
-import com.tq.simplybook.lambda.handler.SimplyBookClinikoMapping;
 import com.tq.simplybook.req.SetWorkDayInfo;
 import com.tq.simplybook.resp.Breaktime;
 import com.tq.simplybook.resp.ClinikoId;
@@ -52,11 +52,12 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			m_env.getAwsAccessKeyId(), m_env.getAwsSecretAccessKey());
 	
 	private final ClinikoAppointmentService m_cas = new ClinikiAppointmentServiceImpl(m_env.getClinikoApiKey());
-	  private LatestClinikoApptService m_lcs = new LatestClinikoApptServiceImpl(new LatestClinikoApptsImpl(m_amazonDynamoDB));
-	    private LatestClinikoApptServiceWrapper m_lcsw = new LatestClinikoApptServiceWrapper(m_lcs);
+	private LatestClinikoApptService m_lcs = new LatestClinikoApptServiceImpl(
+			new LatestClinikoApptsImpl(m_amazonDynamoDB));
+	private LatestClinikoApptServiceWrapper m_lcsw = new LatestClinikoApptServiceWrapper(m_lcs);
 	private final SpecialdayServiceSbm m_sss = new SpecialdayServiceSbmImpl();
 	private final TokenServiceSbm m_tss = new TokenServiceImpl();
-	private final SimplyBookClinikoMapping m_sbc  =new SimplyBookClinikoMapping(m_env);
+	private final SimplyBookClinikoMapping m_sbc = new SimplyBookClinikoMapping(m_env);
 
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {

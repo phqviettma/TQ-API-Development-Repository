@@ -1,4 +1,4 @@
-package com.tq.simplybook.lambda.handler;
+package com.tq.simplybook.context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,6 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tq.simplybook.lambda.context.Env;
 import com.tq.simplybook.resp.ClinikoId;
 import com.tq.simplybook.resp.SbmClinikoModel;
 import com.tq.simplybook.resp.SimplyBookId;

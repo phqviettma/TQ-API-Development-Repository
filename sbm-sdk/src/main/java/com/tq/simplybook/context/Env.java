@@ -1,8 +1,9 @@
-package com.tq.simplybook.lambda.context;
+package com.tq.simplybook.context;
 
 import java.util.Map;
 
 import com.amazonaws.regions.Regions;
+
 
 public class Env {
 	private Regions regions = Regions.valueOf(System.getenv("REGIONS"));
