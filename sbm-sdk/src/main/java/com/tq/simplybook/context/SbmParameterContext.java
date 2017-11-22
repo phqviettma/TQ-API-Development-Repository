@@ -1,5 +1,9 @@
 package com.tq.simplybook.context;
 
+import java.util.List;
+
+import com.tq.simplybook.resp.Breaktime;
+
 public class SbmParameterContext {
 
 	private String companyLogin;
@@ -7,89 +11,56 @@ public class SbmParameterContext {
 	private String userToken;
 	private int eventId;
 	private int unitId;
-	private String from;
-	private String to;
-	private String startBreakTime;
-	private String endBreakTime;
-
-	public String getFrom() {
-		return from;
-	}
-
-	public SbmParameterContext setFrom(String from) {
-		this.from = from;
-		return this;
-	}
-
-	public String getTo() {
-		return to;
-	}
-
-	public SbmParameterContext setTo(String to) {
-		this.to = to;
-		return this;
-	}
-
+	private String envStartWorkingTime;
+	private String envEndWorkingTime;
+	private List<Breaktime> breakTimes;
+	
 	public String getCompanyLogin() {
 		return companyLogin;
 	}
-
-	public SbmParameterContext setCompanyLogin(String companyLogin) {
+	public void setCompanyLogin(String companyLogin) {
 		this.companyLogin = companyLogin;
-		return this;
 	}
-
 	public String getEndpoint() {
 		return endpoint;
 	}
-
-	public SbmParameterContext setEndpoint(String endpoint) {
+	public void setEndpoint(String endpoint) {
 		this.endpoint = endpoint;
-		return this;
 	}
-
 	public String getUserToken() {
 		return userToken;
 	}
-
-	public SbmParameterContext setUserToken(String userToken) {
+	public void setUserToken(String userToken) {
 		this.userToken = userToken;
-		return this;
 	}
-
 	public int getEventId() {
 		return eventId;
 	}
-
-	public SbmParameterContext setEventId(int eventId) {
+	public void setEventId(int eventId) {
 		this.eventId = eventId;
-		return this;
 	}
-
 	public int getUnitId() {
 		return unitId;
 	}
-
-	public SbmParameterContext setUnitId(int unitId) {
+	public void setUnitId(int unitId) {
 		this.unitId = unitId;
-		return this;
 	}
-
-	public String getStartBreakTime() {
-		return startBreakTime;
+	public String getEnvStartWorkingTime() {
+		return envStartWorkingTime;
 	}
-
-	public SbmParameterContext setStartBreakTime(String startBreakTime) {
-		this.startBreakTime = startBreakTime;
-		return this;
+	public void setEnvStartWorkingTime(String envStartWorkingTime) {
+		this.envStartWorkingTime = envStartWorkingTime;
 	}
-
-	public String getEndBreakTime() {
-		return endBreakTime;
+	public String getEnvEndWorkingTime() {
+		return envEndWorkingTime;
 	}
-
-	public SbmParameterContext setEndBreakTime(String endBreakTime) {
-		this.endBreakTime = endBreakTime;
-		return this;
+	public void setEnvEndWorkingTime(String envEndWorkingTime) {
+		this.envEndWorkingTime = envEndWorkingTime;
+	}
+	public List<Breaktime> getBreakTimes() {
+		return breakTimes;
+	}
+	public void setBreakTimes(List<Breaktime> breakTimes) {
+		this.breakTimes = breakTimes;
 	}
 }

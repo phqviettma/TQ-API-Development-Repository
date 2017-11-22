@@ -55,4 +55,17 @@ public class UtcTimeUtil {
 		String t = time.replace(" ", "T");
 		return t;
 	}
+	
+	public static Date parseDate(String date) {
+        SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd"); 
+        String input = "2014-01-19";  // capture the value you pass from attendance application
+        Date t;
+        try { 
+            t = ft.parse(input); 
+        } catch (ParseException e) { 
+            throw new IllegalArgumentException(e);
+        }
+        
+        return t;
+    }
 }

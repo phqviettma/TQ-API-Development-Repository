@@ -1,12 +1,16 @@
 package com.tq.clinikosbmsync.lambda.handler;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -21,6 +25,7 @@ import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
+import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.dao.LatestClinikoApptsImpl;
@@ -32,12 +37,15 @@ import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
+import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.req.SetWorkDayInfoInfoReq;
-import com.tq.simplybook.req.SetWorkDayInfoReq;
+import com.tq.simplybook.req.FromDate;
+import com.tq.simplybook.req.ToDate;
+import com.tq.simplybook.resp.Breaktime;
 import com.tq.simplybook.resp.ClinikoId;
 import com.tq.simplybook.resp.SimplyBookId;
+import com.tq.simplybook.resp.WorksDayInfoResp;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -56,18 +64,44 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 	private final SpecialdayServiceSbm m_sss = new SpecialdayServiceSbmImpl();
 	private final TokenServiceSbm m_tss = new TokenServiceImpl();
 	private final SimplyBookClinikoMapping m_sbc = new SimplyBookClinikoMapping(m_env);
-
+	private SbmBreakTimeManagement m_sbtm = new SbmBreakTimeManagement();
+	
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
+	    AwsProxyResponse resp = new AwsProxyResponse();
+	    
+	    boolean errorOccured = false;
+	    
+	    String dbTime = null;
+        String latestUpdateTime = null;
+	    
+	    boolean isDbUpdateNeededForCreated = false;
+	    boolean isCreationSyncComplete = false;
+	    boolean isDbUpdateNeededForRemoved = false;
+	    boolean isRemovalSyncComplete = false;
+	    
+	    Set<Long> newlyCreated = new LinkedHashSet<Long>(20);
+	    Set<Long> newlyRemoved= new LinkedHashSet<Long>(20);
 		try {
-
+		    
 			LatestClinikoAppts dbAppts = m_lcsw.load();
-			String dbTime = dbAppts.getLatestUpdateTime();
-
+			dbTime = dbAppts.getLatestUpdateTime();
+			
+			m_cas.getAllSettings();
+            Settings settings = m_cas.getAllSettings();
+            String country = settings.getAccount().getCountry();
+            String time_zone = settings.getAccount().getTime_zone();
+            latestUpdateTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
+			
+			if(dbTime == null) {
+			    dbTime = latestUpdateTime;
+			} 
+			
 			Set<Long> dbCreateSet = dbAppts.getCreated() != null ? dbAppts.getCreated() : new HashSet<Long>();
 			Set<Long> dbRemoveSet = dbAppts.getRemoved() != null ? dbAppts.getRemoved() : new HashSet<Long>();
-
-			AppointmentsInfo apptInf = m_cas.getAppointments(UtcTimeUtil.parseTimeUTC(dbTime));
+			
+			
+			AppointmentsInfo apptInf = m_cas.getAppointments(dbTime);
 			Set<Long> lookupedCreateSet = null;
 			Set<Long> lookupedRemoveSet = null;
 
@@ -90,7 +124,6 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			if (dbCreateSet.equals(lookupedCreateSet)) {
 				// do nothing for create
 			} else {
-				Set<Long> newlyCreated = new LinkedHashSet<Long>(20);
 				for (Long create : lookupedCreateSet) {
 					if (!dbCreateSet.contains(create)) {
 						newlyCreated.add(create);
@@ -99,33 +132,45 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 
 				if (!newlyCreated.isEmpty()) {
 					if (lookupedMap == null) {
-						lookupedMap = new HashMap<Long, AppointmentInfo>();
-						for (AppointmentInfo appt : appts) {
-							lookupedMap.put(appt.getId(), appt);
-						}
+						lookupedMap = toLookupMap(appts);
 					}
-
-					String token = m_tss.getUserToken(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookUser(),
-							m_env.getSimplyBookPassword(), m_env.getSimplyBookServiceUrlLogin());
-
+					
+					Map<ClinikoId, PractitionerApptGroup> practitionerApptGroupMap = new HashMap<ClinikoId, PractitionerApptGroup>();
+					
 					for (Long i : newlyCreated) {
 						AppointmentInfo appt = lookupedMap.get(i);
 						if (appt != null) {
 							String date = UtcTimeUtil.extractDate(appt.getAppointment_start());
-							String start_time = UtcTimeUtil.extractTime(appt.getAppointment_start());
-							String end_time = UtcTimeUtil.extractTime(appt.getAppointment_end());
-							m_sss.blockTimeSlot(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookAdminServiceUrl(),
-									token, new SetWorkDayInfoReq(new SetWorkDayInfoInfoReq("08:20", "18:00", 0,
-											null, 0, "", date, "1", "")));
+							ClinikoId cliniko = new ClinikoId();
+                            cliniko.setBussinessId(appt.getBusiness_id());
+                            cliniko.setPractionerId(appt.getPractitioner_id());
+                            
+                            PractitionerApptGroup group = practitionerApptGroupMap.get(cliniko);
+                            
+                            if(group == null) {
+                                group = new PractitionerApptGroup();
+                                practitionerApptGroupMap.put(cliniko, group);
+                            } 
+                            
+                            group.addAppt(date, appt);
+                            
 						}
 					}
+					
+					String token = m_tss.getUserToken(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookUser(),
+                            m_env.getSimplyBookPassword(), m_env.getSimplyBookServiceUrlLogin());
+					
+					changeSbmBreakTime(practitionerApptGroupMap, token, true);
+					isDbUpdateNeededForCreated = true;
 				}
+				
 			}
-
+			
+			isCreationSyncComplete = true;
+			
 			if (dbRemoveSet.equals(lookupedRemoveSet)) {
 				// do nothing for remove
 			} else {
-				Set<Long> newlyRemoved = new LinkedHashSet<>();
 				for (Long remove : lookupedRemoveSet) {
 					if (!dbRemoveSet.contains(remove)) {
 						newlyRemoved.add(remove);
@@ -133,38 +178,124 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 				}
 				if (!newlyRemoved.isEmpty()) {
 					if (lookupedMap == null) {
-						lookupedMap = new HashMap<Long,AppointmentInfo>();
-						for(AppointmentInfo appt: appts) {
-							lookupedMap.put(appt.getId(), appt);
-						}
+						lookupedMap = toLookupMap(appts);
 					}
+					
+					Map<ClinikoId, PractitionerApptGroup> practitionerApptGroupMap = new HashMap<ClinikoId, PractitionerApptGroup>();
+					
 					for(Long i : newlyRemoved) {
 						AppointmentInfo appt = lookupedMap.get(i);
-						if(appt !=null) {
-							String date = UtcTimeUtil.extractDate(appt.getAppointment_start());
-							String start_time = UtcTimeUtil.extractTime(appt.getAppointment_start());
-							String end_time = UtcTimeUtil.extractTime(appt.getAppointment_end());
-							ClinikoId cliniko = new ClinikoId();
-							cliniko.setBussinessId(appt.getBusiness_id());
-							cliniko.setPractionerId(appt.getPractitioner_id());
-							SimplyBookId simplybook = m_sbc.clinikoSbmMapping(cliniko);
-							//m_sss.unlockTimeSlot(m_env.getSimplyBookCompanyLogin(),m_env.getSimplyBookAdminServiceUrl(),m_env.getSimplyBookCompanyLogin(), new SetWorkDayInfo(new DayInfo(m_env.getCliniko_start_time(), m_env.getCliniko_end_time(), is_day_off, breaktime, index, name, date, simplybook.getUnit_id(), simplybook.getEvent_id())));
-						}
+						if (appt != null) {
+                            String date = UtcTimeUtil.extractDate(appt.getAppointment_start());
+                            ClinikoId cliniko = new ClinikoId();
+                            cliniko.setBussinessId(appt.getBusiness_id());
+                            cliniko.setPractionerId(appt.getPractitioner_id());
+                            
+                            PractitionerApptGroup group = practitionerApptGroupMap.get(cliniko);
+                            
+                            if(group == null) {
+                                group = new PractitionerApptGroup();
+                                practitionerApptGroupMap.put(cliniko, group);
+                            } 
+                            
+                            group.addAppt(date, appt);
+                            
+                        }
 					}
+					
+					String token = m_tss.getUserToken(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookUser(),
+                            m_env.getSimplyBookPassword(), m_env.getSimplyBookServiceUrlLogin());
+                    
+                    changeSbmBreakTime(practitionerApptGroupMap, token, false);
+                    isDbUpdateNeededForRemoved = true;
 				}
 
 			}
+			
+			isRemovalSyncComplete = true;
 
 		} catch (ClinikoSDKExeption | SbmSDKException e) {
-
+		    m_log.error("Error occurs", e);
+		    resp.setStatusCode(500);
+		    errorOccured = true;
 		}
-
-		return null;
+		
+		if(!errorOccured) {
+		    resp.setStatusCode(200);
+		}
+		
+		updateDb(dbTime, latestUpdateTime, isDbUpdateNeededForCreated, isCreationSyncComplete, isDbUpdateNeededForRemoved, isRemovalSyncComplete, newlyCreated, newlyRemoved);
+		
+		return resp;
 	}
 
-	private Map<String, AppointmentInfo> toMap(List<AppointmentInfo> appts) {
-		return null;
-	}
+    private void updateDb(String dbTime, String latestUpdateTime, boolean isDbUpdateNeededForCreated, boolean isCreationSyncComplete,
+            boolean isDbUpdateNeededForRemoved, boolean isRemovalSyncComplete, Set<Long> newlyCreated, Set<Long> newlyRemoved) {
+        if(isCreationSyncComplete || isRemovalSyncComplete) {
+            
+		    LatestClinikoAppts lca = new LatestClinikoAppts();
+		    
+		    if(isDbUpdateNeededForCreated) {
+		        lca.setCreated(newlyCreated);
+		    }
+		    
+		    if(isDbUpdateNeededForRemoved) {
+		        lca.setRemoved(newlyRemoved);
+		    }
+		    
+		    if(isCreationSyncComplete && isRemovalSyncComplete) {
+		        //OK, synchronization is complete, lets record the latest time
+		        lca.setLatest_update(latestUpdateTime);
+		    } else {
+		        /* Error somewhere, synchronization is not complete fully. 
+		           Lets record the current DB time to give a change the next time the synchronization could be complete
+		        */  
+		        lca.setLatest_update(dbTime);
+		    }
+		    
+		    m_lcsw.put(lca);
+		}
+    }
+
+    private void changeSbmBreakTime(Map<ClinikoId, PractitionerApptGroup> practitionerApptGroupMap, String token, boolean isAdditional) throws SbmSDKException {
+        for(Entry<ClinikoId, PractitionerApptGroup> entry : practitionerApptGroupMap.entrySet()) {
+            ClinikoId clinikoId = entry.getKey();
+            PractitionerApptGroup group = entry.getValue();
+            SimplyBookId simplybookId = m_sbc.clinikoSbmMapping(clinikoId);
+            Integer unitId = Integer.valueOf(simplybookId.getUnit_id());
+            Integer eventId = Integer.valueOf(simplybookId.getEvent_id());
+            
+            Map<String, WorksDayInfoResp> workDayInfoMapForUnitId = m_sss.getWorkDaysInfo(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookAdminServiceUrl()
+                    ,token, unitId, eventId, 
+                    new FromDate(group.getStartDateString(), m_env.getCliniko_start_time()),
+                    new ToDate(group.getEndDateString(), m_env.getCliniko_end_time()));
+            
+            for(Entry<String, Set<Breaktime>> dateToSbmBreakTime : group.getDateToSbmBreakTimesMap().entrySet()){
+                Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue();
+                String date = dateToSbmBreakTime.getKey();
+                if(!breakTimes.isEmpty()) {
+                    if(isAdditional) {
+                        m_sbtm.addBreakTime(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookAdminServiceUrl()
+                        ,token, unitId, eventId, m_env.getCliniko_start_time()
+                        ,m_env.getCliniko_end_time(), date, breakTimes, workDayInfoMapForUnitId);
+                    } else {
+                        m_sbtm.removeBreakTime(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookAdminServiceUrl()
+                                ,token, unitId, eventId, m_env.getCliniko_start_time()
+                                ,m_env.getCliniko_end_time(), date, breakTimes, workDayInfoMapForUnitId);
+                    }
+                }
+           
+            }
+        }
+    }
+
+    private Map<Long, AppointmentInfo> toLookupMap(List<AppointmentInfo> appts) {
+        Map<Long, AppointmentInfo> lookupedMap = new HashMap<Long,AppointmentInfo>();
+        for(AppointmentInfo appt: appts) {
+        	lookupedMap.put(appt.getId(), appt);
+        }
+        return lookupedMap;
+    }
 
 	private void filterApptIds(Collection<AppointmentInfo> appointments, Set<Long> createdSet, Set<Long> removedSet) {
 		for (AppointmentInfo appt : appointments) {
@@ -176,5 +307,77 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 		}
 
 	}
+	
+	private static class PractitionerApptGroup {
+	    private ClinikoId cinikoId;
+	    private Set<AppointmentInfo> appts = new HashSet<AppointmentInfo>();
+	    private Set<String> apptDates = new HashSet<String>();
+	    private Date startDate = null;
+	    private Date endDate = null;
+	    private Map<String, Set<Breaktime>> dateToSbmBreakTimesMap = new HashMap<String, Set<Breaktime>>();
+	    
+        public Map<String, Set<Breaktime>> getDateToSbmBreakTimesMap() {
+            return dateToSbmBreakTimesMap;
+        }
 
+        public ClinikoId getCinikoId() {
+            return cinikoId;
+        }
+
+        public void setCinikoId(ClinikoId cinikoId) {
+            this.cinikoId = cinikoId;
+        }
+
+        public void addAppt(String date, AppointmentInfo appt) {
+            this.appts.add(appt);
+            this.addDate(date);
+            
+            Set<Breaktime> breakTimeSet = dateToSbmBreakTimesMap.get(date);
+            
+            if(breakTimeSet == null) {
+                breakTimeSet = new HashSet<Breaktime>();
+                dateToSbmBreakTimesMap.put(date, breakTimeSet);
+            }
+            
+            String start_time = UtcTimeUtil.extractTime(appt.getAppointment_start());
+            String end_time = UtcTimeUtil.extractTime(appt.getAppointment_end());            
+            breakTimeSet.add(new Breaktime(start_time, end_time));
+            
+        }
+        
+        private void addDate(String date) {
+            Date newDate = UtcTimeUtil.parseDate(date);
+            if(startDate == null || startDate.after(newDate)) {
+                startDate = newDate; 
+            }
+            
+            if(endDate == null || endDate.before(newDate)) {
+                endDate = newDate; 
+            }
+        }
+
+        public Set<AppointmentInfo> getAppts() {
+            return appts;
+        }
+        
+        public Set<String> getApptDates() {
+            return apptDates;
+        }
+        
+        public String getStartDateString() {
+            DateFormat date = new SimpleDateFormat("YYYY-MM-DD");
+            return date.format(startDate);
+        }
+        
+        public String getEndDateString() {
+            DateFormat date = new SimpleDateFormat("YYYY-MM-DD");
+            return date.format(endDate);
+        }
+
+        @Override
+        public String toString() {
+            return "PractitionerApptGroup [cinikoId=" + cinikoId + "]";
+        }
+	}
+	
 }
