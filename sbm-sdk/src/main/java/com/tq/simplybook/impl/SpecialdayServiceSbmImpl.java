@@ -6,6 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,68 +27,73 @@ import com.tq.simplybook.utils.SbmExecute;
 import com.tq.simplybook.utils.SbmUtils;
 
 public class SpecialdayServiceSbmImpl implements SpecialdayServiceSbm {
-    
+
 	private static ObjectMapper JSON_MAPPER = new ObjectMapper();
-	
+	private static final Logger m_log = LoggerFactory.getLogger(SbmBreakTimeManagement.class);
+
 	@Override
-	public boolean changeWorkDay(String companyLogin, String endpoint, String userToken, SetWorkDayInfoReq setWorkDayInfo)
-			throws SbmSDKException {
+	public boolean changeWorkDay(String companyLogin, String endpoint, String userToken,
+			SetWorkDayInfoReq setWorkDayInfo) throws SbmSDKException {
 		try {
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, userToken, "setWorkDayInfo",
 					setWorkDayInfo);
 			SetWorkDayInfoResp readValueForObject = SbmUtils.readValueForObject(jsonResp, SetWorkDayInfoResp.class);
-
+			
 			return readValueForObject.getResult();
 		} catch (Exception e) {
-			throw new SbmSDKException(e.getMessage() + " during setWorkDayInfo()", e);
+			m_log.info("Error when setWorkDayInfo" + e);
+			return false;
+			
 		}
 
 	}
 
 	@Override
-	public Map<String, WorksDayInfoResp> getWorkDaysInfo(String companyLogin, String endpoint, String token, int unit_id, int event_id, FromDate fromDate, ToDate toDate) throws SbmSDKException {
-		return getWorkDaysInfo(companyLogin, endpoint, token, new WorkdayInfoReq(fromDate.toString(), toDate.toString(), unit_id, event_id));
+	public Map<String, WorksDayInfoResp> getWorkDaysInfo(String companyLogin, String endpoint, String token,
+			int unit_id, int event_id, FromDate fromDate, ToDate toDate) throws SbmSDKException {
+		return getWorkDaysInfo(companyLogin, endpoint, token,
+				new WorkdayInfoReq(fromDate.toString(), toDate.toString(), unit_id, event_id));
 	}
-	
-	
-	private Map<String, WorksDayInfoResp> getWorkDaysInfo(String companyLogin, String endpoint, String token, WorkdayInfoReq info) throws SbmSDKException {
+
+	private Map<String, WorksDayInfoResp> getWorkDaysInfo(String companyLogin, String endpoint, String token,
+			WorkdayInfoReq info) throws SbmSDKException {
 		try {
-			String jsonRes= SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getWorkDaysInfo", info);
-			Map<String, Object> map = JSON_MAPPER.readValue(jsonRes, new TypeReference<Map<String, Object>>(){});
+			String jsonRes = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getWorkDaysInfo", info);
+			Map<String, Object> map = JSON_MAPPER.readValue(jsonRes, new TypeReference<Map<String, Object>>() {
+			});
 			return toWorksDayInfoResp(map);
 		} catch (Exception e) {
 			throw new SbmSDKException(e.getMessage() + " during getWorkDayInfo()", e);
 		}
 	}
-	
+
 	private static Map<String, WorksDayInfoResp> toWorksDayInfoResp(Map<String, Object> map) {
-		if(map != null) {
+		if (map != null) {
 			Map<String, List<Map<String, String>>> result = (Map) map.get("result");
-			if(result != null) {
+			if (result != null) {
 				Map<String, WorksDayInfoResp> resMap = new LinkedHashMap<String, WorksDayInfoResp>();
-				for(Entry<String, List<Map<String, String>>> dateEntry : result.entrySet()) {
+				for (Entry<String, List<Map<String, String>>> dateEntry : result.entrySet()) {
 					WorksDayInfoResp wdi = new WorksDayInfoResp();
 					String date = dateEntry.getKey();
 					List<Map<String, String>> timeInfoList = dateEntry.getValue();
 					Set<WorkTimeSlot> workTimeSlotSet = new HashSet<WorkTimeSlot>();
-					for(Map<String, String> subTimeSlotMap : timeInfoList) {
+					for (Map<String, String> subTimeSlotMap : timeInfoList) {
 						String from = subTimeSlotMap.get("from");
 						String to = subTimeSlotMap.get("to");
 						workTimeSlotSet.add(new WorkTimeSlot(from, to));
 					}
-					
+
 					wdi.setDate(date);
 					wdi.setInfo(workTimeSlotSet);
 					resMap.put(date, wdi);
 				}
-				
+
 				return resMap;
 			}
 			return Collections.emptyMap();
-		} 
-		
+		}
+
 		return null;
 	}
-
 
 }

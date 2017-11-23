@@ -9,6 +9,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.SetWorkDayInfoInfoReq;
 import com.tq.simplybook.req.SetWorkDayInfoReq;
@@ -20,7 +23,8 @@ import com.tq.simplybook.service.SpecialdayServiceSbm;
 public class SbmBreakTimeManagement {
 
     private SpecialdayServiceSbm sss = new SpecialdayServiceSbmImpl();
-
+    private static final Logger m_log = LoggerFactory.getLogger(SbmBreakTimeManagement.class);
+    
     public boolean addBreakTime(String companyLogin, String endpoint, String token, int unit_id, int event_id, String envStartWorkingTime,
             String envEndWorkingTime, String date, Set<Breaktime> newBreakTime, Map<String, WorksDayInfoResp> workDayInfoMap) throws SbmSDKException {
 
@@ -29,24 +33,41 @@ public class SbmBreakTimeManagement {
 
         Set<Breaktime> breakTimes = appenBreakTime(envStartWorkingTime, envEndWorkingTime, newBreakTime, workTimeSlots);
         
-        SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq(envStartWorkingTime, envEndWorkingTime, 0, breakTimes, 0, null, date, String.valueOf(unit_id),
-                String.valueOf(event_id));
-
-        return sss.changeWorkDay(companyLogin, endpoint, token, new SetWorkDayInfoReq(info));
+        if(!breakTimes.isEmpty()) {
+        	m_log.info("Break times to be added for date " + date + ":" + String.valueOf(breakTimes));
+	        SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq(envStartWorkingTime, envEndWorkingTime, 0, breakTimes, 0, date, date, String.valueOf(unit_id),
+	                String.valueOf(event_id));
+	        return sss.changeWorkDay(companyLogin, endpoint, token, new SetWorkDayInfoReq(info));
+        } else {
+        	m_log.info("There is no break times to be added for date " + date);
+        	return false;
+        }
     }
 
     public boolean removeBreakTime(String companyLogin, String endpoint, String token, int unit_id, int event_id, String envStartWorkingTime,
             String envEndWorkingTime, String date, Set<Breaktime> removedBreakTime, Map<String, WorksDayInfoResp> workDayInfoMap) throws SbmSDKException {
         
         WorksDayInfoResp workDayInfo = workDayInfoMap.get(date);
+        if(workDayInfo == null) {
+        	m_log.info("There is no workdayinfo for date " + date);
+        }
         Set<WorkTimeSlot> workTimeSlots = workDayInfo.getInfo();
         
         Set<Breaktime> breakTimes = removeBreakTime(envStartWorkingTime, envEndWorkingTime, removedBreakTime, workTimeSlots);
         
-        SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq(envStartWorkingTime, envEndWorkingTime, 0, breakTimes, 0, null, date,
-                String.valueOf(unit_id), String.valueOf(event_id));
+        if(!breakTimes.isEmpty()) {
+        	
+        	m_log.info("Break times to be removed for date " + date + ":" + String.valueOf(breakTimes));
+        	
+        	SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq(envStartWorkingTime, envEndWorkingTime, 0, breakTimes, 0, date, date,
+                    String.valueOf(unit_id), String.valueOf(event_id));
 
-        return sss.changeWorkDay(companyLogin, endpoint, token, new SetWorkDayInfoReq(info));
+            return sss.changeWorkDay(companyLogin, endpoint, token, new SetWorkDayInfoReq(info));
+        } else {
+        	m_log.info("There is no break times to be removed for date " + date);
+        	return false;
+        }
+        
     }
     
     static Set<Breaktime> appenBreakTime(String envStartWorkingTime, String envEndWorkingTime, Set<Breaktime> newBreakTime, Set<WorkTimeSlot> workTimeSlots){

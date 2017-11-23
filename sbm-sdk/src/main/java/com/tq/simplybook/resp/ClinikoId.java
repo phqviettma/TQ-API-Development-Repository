@@ -3,6 +3,10 @@ package com.tq.simplybook.resp;
 import java.io.Serializable;
 
 public class ClinikoId implements Serializable{
+	@Override
+	public String toString() {
+		return "ClinikoId [practionerId=" + practionerId + ", bussinessId=" + bussinessId + "]";
+	}
 	/**
 	 * 
 	 */

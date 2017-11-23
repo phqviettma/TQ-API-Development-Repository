@@ -97,12 +97,10 @@ public class SimplyBookClinikoMapping {
 	}
 
 	public SimplyBookId clinikoSbmMapping(ClinikoId clinikoId) {
-		SimplyBookId simplyBookId = new SimplyBookId();
 		if(clinikoSimplyBookId == null) {
 			clinikoSimplyBookId = putMapCliniko();
 		}
-		simplyBookId = clinikoSimplyBookId.get(clinikoId);
-		return simplyBookId;
+		return clinikoSimplyBookId.get(clinikoId);
 	}
 
 }

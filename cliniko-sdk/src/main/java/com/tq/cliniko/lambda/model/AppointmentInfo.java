@@ -25,17 +25,38 @@ public class AppointmentInfo implements Serializable {
 	private int practitioner_id;
 	private int appointment_type_id;
 	private int business_id;
-	public AppointmentInfo() {}
+	private Links business;
+	private Links practitioner;
+
+	public AppointmentInfo() {
+	}
+
+	public Links getBusiness() {
+		return business;
+	}
+
+	public void setBusiness(Links business) {
+		this.business = business;
+	}
+
+	public Links getPractitioner() {
+		return practitioner;
+	}
+
+	public void setPractitioner(Links practitioner) {
+		this.practitioner = practitioner;
+	}
+
 	public AppointmentInfo(String appointment_start, String appointment_end, int patient_id, int practitioner_id,
 			int appointment_type_id, int business_id) {
-			this.appointment_start = appointment_start;
-			this.appointment_end = appointment_end;
-			this.patient_id = patient_id;
-			this.practitioner_id = practitioner_id;
-			this.appointment_type_id = appointment_type_id;
-			this.business_id = business_id;
+		this.appointment_start = appointment_start;
+		this.appointment_end = appointment_end;
+		this.patient_id = patient_id;
+		this.practitioner_id = practitioner_id;
+		this.appointment_type_id = appointment_type_id;
+		this.business_id = business_id;
 	}
-	
+
 	public String getAppointment_start() {
 		return appointment_start;
 	}
@@ -99,7 +120,7 @@ public class AppointmentInfo implements Serializable {
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
-	
+
 	public String getDeleted_at() {
 		return deleted_at;
 	}
@@ -107,7 +128,7 @@ public class AppointmentInfo implements Serializable {
 	public void setDeleted_at(String deleted_at) {
 		this.deleted_at = deleted_at;
 	}
-	
+
 	public String getCancellation_time() {
 		return cancellation_time;
 	}
@@ -131,7 +152,7 @@ public class AppointmentInfo implements Serializable {
 	public void setCancellation_reason(String cancellation_reason) {
 		this.cancellation_reason = cancellation_reason;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -148,7 +169,5 @@ public class AppointmentInfo implements Serializable {
 				+ cancellation_reason + ", patient_id=" + patient_id + ", practitioner_id=" + practitioner_id
 				+ ", appointment_type_id=" + appointment_type_id + ", business_id=" + business_id + "]";
 	}
-
-	
 
 }

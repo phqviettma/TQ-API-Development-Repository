@@ -2,6 +2,7 @@ package com.tq.clinikosbmsync.lambda.handler;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
+import com.tq.cliniko.lambda.model.AppoinmentUtil;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
 import com.tq.cliniko.lambda.model.Settings;
@@ -69,9 +72,9 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
 	    AwsProxyResponse resp = new AwsProxyResponse();
-	    
+	    m_log.info("Start CLINIKO-SBM synchronization lambda");
 	    boolean errorOccured = false;
-	    
+	    DateTimeZone dateTz = null;
 	    String dbTime = null;
         String latestUpdateTime = null;
 	    
@@ -83,23 +86,33 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 	    Set<Long> newlyCreated = new LinkedHashSet<Long>(20);
 	    Set<Long> newlyRemoved= new LinkedHashSet<Long>(20);
 		try {
-		    
+			m_log.info("Going to load database");
 			LatestClinikoAppts dbAppts = m_lcsw.load();
-			dbTime = dbAppts.getLatestUpdateTime();
-			
-			m_cas.getAllSettings();
+			if(dbAppts != null) {
+				dbTime = dbAppts.getLatestUpdateTime();
+			} else {
+				dbAppts = new LatestClinikoAppts();
+			}
+			m_log.info("Loaded database");
             Settings settings = m_cas.getAllSettings();
+            m_log.info("Loaded setting information from cliniko");
             String country = settings.getAccount().getCountry();
             String time_zone = settings.getAccount().getTime_zone();
+            dateTz = DateTimeZone.forID(country + "/" + time_zone);
             latestUpdateTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
-			
+            
+			 m_log.info("Now: " + latestUpdateTime + " at timezone " + country + "/" + time_zone);
 			if(dbTime == null) {
 			    dbTime = latestUpdateTime;
 			} 
 			
 			Set<Long> dbCreateSet = dbAppts.getCreated() != null ? dbAppts.getCreated() : new HashSet<Long>();
 			Set<Long> dbRemoveSet = dbAppts.getRemoved() != null ? dbAppts.getRemoved() : new HashSet<Long>();
+			m_log.info("DB appointments status, created: " + dbCreateSet.toArray());
+			m_log.info("DB appointments status, removed: " + dbRemoveSet.toArray());
 			
+			m_log.info("To fetch Cliniko appointment with start time:" + dbTime);
+		
 			
 			AppointmentsInfo apptInf = m_cas.getAppointments(dbTime);
 			Set<Long> lookupedCreateSet = null;
@@ -120,8 +133,9 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 				lookupedCreateSet = new HashSet<Long>();
 				lookupedRemoveSet = new HashSet<Long>();
 			}
+				m_log.info("Fetched: " + appts.size() + " Cliniko appointment(s)");
 
-			if (dbCreateSet.equals(lookupedCreateSet)) {
+			if (dbCreateSet.containsAll(lookupedCreateSet)) {
 				// do nothing for create
 			} else {
 				for (Long create : lookupedCreateSet) {
@@ -129,7 +143,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 						newlyCreated.add(create);
 					}
 				}
-
+				m_log.info("Newly created:" + Arrays.toString(newlyCreated.toArray()));
 				if (!newlyCreated.isEmpty()) {
 					if (lookupedMap == null) {
 						lookupedMap = toLookupMap(appts);
@@ -139,11 +153,13 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 					
 					for (Long i : newlyCreated) {
 						AppointmentInfo appt = lookupedMap.get(i);
+						appt.setAppointment_start(UtcTimeUtil.convertToTzFromLondonTz(dateTz, appt.getAppointment_start()));
+						appt.setAppointment_end(UtcTimeUtil.convertToTzFromLondonTz(dateTz, appt.getAppointment_end()));
 						if (appt != null) {
 							String date = UtcTimeUtil.extractDate(appt.getAppointment_start());
 							ClinikoId cliniko = new ClinikoId();
-                            cliniko.setBussinessId(appt.getBusiness_id());
-                            cliniko.setPractionerId(appt.getPractitioner_id());
+                            cliniko.setBussinessId(AppoinmentUtil.getBusinessId(appt));
+                            cliniko.setPractionerId(AppoinmentUtil.getPractitionerId(appt));
                             
                             PractitionerApptGroup group = practitionerApptGroupMap.get(cliniko);
                             
@@ -160,6 +176,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 					String token = m_tss.getUserToken(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookUser(),
                             m_env.getSimplyBookPassword(), m_env.getSimplyBookServiceUrlLogin());
 					
+					m_log.info("Newly created: Proceed for practitioner group map: " +  String.valueOf(practitionerApptGroupMap));
 					changeSbmBreakTime(practitionerApptGroupMap, token, true);
 					isDbUpdateNeededForCreated = true;
 				}
@@ -168,7 +185,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			
 			isCreationSyncComplete = true;
 			
-			if (dbRemoveSet.equals(lookupedRemoveSet)) {
+			if (dbRemoveSet.containsAll(lookupedRemoveSet)) {
 				// do nothing for remove
 			} else {
 				for (Long remove : lookupedRemoveSet) {
@@ -176,6 +193,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 						newlyRemoved.add(remove);
 					}
 				}
+				m_log.info("Newly removed:" + Arrays.toString(newlyRemoved.toArray()));
 				if (!newlyRemoved.isEmpty()) {
 					if (lookupedMap == null) {
 						lookupedMap = toLookupMap(appts);
@@ -185,11 +203,14 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 					
 					for(Long i : newlyRemoved) {
 						AppointmentInfo appt = lookupedMap.get(i);
+						//TODO:hacky
+						appt.setAppointment_start(UtcTimeUtil.convertToTzFromLondonTz(dateTz, appt.getAppointment_start()));
+						appt.setAppointment_end(UtcTimeUtil.convertToTzFromLondonTz(dateTz, appt.getAppointment_end()));
 						if (appt != null) {
                             String date = UtcTimeUtil.extractDate(appt.getAppointment_start());
                             ClinikoId cliniko = new ClinikoId();
-                            cliniko.setBussinessId(appt.getBusiness_id());
-                            cliniko.setPractionerId(appt.getPractitioner_id());
+                            cliniko.setBussinessId(AppoinmentUtil.getBusinessId(appt));
+                            cliniko.setPractionerId(AppoinmentUtil.getPractitionerId(appt));
                             
                             PractitionerApptGroup group = practitionerApptGroupMap.get(cliniko);
                             
@@ -206,6 +227,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 					String token = m_tss.getUserToken(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookUser(),
                             m_env.getSimplyBookPassword(), m_env.getSimplyBookServiceUrlLogin());
                     
+					m_log.info("Newly removed: Proceed for practitioner group map: " +  String.valueOf(practitionerApptGroupMap));
                     changeSbmBreakTime(practitionerApptGroupMap, token, false);
                     isDbUpdateNeededForRemoved = true;
 				}
@@ -213,6 +235,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			}
 			
 			isRemovalSyncComplete = true;
+			m_log.info("Removal Sync Complete");
 
 		} catch (ClinikoSDKExeption | SbmSDKException e) {
 		    m_log.error("Error occurs", e);
@@ -245,12 +268,12 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 		    
 		    if(isCreationSyncComplete && isRemovalSyncComplete) {
 		        //OK, synchronization is complete, lets record the latest time
-		        lca.setLatest_update(latestUpdateTime);
+		        lca.setLatestUpdateTime(latestUpdateTime);
 		    } else {
 		        /* Error somewhere, synchronization is not complete fully. 
 		           Lets record the current DB time to give a change the next time the synchronization could be complete
 		        */  
-		        lca.setLatest_update(dbTime);
+		        lca.setLatestUpdateTime(dbTime);
 		    }
 		    
 		    m_lcsw.put(lca);
@@ -260,6 +283,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
     private void changeSbmBreakTime(Map<ClinikoId, PractitionerApptGroup> practitionerApptGroupMap, String token, boolean isAdditional) throws SbmSDKException {
         for(Entry<ClinikoId, PractitionerApptGroup> entry : practitionerApptGroupMap.entrySet()) {
             ClinikoId clinikoId = entry.getKey();
+            m_log.info("Proceed for practitioner: " +  String.valueOf(clinikoId));
             PractitionerApptGroup group = entry.getValue();
             SimplyBookId simplybookId = m_sbc.clinikoSbmMapping(clinikoId);
             Integer unitId = Integer.valueOf(simplybookId.getUnit_id());
@@ -300,16 +324,15 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 	private void filterApptIds(Collection<AppointmentInfo> appointments, Set<Long> createdSet, Set<Long> removedSet) {
 		for (AppointmentInfo appt : appointments) {
 			if (appt.getCancellation_time() != null || appt.getDeleted_at() != null) {
-				createdSet.add(appt.getId());
-			} else {
 				removedSet.add(appt.getId());
+			} else {
+				createdSet.add(appt.getId());
 			}
 		}
 
 	}
 	
 	private static class PractitionerApptGroup {
-	    private ClinikoId cinikoId;
 	    private Set<AppointmentInfo> appts = new HashSet<AppointmentInfo>();
 	    private Set<String> apptDates = new HashSet<String>();
 	    private Date startDate = null;
@@ -319,15 +342,6 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
         public Map<String, Set<Breaktime>> getDateToSbmBreakTimesMap() {
             return dateToSbmBreakTimesMap;
         }
-
-        public ClinikoId getCinikoId() {
-            return cinikoId;
-        }
-
-        public void setCinikoId(ClinikoId cinikoId) {
-            this.cinikoId = cinikoId;
-        }
-
         public void addAppt(String date, AppointmentInfo appt) {
             this.appts.add(appt);
             this.addDate(date);
@@ -365,19 +379,23 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
         }
         
         public String getStartDateString() {
-            DateFormat date = new SimpleDateFormat("YYYY-MM-DD");
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
             return date.format(startDate);
         }
         
         public String getEndDateString() {
-            DateFormat date = new SimpleDateFormat("YYYY-MM-DD");
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
             return date.format(endDate);
         }
+		@Override
+		public String toString() {
+			return "PractitionerApptGroup [appts=" + appts + ", apptDates=" + apptDates + ", startDate=" + startDate
+					+ ", endDate=" + endDate + ", dateToSbmBreakTimesMap=" + dateToSbmBreakTimesMap + "]";
+		}
 
-        @Override
-        public String toString() {
-            return "PractitionerApptGroup [cinikoId=" + cinikoId + "]";
-        }
+        
 	}
+	
+	
 	
 }

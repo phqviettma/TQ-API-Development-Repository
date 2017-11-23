@@ -14,16 +14,22 @@ import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
+import com.tq.cliniko.lambda.model.AppoinmentUtil;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
 import com.tq.cliniko.lambda.model.Settings;
 
 public class ClinikiAppointmentServiceImplTest {
 	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("edc98dfa5bff69bc2f4cc5d5af5287cf");
-
-	// @Test
+	
+	 @Test
 	public void testGetAppointments() throws ClinikoSDKExeption {
-		AppointmentsInfo appts = m_service.getAppointments("2013-03-26T14:00Z");
+		AppointmentsInfo appts = m_service.getAppointments("2017-11-20T14:00Z");
+		System.out.println(appts.getAppointments());
+		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0))>0);
+		System.out.println(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0)));
+		System.out.println(AppoinmentUtil.getPractitionerId(appts.getAppointments().get(0)));
+		System.out.println(appts.getAppointments());
 		assertTrue(appts.getAppointments().size() > 0);
 
 		// test no appointments

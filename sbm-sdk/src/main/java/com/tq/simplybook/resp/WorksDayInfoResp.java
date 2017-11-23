@@ -26,5 +26,11 @@ public class WorksDayInfoResp implements Serializable {
 		this.info = info;
 	}
 
+	@Override
+	public String toString() {
+		return "WorksDayInfoResp [date=" + date + ", info=" + info + "]";
+	}
+	
+
 	
 }

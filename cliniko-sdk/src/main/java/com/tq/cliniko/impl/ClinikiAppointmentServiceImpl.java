@@ -1,11 +1,9 @@
 package com.tq.cliniko.impl;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.lambda.model.Account;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
 import com.tq.cliniko.lambda.model.Settings;
-import com.tq.cliniko.lambda.model.Account;
 import com.tq.cliniko.lambda.req.ClinikoRespParser;
 import com.tq.cliniko.lambda.req.DeleteClinikoApiReq;
 import com.tq.cliniko.lambda.req.PostClinikoApiReq;

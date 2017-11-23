@@ -150,7 +150,6 @@ public class CreateInternalHandler implements InternalHandler {
 		DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
 		DateTime endTime = new DateTime(sbmEndTime, timeZone);
 		DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
-
 		AppointmentInfo result = clinikoApptService
 				.createAppointment(new AppointmentInfo(clinikoStartTime.toString(), clinikoEndTime.toString(),
 						clinikoPatientId, clinikoId.getPractionerId(), appointmentTypeId, clinikoId.getBussinessId()));
