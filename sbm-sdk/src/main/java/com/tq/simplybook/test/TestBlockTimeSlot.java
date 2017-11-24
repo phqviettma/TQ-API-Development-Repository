@@ -55,9 +55,9 @@ public class TestBlockTimeSlot {
 		TokenServiceSbm tokenService = new TokenServiceImpl();
 		String token = tokenService.getUserToken(COMPANY_LOGIN, USERNAME, PASSWORD, ENDPOINT_SBM_LOGIN);
 		Set<Breaktime> breakTime = new HashSet<>();
-		breakTime.add(new Breaktime("12:00:00", "12:30:00"));
-		SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq("09:00:00", "18:00:00", 0, breakTime, 0, "2017-11-24",
-				"2017-11-24", "1", "1");
+		breakTime.add(new Breaktime("14:00:00", "14:30:00"));
+		SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq("09:00:00", "18:00:00", 0, breakTime, 0, "2017-11-30",
+				"2017-11-30", "1", "1");
 		SetWorkDayInfoReq setWorkDayInfoReq = new SetWorkDayInfoReq(info);
 		boolean a = s.changeWorkDay(COMPANY_LOGIN, END_POINT, token, setWorkDayInfoReq);
 		System.out.println(a);

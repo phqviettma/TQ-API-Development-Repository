@@ -38,10 +38,10 @@ public class UtcTimeUtil {
 
 	public static String extractTime(String datetime) {
 		String convertedDateTime = utcToBasicFormat(datetime);
-		DateFormat f = new SimpleDateFormat("YYYY-MM-DD hh:mm:ss");
+		DateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
 			Date d = f.parse(convertedDateTime);
-			DateFormat time = new SimpleDateFormat("hh:mm:ss");
+			DateFormat time = new SimpleDateFormat("HH:mm:ss");
 			return time.format(d);
 		} catch (ParseException e) {
 

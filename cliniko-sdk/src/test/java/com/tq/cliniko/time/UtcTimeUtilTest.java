@@ -19,6 +19,6 @@ public class UtcTimeUtilTest {
         
         System.out.println(newDate);
         
-        System.out.println(UtcTimeUtil.convertToTzFromLondonTz(DateTimeZone.forID("Australia/Melbourne"), "2017-11-22T14:02:00Z"));
+        System.out.println(UtcTimeUtil.convertToTzFromLondonTz(DateTimeZone.forID("Australia/Melbourne"), "2017-11-28T04:00:00Z"));
     }
 }

@@ -17,4 +17,6 @@ public interface ClinikoAppointmentService {
 	Settings getAllSettings() throws ClinikoSDKExeption;
 
 	AppointmentsInfo getAppointmentInfos() throws ClinikoSDKExeption;
+
+	AppointmentsInfo getDeletedAppointments(String startTime) throws ClinikoSDKExeption;
 }

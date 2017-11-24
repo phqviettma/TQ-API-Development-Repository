@@ -15,12 +15,7 @@ public class LatestClinikoAppts {
 	private Set<Long> removed = null;
 	private String latest_update_time;
 	
-	public LatestClinikoAppts() {
-		created = new HashSet<Long>();
-		created.add(-1L);
-		removed = new HashSet<Long>();
-		removed.add(-1L);
-	}
+	public LatestClinikoAppts() {}
 	
 	@DynamoDBAttribute(attributeName = "latest_update_time")
 	public String getLatestUpdateTime() {

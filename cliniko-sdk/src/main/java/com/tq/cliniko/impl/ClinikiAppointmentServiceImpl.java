@@ -29,6 +29,17 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 			throw new ClinikoSDKExeption(e);
 		}
 	}
+	@Override
+	public AppointmentsInfo getDeletedAppointments(String startTime) throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			jsonResp = UtilsExecutor
+					.request(new GetDeletedAppointment(m_clinikoApiKey, "appointment_start:>" + startTime));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+	}
 
 	@Override
 	public AppointmentInfo getAppointment(Long id) throws ClinikoSDKExeption {
@@ -89,6 +100,11 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 			super(apiKey, "appointments", queryStatement);
 		}
 	}
+	private class GetDeletedAppointment extends QueryClinikoApiReq{
+		public GetDeletedAppointment(String apiKey, String queryStatement) {
+			super(apiKey, "appointments/deleted", queryStatement);
+		}
+	}
 	private class GetAppointmentInfo extends QueryClinikoApiReq{
 
 		public GetAppointmentInfo(String apiKey) {
@@ -126,5 +142,6 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 
 	}
 
+	
 
 }

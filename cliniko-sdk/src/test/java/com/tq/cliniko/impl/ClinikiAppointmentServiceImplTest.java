@@ -22,7 +22,7 @@ import com.tq.cliniko.lambda.model.Settings;
 public class ClinikiAppointmentServiceImplTest {
 	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("edc98dfa5bff69bc2f4cc5d5af5287cf");
 	
-	 @Test
+	 //@Test
 	public void testGetAppointments() throws ClinikoSDKExeption {
 		AppointmentsInfo appts = m_service.getAppointments("2017-11-20T14:00Z");
 		System.out.println(appts.getAppointments());
@@ -35,6 +35,13 @@ public class ClinikiAppointmentServiceImplTest {
 		// test no appointments
 		appts = m_service.getAppointments("2020-03-26T14:00:00Z");
 		assertTrue(appts.getAppointments().isEmpty());
+	}
+	 @Test
+	public void testGetDeletedAppointments() throws ClinikoSDKExeption {
+		AppointmentsInfo appts = m_service.getDeletedAppointments("2017-11-28T00:00Z");
+		System.out.println(appts.getAppointments());
+		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0))>0);
+		
 	}
 
 	// @Test
@@ -116,4 +123,5 @@ public class ClinikiAppointmentServiceImplTest {
 		String start_time =formatter.format(dateTimeIndia.toDate());
 		System.out.println(start_time);*/
 	}
+	
 }
