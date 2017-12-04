@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Test;
+
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
@@ -34,12 +36,11 @@ public class TestBlockTimeSlot {
 
 		Map<String, WorksDayInfoResp> workDayInfoMap = timeSlotService.getWorkDaysInfo(COMPANY_LOGIN, END_POINT, token,
 				1, 1, new FromDate("2017-11-24", "09:00:00"), new ToDate("2017-11-24", "18:00:00"));
-		boolean a = sss.addBreakTime(COMPANY_LOGIN, END_POINT, token, 1, 1, "09:00:00", "18:00:00", "2017-11-24",
-				breakTime, workDayInfoMap);
+		boolean a = sss.removeBreakTime(COMPANY_LOGIN, END_POINT, token, 1, 1, "09:00:00", "09:00:00", "2017-11-24", breakTime, workDayInfoMap); 
 		System.out.println(a);
 	}
 
-	//@Test
+	@Test
 	public void testGetWorkDayInfo() throws SbmSDKException {
 		SpecialdayServiceSbm s = new SpecialdayServiceSbmImpl();
 		TokenServiceSbm tokenService = new TokenServiceImpl();
@@ -49,7 +50,7 @@ public class TestBlockTimeSlot {
 		System.out.println(a);
 	}
 
-	//@Test
+	@Test
 	public void testChangeWorkDay() throws SbmSDKException {
 		SpecialdayServiceSbm s = new SpecialdayServiceSbmImpl();
 		TokenServiceSbm tokenService = new TokenServiceImpl();

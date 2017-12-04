@@ -1,8 +1,5 @@
 package com.tq.cliniko.lambda.req;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 public abstract class QueryClinikoApiReq extends GenericClinikoApiReq {
 	
 	private final String m_queryStatement;
@@ -15,11 +12,7 @@ public abstract class QueryClinikoApiReq extends GenericClinikoApiReq {
 	@Override
 	public String getEnpoint() {
 		if(m_queryStatement != null) {
-			try {
-				return super.getEnpoint() + "?q[]=" + URLEncoder.encode(m_queryStatement, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
-			}
+			return super.getEnpoint() + m_queryStatement;
 		} else {
 			return super.getEnpoint();
 		}

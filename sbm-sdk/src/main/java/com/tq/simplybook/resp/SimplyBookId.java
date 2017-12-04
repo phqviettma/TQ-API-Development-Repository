@@ -68,5 +68,12 @@ public class SimplyBookId implements Serializable{
 		
 	}
 
+	@Override
+	public String toString() {
+		return "SimplyBookId [event_id=" + event_id + ", unit_id=" + unit_id + "]";
+	}
+	
+	
+
 	
 }

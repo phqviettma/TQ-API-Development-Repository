@@ -9,7 +9,9 @@ public interface ClinikoAppointmentService {
 	AppointmentInfo getAppointment(Long id) throws ClinikoSDKExeption;
 
 	AppointmentsInfo getAppointments(String startTime) throws ClinikoSDKExeption;
-
+	
+	AppointmentsInfo next(AppointmentsInfo apptInfo) throws ClinikoSDKExeption;
+	
 	AppointmentInfo createAppointment(AppointmentInfo appt) throws ClinikoSDKExeption;
 
 	boolean deleteAppointment(Long id) throws ClinikoSDKExeption;
@@ -19,4 +21,6 @@ public interface ClinikoAppointmentService {
 	AppointmentsInfo getAppointmentInfos() throws ClinikoSDKExeption;
 
 	AppointmentsInfo getDeletedAppointments(String startTime) throws ClinikoSDKExeption;
+	
+	AppointmentsInfo getCancelAppointments(String startTime) throws ClinikoSDKExeption;
 }

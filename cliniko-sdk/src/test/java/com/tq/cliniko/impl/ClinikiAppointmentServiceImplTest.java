@@ -20,28 +20,34 @@ import com.tq.cliniko.lambda.model.AppointmentsInfo;
 import com.tq.cliniko.lambda.model.Settings;
 
 public class ClinikiAppointmentServiceImplTest {
-	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("edc98dfa5bff69bc2f4cc5d5af5287cf");
-	
-	 //@Test
+	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("0556ca03a6b4c6cfbf609946473c4ecd");
+
+	//@Test
 	public void testGetAppointments() throws ClinikoSDKExeption {
-		AppointmentsInfo appts = m_service.getAppointments("2017-11-20T14:00Z");
+		AppointmentsInfo appts = m_service.getAppointments("2017-11-25T14:00Z");
 		System.out.println(appts.getAppointments());
-		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0))>0);
-		System.out.println(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0)));
-		System.out.println(AppoinmentUtil.getPractitionerId(appts.getAppointments().get(0)));
-		System.out.println(appts.getAppointments());
+		System.out.println(appts.getLinks().getNext());
+		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0)) > 0);
 		assertTrue(appts.getAppointments().size() > 0);
 
 		// test no appointments
 		appts = m_service.getAppointments("2020-03-26T14:00:00Z");
 		assertTrue(appts.getAppointments().isEmpty());
 	}
-	 @Test
+
+	// @Test
 	public void testGetDeletedAppointments() throws ClinikoSDKExeption {
 		AppointmentsInfo appts = m_service.getDeletedAppointments("2017-11-28T00:00Z");
 		System.out.println(appts.getAppointments());
+		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0)) > 0);
+
+	}
+	@Test
+	public void testGetCancelledAppointment() throws ClinikoSDKExeption {
+		AppointmentsInfo appts = m_service.getCancelAppointments("2017-12-04T00:00Z");
+		System.out.println(appts.getAppointments());
 		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0))>0);
-		
+				
 	}
 
 	// @Test
@@ -92,36 +98,42 @@ public class ClinikiAppointmentServiceImplTest {
 		assertNull(getResult);
 	}
 
-	@Test
+	// @Test
 	public void testGetAllSetting() throws ClinikoSDKExeption, ParseException {
 		Settings account = m_service.getAllSettings();
 		String timezone = account.getAccount().getTime_zone();
 		TimeZone tz = TimeZone.getTimeZone(account.getAccount().getCountry() + "/" + timezone);
-		System.out.println(tz.getOffset(new Date().getTime()) / 1000 / 60 /60);
-	
+		System.out.println(tz.getOffset(new Date().getTime()) / 1000 / 60 / 60);
+
 		TimeZone currentTimeZone = TimeZone.getDefault();
 		Date now = new Date();
 		int offsetFromUtc = currentTimeZone.getOffset(now.getTime()) / 3600000;
 		String m2tTimeZoneIs = Integer.toString(offsetFromUtc);
 		System.out.println(m2tTimeZoneIs);
 		System.out.println(tz.getDSTSavings() / 1000 / 60);
-		/*SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date date = formatter.parse("2017-11-20 21:04:00");
-		formatter.setTimeZone(TimeZone.getTimeZone("Europe/London"));
-		System.out.println(formatter.format(date));*/
+		/*
+		 * SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		 * Date date = formatter.parse("2017-11-20 21:04:00");
+		 * formatter.setTimeZone(TimeZone.getTimeZone("Europe/London"));
+		 * System.out.println(formatter.format(date));
+		 */
 		String input = "2017-11-21T16:20:05";
 		DateTimeZone bangkokTimeZone = DateTimeZone.forID("Asia/Bangkok");
-		DateTime bangkokTime = new DateTime(input,bangkokTimeZone);
-		/*DateTimeZone londonTimeZone = DateTimeZone.forID("Europe/London");
-		DateTime londonTime = bangkokTime.withZone( londonTimeZone );
-		System.out.println(londonTime);*/
-		DateTime dateTimeUtcGmt = bangkokTime.withZone( DateTimeZone.UTC );
+		DateTime bangkokTime = new DateTime(input, bangkokTimeZone);
+		/*
+		 * DateTimeZone londonTimeZone = DateTimeZone.forID("Europe/London"); DateTime
+		 * londonTime = bangkokTime.withZone( londonTimeZone );
+		 * System.out.println(londonTime);
+		 */
+		DateTime dateTimeUtcGmt = bangkokTime.withZone(DateTimeZone.UTC);
 		System.out.println(dateTimeUtcGmt);
-		/*System.out.println(dateTimeUtcGmt);
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		formatter.setTimeZone(TimeZone.getTimeZone("Etc/GMT-0"));
-		String start_time =formatter.format(dateTimeIndia.toDate());
-		System.out.println(start_time);*/
+		/*
+		 * System.out.println(dateTimeUtcGmt); SimpleDateFormat formatter = new
+		 * SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		 * formatter.setTimeZone(TimeZone.getTimeZone("Etc/GMT-0")); String start_time
+		 * =formatter.format(dateTimeIndia.toDate()); System.out.println(start_time);
+		 */
 	}
+
 	
 }

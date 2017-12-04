@@ -56,23 +56,21 @@ public class SbmBreakTimeManagement {
         Set<Breaktime> breakTimes = removeBreakTime(envStartWorkingTime, envEndWorkingTime, removedBreakTime, workTimeSlots);
         
         if(!breakTimes.isEmpty()) {
-        	
         	m_log.info("Break times to be removed for date " + date + ":" + String.valueOf(breakTimes));
-        	
-        	SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq(envStartWorkingTime, envEndWorkingTime, 0, breakTimes, 0, date, date,
-                    String.valueOf(unit_id), String.valueOf(event_id));
-
-            return sss.changeWorkDay(companyLogin, endpoint, token, new SetWorkDayInfoReq(info));
         } else {
-        	m_log.info("There is no break times to be removed for date " + date);
-        	return false;
+        	m_log.info("There is no break times available for date " + date);
         }
+        
+        SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq(envStartWorkingTime, envEndWorkingTime, 0, breakTimes, 0, date, date,
+        		String.valueOf(unit_id), String.valueOf(event_id));
+        
+        return sss.changeWorkDay(companyLogin, endpoint, token, new SetWorkDayInfoReq(info));
         
     }
     
     static Set<Breaktime> appenBreakTime(String envStartWorkingTime, String envEndWorkingTime, Set<Breaktime> newBreakTime, Set<WorkTimeSlot> workTimeSlots){
         Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
-        
+      
         currentBreakTimes.addAll(newBreakTime);
         return currentBreakTimes;
     }
@@ -80,7 +78,8 @@ public class SbmBreakTimeManagement {
     
     static Set<Breaktime> removeBreakTime(String envStartWorkingTime, String envEndWorkingTime, Set<Breaktime> removedBreakTime, Set<WorkTimeSlot> workTimeSlots) {
         Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
-        
+        m_log.info("SBM Current BreakTimes " + currentBreakTimes.toString());
+        m_log.info("Cliniko BreakTimes to be removed " + removedBreakTime.toString());
         currentBreakTimes.removeAll(removedBreakTime);
         
         return currentBreakTimes;

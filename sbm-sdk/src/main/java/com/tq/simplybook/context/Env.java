@@ -30,6 +30,7 @@ public class Env {
 	private Integer cliniko_standard_appointment = Integer.valueOf(System.getenv("CLINIKO_STANDARD_APPOINTMENT"));
 	private String cliniko_start_time = new String(System.getenv("CLINIKO_START_TIME"));
 	private String cliniko_end_time = new String(System.getenv("CLINIKO_END_TIME"));
+	
 
 	private Env() {
 

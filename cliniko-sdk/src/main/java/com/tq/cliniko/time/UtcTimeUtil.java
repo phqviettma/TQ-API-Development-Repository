@@ -41,7 +41,7 @@ public class UtcTimeUtil {
 		DateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
 			Date d = f.parse(convertedDateTime);
-			DateFormat time = new SimpleDateFormat("HH:mm:ss");
+			DateFormat time = new SimpleDateFormat("HH:mm");
 			return time.format(d);
 		} catch (ParseException e) {
 

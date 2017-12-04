@@ -1,9 +1,7 @@
 package com.tq.cliniko.lambda.req;
 
 public abstract class AbstractClinikoApiReq implements ClinikoApiReq {
-	protected final static String JSON_MEDIA_TYPE = "application/json";
-	protected final static String USER_AGENT = "TrueQuit";
-	protected final static String API_BASE_URL = "https://api.cliniko.com/v1";
+	
 	
 	private final String m_httpMethod;
 	private final String m_apiKey;

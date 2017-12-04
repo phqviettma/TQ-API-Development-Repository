@@ -11,11 +11,14 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 public class LatestClinikoAppts {
 	public static final String LATEST_UPDATED_KEY = "latest_update";
 	private String latest_update = LATEST_UPDATED_KEY;
-	private Set<Long> created = null;
-	private Set<Long> removed = null;
+	private Set<Long> created = new HashSet<Long>();
+	private Set<Long> removed = new HashSet<Long>();
 	private String latest_update_time;
 	
-	public LatestClinikoAppts() {}
+	public LatestClinikoAppts() {
+		created.add(-1L);
+		removed.add(-1L);
+	}
 	
 	@DynamoDBAttribute(attributeName = "latest_update_time")
 	public String getLatestUpdateTime() {
@@ -52,4 +55,15 @@ public class LatestClinikoAppts {
 	public void setRemoved(Set<Long> removed) {
 		this.removed = removed;
 	}
+
+	@Override
+	public String toString() {
+		return "LatestClinikoAppts [latest_update=" + latest_update + ", created=" + created + ", removed=" + removed
+				+ ", latest_update_time=" + latest_update_time + "]";
+	}
+	
+	public static boolean isDefaultSet(Set<Long> set) {
+		return set.size() > 1 || (set.size() == 1 && !set.contains(-1L));
+	}
+	
 }

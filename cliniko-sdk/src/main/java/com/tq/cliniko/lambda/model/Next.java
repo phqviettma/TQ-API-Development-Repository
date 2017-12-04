@@ -7,27 +7,25 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Links implements Serializable {
+public class Next implements Serializable{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 4263174550509907185L;
-	private Self links;
-	
+	private static final long serialVersionUID = 4192345002867749124L;
+	private String next;
 
-	public Self getLinks() {
-		return links;
+	public String getNext() {
+		return next;
 	}
 
-	public void setLinks(Self links) {
-		this.links = links;
+	public void setNext(String next) {
+		this.next = next;
 	}
-
 
 	@Override
 	public String toString() {
-		return "Links [links=" + links + "]";
+		return "Next [next=" + next + "]";
 	}
-
+	
 
 }
