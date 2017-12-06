@@ -144,7 +144,8 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 				}
 			} else {
 				m_log.info("Cleaned up created value");
-				saveDb(latestUpdateTime, null, dbRemoveSet);
+				dbCreateSet = null;
+				saveDb(latestUpdateTime, dbCreateSet, dbRemoveSet);
 			}
 
 			m_log.info("Synchronized created appoinments to Simplybook.me completely");
