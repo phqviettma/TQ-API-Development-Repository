@@ -5,22 +5,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.text.ParseException;
-import java.util.Date;
-import java.util.TimeZone;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.lambda.model.AppoinmentUtil;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
-import com.tq.cliniko.lambda.model.Settings;
 
 public class ClinikiAppointmentServiceImplTest {
-	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("0556ca03a6b4c6cfbf609946473c4ecd");
+	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("2b2f8a6c0238919e66b81c089da283d2");
 
 	@Test
 	public void testGetAppointments() throws ClinikoSDKExeption {
@@ -54,10 +47,10 @@ public class ClinikiAppointmentServiceImplTest {
 	public void testCreateAppointments() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");
-		appointmentInfo.setPatient_id(45570926);
-		appointmentInfo.setAppointment_type_id(247175);
-		appointmentInfo.setBusiness_id(56642);
-		appointmentInfo.setPractitioner_id(85738);
+		appointmentInfo.setPatient_id(46101691);
+		appointmentInfo.setAppointment_type_id(252503);
+		appointmentInfo.setBusiness_id(57535);
+		appointmentInfo.setPractitioner_id(87313);
 		AppointmentInfo result = m_service.createAppointment(appointmentInfo);
 		assertEquals("2017-09-11T04:45:00Z", result.getAppointment_start());
 		assertNotNull(result.getId());
@@ -74,10 +67,10 @@ public class ClinikiAppointmentServiceImplTest {
 	public void testDeleteAppointment() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");
-		appointmentInfo.setPatient_id(44083214);
-		appointmentInfo.setAppointment_type_id(232334);
-		appointmentInfo.setBusiness_id(53724);
-		appointmentInfo.setPractitioner_id(80819);
+		appointmentInfo.setPatient_id(46101691);
+		appointmentInfo.setAppointment_type_id(252503);
+		appointmentInfo.setBusiness_id(57535);
+		appointmentInfo.setPractitioner_id(87313);
 		AppointmentInfo result = m_service.createAppointment(appointmentInfo);
 		assertTrue(m_service.deleteAppointment(result.getId()));
 	}
@@ -86,10 +79,10 @@ public class ClinikiAppointmentServiceImplTest {
 	public void tesGetAppointment() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-11-15T11:00:00Z");
-		appointmentInfo.setPatient_id(45570926);
-		appointmentInfo.setAppointment_type_id(247175);
-		appointmentInfo.setBusiness_id(56642);
-		appointmentInfo.setPractitioner_id(85738);
+		appointmentInfo.setPatient_id(46101691);
+		appointmentInfo.setAppointment_type_id(252503);
+		appointmentInfo.setBusiness_id(57535);
+		appointmentInfo.setPractitioner_id(87313);
 		AppointmentInfo result = m_service.createAppointment(appointmentInfo);
 		AppointmentInfo getResult = m_service.getAppointment(result.getId());
 		assertNotNull(getResult.getId());
