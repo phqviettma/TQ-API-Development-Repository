@@ -8,6 +8,8 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
@@ -46,6 +48,7 @@ public class CreateInternalHandler implements InternalHandler {
 	private ClinikoAppointmentService clinikoApptService = null;
 
 	private SimplyBookClinikoMapping sbmClinikoMapping = null;
+	private static final Logger m_log = LoggerFactory.getLogger(CreateInternalHandler.class);
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SimplyBookClinikoMapping scm, SbmClinikoSyncService scs,
@@ -133,6 +136,7 @@ public class CreateInternalHandler implements InternalHandler {
 	private void executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo)
 			throws SbmSDKException, ClinikoSDKExeption {
 		SimplyBookId simplybookId = new SimplyBookId(bookingInfo.getEvent_id(), bookingInfo.getUnit_id());
+
 		ClinikoId clinikoId = sbmClinikoMapping.sbmClinikoMapping(simplybookId);
 		if (clinikoId == null) {
 			return;
@@ -150,6 +154,7 @@ public class CreateInternalHandler implements InternalHandler {
 		DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
 		DateTime endTime = new DateTime(sbmEndTime, timeZone);
 		DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
+
 		AppointmentInfo result = clinikoApptService
 				.createAppointment(new AppointmentInfo(clinikoStartTime.toString(), clinikoEndTime.toString(),
 						clinikoPatientId, clinikoId.getPractionerId(), appointmentTypeId, clinikoId.getBussinessId()));
@@ -162,8 +167,9 @@ public class CreateInternalHandler implements InternalHandler {
 		Set<Long> createdId = latestClinikoAppts.getCreated();
 		createdId.add(result.getId());
 		latestClinikoAppts.setCreated(createdId);
-		Date date = new Date();
-		latestClinikoAppts.setLatestUpdateTime(Config.DATE_FORMAT_24_H.format(date));
+		String latestTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
+		latestClinikoAppts.setLatestUpdateTime(latestTime);
+		m_log.info("LatestClinikoAppt" + latestClinikoAppts);
 		if (sbmCliniko != null) {
 			sbmClinikoService.put(sbmCliniko);
 			latestApptService.put(latestClinikoAppts);

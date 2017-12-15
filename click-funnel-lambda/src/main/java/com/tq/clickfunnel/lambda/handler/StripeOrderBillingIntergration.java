@@ -20,7 +20,10 @@ import com.tq.common.lambda.dynamodb.model.OrderItem;
 import com.tq.common.lambda.dynamodb.model.ProductItem;
 import com.tq.common.lambda.dynamodb.service.OrderItemService;
 import com.tq.inf.exception.InfSDKExecption;
+import com.tq.inf.impl.ContactServiceImpl;
+import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.query.OrderQuery;
+import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.OrderServiceInf;
 import com.tq.inf.service.RecurringOrderInf;
 
@@ -33,6 +36,7 @@ import com.tq.inf.service.RecurringOrderInf;
 public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergtion {
 
     private static final Logger log = Logger.getLogger(StripeOrderBillingIntergration.class);
+  
 
     @Override
     public OrderItem handleCreateBillingOrder(Integer purchaseId, ContactItem contactItem, ProductItem productItem,
@@ -77,6 +81,7 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
         OrderItem orderItem = null;
         ClientInfo client = contactItem.getClient();
         Integer contactId = client.getContactId();
+      
         try {
             EnvVar envVar = lambdaContext.getEnvVar();
             INFProduct infProduct = productItem.getInfProduct();
@@ -90,6 +95,8 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
             OrderDetail orderDtail = buildOrderDetail(client, productItem, infProduct, order);
             orderItem = new OrderItem().withPurchaseId(purchaseId) // as hash key
                     .withEmail(client.getEmail()).withOrderDetails(Arrays.asList(orderDtail));
+          
+          
 
         } catch (Exception e) {
             throw new CFLambdaException(e.getMessage(), e);
@@ -97,6 +104,7 @@ public class StripeOrderBillingIntergration extends AbstractOrderBillingIntergti
         log.info(String.format("addOrderToInf()= %d ms", (System.currentTimeMillis() - start)));
         return orderItem;
     }
+   
 
     private OrderDetail buildOrderDetail(ClientInfo client, ProductItem productItem, INFProduct infProduct, Map<?, ?> order) {
         Integer orderId = Integer.valueOf((String) order.get("OrderId"));

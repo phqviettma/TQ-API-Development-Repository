@@ -7,6 +7,7 @@ import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFOrderPayload;
+import com.tq.inf.exception.InfSDKExecption;
 
 public abstract class HandleEventOrderExecution extends AbstractEventPayloadExecution {
 
@@ -26,7 +27,8 @@ public abstract class HandleEventOrderExecution extends AbstractEventPayloadExec
         }
         return resp;
     }
+    
 
     protected abstract AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload orderPayload,
-            CFLambdaContext cfLambdaContext) throws CFLambdaException;
+            CFLambdaContext cfLambdaContext) throws CFLambdaException, InfSDKExecption;
 }

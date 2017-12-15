@@ -9,6 +9,8 @@ public class Config {
 
     public static final String INFUSIONSOFT_API_KEY = "INFUSIONSOFT_API_KEY";
     
+    public static final String INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG = "INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG";
+    
     public static final String INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG = "INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG";
     
     public static final String INFUSIONSOFT_CLINIKO_PRACTITIONER_TAG = "INFUSIONSOFT_CLINIKO_PRACTITIONER_TAG";
@@ -78,5 +80,7 @@ public class Config {
      */
     public static DateFormat DATE_FORMAT_24_H = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
-    public static SimpleDateFormat CLINIKO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+   
+
 }

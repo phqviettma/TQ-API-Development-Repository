@@ -11,25 +11,31 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
 import com.tq.clickfunnel.lambda.exception.CFLambdaException;
+import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFOrderPayload;
 import com.tq.clickfunnel.lambda.modle.CFProducts;
 import com.tq.clickfunnel.lambda.modle.CFPurchase;
+import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.context.LambdaContext;
+import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.OrderItem;
+import com.tq.inf.exception.InfSDKExecption;
+import com.tq.inf.query.ApplyTagQuery;
 
 public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution {
 
     public static final Logger log = Logger.getLogger(HandleEventCreatedOrderExecution.class);
 
     @Override
-    protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload orderPayload, CFLambdaContext cfLambdaContext) {
+    protected AwsProxyResponse handleEventOrderLambda(AwsProxyRequest input, CFOrderPayload orderPayload, CFLambdaContext cfLambdaContext) throws InfSDKExecption {
         AwsProxyResponse resp = new AwsProxyResponse();
         LambdaContext lambdaContext = cfLambdaContext.getLambdaContext();
         List<CFProducts> products = null;
         CFPurchase purchase = orderPayload.getPurchase();
-        
+        ContactItem contactItem = lambdaContext.getContactItemService().load(orderPayload.getPurchase().getContact().getEmail());
+        Integer contactId = contactItem.getClient().getContactId();
         Integer purchaseId = (purchase == null) ? orderPayload.getId() :  purchase.getId();
-        
+        Integer appliedTagId = Integer.valueOf(lambdaContext.getEnvVar().getEnv(Config.INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG));
         if(purchaseId != null) {
         	OrderItem purchasedOrder = lambdaContext.getOrderItemService().load(purchaseId);
         	if(purchasedOrder != null) {
@@ -45,6 +51,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
                 OrderBillingIntergtion billingIntegration = FactoryOrderBillingIntegration
                         .getBillingIntegration(cfProducts.getBillingIntegration());
                 OrderItem addOrder = billingIntegration.createBilling(orderPayload, lambdaContext);
+                applyTagToInfusionsoft(lambdaContext, contactId, appliedTagId);
                 // 2. Save the Order to DynamoDB for handling in further
                 if (addOrder != null) {
                     lambdaContext.getOrderItemService().put(addOrder);
@@ -56,6 +63,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
         
         return resp;
     }
+   
     
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(JsonInclude.Include.NON_NULL)

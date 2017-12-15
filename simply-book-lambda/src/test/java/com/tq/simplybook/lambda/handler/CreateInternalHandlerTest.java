@@ -11,7 +11,6 @@ import org.mockito.stubbing.Answer;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
-import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;

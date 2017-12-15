@@ -5,6 +5,7 @@ import java.net.URI;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -17,11 +18,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 
 public class UtilsExecutor {
 	private static final ObjectMapper m_mapper = new ObjectMapper();
+	private static final Logger m_log = LoggerFactory.getLogger(UtilsExecutor.class);
 
 	public static String request(ClinikoApiReq apiReq) throws Exception {
 		HttpRequestBase req = null;
@@ -68,7 +73,16 @@ public class UtilsExecutor {
 		SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext,
 				new String[] { "TLSv1.1", "TLSv1.2" }, null, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 		try (CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslsf).build();) {
-			System.out.println(req);
+			m_log.info("Req" + req);
+
+			if (req instanceof HttpEntityEnclosingRequestBase) {
+				HttpEntity entity = ((HttpEntityEnclosingRequestBase) req).getEntity();
+				if (entity != null) {
+					String body = EntityUtils.toString(entity, "UTF-8");
+					m_log.info("Body" + body);
+				}
+			}
+
 			HttpResponse response = httpClient.execute(req);
 			return response.getEntity() == null ? null : EntityUtils.toString(response.getEntity(), "UTF-8");
 		} catch (Exception e) {

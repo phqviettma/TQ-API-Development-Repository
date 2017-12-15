@@ -110,8 +110,8 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			m_log.info(
 					"DB appointments status, removed: " + (dbRemoveSet == null ? Collections.emptySet() : dbRemoveSet));
 
-			m_log.info("To fetch Cliniko appointment with start time:" + dbTime);
-			AppointmentsInfo appts = m_cas.getAppointments(dbTime);
+			m_log.info("To fetch Cliniko appointment with start time:" + latestUpdateTime);
+			AppointmentsInfo appts = m_cas.getAppointments(latestUpdateTime);
 
 			m_log.info("Fetched: " + appts.getAppointments().size() + " created Cliniko appointment(s)");
 			if (appts != null && appts.getAppointments().size() > 0) {
