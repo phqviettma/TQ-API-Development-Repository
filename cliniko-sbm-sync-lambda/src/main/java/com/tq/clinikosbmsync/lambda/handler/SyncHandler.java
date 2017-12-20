@@ -150,7 +150,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 
 			m_log.info("Synchronized created appoinments to Simplybook.me completely");
 
-			AppointmentsInfo deletedApptInfo = m_cas.getCancelAppointments(dbTime);
+			AppointmentsInfo deletedApptInfo = m_cas.getCancelAppointments(latestUpdateTime);
 			m_log.info("Fetched: " + deletedApptInfo.getAppointments().size() + " removed Cliniko appointment(s)");
 			if (deletedApptInfo != null && deletedApptInfo.getAppointments().size() > 0) {
 				List<AppointmentInfo> fetchedAppts = deletedApptInfo.getAppointments();

@@ -45,7 +45,7 @@ public class CreateInternalHandlerTest {
 	
 	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scm, scs, lcs, cas);
 
-	@Test
+	//@Test
 	public void test() throws SbmSDKException, ClinikoSDKExeption {
 		ClientInfo ci = new ClientInfo();
 		ci.setEmail("thuongsu@gmail.com");
@@ -72,7 +72,7 @@ public class CreateInternalHandlerTest {
 		handler.handle(payLoad);
 	}
 
-	@Test
+	//@Test
 	public void testExcuteInfusionsoft() throws SbmSDKException {
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(448);

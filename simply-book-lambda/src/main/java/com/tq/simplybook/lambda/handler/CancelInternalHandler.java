@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
+import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
+import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.config.Config;
 import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
@@ -136,10 +138,13 @@ public class CancelInternalHandler implements InternalHandler {
 		createdId.remove(sbmCliniko.getClinikoId());
 		Set<Long> removeId = latestClinikoAppts.getRemoved();
 		removeId.add(sbmCliniko.getClinikoId());
-		Date date = new Date();
 		latestClinikoAppts.setCreated(createdId);
 		latestClinikoAppts.setRemoved(removeId);
-		latestClinikoAppts.setLatestUpdateTime(Config.DATE_FORMAT_24_H.format(date));
+		Settings settings = clinikoAppointmentService.getAllSettings();
+		String country = settings.getAccount().getCountry();
+		String time_zone = settings.getAccount().getTime_zone();
+		String latestTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
+		latestClinikoAppts.setLatestUpdateTime(latestTime);
 		
 		clinikoAppointmentService.deleteAppointment(sbmCliniko.getClinikoId());
 		latestApptService.put(latestClinikoAppts);

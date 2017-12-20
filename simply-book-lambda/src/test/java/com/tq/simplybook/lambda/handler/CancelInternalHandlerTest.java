@@ -45,7 +45,7 @@ public class CancelInternalHandlerTest {
 	ClinikoAppointmentService cas = new ClinikiAppointmentServiceImpl(env.getClinikoApiKey());
 	SimplyBookClinikoMapping scm = new SimplyBookClinikoMapping(env);
 
-	@Test
+	//@Test
 	public void test() throws SbmSDKException, ClinikoSDKExeption, Exception {
 
 		ClientInfo ci = new ClientInfo();
