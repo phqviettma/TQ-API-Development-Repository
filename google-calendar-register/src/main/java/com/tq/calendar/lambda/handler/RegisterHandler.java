@@ -16,10 +16,10 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.calendar.lambda.context.Env;
 import com.tq.calendar.lambda.model.UserInfoResp;
-import com.tq.common.lambda.dynamodb.dao.CalendarSbmDaoImpl;
-import com.tq.common.lambda.dynamodb.impl.CalendarSbmServiceImpl;
+import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
+import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.model.CalendarSbmSync;
-import com.tq.common.lambda.dynamodb.service.CalendarSbmService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarService;
 import com.tq.common.lambda.utils.DynamodbUtils;
 
 import com.tq.simplybook.impl.TokenServiceImpl;
@@ -30,33 +30,33 @@ import com.tq.simplybook.service.UnitServiceSbm;
 
 public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static final Logger m_log = LoggerFactory.getLogger(RegisterHandler.class);
-	private ObjectMapper m_jsonMapper = new ObjectMapper();
+	private ObjectMapper jsonMapper = new ObjectMapper();
 	private static int STATUS_CODE = 200;
-	private UnitServiceSbm m_unitService = null;
-	private TokenServiceSbm m_tokenService = null;
-	private Env m_env = null;
-	private AmazonDynamoDB m_amazonDynamoDB = null;
-	private CalendarSbmService m_calendarService = null;
+	private UnitServiceSbm unitServiceSbm = null;
+	private TokenServiceSbm tokenServiceSbm = null;
+	private Env eVariables = null;
+	private AmazonDynamoDB amazonDynamoDB = null;
+	private GoogleCalendarService googleCalendarService = null;
 
 	public RegisterHandler() {
 
-		this.m_unitService = new UnitServiceSbmImpl();
-		this.m_tokenService = new TokenServiceImpl();
-		this.m_env = Env.load();
-		this.m_amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(m_env.getRegions(), m_env.getAwsAccessKeyId(),
-				m_env.getAwsSecretAccessKey());
+		this.unitServiceSbm = new UnitServiceSbmImpl();
+		this.tokenServiceSbm = new TokenServiceImpl();
+		this.eVariables = Env.load();
+		this.amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(eVariables.getRegions(), eVariables.getAwsAccessKeyId(),
+				eVariables.getAwsSecretAccessKey());
 		;
-		this.m_calendarService = new CalendarSbmServiceImpl(new CalendarSbmDaoImpl(m_amazonDynamoDB));
+		this.googleCalendarService = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(amazonDynamoDB));
 	}
 
 	// for testing only
 	RegisterHandler(Env env, AmazonDynamoDB db, UnitServiceSbm unitService, TokenServiceSbm tokenService,
-			CalendarSbmService calendarService) {
-		this.m_amazonDynamoDB = db;
-		this.m_unitService = unitService;
-		this.m_tokenService = tokenService;
-		this.m_calendarService = calendarService;
-		this.m_env = env;
+			GoogleCalendarService calendarService) {
+		this.amazonDynamoDB = db;
+		this.unitServiceSbm = unitService;
+		this.tokenServiceSbm = tokenService;
+		this.googleCalendarService = calendarService;
+		this.eVariables = env;
 	}
 
 	@Override
@@ -65,17 +65,16 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 		m_log.info("Received one request with body " + input.getBody());
 		UserInfoResp info = getUserInfo(input.getBody());
 		Throwable error = null;
-		String companyLogin = m_env.getSimplyBookCompanyLogin();
-		String user = m_env.getSimplyBookUser();
-		String password = m_env.getSimplyBookPassword();
-		String loginEndPoint = m_env.getSimplyBookServiceUrlLogin();
-		String endpoint = m_env.getSimplyBookAdminServiceUrl();
-		String email = info.getEmail();
-		CalendarSbmSync calendarSbm = new CalendarSbmSync();
 		if (info != null) {
 			try {
-				String token = m_tokenService.getUserToken(companyLogin, user, password, loginEndPoint);
-				List<UnitProviderInfo> serviceInfo = m_unitService.getUnitList(companyLogin, endpoint, token, true,
+				String companyLogin = eVariables.getSimplyBookCompanyLogin();
+				String user = eVariables.getSimplyBookUser();
+				String password = eVariables.getSimplyBookPassword();
+				String loginEndPoint = eVariables.getSimplyBookServiceUrlLogin();
+				String endpoint = eVariables.getSimplyBookAdminServiceUrl();
+				String email = info.getEmail();
+				String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
+				List<UnitProviderInfo> serviceInfo = unitServiceSbm.getUnitList(companyLogin, endpoint, token, true,
 						true, 1);
 				for (UnitProviderInfo unitInfo : serviceInfo) {
 					if (unitInfo.getEmail() != null && unitInfo.getEmail().equals(email)) {
@@ -84,12 +83,10 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 							String providerId = provider.next();
 							String unitId = unitInfo.getId();
 							String sbmId = providerId + "," + unitId;
-							calendarSbm.setEmail(email);
-							calendarSbm.setSbmId(sbmId);
-							calendarSbm.setFirstname(info.getFirstName());
-							calendarSbm.setLastname(info.getLastName());
+							CalendarSbmSync calendarSbm = new CalendarSbmSync(sbmId, email, info.getLastName(),
+									info.getLastName());
 							m_log.info("CalendarSbm Value" + calendarSbm.toString());
-							m_calendarService.put(calendarSbm);
+							googleCalendarService.put(calendarSbm);
 							m_log.info("Added to database successfully" + calendarSbm.toString());
 						}
 
@@ -108,7 +105,7 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 	public UserInfoResp getUserInfo(String value) {
 		UserInfoResp info = null;
 		try {
-			info = m_jsonMapper.readValue(value, UserInfoResp.class);
+			info = jsonMapper.readValue(value, UserInfoResp.class);
 		} catch (IOException e) {
 			m_log.error("Error during parsing {} : {} .", value, e);
 		}
@@ -125,6 +122,7 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 			}
 		} else {
 			body = "Invalid request body";
+			resp.setStatusCode(400);
 		}
 
 		resp.setBody(body);

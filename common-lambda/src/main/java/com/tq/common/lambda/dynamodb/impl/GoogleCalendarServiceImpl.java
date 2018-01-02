@@ -1,13 +1,13 @@
 package com.tq.common.lambda.dynamodb.impl;
 
-import com.tq.common.lambda.dynamodb.dao.CalendarSbmDao;
+import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDao;
 import com.tq.common.lambda.dynamodb.model.CalendarSbmSync;
-import com.tq.common.lambda.dynamodb.service.CalendarSbmService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarService;
 
-public class CalendarSbmServiceImpl implements CalendarSbmService {
-	private CalendarSbmDao m_calendarSbmDao;
+public class GoogleCalendarServiceImpl implements GoogleCalendarService {
+	private GoogleCalendarDao m_calendarSbmDao;
 
-	public CalendarSbmServiceImpl(CalendarSbmDao calendarSbmDao) {
+	public GoogleCalendarServiceImpl(GoogleCalendarDao calendarSbmDao) {
 		m_calendarSbmDao = calendarSbmDao;
 	}
 

@@ -4,9 +4,9 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.tq.common.lambda.dynamodb.model.CalendarSbmSync;
 import com.tq.common.lambda.dynamodb.service.AbstractItem;
 
-public class CalendarSbmDaoImpl extends AbstractItem<CalendarSbmSync, String> implements CalendarSbmDao {
+public class GoogleCalendarDaoImpl extends AbstractItem<CalendarSbmSync, String> implements GoogleCalendarDao {
 
-	public CalendarSbmDaoImpl(AmazonDynamoDB client) {
+	public GoogleCalendarDaoImpl(AmazonDynamoDB client) {
 		super(client, CalendarSbmSync.class);
 
 	}

@@ -44,6 +44,17 @@ public class CalendarSbmSync {
 		return "CalendarSbmSync [sbmId=" + sbmId + ", email=" + email + ", lastname=" + lastname + ", firstname="
 				+ firstname + "]";
 	}
+	public CalendarSbmSync(String sbmId, String email, String lastname, String firstname) {
+		this.sbmId = sbmId;
+		this.email = email;
+		this.lastname = lastname;
+		this.firstname = firstname;
+	}
+	public CalendarSbmSync() {
+		
+	}
+	
+	
 	
 	
 }

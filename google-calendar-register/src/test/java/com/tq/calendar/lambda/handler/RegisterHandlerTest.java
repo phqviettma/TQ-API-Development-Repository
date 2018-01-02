@@ -18,7 +18,7 @@ import com.tq.calendar.lambda.context.Env;
 import com.tq.calendar.lambda.handler.RegisterHandler;
 import com.tq.calendar.lambda.model.UserInfoResp;
 import com.tq.common.lambda.dynamodb.model.CalendarSbmSync;
-import com.tq.common.lambda.dynamodb.service.CalendarSbmService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarService;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.simplybook.impl.TokenServiceImpl;
@@ -27,7 +27,7 @@ import com.tq.simplybook.service.TokenServiceSbm;
 import com.tq.simplybook.service.UnitServiceSbm;
 
 public class RegisterHandlerTest {
-	private CalendarSbmService calendarService = mock(CalendarSbmService.class);
+	private GoogleCalendarService calendarService = mock(GoogleCalendarService.class);
 	private Env mockedeEnv = MockUtil.mockEnv();
 	private TokenServiceSbm tokenService = new TokenServiceImpl();
 	private UnitServiceSbm unitService = new UnitServiceSbmImpl();
