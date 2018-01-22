@@ -1,10 +1,10 @@
 package com.tq.common.lambda.dynamodb.impl;
 
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDao;
-import com.tq.common.lambda.dynamodb.model.CalendarSbmSync;
-import com.tq.common.lambda.dynamodb.service.GoogleCalendarService;
+import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 
-public class GoogleCalendarServiceImpl implements GoogleCalendarService {
+public class GoogleCalendarServiceImpl implements GoogleCalendarDbService {
 	private GoogleCalendarDao m_calendarSbmDao;
 
 	public GoogleCalendarServiceImpl(GoogleCalendarDao calendarSbmDao) {
@@ -12,14 +12,19 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 	}
 
 	@Override
-	public void put(CalendarSbmSync item) {
+	public void put(GoogleCalendarSbmSync item) {
 		m_calendarSbmDao.putItem(item);
 	}
 
 	@Override
-	public CalendarSbmSync load(String key) {
+	public GoogleCalendarSbmSync load(String key) {
 
 		return m_calendarSbmDao.loadItem(key);
 	}
 
+	@Override
+	public GoogleCalendarSbmSync query(String email) {
+
+		return m_calendarSbmDao.queryIndex(email);
+	}
 }

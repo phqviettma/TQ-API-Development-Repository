@@ -1,6 +1,8 @@
 package com.tq.calendar.lambda.exception;
 
-public class GoogleCalendarException extends Exception {
+import com.tq.common.lambda.exception.TrueQuitException;
+
+public class GoogleCalendarException extends TrueQuitException {
 	/**
 	 * 
 	 */

@@ -1,0 +1,119 @@
+[09-Jan-2018 09:55:19 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 02:28:44 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 02:40:17 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 09:13:03 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 10:52:31 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 10:53:01 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 10:54:02 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 10:55:50 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 10:56:28 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 10:57:00 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 10:57:14 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 10:57:20 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 11:09:26 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[12-Jan-2018 13:12:09 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[13-Jan-2018 01:23:15 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[13-Jan-2018 06:45:00 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[15-Jan-2018 03:32:36 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[16-Jan-2018 02:31:00 UTC] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 39
+[16-Jan-2018 09:04:53 UTC] Have errorInvalid code
+[16-Jan-2018 11:41:30 UTC] Have errorInvalid code
+[17-Jan-2018 07:30:28 UTC] Have errorClient error response
+[status code] 404
+[reason phrase] Not Found
+[url] https://9a87rzr9jd.execute-api.us-east-1.amazonaws.com/prod/connect
+[17-Jan-2018 07:32:17 UTC] Have errorClient error response
+[status code] 404
+[reason phrase] Not Found
+[url] https://9a87rzr9jd.execute-api.us-east-1.amazonaws.com/prod/connect
+[17-Jan-2018 08:00:14 UTC] Have errorClient error response
+[status code] 404
+[reason phrase] Not Found
+[url] https://9a87rzr9jd.execute-api.us-east-1.amazonaws.com/prod/connect
+[17-Jan-2018 08:14:11 UTC] Have errorClient error response
+[status code] 404
+[reason phrase] Not Found
+[url] https://9a87rzr9jd.execute-api.us-east-1.amazonaws.com/prod/connect
+[17-Jan-2018 08:27:10 UTC] Have error Client error response
+[status code] 404
+[reason phrase] Not Found
+[url] https://9a87rzr9jd.execute-api.us-east-1.amazonaws.com/prod/connect
+[17-Jan-2018 09:04:47 UTC] PHP Fatal error:  Call to undefined method Guzzle\Http\EntityBody::getContent() in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 66
+[17-Jan-2018 09:14:59 UTC] Have error {
+ "error": {
+  "errors": [
+   {
+    "domain": "global",
+    "reason": "authError",
+    "message": "Invalid Credentials",
+    "locationType": "header",
+    "location": "Authorization"
+   }
+  ],
+  "code": 401,
+  "message": "Invalid Credentials"
+ }
+}
+
+[17-Jan-2018 09:19:12 UTC] Have error {
+ "error": {
+  "errors": [
+   {
+    "domain": "global",
+    "reason": "authError",
+    "message": "Invalid Credentials",
+    "locationType": "header",
+    "location": "Authorization"
+   }
+  ],
+  "code": 401,
+  "message": "Invalid Credentials"
+ }
+}
+
+[17-Jan-2018 09:20:21 UTC] PHP Fatal error:  Call to undefined method Guzzle\Http\EntityBody::getContents() in /home/truequit/public_html/practitioner-register/google-practitioner-login-callback.php on line 66
+[17-Jan-2018 09:20:28 UTC] Have error {
+ "error": {
+  "errors": [
+   {
+    "domain": "global",
+    "reason": "authError",
+    "message": "Invalid Credentials",
+    "locationType": "header",
+    "location": "Authorization"
+   }
+  ],
+  "code": 401,
+  "message": "Invalid Credentials"
+ }
+}
+
+[19-Jan-2018 03:00:36 UTC] Have error Invalid code
+[19-Jan-2018 07:15:03 UTC] Have error Invalid code
+[19-Jan-2018 07:15:12 UTC] Have error Invalid code
+[19-Jan-2018 07:16:15 UTC] Have error Invalid code
+[19-Jan-2018 07:16:17 UTC] Have error Invalid code
+[19-Jan-2018 07:16:18 UTC] Have error Invalid code
+[19-Jan-2018 07:17:13 UTC] Have error Invalid code
+[19-Jan-2018 07:17:34 UTC] Have error Invalid code
+[19-Jan-2018 07:32:14 UTC] Have error Invalid code
+[19-Jan-2018 07:33:18 UTC] Have error Invalid code
+[19-Jan-2018 07:33:37 UTC] Have error Invalid code
+[19-Jan-2018 08:46:17 UTC] Have error Invalid code
+[19-Jan-2018 11:46:06 UTC] Have error {
+ "error": {
+  "errors": [
+   {
+    "domain": "global",
+    "reason": "backendError",
+    "message": "Backend Error"
+   }
+  ],
+  "code": 500,
+  "message": "Backend Error"
+ }
+}
+
+[20-Jan-2018 15:54:58 UTC] Have error Invalid code
+[22-Jan-2018 01:25:05 UTC] Have error Invalid code
+[22-Jan-2018 07:38:09 UTC] Have error Invalid code

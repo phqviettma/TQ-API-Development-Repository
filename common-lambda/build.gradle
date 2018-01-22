@@ -14,6 +14,7 @@ targetCompatibility = 1.8
 dependencies {   
     compile project(':inf-sdk')
     compile project(':sbm-sdk')
+    
     compile (
         'com.amazonaws:aws-lambda-java-core:1.1.0',
         'com.amazonaws:aws-lambda-java-log4j:1.0.0',

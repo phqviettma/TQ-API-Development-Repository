@@ -11,6 +11,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 dependencies {
   compile project(':sbm-sdk')
+  compile project(':inf-sdk')
+  compile project(':google-calendar-sdk')
   compile project(':common-lambda')
     compile (
     	 'com.amazonaws:aws-lambda-java-core:1.1.0',

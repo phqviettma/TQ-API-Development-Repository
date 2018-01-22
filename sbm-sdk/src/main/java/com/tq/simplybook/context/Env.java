@@ -1,4 +1,5 @@
 package com.tq.simplybook.context;
+
 import java.util.Map;
 
 import com.amazonaws.regions.Regions;
@@ -16,7 +17,8 @@ public class Env {
 	private String infusionSoftAppointmentLocationField = System.getenv("INFUSIONSOFT_APT_LOC_FIELD");
 	private String infusionSoftServiceProviderField = System.getenv("INFUSIONSOFT_SER_PROV_FIELD");
 	private String infusionSoftAppointmentInstructionField = System.getenv("INFUSIONSOFT_APT_INST_FIELD");
-
+	private Integer infusionsoftGoogleDeleteTag = Integer
+			.valueOf(System.getenv("INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG"));
 	private String simplyBookServiceUrlLogin = System.getenv("SIMPLY_BOOK_SERVICE_URL_lOGIN");
 	private String simplyBookAdminServiceUrl = System.getenv("SIMPLY_BOOK_ADMIN_SERVICE_URL");
 	private String simplyBookCompanyLogin = System.getenv("SIMPLY_BOOK_COMPANY_LOGIN");
@@ -30,10 +32,14 @@ public class Env {
 	private Integer cliniko_standard_appointment = Integer.valueOf(System.getenv("CLINIKO_STANDARD_APPOINTMENT"));
 	private String cliniko_start_time = new String(System.getenv("CLINIKO_START_TIME"));
 	private String cliniko_end_time = new String(System.getenv("CLINIKO_END_TIME"));
-	
 
+	private String googleClientId = new String(System.getenv("GOOGLE_CLIENT_ID"));
+	private String googleClientSecrets = new String(System.getenv("GOOGLE_CLIENT_SECRETS"));
+	private String simplybookWorkingStartTime = new String(System.getenv("SIMPLY_BOOK_WORKING_START_TIME"));
+	private String simplybookWorkingEndTime = new String(System.getenv("SIMPLY_BOOK_WORKING_END_TIME"));
+	private String googleCalendarEventName = new String(System.getenv("GOOGLE_CALENDAR_EVENT_NAME"));
 	private Env() {
-
+		assertVar(googleCalendarEventName, "GOOGLE_CALENDAR_EVENT_NAME");
 		assertVar(regions, "REGIONS");
 		assertVar(awsAccessKeyId, "AMAZON_ACCESS_KEY");
 		assertVar(awsSecretAccessKey, "AMAZON_SECRET_ACCESS_KEY");
@@ -58,7 +64,11 @@ public class Env {
 		assertVar("cliniko_standard_appointment", "CLINIKO_STANDARD_APPOINTMENT");
 		assertVar("cliniko_start_time", "CLINIKO_START_TIME");
 		assertVar("cliniko_end_time", "CLINIKO_END_TIME");
-
+		assertVar(googleClientId, "GOOGLE_CLIENT_ID");
+		assertVar(googleClientSecrets, "GOOGLE_CLIENT_SECRETS");
+		assertVar(simplybookWorkingStartTime, "GOOGLE_CALENDAR_START_TIME");
+		assertVar(simplybookWorkingEndTime, "SIMPLY_BOOK_WORKING_END_TIME");
+		assertVar(infusionsoftGoogleDeleteTag, "INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG");
 	}
 
 	private static Env instance;
@@ -91,6 +101,11 @@ public class Env {
 	public String getAwsSecretAccessKey() {
 		return awsSecretAccessKey;
 	}
+	
+
+	public String getGoogleCalendarEventName() {
+		return googleCalendarEventName;
+	}
 
 	public String getInfusionSoftApiName() {
 		return infusionSoftApiName;
@@ -98,6 +113,18 @@ public class Env {
 
 	public String getInfusionSoftApiKey() {
 		return infusionSoftApiKey;
+	}
+
+	public String getSimplybookWorkingStartTime() {
+		return simplybookWorkingStartTime;
+	}
+
+	public String getSimplybookWorkingEndTime() {
+		return simplybookWorkingEndTime;
+	}
+
+	public Integer getInfusionsoftGoogleDeleteTag() {
+		return infusionsoftGoogleDeleteTag;
 	}
 
 	public Integer getClinikoPatientId() {
@@ -154,6 +181,14 @@ public class Env {
 
 	public String getSimplyBookApiKey() {
 		return simplyBookApiKey;
+	}
+
+	public String getGoogleClientId() {
+		return googleClientId;
+	}
+
+	public String getGoogleClientSecrets() {
+		return googleClientSecrets;
 	}
 
 	public String getSimplyBookSecretKey() {

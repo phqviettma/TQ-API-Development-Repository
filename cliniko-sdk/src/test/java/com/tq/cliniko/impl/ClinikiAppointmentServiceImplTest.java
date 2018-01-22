@@ -13,7 +13,7 @@ import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
 
 public class ClinikiAppointmentServiceImplTest {
-	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("2b2f8a6c0238919e66b81c089da283d2");
+	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("");
 
 	@Test
 	public void testGetAppointments() throws ClinikoSDKExeption {

@@ -9,6 +9,9 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.tq.calendar.exception.GoogleApiSDKException;
+import com.tq.calendar.impl.TokenGoogleCalendarImpl;
+import com.tq.calendar.service.TokenGoogleCalendarService;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
 import com.tq.cliniko.service.ClinikoAppointmentService;
@@ -17,8 +20,11 @@ import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
+import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
@@ -42,18 +48,21 @@ public class CreateInternalHandlerTest {
 	private SbmClinikoSyncService scs = mock(SbmClinikoSyncService.class);
 	private LatestClinikoApptServiceWrapper lcs = mock(LatestClinikoApptServiceWrapper.class);
 	private ClinikoAppointmentService cas = new ClinikiAppointmentServiceImpl(env.getClinikoApiKey());
-	
-	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scm, scs, lcs, cas);
+	private SbmGoogleCalendarDbService sbmGoogleService = mock(SbmGoogleCalendarDbService.class);
+	private GoogleCalendarDbService googleCalendarService = mock(GoogleCalendarDbService.class);
+	private TokenGoogleCalendarService tokenGoogleService = new TokenGoogleCalendarImpl();
+	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scm, scs, lcs, cas,
+			googleCalendarService, sbmGoogleService, tokenGoogleService);
 
-	//@Test
-	public void test() throws SbmSDKException, ClinikoSDKExeption {
+	@Test
+	public void test() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
 		ClientInfo ci = new ClientInfo();
 		ci.setEmail("thuongsu@gmail.com");
 		ci.setContactId(448);
 		contactItem.setClient(ci);
 		when(cis.load(any())).thenReturn(contactItem);
 		PayloadCallback payLoad = new PayloadCallback();
-		payLoad.setBooking_id(5L);
+		payLoad.setBooking_id(50000L);
 		payLoad.setBooking_hash("784ee770544f77f25f5f713772cf6910");
 		payLoad.setNotification_type("create");
 		when(lcs.load()).thenReturn(new LatestClinikoAppts());
@@ -70,9 +79,18 @@ public class CreateInternalHandlerTest {
 			}
 		}).when(scs).put(any(SbmCliniko.class));
 		handler.handle(payLoad);
+		Mockito.doAnswer(new Answer<Void>() {
+
+			@Override
+			public Void answer(InvocationOnMock invocation) throws Throwable {
+
+				return null;
+			}
+
+		}).when(sbmGoogleService).put(any(SbmGoogleCalendar.class));
 	}
 
-	//@Test
+	@Test
 	public void testExcuteInfusionsoft() throws SbmSDKException {
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(448);

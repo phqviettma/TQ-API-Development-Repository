@@ -1,9 +1,11 @@
 package com.tq.simplybook.impl;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -79,10 +81,13 @@ public class SbmBreakTimeManagement {
     static Set<Breaktime> removeBreakTime(String envStartWorkingTime, String envEndWorkingTime, Set<Breaktime> removedBreakTime, Set<WorkTimeSlot> workTimeSlots) {
         Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
         m_log.info("SBM Current BreakTimes " + currentBreakTimes.toString());
-        m_log.info("Cliniko BreakTimes to be removed " + removedBreakTime.toString());
-        currentBreakTimes.removeAll(removedBreakTime);
+        m_log.info("BreakTimes to be removed " + removedBreakTime.toString());
         
-        return currentBreakTimes;
+        Set<Breaktime> remainingBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(currentBreakTimes, removedBreakTime);
+        
+        m_log.info("Remaining break times " + remainingBreakTimes.toString());
+        
+        return remainingBreakTimes;
     }
 
     protected static Set<Breaktime> findBreakTime(Set<WorkTimeSlot> workTimeSlot, String envStartWorkingTime, String envEndWorkingTime)  {
@@ -90,36 +95,105 @@ public class SbmBreakTimeManagement {
         
         SortedSet<TimePoint> sortedTimePointSet = new SortedTimePointSet();
         
-        sortedTimePointSet.add(new TimePoint(envStartWorkingTime, 0));
+        TimePoint startTimePoint = new TimePoint(envStartWorkingTime, 0);
+        TimePoint endTimePoint = new TimePoint(envEndWorkingTime, 1);
         
-        workTimeSlotToTimePoints(workTimeSlot, sortedTimePointSet);
-        
-        sortedTimePointSet.add(new TimePoint(envEndWorkingTime, 1));
-        Iterator<TimePoint> it = sortedTimePointSet.iterator();
-        
-        Set<TimePointPair> setBreakTimePair = new HashSet<TimePointPair>();
-        
-        TimePoint current = it.next();
-        
-        while(it.hasNext()) {
-            TimePoint next = it.next();
-            
-            if((current.flag == 0 && next.flag == 0) ||  (current.flag == 1 && next.flag == 0)
-                    || (current.flag == 1 && next.flag == 1)){
-                setBreakTimePair.add(new TimePointPair(current, next));
-            } 
-            
-            current = next;
+        if(workTimeSlot.isEmpty()) {
+        	currentBreakTime.add(new Breaktime(startTimePoint.time.toString(), endTimePoint.time.toString()));
+        } else {
+        	sortedTimePointSet.add(startTimePoint);
+        	
+        	workTimeSlotToTimePoints(workTimeSlot, sortedTimePointSet);
+        	
+        	sortedTimePointSet.add(endTimePoint);
+        	Iterator<TimePoint> it = sortedTimePointSet.iterator();
+        	
+        	Set<TimePointPair> setBreakTimePair = new HashSet<TimePointPair>();
+        	
+        	TimePoint current = it.next();
+        	
+        	while(it.hasNext()) {
+        		TimePoint next = it.next();
+        		
+        		if((current.flag == 0 && next.flag == 0) ||  (current.flag == 1 && next.flag == 0)
+        				|| (current.flag == 1 && next.flag == 1)){
+        			setBreakTimePair.add(new TimePointPair(current, next));
+        		} 
+        		
+        		current = next;
+        	}
+        	
+        	for(TimePointPair pair : setBreakTimePair) {
+        		String start = pair.first.time().toString();
+        		String end = pair.second.time().toString();
+        		currentBreakTime.add(new Breaktime(start, end));
+        	}
         }
         
-        for(TimePointPair pair : setBreakTimePair) {
-            String start = pair.first.time().toString();
-            String end = pair.second.time().toString();
-            currentBreakTime.add(new Breaktime(start, end));
-        }
         
         return currentBreakTime;
     }
+    
+    static Set<Breaktime> elimateBreakTimes(Set<Breaktime> curentBreakTimes, Set<Breaktime> removedBreakTimes)  {
+        
+    	List<Breaktime> retList = new ArrayList<Breaktime>(curentBreakTimes);
+    	
+    	List<Breaktime> tobeRemoveBreakTimes = new ArrayList<Breaktime>();
+    	
+        for(Breaktime rbt : removedBreakTimes) {
+        	TimePoint s = new TimePoint(rbt.getStart_time(), 0);
+        	TimePoint e = new TimePoint(rbt.getEnd_time(), 1);
+
+        	for(int i=0; i < retList.size() ;i++) {
+        		Breaktime breakTime = retList.get(i);
+        		
+        		if(tobeRemoveBreakTimes.contains(breakTime)) {
+        			continue;
+        		}
+        		
+        		LocalTime startTime = LocalTime.parse(breakTime.getStart_time());
+        		LocalTime endTime = LocalTime.parse(breakTime.getEnd_time());
+        		
+        		if(s.time.isBefore(startTime) || s.time.equals(startTime) ) {
+        			if(e.time.isAfter(endTime) || e.time.equals(endTime) ) {
+        				tobeRemoveBreakTimes.add(breakTime);
+            			continue;
+            		}
+        		}
+        		
+        		if((s.time.isBefore(startTime) || s.time.equals(startTime)) && e.time.isAfter(startTime)) {
+        			//1 0 1 0
+        			breakTime.setStart_time(e.time.toString());
+        		}
+        		
+        		if(s.time.isBefore(endTime) && (e.time.isAfter(endTime) || e.time.equals(endTime))) {
+        			//0 1 0 1
+        			breakTime.setEnd_time(s.time.toString());
+        		}
+        		
+        		if(s.time.isAfter(startTime) && e.time.isBefore(endTime) ) {
+        			//0 1 0 1
+        			Breaktime bt1 = new Breaktime();
+        			bt1.setStart_time(breakTime.getStart_time());
+        			bt1.setEnd_time(s.time.toString());
+        			
+        			Breaktime bt2 = new Breaktime();
+        			bt2.setStart_time(e.time.toString());
+        			bt2.setEnd_time(breakTime.getEnd_time());
+        			
+        			retList.add(bt1);
+        			retList.add(bt2);
+        			
+        			tobeRemoveBreakTimes.add(breakTime);
+        		}
+        	}
+        }
+        
+        retList.removeAll(tobeRemoveBreakTimes);
+        
+        return new HashSet<Breaktime>(retList);
+    }
+
     
     private static void workTimeSlotToTimePoints(Set<WorkTimeSlot> workTimeSlot, SortedSet<TimePoint> sortedTimePointSet) {
         for(WorkTimeSlot wts : workTimeSlot) {
@@ -167,23 +241,56 @@ public class SbmBreakTimeManagement {
         }
     }
     
-    private static class TimePoint {
+    public static class TimePoint {
 
         private final LocalTime time;
         
-        private final int flag;// 0 for start, 1 for end
+        private int flag;// 0 for start, 1 for end
         
-        @Override
-        public String toString() {
-            return "TimePoint [Time=" + time + ", flag=" + flag + "]";
-        }
-
-        public TimePoint(String tp, int flag)  {
+       
+		public TimePoint(String tp, int flag)  {
             this.time = LocalTime.parse(tp);
             this.flag = flag;
         }
+        
 
-        public LocalTime time() {
+        @Override
+		public String toString() {
+			return "TimePoint [time=" + time + ", flag=" + flag + "]";
+		}
+
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + flag;
+			result = prime * result + ((time == null) ? 0 : time.hashCode());
+			return result;
+		}
+
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			TimePoint other = (TimePoint) obj;
+			if (flag != other.flag)
+				return false;
+			if (time == null) {
+				if (other.time != null)
+					return false;
+			} else if (!time.equals(other.time))
+				return false;
+			return true;
+		}
+
+
+		public LocalTime time() {
             return this.time;
         }
         
@@ -191,38 +298,11 @@ public class SbmBreakTimeManagement {
             return this.flag;
         }
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((time == null) ? 0 : time.hashCode());
-            result = prime * result + flag;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            TimePoint other = (TimePoint) obj;
-            if (time == null) {
-                if (other.time != null)
-                    return false;
-            } else if (!time.equals(other.time))
-                return false;
-            if (flag != other.flag)
-                return false;
-            return true;
-        }
-        
+		
         
     }
 
-    private static class SortedTimePointSet extends TreeSet<TimePoint> {
+    public static class SortedTimePointSet extends TreeSet<TimePoint> {
         
         public SortedTimePointSet() {
             super(new Comparator<TimePoint>() {

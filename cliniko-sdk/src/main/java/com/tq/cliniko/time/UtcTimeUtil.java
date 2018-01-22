@@ -23,6 +23,14 @@ public class UtcTimeUtil {
 		return utcDatetime.replace("T", " ").replace("Z", "");
 	}
 
+	public static String getTimeFullOffset(String time, String timeZone) {
+		DateTimeZone dateTimeZone = DateTimeZone.forID(timeZone);
+		String fullTime = UtcTimeUtil.parseTime(time);
+		DateTime convertTime = new DateTime(fullTime, dateTimeZone);
+		return convertTime.toString();
+
+	}
+
 	public static String extractDate(String datetime) {
 		String convertedDateTime = utcToBasicFormat(datetime);
 		DateFormat f = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -58,25 +66,25 @@ public class UtcTimeUtil {
 		String t = time.replace(" ", "T");
 		return t;
 	}
-	
+
 	public static Date parseDate(String date) {
-        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd"); 
-        Date t;
-        try { 
-            t = ft.parse(date); 
-        } catch (ParseException e) { 
-            throw new IllegalArgumentException(e);
-        }
-        
-        return t;
-    }
-	
+		SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+		Date t;
+		try {
+			t = ft.parse(date);
+		} catch (ParseException e) {
+			throw new IllegalArgumentException(e);
+		}
+
+		return t;
+	}
+
 	public static String convertTimeZone(DateTimeZone srcTimeZone, DateTimeZone destTimeZone, String datetime) {
 		DateTime srcDt = new DateTime(datetime, srcTimeZone);
 		DateTime destDt = srcDt.withZone(destTimeZone);
 		return destDt.toString();
 	}
-	
+
 	public static String convertToTzFromLondonTz(DateTimeZone destTimeZone, String datetime) {
 		return convertTimeZone(DateTimeZone.forID("Europe/London"), destTimeZone, datetime);
 	}

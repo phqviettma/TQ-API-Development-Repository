@@ -1,5 +1,7 @@
 package com.tq.simplybook.lambda.handler;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 
 import com.tq.simplybook.context.Env;
@@ -15,7 +17,7 @@ public class HandleSbmClinikoMappingTest {
 	public void testPutMapSbmCliniko() {
 		SimplyBookId simplybookId = new SimplyBookId("1", "3");
 		ClinikoId clinikoId = m_scm.sbmClinikoMapping(simplybookId);
-		System.out.println(clinikoId);
+		assertNotNull(clinikoId);
 	}
 	
 }

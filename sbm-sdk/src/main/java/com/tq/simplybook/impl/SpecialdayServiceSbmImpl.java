@@ -6,11 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,6 +58,7 @@ public class SpecialdayServiceSbmImpl implements SpecialdayServiceSbm {
 			WorkdayInfoReq info) throws SbmSDKException {
 		try {
 			String jsonRes = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getWorkDaysInfo", info);
+			m_log.info("getWorkDaysInfo response: " + jsonRes);
 			Map<String, Object> map = JSON_MAPPER.readValue(jsonRes, new TypeReference<Map<String, Object>>() {
 			});
 			return toWorksDayInfoResp(map);

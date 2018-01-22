@@ -17,7 +17,8 @@ public class Env {
 	private String infusionSoftAppointmentLocationField = System.getenv("INFUSIONSOFT_APT_LOC_FIELD");
 	private String infusionSoftServiceProviderField = System.getenv("INFUSIONSOFT_SER_PROV_FIELD");
 	private String infusionSoftAppointmentInstructionField = System.getenv("INFUSIONSOFT_APT_INST_FIELD");
-
+	private Integer infusionsoftGoogleDeleteTag = Integer
+			.valueOf(System.getenv("INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG"));
 	private String simplyBookServiceUrlLogin = System.getenv("SIMPLY_BOOK_SERVICE_URL_lOGIN");
 	private String simplyBookAdminServiceUrl = System.getenv("SIMPLY_BOOK_ADMIN_SERVICE_URL");
 	private String simplyBookCompanyLogin = System.getenv("SIMPLY_BOOK_COMPANY_LOGIN");
@@ -25,6 +26,9 @@ public class Env {
 	private String simplyBookPassword = new String(System.getenv("SIMPLY_BOOK_PASSWORD"));
 	private String simplyBookApiKey = new String(System.getenv("SIMPLY_BOOK_API_KEY"));
 	private String simplyBookSecretKey = new String(System.getenv("SIMPLY_BOOK_SECRET_KEY"));
+	private String googleClientId = new String(System.getenv("GOOGLE_CLIENT_ID"));
+	private String googleClientSecrets = new String(System.getenv("GOOGLE_CLIENT_SECRETS"));
+	public String googleNotifyDomain = new String(System.getenv("NOTIFICATION_DOMAIN"));
 
 	private Env() {
 
@@ -46,7 +50,16 @@ public class Env {
 		assertVar(simplyBookPassword, "SIMPLY_BOOK_PASSWORD");
 		assertVar(simplyBookApiKey, "SIMPLY_BOOK_API_KEY");
 		assertVar(simplyBookSecretKey, "SIMPLY_BOOK_SECRET_KEY");
-
+		assertVar("clinikoApiKey", "CLINIKO_API_KEY");
+		assertVar("SBM_CLINIKO_MAPPING_1", "SBM_CLINIKO_MAPPING_1");
+		assertVar("clinikoPatientId", "CLINIKO_PATIENT_ID");
+		assertVar("cliniko_standard_appointment", "CLINIKO_STANDARD_APPOINTMENT");
+		assertVar("cliniko_start_time", "CLINIKO_START_TIME");
+		assertVar("cliniko_end_time", "CLINIKO_END_TIME");
+		assertVar(googleClientId, "GOOGLE_CLIENT_ID");
+		assertVar(googleClientSecrets, "GOOGLE_CLIENT_SECRETS");
+		assertVar(infusionsoftGoogleDeleteTag, "INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG");
+		assertVar(googleNotifyDomain, "NOTIFICATION_DOMAIN");
 	}
 
 	private static Env instance;
@@ -86,6 +99,14 @@ public class Env {
 
 	public String getInfusionSoftApiKey() {
 		return infusionSoftApiKey;
+	}
+
+	public String getGoogleNotifyDomain() {
+		return googleNotifyDomain;
+	}
+
+	public Integer getInfusionsoftGoogleDeleteTag() {
+		return infusionsoftGoogleDeleteTag;
 	}
 
 	public Integer getInfusionSoftCancelAppliedTag() {
@@ -136,6 +157,14 @@ public class Env {
 		return simplyBookApiKey;
 	}
 
+	public String getGoogleClientId() {
+		return googleClientId;
+	}
+
+	public String getGoogleClientSecrets() {
+		return googleClientSecrets;
+	}
+
 	public String getSimplyBookSecretKey() {
 		return simplyBookSecretKey;
 	}
@@ -147,5 +176,5 @@ public class Env {
 	public static void mock(Env mockedInstance) {
 		instance = mockedInstance;
 	}
-	
+
 }

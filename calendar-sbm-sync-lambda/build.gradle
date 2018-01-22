@@ -12,6 +12,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
+ compile project(':google-calendar-sdk')
+ compile project(':cliniko-sdk')
     compile (
         'com.amazonaws:aws-lambda-java-core:1.1.0',
         'com.amazonaws:aws-lambda-java-log4j:1.0.0',
@@ -31,3 +33,13 @@ dependencies {
         'org.slf4j:slf4j-simple:1.7.25'
     )
 }
+task buildZip(type: Zip) {
+    baseName = "aws-java-google-calendar-sbm-sync-http-endpoint"
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
+}
+
+build.dependsOn buildZip
