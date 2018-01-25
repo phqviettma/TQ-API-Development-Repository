@@ -1,5 +1,6 @@
 package com.tq.calendar.lambda.handler;
 
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
@@ -9,6 +10,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
+import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.calendar.lambda.context.Env;
@@ -49,6 +51,7 @@ public class RegisterHandlerTest {
 				return null;
 			}
 		}).when(calendarService).put(any(GoogleCalendarSbmSync.class));
-		handler.handleRequest(req, m_context);
+		AwsProxyResponse response = handler.handleRequest(req, m_context);
+		assertNotNull(response);
 	}
 }

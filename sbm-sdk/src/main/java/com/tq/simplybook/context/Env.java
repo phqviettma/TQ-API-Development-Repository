@@ -38,6 +38,8 @@ public class Env {
 	private String simplybookWorkingStartTime = new String(System.getenv("SIMPLY_BOOK_WORKING_START_TIME"));
 	private String simplybookWorkingEndTime = new String(System.getenv("SIMPLY_BOOK_WORKING_END_TIME"));
 	private String googleCalendarEventName = new String(System.getenv("GOOGLE_CALENDAR_EVENT_NAME"));
+	private Integer googleCalendarMaxResult = Integer.valueOf(System.getenv("GOOGLE_CALENDAR_MAX_RESULT"));
+
 	private Env() {
 		assertVar(googleCalendarEventName, "GOOGLE_CALENDAR_EVENT_NAME");
 		assertVar(regions, "REGIONS");
@@ -69,6 +71,7 @@ public class Env {
 		assertVar(simplybookWorkingStartTime, "GOOGLE_CALENDAR_START_TIME");
 		assertVar(simplybookWorkingEndTime, "SIMPLY_BOOK_WORKING_END_TIME");
 		assertVar(infusionsoftGoogleDeleteTag, "INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG");
+		assertVar(googleCalendarMaxResult, "GOOGLE_CALENDAR_MAX_RESULT");
 	}
 
 	private static Env instance;
@@ -90,6 +93,10 @@ public class Env {
 		return instance;
 	}
 
+	public Integer getGoogleCalendarMaxResult() {
+		return googleCalendarMaxResult;
+	}
+
 	public Regions getRegions() {
 		return regions;
 	}
@@ -101,7 +108,6 @@ public class Env {
 	public String getAwsSecretAccessKey() {
 		return awsSecretAccessKey;
 	}
-	
 
 	public String getGoogleCalendarEventName() {
 		return googleCalendarEventName;

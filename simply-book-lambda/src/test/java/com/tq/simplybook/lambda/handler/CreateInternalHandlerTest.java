@@ -33,6 +33,7 @@ import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.lambda.model.PayloadCallback;
+import com.tq.simplybook.resp.BookingInfo;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -101,7 +102,11 @@ public class CreateInternalHandlerTest {
 		payLoad.setBooking_id(5L);
 		payLoad.setBooking_hash("784ee770544f77f25f5f713772cf6910");
 		payLoad.setNotification_type("create");
-		handler.executeWithInfusionSoft(payLoad);
+		String token = tss.getUserToken(env.getSimplyBookCompanyLogin(), env.getSimplyBookUser(),
+				env.getSimplyBookServiceUrlLogin(), env.getSimplyBookServiceUrlLogin());
+		BookingInfo bookingInfo = bss.getBookingInfo(env.getSimplyBookCompanyLogin(),
+				env.getSimplyBookServiceUrlLogin(), token, payLoad.getBooking_id());
+		handler.executeWithInfusionSoft(payLoad, bookingInfo, contactItem);
 	}
 
 }

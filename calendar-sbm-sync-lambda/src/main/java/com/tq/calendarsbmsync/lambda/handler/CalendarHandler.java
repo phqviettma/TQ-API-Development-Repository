@@ -115,7 +115,7 @@ public class CalendarHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 					TokenResp token = tokenCalendarService.getToken(tokenReq);
 					GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(
 							token.getAccess_token());
-					Integer maxResult = 10;
+					Integer maxResult = m_env.getGoogleCalendarMaxResult();
 					if ("sync".equals(googleState) || "exists".equals(googleState)) {
 						List<Items> confirmedItems = new ArrayList<>();
 						List<Items> cancelledItems = new ArrayList<>();

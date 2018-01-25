@@ -114,7 +114,7 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 				if (googleCalendarSbmSync == null) {
 					ContactItem contactItem = contactItemService.load(sbmEmail);
 					if (contactItem == null) {
-						throw new TrueQuitRegisterException("The email " + sbmEmail + " is not registered yet ");
+						throw new TrueQuitRegisterException("The email " + sbmEmail + " is not signed up yet ");
 					}
 					String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
 					List<UnitProviderInfo> unitInfos = unitServiceSbm.getUnitList(companyLogin, endpoint, token, true,
@@ -171,7 +171,7 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 										+ sbmEmail);
 					}
 				} else {
-					throw new TrueQuitRegisterException("The email " + sbmEmail + " is already registered");
+					throw new TrueQuitRegisterException("The email " + sbmEmail + " is already connected");
 				}
 
 			} else {

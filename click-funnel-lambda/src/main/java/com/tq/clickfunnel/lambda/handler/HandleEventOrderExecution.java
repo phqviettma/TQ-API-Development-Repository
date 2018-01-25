@@ -20,7 +20,9 @@ public abstract class HandleEventOrderExecution extends AbstractEventPayloadExec
             CFOrderPayload contactPayLoad = m_mapper.readValue(input.getBody(), CFOrderPayload.class);
             if (contactPayLoad == null)
                 throw new CFLambdaException("Could not map Click funnel to purchase payload.");
+            log.info("Request body " +input.getBody());
             resp = handleEventOrderLambda(input, contactPayLoad, cfLambdaContext);
+     
         } catch (Exception e) {
             log.error(e);
             throw new CFLambdaException(e.getMessage(), e);

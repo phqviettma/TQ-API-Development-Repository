@@ -47,13 +47,13 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
         //InfusionSoft configuration
         env.put(Config.INFUSIONSOFT_API_NAME, "https://bh321.infusionsoft.com/api/xmlrpc");
         env.put(Config.INFUSIONSOFT_API_KEY, "");
-        env.put(Config.INFUSION_ORDER_PROMO_CODE, "");
+        env.put(Config.INFUSION_ORDER_PROMO_CODE, "SIMPLY_BOOK_SERVICE_URL");
         //SimplyBookMe Configuration
-        env.put(Config.SIMPLY_BOOK_COMPANY_LOGIN, "phqviet93gmailcom");
+        env.put(Config.SIMPLY_BOOK_COMPANY_LOGIN, "canhcanh");
         env.put(Config.SIMPLY_BOOK_USER_NAME, "admin");
         env.put(Config.SIMPLY_BOOK_PASSWORD, "");
         env.put(Config.SIMPLY_BOOK_API_KEY, "");
-        env.put(Config.SIMPLY_BOOK_DEFAULT_USER_PASSWORD, "");
+        env.put(Config.SIMPLY_BOOK_DEFAULT_USER_PASSWORD, "admin");
         //AWS configuration
         env.put(Config.AMAZON_ACCESS_KEY, "");
         env.put(Config.AMAZON_SECRET_ACCESS_KEY, "");
@@ -83,7 +83,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
         };
     }
     
-    @Test
+    //@Test
     public void testCreatedExternalContact() throws IOException {
         // Simulator for receiving Contact of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();
@@ -112,7 +112,7 @@ public class StripeInterceptorEventPayloadExternalProxyTest {
         log.info(response.getBody());
     }
     
-    @Test
+   // @Test
     public void testDeletedExternalStripeOrderIntegration() throws IOException {
         // Simulator for receiving Order of the click Funnel payload
         AwsProxyRequest req = new AwsProxyRequest();

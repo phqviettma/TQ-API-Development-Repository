@@ -88,7 +88,26 @@ public class CreateInternalHandler implements InternalHandler {
 
 	@Override
 	public void handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
-		BookingInfo bookingInfo = executeWithInfusionSoft(payload);
+		String companyLogin = env.getSimplyBookCompanyLogin();
+		String user = env.getSimplyBookUser();
+		String password = env.getSimplyBookPassword();
+		String loginEndPoint = env.getSimplyBookServiceUrlLogin();
+		String adminEndPoint = env.getSimplyBookAdminServiceUrl();
+		String token = tokenService.getUserToken(companyLogin, user, password, loginEndPoint);
+		Long bookingId = payload.getBooking_id();
+		BookingInfo bookingInfo = bookingService.getBookingInfo(companyLogin, adminEndPoint, token, bookingId);
+		if (bookingInfo == null) {
+			throw new SbmSDKException("There is no booking content asociated to the booking id: " + bookingId);
+		}
+		String clientEmail = bookingInfo.getClient_email();
+		ContactItem contactItem = contactItemService.load(clientEmail);
+
+		if (contactItem != null && contactItem.getClient() != null && contactItem.getClient().getContactId() != null) {
+			executeWithInfusionSoft(payload, bookingInfo, contactItem);
+		} else {
+			m_log.info("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
+		}
+
 		SimplyBookId simplybookId = new SimplyBookId(bookingInfo.getEvent_id(), bookingInfo.getUnit_id());
 		ClinikoId clinikoId = sbmClinikoMapping.sbmClinikoMapping(simplybookId);
 		boolean processed = false;
@@ -105,12 +124,9 @@ public class CreateInternalHandler implements InternalHandler {
 		}
 	}
 
-	public BookingInfo executeWithInfusionSoft(PayloadCallback payload) throws SbmSDKException {
-		String companyLogin = env.getSimplyBookCompanyLogin();
-		String user = env.getSimplyBookUser();
-		String password = env.getSimplyBookPassword();
-		String loginEndPoint = env.getSimplyBookServiceUrlLogin();
-		String adminEndPoint = env.getSimplyBookAdminServiceUrl();
+	public void executeWithInfusionSoft(PayloadCallback payload, BookingInfo bookingInfo, ContactItem contactItem)
+			throws SbmSDKException {
+
 		String infusionSoftApiName = env.getInfusionSoftApiName();
 		String infusionSoftApiKey = env.getInfusionSoftApiKey();
 		String infusionSoftAppointmentTimeField = env.getInfusionSoftAppointmentTimeField();
@@ -119,24 +135,6 @@ public class CreateInternalHandler implements InternalHandler {
 		String infusionSoftAppointmentInstructionField = env.getInfusionSoftAppointmentInstructionField();
 
 		int appliedTagId = env.getInfusionSoftCreateAppliedTag();
-
-		Long bookingId = payload.getBooking_id();
-
-		String token = tokenService.getUserToken(companyLogin, user, password, loginEndPoint);
-		BookingInfo bookingInfo = bookingService.getBookingInfo(companyLogin, adminEndPoint, token, bookingId);
-
-		if (bookingInfo == null) {
-			throw new SbmSDKException("There is no booking content asociated to the booking id: " + bookingId);
-		}
-
-		// load with email as id from DynamoDB
-		String clientEmail = bookingInfo.getClient_email();
-		ContactItem contactItem = contactItemService.load(clientEmail);
-		m_log.info("Load contactItem with value" + contactItem.toString());
-
-		if (contactItem == null || contactItem.getClient() == null || contactItem.getClient().getContactId() == null) {
-			throw new SbmSDKException("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
-		}
 
 		Integer ifContactId = contactItem.getClient().getContactId();
 		Map<String, String> updateRecord = new HashMap<>();
@@ -165,8 +163,6 @@ public class CreateInternalHandler implements InternalHandler {
 		} catch (InfSDKExecption e) {
 			throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
 		}
-
-		return bookingInfo;
 	}
 
 	private boolean executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo, ClinikoId clinikoId)

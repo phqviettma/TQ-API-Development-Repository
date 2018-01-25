@@ -1,5 +1,6 @@
 package com.tq.calendarsbmsync.lambda.handler;
 
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
+import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.calendar.impl.MockUtil;
@@ -71,7 +73,8 @@ public class GoogleCalendarHandlerTest {
 		sbmGoogleCalendar.setEventId("37ajh3jqsfqmrbo8i245iv18o9");
 		sbmGoogleCalendar.setSbmId(24L);
 		when(sbmCalendarService.queryWithIndex(any())).thenReturn(sbmGoogleCalendar);
-		calendarHanler.handleRequest(req, context);
+		AwsProxyResponse response = calendarHanler.handleRequest(req, context);
+		assertNotNull(response);
 	}
 
 }
