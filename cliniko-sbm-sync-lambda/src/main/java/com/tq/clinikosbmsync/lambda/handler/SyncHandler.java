@@ -52,20 +52,47 @@ import com.tq.simplybook.service.TokenServiceSbm;
 public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static final Logger m_log = LoggerFactory.getLogger(SyncHandler.class);
 
-	private Env m_env = Env.load();
+	private Env m_env = null;
 	private Integer maxAppt = 100;
 
-	private AmazonDynamoDB m_amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(m_env.getRegions(),
-			m_env.getAwsAccessKeyId(), m_env.getAwsSecretAccessKey());
+	private AmazonDynamoDB m_amazonDynamoDB = null;
 
-	private final ClinikoAppointmentService m_cas = new ClinikiAppointmentServiceImpl(m_env.getClinikoApiKey());
-	private LatestClinikoApptService m_lcs = new LatestClinikoApptServiceImpl(
-			new LatestClinikoApptsImpl(m_amazonDynamoDB));
-	private LatestClinikoApptServiceWrapper m_lcsw = new LatestClinikoApptServiceWrapper(m_lcs);
-	private final SpecialdayServiceSbm m_sss = new SpecialdayServiceSbmImpl();
-	private final TokenServiceSbm m_tss = new TokenServiceImpl();
-	private final SimplyBookClinikoMapping m_sbc = new SimplyBookClinikoMapping(m_env);
-	private SbmBreakTimeManagement m_sbtm = new SbmBreakTimeManagement();
+	private ClinikoAppointmentService m_cas = null;
+	private LatestClinikoApptService m_lcs = null;
+	private LatestClinikoApptServiceWrapper m_lcsw = null;
+	private SpecialdayServiceSbm m_sss = null;
+	private TokenServiceSbm m_tss = null;
+	private SimplyBookClinikoMapping m_sbc = null;
+	private SbmBreakTimeManagement m_sbtm = null;
+
+	// For testing only
+	SyncHandler(Env env, AmazonDynamoDB db, ClinikoAppointmentService clinikoService,
+			LatestClinikoApptService latestService, LatestClinikoApptServiceWrapper clinikoApptService,
+			SpecialdayServiceSbm specialdayService, TokenServiceSbm tokenService,
+			SimplyBookClinikoMapping sbmClinikoMapping, SbmBreakTimeManagement sbmTimeManagement) {
+		this.m_amazonDynamoDB = db;
+		this.m_cas = clinikoService;
+		this.m_lcs = latestService;
+		this.m_lcsw = clinikoApptService;
+		this.m_sss = specialdayService;
+		this.m_tss = tokenService;
+		this.m_sbc = sbmClinikoMapping;
+		this.m_sbtm = sbmTimeManagement;
+		this.m_env = env;
+	}
+
+	public SyncHandler() {
+		this.m_env = Env.load();
+		this.m_amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(m_env.getRegions(), m_env.getAwsAccessKeyId(),
+				m_env.getAwsSecretAccessKey());
+		this.m_lcs = new LatestClinikoApptServiceImpl(new LatestClinikoApptsImpl(m_amazonDynamoDB));
+		this.m_cas = new ClinikiAppointmentServiceImpl(m_env.getClinikoApiKey());
+		this.m_lcsw = new LatestClinikoApptServiceWrapper(m_lcs);
+		this.m_sss = new SpecialdayServiceSbmImpl();
+		this.m_tss = new TokenServiceImpl();
+		this.m_sbc = new SimplyBookClinikoMapping(m_env);
+		this.m_sbtm = new SbmBreakTimeManagement();
+	}
 
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
@@ -131,7 +158,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 				if (news.getCount() > 0) {
 					Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
 					syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, true);
-					
+
 					dbCreateSet.addAll(news.getNewApptsId());
 					m_log.info("dbCreatedSet value currently" + dbCreateSet);
 
@@ -153,7 +180,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			if (deletedApptInfo != null && deletedApptInfo.getAppointments().size() > 0) {
 				List<AppointmentInfo> fetchedAppts = deletedApptInfo.getAppointments();
 				FoundNewApptContext news = findNewAppts(dbRemoveSet, fetchedAppts);
-			
+
 				while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(deletedApptInfo)) {
 					deletedApptInfo = m_cas.next(deletedApptInfo);
 					if (deletedApptInfo != null && deletedApptInfo.getAppointments().size() > 0) {
@@ -169,9 +196,9 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 
 					Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
 					syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false);
-					
+
 					dbRemoveSet.addAll(news.getNewApptsId());
-					
+
 					saveDb(latestUpdateTime, dbCreateSet, dbRemoveSet);
 					m_log.info("Save to database successfully");
 				} else {
@@ -231,7 +258,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 
 			lca.setRemoved(dbRemoveSet);
 		}
-		
+
 		m_log.info("LatestClinikoAppt" + lca.toString());
 		m_lcsw.put(lca);
 	}
@@ -300,7 +327,6 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			SimplyBookId simplybookId = m_sbc.clinikoSbmMapping(clinikoId);
 			Integer unitId = Integer.valueOf(simplybookId.getUnit_id());
 			Integer eventId = Integer.valueOf(simplybookId.getEvent_id());
-
 			Map<String, WorksDayInfoResp> workDayInfoMapForUnitId = m_sss.getWorkDaysInfo(
 					m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
 					new FromDate(group.getStartDateString(), m_env.getCliniko_start_time()),
@@ -332,7 +358,5 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 		}
 		return lookupedMap;
 	}
-
-	
 
 }

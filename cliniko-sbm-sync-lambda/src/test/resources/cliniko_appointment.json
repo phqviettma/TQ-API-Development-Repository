@@ -1,0 +1,392 @@
+{
+    "appointments": [
+        {
+            "id": 96011766,
+            "created_at": "2018-01-15T11:03:01Z",
+            "updated_at": "2018-01-15T11:03:01Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": null,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96011766/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "Tho Bui",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-01-15T01:00:00Z",
+            "appointment_end": "2018-01-15T02:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": null,
+            "starts_at": "2018-01-15T01:00:00Z",
+            "ends_at": "2018-01-15T02:00:00Z",
+            "cancelled_at": null,
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/259631"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/58837"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/89589"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/46737803"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96011766/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96011766/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/96011766"
+            }
+        },
+        {
+            "id": 96857306,
+            "created_at": "2018-01-22T10:53:51Z",
+            "updated_at": "2018-01-22T10:53:51Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": null,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96857306/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "Tho Bui",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-01-22T22:00:00Z",
+            "appointment_end": "2018-01-22T23:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": null,
+            "starts_at": "2018-01-22T22:00:00Z",
+            "ends_at": "2018-01-22T23:00:00Z",
+            "cancelled_at": null,
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/259631"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/58837"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/89589"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/46737803"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96857306/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96857306/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/96857306"
+            }
+        },
+        {
+            "id": 96857353,
+            "created_at": "2018-01-22T10:54:29Z",
+            "updated_at": "2018-01-22T10:54:29Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": null,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96857353/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "Tho Bui",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-01-23T03:00:00Z",
+            "appointment_end": "2018-01-23T04:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": null,
+            "starts_at": "2018-01-23T03:00:00Z",
+            "ends_at": "2018-01-23T04:00:00Z",
+            "cancelled_at": null,
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/259631"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/58837"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/89589"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/46737803"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96857353/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/96857353/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/96857353"
+            }
+        },
+        {
+            "id": 97011596,
+            "created_at": "2018-01-23T08:46:19Z",
+            "updated_at": "2018-01-23T08:46:19Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": null,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97011596/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "Tho Bui",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-01-23T22:00:00Z",
+            "appointment_end": "2018-01-23T23:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": null,
+            "starts_at": "2018-01-23T22:00:00Z",
+            "ends_at": "2018-01-23T23:00:00Z",
+            "cancelled_at": null,
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/259631"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/58837"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/89589"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/46737803"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97011596/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97011596/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/97011596"
+            }
+        },
+        {
+            "id": 97181921,
+            "created_at": "2018-01-24T09:18:54Z",
+            "updated_at": "2018-01-24T09:18:54Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": null,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97181921/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "Tho Bui",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-01-24T22:00:00Z",
+            "appointment_end": "2018-01-24T23:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": null,
+            "starts_at": "2018-01-24T22:00:00Z",
+            "ends_at": "2018-01-24T23:00:00Z",
+            "cancelled_at": null,
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/259631"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/58837"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/89589"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/46737803"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97181921/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97181921/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/97181921"
+            }
+        },
+        {
+            "id": 97182382,
+            "created_at": "2018-01-24T09:25:33Z",
+            "updated_at": "2018-01-24T09:25:33Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": null,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97182382/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "Tho Bui",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2017-06-03T00:00:00Z",
+            "appointment_end": "2017-06-03T01:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": null,
+            "starts_at": "2017-06-03T00:00:00Z",
+            "ends_at": "2017-06-03T01:00:00Z",
+            "cancelled_at": null,
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/259631"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/58837"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/89589"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/46737803"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97182382/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/97182382/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/97182382"
+            }
+        }
+    ],
+    "total_entries": 6,
+    "links": {
+        "self": "https://api.cliniko.com/v1/appointments?page=1"
+    }
+}

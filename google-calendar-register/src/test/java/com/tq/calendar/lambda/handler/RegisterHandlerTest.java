@@ -1,6 +1,6 @@
 package com.tq.calendar.lambda.handler;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
@@ -52,6 +52,6 @@ public class RegisterHandlerTest {
 			}
 		}).when(calendarService).put(any(GoogleCalendarSbmSync.class));
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
-		assertNotNull(response);
+		assertEquals(200, response.getStatusCode());
 	}
 }
