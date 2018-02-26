@@ -96,7 +96,6 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 		AwsProxyResponse resp = new AwsProxyResponse();
 		m_log.info("Received one request with body " + input.getBody());
 		UserInfoResp info = getUserInfo(input.getBody());
-
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("content-Type", "application/json");
 		resp.setHeaders(headers);
