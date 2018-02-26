@@ -119,7 +119,8 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			m_log.info("Loaded setting information from cliniko");
 			String country = settings.getAccount().getCountry();
 			String time_zone = settings.getAccount().getTime_zone();
-			dateTz = DateTimeZone.forID(country + "/" + time_zone);
+			dateTz = DateTimeZone.forID("Melbourne");
+			//dateTz = DateTimeZone.forID(country + "/" + time_zone);
 			latestUpdateTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
 
 			m_log.info("Now: " + latestUpdateTime + " at timezone " + country + "/" + time_zone);

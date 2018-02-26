@@ -2,6 +2,7 @@
 package com.tq.simplybook.lambda.handler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +134,9 @@ public class CreateInternalHandler implements InternalHandler {
 		String infusionSoftAppointmentLocationField = env.getInfusionSoftAppointmentLocationField();
 		String infusionSoftServiceProviderField = env.getInfusionSoftServiceProviderField();
 		String infusionSoftAppointmentInstructionField = env.getInfusionSoftAppointmentInstructionField();
-
+		String infusionSoftAppointmentDateField = env.getInfusionftAppointmentDate();
+		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
+		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
 		int appliedTagId = env.getInfusionSoftCreateAppliedTag();
 
 		Integer ifContactId = contactItem.getClient().getContactId();
@@ -145,12 +148,15 @@ public class CreateInternalHandler implements InternalHandler {
 				bookingInfo.getLocation() == null ? "" : String.valueOf(bookingInfo.getLocation().getTitle()));
 		updateRecord.put(infusionSoftServiceProviderField, bookingInfo.getUnit_name());
 		updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getUnit_description());
-
+		updateRecord.put(infusionSoftAppointmentDateField,
+				buildAppointmentDate(bookingInfo.getStart_date_time()));
+		updateRecord.put(infusionsoftPractitionerFirstName, buildFirstName(bookingInfo.getUnit_name()));
+		updateRecord.put(infusionSoftPractitionerLastName, buildLastName(bookingInfo.getUnit_name()));
 		try {
 
 			contactService.update(infusionSoftApiName, infusionSoftApiKey,
 					new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
-			m_log.info("Update infusionsoft field successfully");
+			m_log.info("Update infusionsoft field successfully" + updateRecord.toString());
 		} catch (InfSDKExecption e) {
 			throw new SbmSDKException("Updating custom field to Infusion Soft failed", e);
 		}
@@ -244,7 +250,30 @@ public class CreateInternalHandler implements InternalHandler {
 	}
 
 	private static String buildApppointmentTime(String start_date_time, String end_date_time) {
-		return start_date_time + ((end_date_time == null || end_date_time.isEmpty() ? "" : " - " + end_date_time));
+		String startTime = UtcTimeUtil.extractTimeSbm(start_date_time);
+		String endTime = UtcTimeUtil.extractTimeSbm(end_date_time);
+		return startTime + ((endTime == null || endTime.isEmpty() ? "" : " - " + endTime));
+	}
+
+	private static String buildAppointmentDate(String start_date_time) {
+		String startDate = UtcTimeUtil.extractDateSbm(start_date_time);
+	
+		return startDate==null? "":startDate ;
+	}
+
+	private static String buildFirstName(String name) {
+		String[] splitName = name.split("\\s+");
+		return splitName[0];
+	}
+
+	private static String buildLastName(String name) {
+		List<String> lastName = Arrays.asList(name.trim().split("\\s+"));
+		if(lastName.size()>1) {
+			return lastName.get(1);
+		}
+		else{
+			return "";
+		}
 	}
 
 }

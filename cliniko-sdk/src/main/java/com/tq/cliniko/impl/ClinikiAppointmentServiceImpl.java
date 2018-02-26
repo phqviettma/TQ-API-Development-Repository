@@ -5,7 +5,10 @@ import java.net.URLEncoder;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
+import com.tq.cliniko.lambda.model.BusinessesInfo;
+import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.Settings;
+import com.tq.cliniko.lambda.model.User;
 import com.tq.cliniko.lambda.req.ClinikoRespParser;
 import com.tq.cliniko.lambda.req.DeleteClinikoApiReq;
 import com.tq.cliniko.lambda.req.GetDirectUrlClinikoApiReq;
@@ -34,6 +37,30 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 	}
 
 	@Override
+	public BusinessesInfo getListBusinesses() throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			jsonResp = UtilsExecutor.request(new GetBusinessApiReq(m_clinikoApiKey));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, BusinessesInfo.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+
+	}
+
+	@Override
+	public User getAuthenticateUser() throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			jsonResp = UtilsExecutor.request(new GetUserApiReq(m_clinikoApiKey));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, User.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+
+	}
+
+	@Override
 	public AppointmentsInfo getDeletedAppointments(String startTime) throws ClinikoSDKExeption {
 		String jsonResp;
 		try {
@@ -55,6 +82,18 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);
 		}
+	}
+
+	@Override
+	public PractitionersInfo getPractitioner(Integer userId) throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			jsonResp = UtilsExecutor.request(new GetPractitioner(m_clinikoApiKey, userId));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, PractitionersInfo.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+
 	}
 
 	@Override
@@ -110,11 +149,50 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 
 	}
 
+	@Override
+	public PractitionersInfo getBusinessPractitioner(String url) throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			jsonResp = UtilsExecutor.request(new GetPractitionerByUrl(m_clinikoApiKey, url));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, PractitionersInfo.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+
+	}
+
 	private class GetAppointmentsApiReq extends QueryClinikoApiReq {
 		public GetAppointmentsApiReq(String apiKey, String queryStatement, int perPage) throws Exception {
 			super(apiKey, "appointments",
 					"?q[]=" + URLEncoder.encode(queryStatement, "UTF-8") + "&per_page=" + String.valueOf(perPage));
 		}
+	}
+
+	private class GetPractitioner extends QueryClinikoApiReq {
+
+		public GetPractitioner(String apiKey, Integer userId) {
+			super(apiKey, "practitioners", "?q=user_id:=" + userId);
+
+		}
+
+	}
+
+	private class GetBusinessApiReq extends QueryClinikoApiReq {
+
+		public GetBusinessApiReq(String apiKey) {
+			super(apiKey, "businesses", null);
+
+		}
+
+	}
+
+	private class GetUserApiReq extends QueryClinikoApiReq {
+
+		public GetUserApiReq(String apiKey) {
+			super(apiKey, "user", null);
+
+		}
+
 	}
 
 	private class GetDeletedAppointment extends QueryClinikoApiReq {
@@ -181,6 +259,15 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);
+		}
+
+	}
+
+	private class GetPractitionerByUrl extends GetDirectUrlClinikoApiReq {
+
+		public GetPractitionerByUrl(String apiKey, String url) {
+			super(apiKey, url);
+
 		}
 
 	}

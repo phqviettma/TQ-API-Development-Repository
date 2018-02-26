@@ -1,11 +1,14 @@
 package com.tq.clinikosbmsync.lambda.handler;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -71,4 +74,8 @@ public class SyncHandlerTest {
 		AwsProxyResponse respone = handler.handleRequest(req, m_context);
 		assertEquals(200, respone.getStatusCode());
 	}
+	public static void main(String[] args) {
+		
+	}
+	
 }

@@ -2,6 +2,7 @@ package com.tq.calendar.service;
 
 import com.tq.calendar.exception.GoogleApiSDKException;
 import com.tq.calendar.req.EventReq;
+import com.tq.calendar.req.StopWatchEventReq;
 import com.tq.calendar.req.WatchEventReq;
 import com.tq.calendar.resp.CalendarEvents;
 import com.tq.calendar.resp.EventResp;
@@ -16,15 +17,20 @@ public interface GoogleCalendarApiService {
 
 	EventResp getEvent(String eventId) throws GoogleApiSDKException;
 
-	WatchEventResp watchEvent(WatchEventReq req,String email) throws GoogleApiSDKException;
+	WatchEventResp watchEvent(WatchEventReq req, String email) throws GoogleApiSDKException;
 
-	CalendarEvents getEventWithNextPageToken(Integer maxResult, String syncToken, String pageToken) throws GoogleApiSDKException;
-	
+	CalendarEvents getEventWithNextPageToken(Integer maxResult, String syncToken, String pageToken)
+			throws GoogleApiSDKException;
+
 	CalendarEvents getEventWithNextSyncToken(Integer maxResult, String syncToken) throws GoogleApiSDKException;
-	
+
 	CalendarEvents getEventWithoutToken(Integer maxResult, String timeMin) throws GoogleApiSDKException;
 
 	GoogleCalendarSettingsInfo getSettingInfo(String settingId) throws GoogleApiSDKException;
 
-	CalendarEvents getEventAtLastTime(Integer maxResult, String lastQueryTimeMin, String nextPageToken) throws GoogleApiSDKException;
+	CalendarEvents getEventAtLastTime(Integer maxResult, String lastQueryTimeMin, String nextPageToken)
+			throws GoogleApiSDKException;
+
+	boolean stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException;
+
 }

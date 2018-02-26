@@ -27,4 +27,10 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarDbService {
 
 		return m_calendarSbmDao.queryIndex(email);
 	}
+
+	@Override
+	public void delete(GoogleCalendarSbmSync googleCalendarSbmSync) {
+		m_calendarSbmDao.deleteItem(googleCalendarSbmSync);
+
+	}
 }

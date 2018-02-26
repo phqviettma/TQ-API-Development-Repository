@@ -46,9 +46,11 @@ import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
+import com.tq.simplybook.impl.UnitServiceSbmImpl;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
+import com.tq.simplybook.service.UnitServiceSbm;
 
 public class CalendarHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static final Logger m_log = LoggerFactory.getLogger(CalendarHandler.class);
@@ -67,6 +69,7 @@ public class CalendarHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 	private GoogleCalendarInternalHandler createEventHandler = null;
 	private GoogleCalendarInternalHandler deleteEventHandler = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
+	private UnitServiceSbm unitService = null;
 
 	public CalendarHandler() {
 		this.m_env = Env.load();
@@ -79,23 +82,25 @@ public class CalendarHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 		this.tokenService = new TokenServiceImpl();
 		this.contactInfService = new ContactServiceImpl();
 		this.contactItemService = new ContactItemServiceImpl(new ContactItemDaoImpl(m_amazonDynamoDB));
+		this.unitService = new UnitServiceSbmImpl();
 		this.createEventHandler = new CreateGoogleCalendarEventHandler(m_env, tokenService, specialDayService,
-				sbmTimeManagement, sbmCalendarService);
+				sbmTimeManagement, sbmCalendarService, unitService);
 		this.bookingService = new BookingServiceSbmImpl();
 		this.deleteEventHandler = new DeleteGoogleCalendarEventHandler(m_env, tokenService, googleCalendarService,
 				specialDayService, sbmTimeManagement, contactItemService, contactInfService, sbmCalendarService,
-				bookingService);
+				bookingService, unitService);
 	}
 
 	CalendarHandler(Env env, AmazonDynamoDB db, GoogleCalendarDbService googleCalendarService,
 			SpecialdayServiceSbm specialDayService, CreateGoogleCalendarEventHandler createHanler,
-			DeleteGoogleCalendarEventHandler deleteHandler) {
+			DeleteGoogleCalendarEventHandler deleteHandler, UnitServiceSbm unitService) {
 		this.m_amazonDynamoDB = db;
 		this.m_env = env;
 		this.googleCalendarService = googleCalendarService;
 		this.specialDayService = specialDayService;
 		this.createEventHandler = createHanler;
 		this.deleteEventHandler = deleteHandler;
+		this.unitService = unitService;
 	}
 
 	@Override

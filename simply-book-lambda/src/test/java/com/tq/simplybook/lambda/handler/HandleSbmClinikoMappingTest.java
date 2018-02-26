@@ -19,5 +19,4 @@ public class HandleSbmClinikoMappingTest {
 		ClinikoId clinikoId = m_scm.sbmClinikoMapping(simplybookId);
 		assertNotNull(clinikoId);
 	}
-	
 }

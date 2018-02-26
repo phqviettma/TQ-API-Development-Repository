@@ -1,0 +1,1123 @@
+:calendar-sbm-sync-lambda:dependencies
+
+------------------------------------------------------------
+Project :calendar-sbm-sync-lambda
+------------------------------------------------------------
+
+apiElements - API elements for main. (n)
+No dependencies
+
+archives - Configuration for archive artifacts.
+No dependencies
+
+compile - Dependencies for source set 'main' (deprecated, use 'implementation ' instead).
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+\--- log4j:log4j:1.2.17
+
+compileClasspath - Compile classpath for source set 'main'.
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+\--- log4j:log4j:1.2.17
+
+compileOnly - Compile only dependencies for source set 'main'.
+No dependencies
+
+default - Configuration for default artifacts.
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+\--- log4j:log4j:1.2.17
+
+implementation - Implementation only dependencies for source set 'main'. (n)
+No dependencies
+
+runtime - Runtime dependencies for source set 'main' (deprecated, use 'runtimeOnly ' instead).
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+\--- log4j:log4j:1.2.17
+
+runtimeClasspath - Runtime classpath of source set 'main'.
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+\--- log4j:log4j:1.2.17
+
+runtimeElements - Elements of runtime for main. (n)
+No dependencies
+
+runtimeOnly - Runtime only dependencies for source set 'main'. (n)
+No dependencies
+
+testCompile - Dependencies for source set 'test' (deprecated, use 'testImplementation ' instead).
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1 -> 4.12
+|    |    |    |              |    \--- org.hamcrest:hamcrest-core:1.3
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
++--- log4j:log4j:1.2.17
++--- junit:junit:4.12 (*)
+\--- org.mockito:mockito-core:2.2.11
+     +--- net.bytebuddy:byte-buddy:1.5.3
+     +--- net.bytebuddy:byte-buddy-agent:1.5.3
+     \--- org.objenesis:objenesis:2.4
+
+testCompileClasspath - Compile classpath for source set 'test'.
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1 -> 4.12
+|    |    |    |              |    \--- org.hamcrest:hamcrest-core:1.3
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
++--- log4j:log4j:1.2.17
++--- junit:junit:4.12 (*)
+\--- org.mockito:mockito-core:2.2.11
+     +--- net.bytebuddy:byte-buddy:1.5.3
+     +--- net.bytebuddy:byte-buddy-agent:1.5.3
+     \--- org.objenesis:objenesis:2.4
+
+testCompileOnly - Compile only dependencies for source set 'test'.
+No dependencies
+
+testImplementation - Implementation only dependencies for source set 'test'. (n)
+No dependencies
+
+testRuntime - Runtime dependencies for source set 'test' (deprecated, use 'testRuntimeOnly ' instead).
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1 -> 4.12
+|    |    |    |              |    \--- org.hamcrest:hamcrest-core:1.3
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
++--- log4j:log4j:1.2.17
++--- junit:junit:4.12 (*)
+\--- org.mockito:mockito-core:2.2.11
+     +--- net.bytebuddy:byte-buddy:1.5.3
+     +--- net.bytebuddy:byte-buddy-agent:1.5.3
+     \--- org.objenesis:objenesis:2.4
+
+testRuntimeClasspath - Runtime classpath of source set 'test'.
++--- project :cliniko-sdk
+|    +--- project :sbm-sdk
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0
+|    |    |    +--- com.amazonaws:aws-java-sdk-s3:1.11.0 -> 1.11.160
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-kms:1.11.160
+|    |    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160
+|    |    |    |    |    |    +--- commons-logging:commons-logging:1.1.3 -> 1.2
+|    |    |    |    |    |    +--- org.apache.httpcomponents:httpclient:4.5.2 -> 4.5.3
+|    |    |    |    |    |    |    +--- org.apache.httpcomponents:httpcore:4.4.6
+|    |    |    |    |    |    |    +--- commons-logging:commons-logging:1.2
+|    |    |    |    |    |    |    \--- commons-codec:commons-codec:1.9
+|    |    |    |    |    |    +--- software.amazon.ion:ion-java:1.0.2
+|    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9
+|    |    |    |    |    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.0 -> 2.8.9
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    |    |    |    |    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.6.6
+|    |    |    |    |    |    |    \--- com.fasterxml.jackson.core:jackson-core:2.6.6 -> 2.8.9
+|    |    |    |    |    |    \--- joda-time:joda-time:2.8.1
+|    |    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160
+|    |    |    |    |         \--- com.fasterxml.jackson.core:jackson-databind:2.6.6 -> 2.8.9 (*)
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-sns:1.11.0
+|    |    |    |    +--- com.amazonaws:aws-java-sdk-sqs:1.11.0
+|    |    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-cognitoidentity:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    +--- com.amazonaws:aws-java-sdk-kinesis:1.11.0
+|    |    |    |    \--- com.amazonaws:aws-java-sdk-core:1.11.0 -> 1.11.160 (*)
+|    |    |    \--- com.amazonaws:aws-java-sdk-dynamodb:1.11.0 -> 1.11.160
+|    |    |         +--- com.amazonaws:aws-java-sdk-s3:1.11.160 (*)
+|    |    |         +--- com.amazonaws:aws-java-sdk-core:1.11.160 (*)
+|    |    |         \--- com.amazonaws:jmespath-java:1.11.160 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1
+|    |    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    |    +--- javax.servlet:javax.servlet-api:3.1.0
+|    |    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m01 -> 2.1-m09
+|    |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.4 -> 2.8.9 (*)
+|    |    |    \--- commons-fileupload:commons-fileupload:1.3.2
+|    |    |         \--- commons-io:commons-io:2.2
+|    |    +--- org.slf4j:slf4j-simple:1.7.25
+|    |    |    \--- org.slf4j:slf4j-api:1.7.25
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    |    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    |    \--- log4j:log4j:1.2.17
+|    +--- project :common-lambda
+|    |    +--- project :inf-sdk
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-server:3.1.3
+|    |    |    |    +--- commons-logging:commons-logging:1.1 -> 1.2
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3
+|    |    |    |         \--- org.apache.ws.commons.util:ws-commons-util:1.0.2
+|    |    |    |              +--- junit:junit:3.8.1 -> 4.12
+|    |    |    |              |    \--- org.hamcrest:hamcrest-core:1.3
+|    |    |    |              \--- xml-apis:xml-apis:1.0.b2
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-client:3.1.3
+|    |    |    |    \--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    +--- org.apache.xmlrpc:xmlrpc-common:3.1.3 (*)
+|    |    |    \--- log4j:log4j:1.2.17
+|    |    +--- project :sbm-sdk (*)
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    |    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    |    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    |    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    |    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    |    \--- log4j:log4j:1.2.17
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0
+|    |    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    |    +--- org.slf4j:log4j-over-slf4j:1.7.22
+|    |    |    \--- org.slf4j:slf4j-api:1.7.22 -> 1.7.25
+|    |    \--- ch.qos.logback:logback-classic:1.1.8
+|    |         +--- ch.qos.logback:logback-core:1.1.8
+|    |         \--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- javax.ws.rs:javax.ws.rs-api:2.1-m09
+|    \--- org.slf4j:slf4j-log4j12:1.7.21
+|         +--- org.slf4j:slf4j-api:1.7.21 -> 1.7.25
+|         \--- log4j:log4j:1.2.17
++--- project :google-calendar-sdk
+|    +--- project :common-lambda (*)
+|    +--- com.amazonaws:aws-lambda-java-core:1.1.0
+|    +--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
+|    +--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
+|    +--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
+|    +--- io.symphonia:lambda-logging:1.0.0 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.8.9
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
+|    +--- org.apache.httpcomponents:httpclient:4.5.3 (*)
+|    \--- log4j:log4j:1.2.17
++--- com.amazonaws:aws-lambda-java-core:1.1.0
++--- com.amazonaws:aws-lambda-java-log4j:1.0.0 (*)
++--- com.amazonaws:aws-java-sdk-dynamodb:1.11.160 (*)
++--- com.amazonaws:aws-lambda-java-events:1.3.0 (*)
++--- com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1 (*)
++--- io.symphonia:lambda-logging:1.0.0 (*)
++--- com.fasterxml.jackson.core:jackson-core:2.8.9
++--- com.fasterxml.jackson.core:jackson-databind:2.8.9 (*)
++--- com.fasterxml.jackson.core:jackson-annotations:2.8.9
++--- javax.ws.rs:javax.ws.rs-api:2.1-m09
++--- log4j:log4j:1.2.17
++--- junit:junit:4.12 (*)
+\--- org.mockito:mockito-core:2.2.11
+     +--- net.bytebuddy:byte-buddy:1.5.3
+     +--- net.bytebuddy:byte-buddy-agent:1.5.3
+     \--- org.objenesis:objenesis:2.4
+
+testRuntimeOnly - Runtime only dependencies for source set 'test'. (n)
+No dependencies
+
+(*) - dependencies omitted (listed previously)
+
+BUILD SUCCESSFUL in 2s
+1 actionable task: 1 executed

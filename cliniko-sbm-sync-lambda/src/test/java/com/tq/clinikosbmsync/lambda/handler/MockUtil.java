@@ -41,7 +41,7 @@ public class MockUtil {
 				"{'event_id': '2', 'unit_id': '2', 'practitionerId': '89589', 'businessId': '58837'}");
 		variable.put("SBM_CLINIKO_MAPPING_3",
 				"{'event_id': '1', 'unit_id': '1', 'practitionerId': '89589', 'businessId': '58837'}");
-		variable.put(env.getInfusionSoftApiKey(), "a820973712db06a648c13713ef4d5fea");
+		variable.put(env.getInfusionSoftApiKey(), "");
 		when(env.getAllEnvVariables()).thenReturn(variable);
 		return env;
 	}

@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringTokenizer;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -87,5 +88,34 @@ public class UtcTimeUtil {
 
 	public static String convertToTzFromLondonTz(DateTimeZone destTimeZone, String datetime) {
 		return convertTimeZone(DateTimeZone.forID("Europe/London"), destTimeZone, datetime);
+	}
+	public static String extractDateSbm(String datetime) {
+		String convertedDateTime = utcToBasicFormat(datetime);
+		DateFormat f = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		try {
+			Date d = f.parse(convertedDateTime);
+			DateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+			return date.format(d);
+		} catch (ParseException e) {
+
+		}
+		return null;
+	}
+	public static String extractTimeSbm(String datetime) {
+		 StringTokenizer tk = new StringTokenizer(datetime);
+		 String date = tk.nextToken();  
+         String time = tk.nextToken();
+
+         SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
+         SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a");
+         Date dt;
+         try {    
+             dt = sdf.parse(time);
+             return sdfs.format(dt);
+         } catch (ParseException e) {
+             e.printStackTrace();
+         }
+       
+		return null;
 	}
 }

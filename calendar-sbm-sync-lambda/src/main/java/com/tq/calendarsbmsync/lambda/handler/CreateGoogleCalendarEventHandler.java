@@ -22,9 +22,12 @@ import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
 import com.tq.simplybook.req.ToDate;
 import com.tq.simplybook.resp.Breaktime;
+import com.tq.simplybook.resp.UnitWorkingTime;
+import com.tq.simplybook.resp.WorkingTime;
 import com.tq.simplybook.resp.WorksDayInfoResp;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
+import com.tq.simplybook.service.UnitServiceSbm;
 
 public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalHandler {
 	private Env enV = null;
@@ -32,15 +35,17 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	private SpecialdayServiceSbm specialdayService = null;
 	private SbmBreakTimeManagement sbmBreakTimeManagement = null;
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
+	private UnitServiceSbm unitService = null;
 	private static final Logger m_log = LoggerFactory.getLogger(CreateGoogleCalendarEventHandler.class);
 
 	public CreateGoogleCalendarEventHandler(Env env, TokenServiceSbm tss, SpecialdayServiceSbm sds,
-			SbmBreakTimeManagement sbt, SbmGoogleCalendarDbService sdcs) {
+			SbmBreakTimeManagement sbt, SbmGoogleCalendarDbService sdcs, UnitServiceSbm uss) {
 		enV = env;
 		tokenService = tss;
 		specialdayService = sds;
 		sbmBreakTimeManagement = sbt;
 		sbmCalendarService = sdcs;
+		unitService =uss;
 	}
 
 	@Override
@@ -55,45 +60,43 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 		String username = enV.getSimplyBookUser();
 		String unitId[] = sbmId.split("-");
 		String token = tokenService.getUserToken(companyLogin, username, password, endpoint);
-		Map<String, PractitionerApptGroup> apptGroupMap = new HashMap<String, PractitionerApptGroup>();
+		PractitionerApptGroup apptGroup = new PractitionerApptGroup();
 		for (Items event : eventItems) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 			if (sbmGoogleSync == null) {
 				String date = UtcTimeUtil.extractDate(event.getStart().getDateTime());
-				PractitionerApptGroup group = apptGroupMap.get(date);
-				if (group == null) {
-					group = new PractitionerApptGroup();
-					apptGroupMap.put(date, group);
-				}
-				group.addAppt(date, new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
+				
+				apptGroup.addAppt(date, new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
 			}
 		}
 
-		addBreakTime(apptGroupMap, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
-
+		addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
+		
 		return true;
 	}
 
-	private void addBreakTime(Map<String, PractitionerApptGroup> apptGroup, String token, Integer unitId,
+	private void addBreakTime(PractitionerApptGroup group, String token, Integer unitId,
 			Integer eventId) throws SbmSDKException {
-		for (Entry<String, PractitionerApptGroup> entry : apptGroup.entrySet()) {
-			PractitionerApptGroup group = entry.getValue();
-			Map<String, WorksDayInfoResp> workDayInfoMapForUnitId = specialdayService.getWorkDaysInfo(
-					enV.getSimplyBookCompanyLogin(), enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
-					new FromDate(group.getStartDateString(), enV.getSimplybookWorkingStartTime()),
-					new ToDate(group.getEndDateString(), enV.getSimplybookWorkingEndTime()));
-
-			for (Entry<String, Set<Breaktime>> dateToSbmBreakTime : group.getDateToSbmBreakTimesMap().entrySet()) {
-				Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue();
-				String date = dateToSbmBreakTime.getKey();
-				if (!breakTimes.isEmpty()) {
-					sbmBreakTimeManagement.addBreakTime(enV.getSimplyBookCompanyLogin(),
-							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
-							enV.getSimplybookWorkingStartTime(), enV.getSimplybookWorkingEndTime(), date, breakTimes,
-							workDayInfoMapForUnitId);
-				}
+		
+		Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(enV.getSimplyBookCompanyLogin(), enV.getSimplyBookAdminServiceUrl(), token, group.getStartDateString(), group.getEndDateString(), unitId);
+		UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(group.getStartDateString());
+		Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
+		WorkingTime workingTime = unitWorkingTimeMap.get(String.valueOf(unitId));
+		Map<String, WorksDayInfoResp> workDayInfoMapForUnitId = specialdayService.getWorkDaysInfo(
+				enV.getSimplyBookCompanyLogin(), enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
+				new FromDate(group.getStartDateString(),workingTime.getStart_time()),
+				new ToDate(group.getEndDateString(), workingTime.getEnd_time()));
+		
+		for (Entry<String, Set<Breaktime>> dateToSbmBreakTime : group.getDateToSbmBreakTimesMap().entrySet()) {
+			Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue();
+			String date = dateToSbmBreakTime.getKey();
+			if (!breakTimes.isEmpty()) {
+				sbmBreakTimeManagement.addBreakTime(enV.getSimplyBookCompanyLogin(),
+						enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
+						workingTime.getStart_time(), workingTime.getEnd_time(), date, breakTimes,
+						workDayInfoMapForUnitId);
 			}
 		}
 	}

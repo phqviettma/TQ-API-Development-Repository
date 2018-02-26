@@ -24,6 +24,7 @@ import com.tq.calendar.lambda.context.Env;
 import com.tq.calendar.lambda.exception.TrueQuitRegisterException;
 import com.tq.calendar.lambda.model.UserInfoResp;
 import com.tq.calendar.req.Params;
+import com.tq.calendar.req.StopWatchEventReq;
 import com.tq.calendar.req.TokenReq;
 import com.tq.calendar.req.WatchEventReq;
 import com.tq.calendar.resp.TokenResp;
@@ -62,7 +63,6 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 	private GoogleCalendarDbService googleCalendarService = null;
 	private ContactServiceInf contactService = null;
 	private ContactItemService contactItemService = null;
-
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 
 	public RegisterHandler() {
@@ -110,68 +110,92 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 				String endpoint = eVariables.getSimplyBookAdminServiceUrl();
 				String googleEmail = info.getGoogleEmail();
 				String sbmEmail = info.getEmail(); // the email was registered via clickfunnel affiliate
-				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.query(sbmEmail);
-				if (googleCalendarSbmSync == null) {
-					ContactItem contactItem = contactItemService.load(sbmEmail);
-					if (contactItem == null) {
-						throw new TrueQuitRegisterException("The email " + sbmEmail + " is not signed up yet ");
-					}
-					String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
-					List<UnitProviderInfo> unitInfos = unitServiceSbm.getUnitList(companyLogin, endpoint, token, true,
-							true, 1);
-					String apiName = eVariables.getInfusionSoftApiName();
-					String apiKey = eVariables.getInfusionSoftApiKey();
-					boolean done = false;
-					for (UnitProviderInfo unitInfo : unitInfos) {
-						if (unitInfo.getEmail() != null && unitInfo.getEmail().equals(sbmEmail)) {
-							if (unitInfo.getEvent_map() != null) {
-								Set<String> eventInfos = unitInfo.getEvent_map().keySet();
-								Iterator<String> it = eventInfos.iterator();
-								if (it.hasNext()) {
-									String eventId = it.next();
-									String unitId = unitInfo.getId();
-									String sbmId = eventId + "-" + unitId;
+				if ("connect".equals(info.getStatus())) {
+					GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.query(sbmEmail);
+					if (googleCalendarSbmSync == null) {
+						ContactItem contactItem = contactItemService.load(sbmEmail);
+						if (contactItem == null) {
+							throw new TrueQuitRegisterException("The email " + sbmEmail + " is not signed up yet ");
+						}
+						TokenReq tokenReq = new TokenReq(eVariables.getGoogleClientId(), eVariables.getGoogleClientSecrets(),
+								info.getRefreshToken());
+						
+						TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
+						String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
+						List<UnitProviderInfo> unitInfos = unitServiceSbm.getUnitList(companyLogin, endpoint, token,
+								true, true, 1);
+						String apiName = eVariables.getInfusionSoftApiName();
+						String apiKey = eVariables.getInfusionSoftApiKey();
+						boolean done = false;
+						for (UnitProviderInfo unitInfo : unitInfos) {
+							if (unitInfo.getEmail() != null && unitInfo.getEmail().equals(sbmEmail)) {
+								if (unitInfo.getEvent_map() != null) {
+									Set<String> eventInfos = unitInfo.getEvent_map().keySet();
+									Iterator<String> it = eventInfos.iterator();
+									if (it.hasNext()) {
+										String eventId = it.next();
+										String unitId = unitInfo.getId();
+										String sbmId = eventId + "-" + unitId;
 
-									Map<String, String> dataRecord = new HashMap<>();
-									dataRecord.put("Email", googleEmail);
-									dataRecord.put("FirstName", info.getFirstName());
-									dataRecord.put("LastName", info.getLastName());
-									contactService.addWithDupCheck(apiName, apiKey,
-											new AddNewContactQuery().withDataRecord(dataRecord));
-									m_log.info("Add contact" + googleEmail + " email to infusionsoft successfully");
-									TokenReq tokenReq = new TokenReq(eVariables.getGoogleClientId(),
-											eVariables.getGoogleClientSecrets(), info.getRefreshToken());
+										Map<String, String> dataRecord = new HashMap<>();
+										dataRecord.put("Email", googleEmail);
+										dataRecord.put("FirstName", info.getFirstName());
+										dataRecord.put("LastName", info.getLastName());
+										contactService.addWithDupCheck(apiName, apiKey,
+												new AddNewContactQuery().withDataRecord(dataRecord));
+										m_log.info("Add contact" + googleEmail + " email to infusionsoft successfully");
+										GoogleCalendarApiServiceImpl googleApiService = new GoogleCalendarApiServiceImpl(
+												tokenResp.getAccess_token());
+										Params params = new Params("3600");
+										WatchEventReq watchEventReq = new WatchEventReq(sbmId, "web_hook",
+												eVariables.getGoogleNotifyDomain(), params);
+										WatchEventResp watchEventResp = googleApiService.watchEvent(watchEventReq,
+												googleEmail);
 
-									TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-									GoogleCalendarApiServiceImpl googleApiService = new GoogleCalendarApiServiceImpl(
-											tokenResp.getAccess_token());
-									Params params = new Params("3600");
-									WatchEventReq watchEventReq = new WatchEventReq(sbmId, "web_hook",eVariables.getGoogleNotifyDomain(), params);
-									WatchEventResp watchEventResp = googleApiService.watchEvent(watchEventReq, googleEmail);
+										m_log.info("Watch calendar successfully with response: " + watchEventResp);
 
-									m_log.info("Watch calendar successfully with response: " + watchEventResp);
+										GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync(sbmId,
+												googleEmail, info.getEmail(), info.getLastName(), info.getFirstName(),
+												info.getAccessToken(), info.getRefreshToken(), NO_TOKEN,
+												watchEventResp.getWatchResourceId());
 
-									GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync(sbmId, googleEmail,
-											info.getEmail(), info.getLastName(), info.getFirstName(),
-											info.getAccessToken(), info.getRefreshToken(), NO_TOKEN, watchEventResp.getWatchResourceId());
-								
-									googleCalendarService.put(calendarSbm);
-									m_log.info("Added to database successfully " + calendarSbm.toString());
-									done = true;
-									break;
+										googleCalendarService.put(calendarSbm);
+										m_log.info("Added to database successfully " + calendarSbm.toString());
+										done = true;
+										break;
+									}
 								}
+
 							}
 
 						}
+						if (!done) {
+							throw new TrueQuitRegisterException(
+									"There is no Simplybook.me service provider associated to the provided e-mail "
+											+ sbmEmail);
+						}
+					} else {
+						throw new TrueQuitRegisterException("The email " + sbmEmail + " is already connected");
+					}
+				} 
+				else if ("disconnect".equals(info.getStatus())) {
+					GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.query(sbmEmail);
+					if (googleCalendarSbmSync != null) {
+						TokenReq tokenReq = new TokenReq(eVariables.getGoogleClientId(), eVariables.getGoogleClientSecrets(),
+								googleCalendarSbmSync.getRefreshToken());
+						
+						TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
+						GoogleCalendarApiServiceImpl googleApiService = new GoogleCalendarApiServiceImpl(
+								tokenResp.getAccess_token());
+						StopWatchEventReq stopEventReq = new StopWatchEventReq(googleCalendarSbmSync.getSbmId(),
+								googleCalendarSbmSync.getGcWatchResourceId());
+						googleApiService.stopWatchEvent(stopEventReq);
+						googleCalendarService.delete(googleCalendarSbmSync);
+						m_log.info("Delete successfully");
 
+					} else {
+						throw new TrueQuitRegisterException("The email " + sbmEmail + " is not connected yet ");
 					}
-					if (!done) {
-						throw new TrueQuitRegisterException(
-								"There is no Simplybook.me service provider associated to the provided e-mail "
-										+ sbmEmail);
-					}
-				} else {
-					throw new TrueQuitRegisterException("The email " + sbmEmail + " is already connected");
 				}
 
 			} else {

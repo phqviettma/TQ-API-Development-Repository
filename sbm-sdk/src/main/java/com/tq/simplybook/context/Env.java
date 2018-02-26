@@ -13,6 +13,9 @@ public class Env {
 	private Integer infusionSoftCancelAppliedTag = Integer.valueOf(System.getenv("INFUSIONSOFT_SBM_CANCEL_TAG"));
 	private Integer infusionSoftCreateAppliedTag = Integer.valueOf(System.getenv("INFUSIONSOFT_SBM_CREATE_TAG"));
 
+	private String infusionftAppointmentDate = System.getenv("INFUSIONSOFT_APT_DATE_FIELD");
+	private String infusionsoftPractitionerFirstName = System.getenv("INFUSIONSOFT_PRACTITIONER_FIRST_NAME");
+	private String infusionsoftPractitionerLastName = System.getenv("INFUSIONSOFT_PRACTITIONER_LAST_NAME");
 	private String infusionSoftAppointmentTimeField = System.getenv("INFUSIONSOFT_APT_TIME_FILED");
 	private String infusionSoftAppointmentLocationField = System.getenv("INFUSIONSOFT_APT_LOC_FIELD");
 	private String infusionSoftServiceProviderField = System.getenv("INFUSIONSOFT_SER_PROV_FIELD");
@@ -35,8 +38,6 @@ public class Env {
 
 	private String googleClientId = new String(System.getenv("GOOGLE_CLIENT_ID"));
 	private String googleClientSecrets = new String(System.getenv("GOOGLE_CLIENT_SECRETS"));
-	private String simplybookWorkingStartTime = new String(System.getenv("SIMPLY_BOOK_WORKING_START_TIME"));
-	private String simplybookWorkingEndTime = new String(System.getenv("SIMPLY_BOOK_WORKING_END_TIME"));
 	private String googleCalendarEventName = new String(System.getenv("GOOGLE_CALENDAR_EVENT_NAME"));
 	private Integer googleCalendarMaxResult = Integer.valueOf(System.getenv("GOOGLE_CALENDAR_MAX_RESULT"));
 
@@ -68,10 +69,11 @@ public class Env {
 		assertVar("cliniko_end_time", "CLINIKO_END_TIME");
 		assertVar(googleClientId, "GOOGLE_CLIENT_ID");
 		assertVar(googleClientSecrets, "GOOGLE_CLIENT_SECRETS");
-		assertVar(simplybookWorkingStartTime, "GOOGLE_CALENDAR_START_TIME");
-		assertVar(simplybookWorkingEndTime, "SIMPLY_BOOK_WORKING_END_TIME");
 		assertVar(infusionsoftGoogleDeleteTag, "INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG");
 		assertVar(googleCalendarMaxResult, "GOOGLE_CALENDAR_MAX_RESULT");
+		assertVar(infusionftAppointmentDate, "INFUSIONSOFT_APT_DATE_FIELD");
+		assertVar(infusionsoftPractitionerFirstName, "INFUSIONSOFT_PRACTITIONER_FIRST_NAME");
+		assertVar(infusionsoftPractitionerLastName, "INFUSIONSOFT_PRACTITIONER_LAST_NAME");
 	}
 
 	private static Env instance;
@@ -101,6 +103,18 @@ public class Env {
 		return regions;
 	}
 
+	public String getInfusionftAppointmentDate() {
+		return infusionftAppointmentDate;
+	}
+
+	public String getInfusionsoftPractitionerFirstName() {
+		return infusionsoftPractitionerFirstName;
+	}
+
+	public String getInfusionsoftPractitionerLastName() {
+		return infusionsoftPractitionerLastName;
+	}
+
 	public String getAwsAccessKeyId() {
 		return awsAccessKeyId;
 	}
@@ -119,14 +133,6 @@ public class Env {
 
 	public String getInfusionSoftApiKey() {
 		return infusionSoftApiKey;
-	}
-
-	public String getSimplybookWorkingStartTime() {
-		return simplybookWorkingStartTime;
-	}
-
-	public String getSimplybookWorkingEndTime() {
-		return simplybookWorkingEndTime;
 	}
 
 	public Integer getInfusionsoftGoogleDeleteTag() {
@@ -220,6 +226,5 @@ public class Env {
 	public Map<String, String> getAllEnvVariables() {
 		return System.getenv();
 	}
-
 
 }

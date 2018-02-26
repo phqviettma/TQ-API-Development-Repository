@@ -19,8 +19,7 @@ dependencies {
     	 'com.amazonaws:aws-lambda-java-core:1.1.0',
         'com.amazonaws:aws-lambda-java-log4j:1.0.0',
         'com.amazonaws:aws-lambda-java-events:1.3.0',
-        'com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1',
-        'io.symphonia:lambda-logging:1.0.0',
+        'com.amazonaws.serverless:aws-serverless-java-container-core:0.5.1'
     )
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.9'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.9'

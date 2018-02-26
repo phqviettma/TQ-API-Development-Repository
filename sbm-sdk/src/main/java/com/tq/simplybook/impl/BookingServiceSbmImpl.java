@@ -1,6 +1,7 @@
 package com.tq.simplybook.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -8,11 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.CancelBatchReq;
+import com.tq.simplybook.req.GetBookingReq;
 import com.tq.simplybook.req.ParamIdReq;
 import com.tq.simplybook.resp.BatchResp;
 import com.tq.simplybook.resp.BookingDetails;
 import com.tq.simplybook.resp.BookingInfo;
+import com.tq.simplybook.resp.BookingListResp;
 import com.tq.simplybook.resp.CancelBatchResp;
+import com.tq.simplybook.resp.GetBookingResp;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.utils.SbmExecute;
 import com.tq.simplybook.utils.SbmUtils;
@@ -60,4 +64,17 @@ public class BookingServiceSbmImpl implements BookingServiceSbm {
 		}
 
 	}
+	public List<GetBookingResp> getBookings(String companyLogin, String endpoint, String token, GetBookingReq getBookingReq) throws SbmSDKException{
+		try {
+			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getBookings",
+					new ArrayList<>(Arrays.asList(getBookingReq)));
+			m_log.info("Json booking list Response " + String.valueOf(jsonResp));
+			BookingListResp readValueForObject = SbmUtils.readValueForObject(jsonResp, BookingListResp.class);
+			return readValueForObject.getResult();
+
+		} catch (Exception e) {
+			throw new SbmSDKException(e.getMessage() + " during getBookings()", e);
+		}
+	}
+	
 }

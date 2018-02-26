@@ -1,11 +1,10 @@
-{
-	"googleChannelId": "1-2",
-	"googleChannelToken": "398348u3tu83ut8uu38",
-	"googleChannelExpiration": "Tue, 19 Nov 2013 01:13:52 GMT",
-	"googleResourceId": "ret08u3rv24htgh289g",
-	"googleResourceState":"sync",
-	"googleResourceUri":"https://www.googleapis.com/calendar/v3/calendars/phamthanhcute11@gmail.com/events",
-	"googleMessageNumber":"10"
+{"googleChannelId": "1-6",
+    "googleChannelToken": null,
+    "googleChannelExpiration": "Fri, 23 Feb 2018 09:13:34 GMT",
+    "googleResourceId": "x3ZhVWszU5vYU6wJJlg4RaJPKvc",
+    "googleResourceState": "exists",
+    "googleResourceUri": "https://www.googleapis.com/calendar/v3/calendars/phamthanhcute11@gmail.com/events?maxResults=250&alt=json",
+    "googleMessageNumber": "1387435"
 	
 	
 }

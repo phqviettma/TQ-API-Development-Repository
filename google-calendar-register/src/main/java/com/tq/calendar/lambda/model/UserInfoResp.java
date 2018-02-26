@@ -2,6 +2,11 @@ package com.tq.calendar.lambda.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfoResp implements Serializable {
 	/**
 		 * 
@@ -15,7 +20,7 @@ public class UserInfoResp implements Serializable {
 	private String accessToken;
 	private String refreshToken;
 	private String googleEmail;
-	
+	private String status;
 
 	public String getGoogleEmail() {
 		return googleEmail;
@@ -80,13 +85,20 @@ public class UserInfoResp implements Serializable {
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
 	}
-	
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
 	@Override
 	public String toString() {
 		return "UserInfoResp [name=" + name + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
 				+ ", gender=" + gender + ", accessToken=" + accessToken + ", refreshToken=" + refreshToken
-				+ ", googleEmail=" + googleEmail + "]";
+				+ ", googleEmail=" + googleEmail + ", status=" + status + "]";
 	}
 
 }

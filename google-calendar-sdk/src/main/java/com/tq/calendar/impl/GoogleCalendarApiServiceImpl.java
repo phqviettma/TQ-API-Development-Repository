@@ -12,6 +12,7 @@ import com.tq.calendar.req.EventReq;
 import com.tq.calendar.req.GetGoogleCalendarApiReq;
 import com.tq.calendar.req.GoogleCalendarParser;
 import com.tq.calendar.req.PostGoogleCalendarApiReq;
+import com.tq.calendar.req.StopWatchEventReq;
 import com.tq.calendar.req.UtilsExecutor;
 import com.tq.calendar.req.WatchEventReq;
 import com.tq.calendar.resp.CalendarEvents;
@@ -51,7 +52,15 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		return true;
 
 	}
-
+	@Override
+	public boolean stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException {
+		try {
+			UtilsExecutor.request(new StopWatchEvent(accessToken,stopEventReq));
+		} catch (Exception e) {
+			throw new GoogleApiSDKException(e);
+		}
+		return true;
+	}
 	private class GetEventNextPage extends GetGoogleCalendarApiReq {
 
 		public GetEventNextPage(String accessToken, Integer maxResults, String syncToken, String nextPageToken) {
@@ -78,6 +87,14 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		}
 
+	}
+	private class StopWatchEvent extends PostGoogleCalendarApiReq{
+
+		public StopWatchEvent(String accessToken, Object object) {
+			super(accessToken,"channels/stop", object);
+			
+		}
+		
 	}
 
 	@Override
@@ -151,7 +168,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public GetEventWithoutToken(String accessToken, Integer maxResult, String timeMin) throws Exception {
 			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&timeMin="
-					+ URLEncoder.encode(timeMin, "UTF-8") + "&showDeleted=true");
+					+ URLEncoder.encode(timeMin, "UTF-8"));
 
 		}
 
@@ -224,4 +241,6 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		}
 
 	}
+
+	
 }

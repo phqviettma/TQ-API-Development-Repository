@@ -28,10 +28,13 @@ import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
 import com.tq.simplybook.req.ToDate;
 import com.tq.simplybook.resp.Breaktime;
+import com.tq.simplybook.resp.UnitWorkingTime;
+import com.tq.simplybook.resp.WorkingTime;
 import com.tq.simplybook.resp.WorksDayInfoResp;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
+import com.tq.simplybook.service.UnitServiceSbm;
 
 public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalHandler {
 	private static final Logger m_log = LoggerFactory.getLogger(DeleteGoogleCalendarEventHandler.class);
@@ -43,12 +46,13 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	private ContactItemService contactItemService = null;
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
 	private BookingServiceSbm bookingService = null;
+	private UnitServiceSbm unitService = null;
 
 	public DeleteGoogleCalendarEventHandler(Env env, TokenServiceSbm tokenService,
 			GoogleCalendarDbService googleCalendarService, SpecialdayServiceSbm specialdayService,
 			SbmBreakTimeManagement sbmBreakTimeManagement, ContactItemService contactItemService,
 			ContactServiceInf contactInfService, SbmGoogleCalendarDbService sbmCalendarService,
-			BookingServiceSbm bookingService) {
+			BookingServiceSbm bookingService,UnitServiceSbm unitService) {
 		this.contactItemService = contactItemService;
 		this.enV = env;
 		this.tokenService = tokenService;
@@ -57,6 +61,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 		this.contactService = contactInfService;
 		this.sbmCalendarService = sbmCalendarService;
 		this.bookingService = bookingService;
+		this.unitService = unitService;
 	}
 
 	@Override
@@ -82,7 +87,6 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 		
 		for (Items event : items) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
-			m_log.info("Query with Event Index " + event.getId() + "of table sbmGoogleSync "+ sbmGoogleSync);
 			if (sbmGoogleSync != null) {
 				listSbmGoogleCalendar.add(sbmGoogleSync);
 				sbmBookingIdsTobeCancelled.add(sbmGoogleSync.getSbmId());
@@ -134,10 +138,14 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 			Integer eventId) throws SbmSDKException {
 		for (Entry<String, PractitionerApptGroup> entry : apptGroup.entrySet()) {
 			PractitionerApptGroup group = entry.getValue();
+			Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(enV.getSimplyBookCompanyLogin(),  enV.getSimplyBookAdminServiceUrl(), token, group.getStartDateString(), group.getEndDateString(), unitId);
+			UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(group.getStartDateString());
+			Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
+			WorkingTime workingTime = unitWorkingTimeMap.get(String.valueOf(unitId));
 			Map<String, WorksDayInfoResp> workDayInfoMapForUnitId = specialdayService.getWorkDaysInfo(
 					enV.getSimplyBookCompanyLogin(), enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
-					new FromDate(group.getStartDateString(), enV.getSimplybookWorkingStartTime()),
-					new ToDate(group.getEndDateString(), enV.getSimplybookWorkingEndTime()));
+					new FromDate(group.getStartDateString(), workingTime.getStart_time()),
+					new ToDate(group.getEndDateString(), workingTime.getEnd_time()));
 
 			for (Entry<String, Set<Breaktime>> dateToSbmBreakTime : group.getDateToSbmBreakTimesMap().entrySet()) {
 				Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue();
@@ -145,7 +153,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				if (!breakTimes.isEmpty()) {
 					sbmBreakTimeManagement.removeBreakTime(enV.getSimplyBookCompanyLogin(),
 							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
-							enV.getSimplybookWorkingStartTime(), enV.getSimplybookWorkingEndTime(), date, breakTimes,
+							workingTime.getStart_time(),workingTime.getEnd_time(), date, breakTimes,
 							workDayInfoMapForUnitId);
 				}
 			}

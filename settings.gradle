@@ -8,6 +8,10 @@ include 'click-funnel-lambda'
 include 'simply-book-lambda'
 include 'cliniko-sbm-sync-lambda'
 include 'cliniko-sdk'
+include 'cliniko-connect'
+include 'calendar-sbm-sync-lambda'
 include 'google-calendar-sdk'
 include 'google-calendar-register'
-include 'calendar-sbm-sync-lambda'
+
+
+

@@ -28,7 +28,7 @@ import com.tq.simplybook.utils.SbmUtils;
 public class SpecialdayServiceSbmImpl implements SpecialdayServiceSbm {
 
 	private static ObjectMapper JSON_MAPPER = new ObjectMapper();
-	private static final Logger m_log = LoggerFactory.getLogger(SbmBreakTimeManagement.class);
+	private static Logger m_log = LoggerFactory.getLogger(SpecialdayServiceSbmImpl.class);
 
 	@Override
 	public boolean changeWorkDay(String companyLogin, String endpoint, String userToken,
