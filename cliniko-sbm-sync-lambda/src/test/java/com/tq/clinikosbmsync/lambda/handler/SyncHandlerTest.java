@@ -74,8 +74,6 @@ public class SyncHandlerTest {
 		AwsProxyResponse respone = handler.handleRequest(req, m_context);
 		assertEquals(200, respone.getStatusCode());
 	}
-	public static void main(String[] args) {
-		
-	}
+
 	
 }
