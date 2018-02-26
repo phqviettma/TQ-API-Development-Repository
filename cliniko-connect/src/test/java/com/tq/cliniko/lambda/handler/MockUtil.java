@@ -25,7 +25,6 @@ public class MockUtil {
 		when(env.getInfusionSoftAppointmentInstructionField()).thenReturn("_AppointmentInstructions");
 		when(env.getInfusionSoftCreateAppliedTag()).thenReturn(104);
 		when(env.getInfusionSoftCancelAppliedTag()).thenReturn(106);
-
 		return env;
 	}
 
