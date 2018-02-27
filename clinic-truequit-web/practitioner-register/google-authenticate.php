@@ -13,15 +13,34 @@ $client->setScopes(array(
     "https://www.googleapis.com/auth/userinfo.profile",
 	"https://www.googleapis.com/auth/userinfo.email"
 ));
-	if(isset($_POST['email'])){ 
-		$_SESSION['email'] =  $_POST['email'];
-		$auth_url = $client->createAuthUrl();
-		header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
-    }
-	else{
-		$auth_url = $client->createAuthUrl();
-		header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
-	}
+
+	    if ($_POST['email']==null && isset($_POST['action']) && $_POST['action']=='Connect'){
+	        
+    		$auth_url = $client->createAuthUrl();
+	    	header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
+		}
+	    else if(isset($_POST['action']) && $_POST['action']=='Connect'){
+    		
+    		$_SESSION['email'] =  $_POST['email'];
+    		$auth_url = $client->createAuthUrl();
+    		header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
+		}
+		
+		else if($_POST['email']==null && isset($_POST['action']) && $_POST['action']=='Disconnect'){
+			
+			header('Location: '.$callback_url.'disconnect-failure.php');
+		}
+    	else if(isset($_POST['action']) && $_POST['action']=='Disconnect'){
+    	    $_SESSION['email'] =  $_POST['email'];
+		    header('Location: '.$callback_url.'disconnect.php');
+		}
+	
+		else{
+		    	header('Location: '.$callback_url.'failure.php');
+		}
+	
+    
+	
 	
 	
 

@@ -62,7 +62,8 @@ $service = new Google_Service_Calendar($client);
 						'name' => $practitioner_name,
 						'accessToken'=>$access_token,
 						'refreshToken'=>$refresh_token,
-						'googleEmail'=>$google_email
+						'googleEmail'=>$google_email,
+						'action'=>'connect'
 						];
 						$request->setBody( json_encode($data));
 						

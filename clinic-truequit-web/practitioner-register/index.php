@@ -18,7 +18,8 @@
    <form action="google-authenticate.php" method="POST">
    <div class="row form-group" style="margin-left: 30px">
        <input type="email" class="form-control" id="email" name="email" />    
-	    <input type="submit" name="submit" value="Submit" />
+	    <input id="connect" name="action" type="submit" value="Connect"/>
+		<input type="submit" name="action" value="Disconnect" id="Disconnect"/>
 
    </div>
    </form>
