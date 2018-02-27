@@ -9,7 +9,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.tq.calendar.impl.TokenGoogleCalendarImpl;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
 import com.tq.cliniko.service.ClinikoAppointmentService;
@@ -22,6 +21,7 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
+import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;

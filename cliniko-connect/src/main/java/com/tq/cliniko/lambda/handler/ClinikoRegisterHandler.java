@@ -33,16 +33,16 @@ import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.impl.UnitServiceSbmImpl;
+import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.resp.UnitProviderInfo;
 import com.tq.simplybook.service.TokenServiceSbm;
-import com.tq.simplybook.service.UnitServiceSbm;
+import com.tq.simplybook.service.SbmUnitService;
 
 public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static int STATUS_CODE = 200;
 	private static final Logger m_log = LoggerFactory.getLogger(ClinikoRegisterHandler.class);
 	private static ObjectMapper jsonMapper = new ObjectMapper();
-	private UnitServiceSbm unitServiceSbm = null;
+	private SbmUnitService unitServiceSbm = null;
 	private TokenServiceSbm tokenServiceSbm = null;
 	private Env eVariables = null;
 	private AmazonDynamoDB amazonDynamoDB = null;
@@ -54,12 +54,12 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		this.amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(eVariables.getRegions(), eVariables.getAwsAccessKeyId(),
 				eVariables.getAwsSecretAccessKey());
 		;
-		this.unitServiceSbm = new UnitServiceSbmImpl();
+		this.unitServiceSbm = new SbmUnitServiceImpl();
 		this.clinikoSyncService = new ClinikoSyncToSbmServiceImpl(new ClinikoSyncToSbmDaoImpl(amazonDynamoDB));
 
 	}
 
-	ClinikoRegisterHandler(Env env, AmazonDynamoDB db, UnitServiceSbm unitService, TokenServiceSbm tokenService,
+	ClinikoRegisterHandler(Env env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoDbService) {
 		this.amazonDynamoDB = db;
 		this.unitServiceSbm = unitService;
@@ -78,7 +78,6 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		ClinikoPractitionerInfo info = getPractitionerInfo(input.getBody());
 		try {
 			if (info != null) {
-				ClinikoSbmSync clinikoSbmSync = clinikoSyncService.load(info.getApiKey());
 				String companyLogin = eVariables.getSimplyBookCompanyLogin();
 				String user = eVariables.getSimplyBookUser();
 				String password = eVariables.getSimplyBookPassword();
@@ -88,7 +87,8 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 				List<UnitProviderInfo> unitInfos = unitServiceSbm.getUnitList(companyLogin, endpoint, token, true, true,
 						1);
 				Map<String, String> clinikoMap = new HashMap<>();
-				if ("connect".equals(info.getStatus())) {
+				if ("connect".equals(info.getAction())) {
+					ClinikoSbmSync clinikoSbmSync = clinikoSyncService.load(info.getApiKey());
 					if (clinikoSbmSync == null) {
 						ClinikiAppointmentServiceImpl clinikoService = new ClinikiAppointmentServiceImpl(
 								info.getApiKey());
@@ -133,8 +133,8 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 					} else {
 						throw new ClinikoConnectException("This practitioner has already connected");
 					}
-				} else if ("disconnect".equals(info.getStatus())) {
-
+				} else if ("disconnect".equals(info.getAction())) {
+					ClinikoSbmSync clinikoSbmSync = clinikoSyncService.load(info.getApiKey());
 					if (clinikoSbmSync != null) {
 						clinikoSyncService.delete(clinikoSbmSync);
 						m_log.info("Disconnect successfully");

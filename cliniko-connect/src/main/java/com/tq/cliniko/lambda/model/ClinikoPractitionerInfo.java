@@ -13,9 +13,7 @@ public class ClinikoPractitionerInfo implements Serializable {
 	 */
 	private static final long serialVersionUID = -4053835909375070005L;
 	private String apiKey;
-	private String status;
-
-	
+	private String action;
 
 	public String getApiKey() {
 		return apiKey;
@@ -25,17 +23,17 @@ public class ClinikoPractitionerInfo implements Serializable {
 		this.apiKey = apiKey;
 	}
 
-	public String getStatus() {
-		return status;
+	public String getAction() {
+		return action;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	public void setAction(String action) {
+		this.action = action;
 	}
 
 	@Override
 	public String toString() {
-		return "ClinikoPractitionerInfo [ApiKey=" + apiKey + ", status=" + status + "]";
+		return "ClinikoPractitionerInfo [apiKey=" + apiKey + ", action=" + action + "]";
 	}
 
 }

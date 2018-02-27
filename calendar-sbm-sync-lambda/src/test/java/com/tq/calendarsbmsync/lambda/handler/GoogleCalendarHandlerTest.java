@@ -26,11 +26,11 @@ import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.impl.UnitServiceSbmImpl;
+import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
-import com.tq.simplybook.service.UnitServiceSbm;
+import com.tq.simplybook.service.SbmUnitService;
 
 public class GoogleCalendarHandlerTest {
 	private TokenServiceSbm tokenService = new TokenServiceImpl();
@@ -40,7 +40,7 @@ public class GoogleCalendarHandlerTest {
 	private SpecialdayServiceSbm specialdayService = new SpecialdayServiceSbmImpl();
 	private SbmBreakTimeManagement sbmBreakTimeManagement = new SbmBreakTimeManagement();
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = mock(SbmGoogleCalendarDbService.class);
-	private UnitServiceSbm unitService = new UnitServiceSbmImpl();
+	private SbmUnitService unitService = new SbmUnitServiceImpl();
 	private CreateGoogleCalendarEventHandler handler = new CreateGoogleCalendarEventHandler(env, tokenService,
 			specialdayService, sbmBreakTimeManagement, sbmGoogleCalendarService, unitService);
 	private ContactItemService contactItemService = mock(ContactItemService.class);
@@ -50,7 +50,7 @@ public class GoogleCalendarHandlerTest {
 	private DeleteGoogleCalendarEventHandler deleteHandler = new DeleteGoogleCalendarEventHandler(env, tokenService,
 			googleCalendarService, specialdayService, sbmBreakTimeManagement, contactItemService, contactInfService,
 			sbmCalendarService, bookingService, unitService);
-	CalendarHandler calendarHanler = new CalendarHandler(env, amazonDynamoDB, googleCalendarService, specialdayService,
+	GoogleCalendarHandler calendarHanler = new GoogleCalendarHandler(env, amazonDynamoDB, googleCalendarService, specialdayService,
 			handler, deleteHandler, unitService);
 	private Context context = mock(Context.class);
 

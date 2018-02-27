@@ -10,7 +10,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tq.calendar.resp.Items;
 import com.tq.cliniko.lambda.model.GeneralAppt;
 import com.tq.cliniko.lambda.model.PractitionerApptGroup;
 import com.tq.cliniko.time.UtcTimeUtil;
@@ -19,6 +18,7 @@ import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
+import com.tq.googlecalendar.resp.Items;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
@@ -34,7 +34,7 @@ import com.tq.simplybook.resp.WorksDayInfoResp;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
-import com.tq.simplybook.service.UnitServiceSbm;
+import com.tq.simplybook.service.SbmUnitService;
 
 public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalHandler {
 	private static final Logger m_log = LoggerFactory.getLogger(DeleteGoogleCalendarEventHandler.class);
@@ -46,13 +46,13 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	private ContactItemService contactItemService = null;
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
 	private BookingServiceSbm bookingService = null;
-	private UnitServiceSbm unitService = null;
+	private SbmUnitService unitService = null;
 
 	public DeleteGoogleCalendarEventHandler(Env env, TokenServiceSbm tokenService,
 			GoogleCalendarDbService googleCalendarService, SpecialdayServiceSbm specialdayService,
 			SbmBreakTimeManagement sbmBreakTimeManagement, ContactItemService contactItemService,
 			ContactServiceInf contactInfService, SbmGoogleCalendarDbService sbmCalendarService,
-			BookingServiceSbm bookingService,UnitServiceSbm unitService) {
+			BookingServiceSbm bookingService,SbmUnitService unitService) {
 		this.contactItemService = contactItemService;
 		this.enV = env;
 		this.tokenService = tokenService;

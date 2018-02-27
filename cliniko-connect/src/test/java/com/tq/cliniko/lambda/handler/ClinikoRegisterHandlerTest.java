@@ -18,21 +18,21 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.impl.UnitServiceSbmImpl;
+import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.service.TokenServiceSbm;
-import com.tq.simplybook.service.UnitServiceSbm;
+import com.tq.simplybook.service.SbmUnitService;
 
 public class ClinikoRegisterHandlerTest {
 	private Env mockedeEnv = MockUtil.mockEnv();
 	private TokenServiceSbm tokenService = new TokenServiceImpl();
-	private UnitServiceSbm unitService = null;
+	private SbmUnitService unitService = null;
 	private AmazonDynamoDB amazonDynamoDB = mock(AmazonDynamoDB.class);
 	private Context m_context = mock(Context.class);
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = mock(ClinikoSyncToSbmService.class);
 
 	@Before
 	public void init() {
-		unitService = new UnitServiceSbmImpl();
+		unitService = new SbmUnitServiceImpl();
 	}
 
 	@Test
