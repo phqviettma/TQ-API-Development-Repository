@@ -1,5 +1,7 @@
 package com.tq.simplybook.impl;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 
 import com.tq.simplybook.exception.SbmSDKException;
@@ -16,9 +18,9 @@ public class SbmSettingServiceTest {
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "epymutehy";
+		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		CompanyTimeZone timeZone = sbmSettingService.getCompanyTimeZone(companyLogin, endpoint, userToken);
-		System.out.println(timeZone.getTimezone());
+		assertNotNull(timeZone.getTimezone());
 	}
 }
