@@ -33,7 +33,6 @@ import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.context.Env;
 import com.tq.googlecalendar.lambda.exception.TrueQuitRegisterException;
 import com.tq.googlecalendar.lambda.model.UserInfoResp;
-import com.tq.googlecalendar.req.Params;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.req.WatchEventReq;
@@ -45,11 +44,11 @@ import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.exception.SbmSDKException;
-import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
+import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.resp.UnitProviderInfo;
-import com.tq.simplybook.service.TokenServiceSbm;
 import com.tq.simplybook.service.SbmUnitService;
+import com.tq.simplybook.service.TokenServiceSbm;
 
 public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static int STATUS_CODE = 200;
@@ -77,19 +76,20 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 		this.contactService = new ContactServiceImpl();
 		this.tokenCalendarService = new TokenGoogleCalendarImpl();
 		this.contactItemService = new ContactItemServiceImpl(new ContactItemDaoImpl(amazonDynamoDB));
-		
 
 	}
 
 	// for testing only
 	RegisterHandler(Env env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
-			GoogleCalendarDbService calendarService, ContactServiceInf contactService) {
+			GoogleCalendarDbService calendarService, ContactServiceInf contactService,
+			ContactItemService contactItemService) {
 		this.amazonDynamoDB = db;
 		this.sbmUnitService = unitService;
 		this.tokenServiceSbm = tokenService;
 		this.googleCalendarService = calendarService;
 		this.eVariables = env;
 		this.contactService = contactService;
+		this.contactItemService = contactItemService;
 	}
 
 	@Override
@@ -146,9 +146,9 @@ public class RegisterHandler implements RequestHandler<AwsProxyRequest, AwsProxy
 										m_log.info("Add contact" + googleEmail + " email to infusionsoft successfully");
 										GoogleCalendarApiServiceImpl googleApiService = new GoogleCalendarApiServiceImpl(
 												tokenResp.getAccess_token());
-										Params params = new Params("3600");
+										//Params params = new Params("3600000");
 										WatchEventReq watchEventReq = new WatchEventReq(sbmId, "web_hook",
-												eVariables.getGoogleNotifyDomain(), params);
+												eVariables.getGoogleNotifyDomain());
 										WatchEventResp watchEventResp = googleApiService.watchEvent(watchEventReq,
 												googleEmail);
 

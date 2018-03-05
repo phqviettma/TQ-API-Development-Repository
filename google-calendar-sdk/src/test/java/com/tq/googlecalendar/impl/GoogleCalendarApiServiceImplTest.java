@@ -9,11 +9,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
-import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
-import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.req.Attendees;
 import com.tq.googlecalendar.req.EventReq;
-import com.tq.googlecalendar.req.Params;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.req.WatchEventReq;
@@ -26,9 +23,9 @@ import com.tq.googlecalendar.resp.WatchEventResp;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 
 public class GoogleCalendarApiServiceImplTest {
-
+	
 	private GoogleCalendarApiServiceImpl googleCalendarService = new GoogleCalendarApiServiceImpl(
-			"ya29.GlxVBUOBndBZcrI5lxDLKecqZtkm5BPJbW6bvOd8drUp4EcBXhBOoXH8Bw2VqD_-x5Cj38G3exoVQgjoFOh6Hq2Y5Q9WlL20f6sGkq2CTaD_Ocl8M-PH8ZFMNKjr9Q");
+			"");
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 
 	@Test
@@ -94,10 +91,9 @@ public class GoogleCalendarApiServiceImplTest {
 
 	@Test
 	public void testWatchEvent() throws GoogleApiSDKException {
-		Params params = new Params("3600");
-		WatchEventReq eventReq = new WatchEventReq("1-6", "web_hook", "https://clinic.truequit.com/notifications/",
-				params);
-		WatchEventResp resp = googleCalendarService.watchEvent(eventReq, "phamthanhcute11@gmail.com");
+		//Params params = new Params("3600000");
+		WatchEventReq eventReq = new WatchEventReq("2-6", "web_hook", "https://clinic.truequit.com/notifications/");
+		WatchEventResp resp = googleCalendarService.watchEvent(eventReq, "ambrose.gregory21@gmail.com");
 		assertNotNull(resp);
 	}
 }

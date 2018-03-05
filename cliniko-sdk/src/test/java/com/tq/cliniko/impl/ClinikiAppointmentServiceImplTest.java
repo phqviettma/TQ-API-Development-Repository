@@ -17,9 +17,9 @@ import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.User;
 
 public class ClinikiAppointmentServiceImplTest {
-	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("8fa56fcf4c1d03e8930abfeaa120fa44");
+	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("");
 
-	//@Test
+	@Test
 	public void testGetAppointments() throws ClinikoSDKExeption {
 		AppointmentsInfo appts = m_service.getAppointments("2017-11-25T14:00Z");
 		System.out.println(appts.getAppointments());
@@ -32,7 +32,7 @@ public class ClinikiAppointmentServiceImplTest {
 		assertTrue(appts.getAppointments().isEmpty());
 	}
 
-	//@Test
+	@Test
 	public void testGetDeletedAppointments() throws ClinikoSDKExeption {
 		AppointmentsInfo appts = m_service.getDeletedAppointments("2017-11-28T00:00Z");
 		System.out.println(appts.getAppointments());
@@ -40,7 +40,7 @@ public class ClinikiAppointmentServiceImplTest {
 
 	}
 
-	//@Test
+	@Test
 	public void testGetCancelledAppointment() throws ClinikoSDKExeption {
 		AppointmentsInfo appts = m_service.getCancelAppointments("2017-12-04T00:00Z");
 		System.out.println(appts.getAppointments());
@@ -48,14 +48,14 @@ public class ClinikiAppointmentServiceImplTest {
 
 	}
 
-	//@Test
+	@Test
 	public void testCreateAppointments() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");
-		appointmentInfo.setPatient_id(46101691);
-		appointmentInfo.setAppointment_type_id(252503);
-		appointmentInfo.setBusiness_id(57535);
-		appointmentInfo.setPractitioner_id(87313);
+		appointmentInfo.setPatient_id(47508555);
+		appointmentInfo.setAppointment_type_id(270071);
+		appointmentInfo.setBusiness_id(60602);
+		appointmentInfo.setPractitioner_id(92699);
 		AppointmentInfo result = m_service.createAppointment(appointmentInfo);
 		assertEquals("2017-09-11T04:45:00Z", result.getAppointment_start());
 		assertNotNull(result.getId());
@@ -68,7 +68,7 @@ public class ClinikiAppointmentServiceImplTest {
 		assertNull(result.getAppointment_start());
 	}
 
-	//@Test
+	@Test
 	public void testDeleteAppointment() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");
@@ -80,7 +80,7 @@ public class ClinikiAppointmentServiceImplTest {
 		assertTrue(m_service.deleteAppointment(result.getId()));
 	}
 
-	//@Test
+	@Test
 	public void tesGetAppointment() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-11-15T11:00:00Z");

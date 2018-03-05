@@ -94,7 +94,7 @@ public class UtcTimeUtil {
 		DateFormat f = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		try {
 			Date d = f.parse(convertedDateTime);
-			DateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+			DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
 			return date.format(d);
 		} catch (ParseException e) {
 

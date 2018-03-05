@@ -28,8 +28,8 @@ public class MockUtil {
 		when(env.getInfusionSoftCreateAppliedTag()).thenReturn(639);
 		when(env.getInfusionSoftCancelAppliedTag()).thenReturn(643);
 		when(env.getClinikoApiKey()).thenReturn("");
-		when(env.getCliniko_standard_appointment()).thenReturn(252503);
-		when(env.getClinikoPatientId()).thenReturn(46101691);
+		when(env.getCliniko_standard_appointment()).thenReturn(270071);
+		when(env.getClinikoPatientId()).thenReturn(47508555);
 		when(env.getCliniko_end_time()).thenReturn("18:00");
 		when(env.getCliniko_start_time()).thenReturn("09:00");
 		when(env.getInfusionftAppointmentDate()).thenReturn("_AppointmentDate2");
@@ -37,7 +37,7 @@ public class MockUtil {
 		when(env.getInfusionsoftPractitionerFirstName()).thenReturn("_PractitionerLastName");
 		Map<String, String> variable = new HashMap<String, String>();
 		variable.put("SBM_CLINIKO_MAPPING_1",
-				"{'event_id': '2', 'unit_id': '3', 'practitionerId': '87313', 'businessId': '57535'}");
+				"{'event_id': '2', 'unit_id': '4', 'practitionerId': '92699', 'businessId': '60602'}");
 		variable.put("SBM_CLINIKO_MAPPING_2",
 				"{'event_id': '128', 'unit_id': '2', 'practitionerId': '87313', 'businessId': '57535'}");
 		variable.put("SBM_CLINIKO_MAPPING_3",

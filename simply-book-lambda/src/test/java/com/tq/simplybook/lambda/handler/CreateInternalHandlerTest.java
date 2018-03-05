@@ -58,13 +58,13 @@ public class CreateInternalHandlerTest {
 	//@Test
 	public void test() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
 		ClientInfo ci = new ClientInfo();
-		ci.setEmail("thuongsu@gmail.com");
-		ci.setContactId(448);
+		ci.setEmail("truequit-testing@gmail.com");
+		ci.setContactId(518);
 		contactItem.setClient(ci);
 		when(cis.load(any())).thenReturn(contactItem);
 		PayloadCallback payLoad = new PayloadCallback();
-		payLoad.setBooking_id(50000L);
-		payLoad.setBooking_hash("784ee770544f77f25f5f713772cf6910");
+		payLoad.setBooking_id(94L);
+		payLoad.setBooking_hash("732acb8efee6b74dbacebe5d45da28e3");
 		payLoad.setNotification_type("create");
 		when(lcs.load()).thenReturn(new LatestClinikoAppts());
 		Mockito.doAnswer(new Answer<Void>() {
@@ -94,13 +94,14 @@ public class CreateInternalHandlerTest {
 	@Test
 	public void testExcuteInfusionsoft() throws SbmSDKException {
 		ClientInfo ci = new ClientInfo();
-		ci.setContactId(50805);
+		ci.setEmail("truequit-testing@gmail.com");
+		ci.setContactId(518);
 		contactItem.setClient(ci);
 
 		when(cis.load(any())).thenReturn(contactItem);
 		PayloadCallback payLoad = new PayloadCallback();
-		payLoad.setBooking_id(68L);
-		payLoad.setBooking_hash("7a7336541e605597f9e4bde06c20201d");
+		payLoad.setBooking_id(105L);
+		payLoad.setBooking_hash("f0d7728001d18b5f7463a8af809ac09f");
 		payLoad.setNotification_type("create");
 		String token = tss.getUserToken(env.getSimplyBookCompanyLogin(), env.getSimplyBookUser(),
 				env.getSimplyBookServiceUrlLogin(), env.getSimplyBookServiceUrlLogin());
