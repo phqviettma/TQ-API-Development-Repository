@@ -21,7 +21,7 @@ session_start();
             echo 'Generic error';
             }
             ?></p>
-            <a href="connect/" class="btn btn-success"> Back to connecting page </a>
+            <a href="/connect" class="btn btn-success"> Back to Connect page </a>
         <br><br>
             </div>
             

@@ -27,12 +27,12 @@ public class GoogleCalendarCheckStatusHandler implements Handler {
 		GoogleConnectStatusResponse response = new GoogleConnectStatusResponse();
 		if (googleCalendarSbmSync == null) {
 			m_log.info("The email " + req.getParams().getEmail()+" is not connected yet");
-			response.setStatus("connected");
+			response.setStatus("disconnected");
 			response.setSucceeded(true);
 			m_log.info("Response " +response);
 			return response;
 		} else {
-			response.setStatus("disconnected");
+			response.setStatus("connected");
 			response.setSucceeded(true);
 			return response;
 		}

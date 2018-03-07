@@ -35,7 +35,7 @@ public class GoogleCalendarCheckStatusHandlerTest {
 		params.setEmail("suongpham53@gmail.com");
 		req.setParams(params);
 		GoogleConnectStatusResponse resp = checkHandler.handle(req);
-		assertEquals(resp.getStatus(), "disconnected");
+		assertEquals(resp.getStatus(), "connected");
 	}
 
 	@Test
@@ -48,6 +48,6 @@ public class GoogleCalendarCheckStatusHandlerTest {
 		params.setEmail("suongpham53@gmail.com");
 		req.setParams(params);
 		GoogleConnectStatusResponse resp = checkHandler.handle(req);
-		assertEquals(resp.getStatus(), "connected");
+		assertEquals(resp.getStatus(), "disconnected");
 	}
 }

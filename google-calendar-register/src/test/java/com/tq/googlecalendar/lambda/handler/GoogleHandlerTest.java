@@ -61,7 +61,7 @@ public class GoogleHandlerTest {
 		req.setBody(jsonString);
 
 		GoogleCalendarSbmSync googleCalendarSbmSync = new GoogleCalendarSbmSync("1-7", "phamthanhcute11@gmail.com",
-				"phamthanhcute11@gmail.com", "suong", "pham", "", "1/A9smC2Y-21FBLOoU-SOmkWcVuk4ypiGqP7URnrjFjMk",
+				"phamthanhcute11@gmail.com", "suong", "pham", "", "",
 				"-BLANK-", "x3ZhVWszU5vYU6wJJlg4RaJPKvc");
 
 		when(calendarService.query(any())).thenReturn(googleCalendarSbmSync);

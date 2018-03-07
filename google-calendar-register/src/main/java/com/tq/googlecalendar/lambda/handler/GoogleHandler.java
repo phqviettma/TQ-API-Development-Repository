@@ -25,6 +25,7 @@ import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.context.Env;
 import com.tq.googlecalendar.lambda.exception.GoogleExceptionHanlder;
+import com.tq.googlecalendar.lambda.model.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.lambda.model.GoogleConnectFailureResponse;
 import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
@@ -50,6 +51,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	private GoogleCalendarDbService googleCalendarService = null;
 	private ContactServiceInf contactService = null;
 	private ContactItemService contactItemService = null;
+	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private Handler connectHandler = null;
 	private Handler disconnectHandler = null;
@@ -67,11 +69,12 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		this.googleCalendarService = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(amazonDynamoDB));
 		this.contactService = new ContactServiceImpl();
 		this.tokenCalendarService = new TokenGoogleCalendarImpl();
+		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.contactItemService = new ContactItemServiceImpl(new ContactItemDaoImpl(amazonDynamoDB));
 		this.connectHandler = new GoogleConnectCalendarHandler(eVariables, googleCalendarService, contactService,
-				contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm);
+				contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm,apiServiceBuilder);
 		this.disconnectHandler = new GoogleDisconnectCalendarHandler(eVariables, googleCalendarService,
-				tokenCalendarService, null);
+				tokenCalendarService, apiServiceBuilder);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
 
 	}
@@ -119,8 +122,8 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		} catch (Exception e) {
 			m_log.error("Error occurs", e);
 
-			GoogleConnectFailureResponse failResponse = GoogleExceptionHanlder.buildExceptionMessage(e);
-			String jsonResp = GoogleExceptionHanlder.buildFailMessageResponse(failResponse);
+			GoogleConnectFailureResponse failResponse = GoogleExceptionHanlder.handle(e);
+			String jsonResp = GoogleExceptionHanlder.buildFailMessageResponse(failResponse.isSucceeded(),failResponse.getErrorMessage());
 			resp.setBody(jsonResp);
 			resp.setStatusCode(failResponse.getStatusCode());
 			return resp;

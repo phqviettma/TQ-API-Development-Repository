@@ -8,7 +8,7 @@
             <div class="row text-center" style="margin-top:200px">
                 <div class="col-sm-6 col-sm-offset-3">
                 <br><br> <h2 style="color:#0fad00">Disconnect successfully</h2>
-                <a href="connect" class="btn btn-success"> Back to connecting page </a>
+                <a href="/connect" class="btn btn-success"> Back to Connect page </a>
             <br><br>
                 </div>
                 

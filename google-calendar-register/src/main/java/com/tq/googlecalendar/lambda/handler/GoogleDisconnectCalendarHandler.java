@@ -26,12 +26,12 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 	private GoogleCalendarDbService googleCalendarService = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
-	
+
 	public GoogleDisconnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			TokenGoogleCalendarService tokenCalendarService) {
 		this(eVariables, googleCalendarService, tokenCalendarService, new GoogleCalendarApiServiceBuilder());
 	}
-	
+
 	public GoogleDisconnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			TokenGoogleCalendarService tokenCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder) {
 		this.eVariables = eVariables;
@@ -54,6 +54,7 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 			GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
 			StopWatchEventReq stopEventReq = new StopWatchEventReq(googleCalendarSbmSync.getSbmId(),
 					googleCalendarSbmSync.getGcWatchResourceId());
+			boolean flag = false;
 			// work-around: can' stop channel in just one request. So as to make sure the
 			// channel is stopped successfully, we try to stop maximum of 3 times .
 			for (int i = 0; i <= 3; i++) {
@@ -61,15 +62,19 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 				if (errorResp != null) {
 					String errorMessage = errorResp.getError().getMessage();
 					if (errorMessage.contains("Channel") && errorMessage.contains("not found")) {
+						flag = true;
 						break;
 					} else {
-						throw new GoogleApiSDKException("Backend error");
+						throw new GoogleApiSDKException("Internal error");
 					}
 				}
 			}
-
-			googleCalendarService.delete(googleCalendarSbmSync);
-			m_log.info("Delete successfully");
+			if (flag) {
+				googleCalendarService.delete(googleCalendarSbmSync);
+				m_log.info("Delete successfully");
+			} else {
+				throw new GoogleApiSDKException("Internal error");
+			}
 
 		} else {
 			throw new TrueQuitRegisterException("The email " + sbmEmail + " is not connected yet ");
