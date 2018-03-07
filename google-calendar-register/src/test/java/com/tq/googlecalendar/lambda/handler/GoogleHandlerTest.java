@@ -19,7 +19,9 @@ import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.utils.JsonUtils;
+import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.context.Env;
+import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
@@ -27,7 +29,7 @@ import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
 
-public class RegisterHandlerTest {
+public class GoogleHandlerTest {
 	private GoogleCalendarDbService calendarService = mock(GoogleCalendarDbService.class);
 	private static Env mockedeEnv = MockUtil.mockEnv();
 	private static TokenServiceSbm tokenService = new TokenServiceImpl();
@@ -36,20 +38,34 @@ public class RegisterHandlerTest {
 	private Context m_context = mock(Context.class);
 	private ContactServiceInf contactService = new ContactServiceImpl();
 	private ContactItemService contactItemService = mock(ContactItemService.class);
+	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
+	private SbmUnitService sbmUnitService = new SbmUnitServiceImpl();
+	private TokenServiceSbm tokenServiceSbm = new TokenServiceImpl();
+	private GoogleCalendarCheckStatusHandler checkHandler = new GoogleCalendarCheckStatusHandler(calendarService);
+	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
+			contactService, contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm);
+	
+	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
+			calendarService, tokenCalendarService);
 
 	@Test
 	public void testRegisterHandler() {
 		Env.mock(mockedeEnv);
 
-		RegisterHandler handler = new RegisterHandler(mockedeEnv, amazonDynamoDB, unitService, tokenService,
-				calendarService, contactService, contactItemService);
+		GoogleHandler handler = new GoogleHandler(mockedeEnv, amazonDynamoDB, unitService, tokenService,
+				calendarService, contactService, contactItemService, connectHandler, checkHandler, disconnectHandler);
 
 		String jsonString = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("user_info.json"));
 		AwsProxyRequest req = new AwsProxyRequest();
 		req.setBody(jsonString);
-		//GoogleCalendarSbmSync googleCalendarSbmSync = new GoogleCalendarSbmSync("1-7", "phamthanhcute11@gmail.com","phamthanhcute11@gmail.com", "suong", "pham","", "1/A9smC2Y-21FBLOoU-SOmkWcVuk4ypiGqP7URnrjFjMk","-BLANK-", "x3ZhVWszU5vYU6wJJlg4RaJPKvc");
-		//when(calendarService.query(any())).thenReturn(googleCalendarSbmSync);
+
+		GoogleCalendarSbmSync googleCalendarSbmSync = new GoogleCalendarSbmSync("1-7", "phamthanhcute11@gmail.com",
+				"phamthanhcute11@gmail.com", "suong", "pham", "", "1/A9smC2Y-21FBLOoU-SOmkWcVuk4ypiGqP7URnrjFjMk",
+				"-BLANK-", "x3ZhVWszU5vYU6wJJlg4RaJPKvc");
+
+		when(calendarService.query(any())).thenReturn(googleCalendarSbmSync);
+
 		ContactItem contactItem = new ContactItem();
 		contactItem.setEmail("testingdev@tma.com.vn");
 		when(contactItemService.load(any())).thenReturn(contactItem);

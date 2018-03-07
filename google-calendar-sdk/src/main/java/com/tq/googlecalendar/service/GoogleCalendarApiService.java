@@ -5,6 +5,7 @@ import com.tq.googlecalendar.req.EventReq;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.WatchEventReq;
 import com.tq.googlecalendar.resp.CalendarEvents;
+import com.tq.googlecalendar.resp.ErrorResp;
 import com.tq.googlecalendar.resp.EventResp;
 import com.tq.googlecalendar.resp.GoogleCalendarSettingsInfo;
 import com.tq.googlecalendar.resp.WatchEventResp;
@@ -31,6 +32,6 @@ public interface GoogleCalendarApiService {
 	CalendarEvents getEventAtLastTime(Integer maxResult, String lastQueryTimeMin, String nextPageToken)
 			throws GoogleApiSDKException;
 
-	boolean stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException;
+	ErrorResp stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException;
 
 }

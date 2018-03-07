@@ -1,6 +1,7 @@
 package com.tq.googlecalendar.impl;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -11,10 +12,12 @@ import org.junit.Test;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.req.Attendees;
 import com.tq.googlecalendar.req.EventReq;
+import com.tq.googlecalendar.req.Params;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.req.WatchEventReq;
 import com.tq.googlecalendar.resp.End;
+import com.tq.googlecalendar.resp.ErrorResp;
 import com.tq.googlecalendar.resp.EventResp;
 import com.tq.googlecalendar.resp.GoogleCalendarSettingsInfo;
 import com.tq.googlecalendar.resp.Start;
@@ -25,7 +28,7 @@ import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 public class GoogleCalendarApiServiceImplTest {
 	
 	private GoogleCalendarApiServiceImpl googleCalendarService = new GoogleCalendarApiServiceImpl(
-			"");
+			"ya29.Glt3BTnuAYVBenYbdi9c7DeUNrW0hsVcvec_68YReOIgZJaWVBnOTKs5A4BABnHmMvIqGFHbdKHrJgCW0UEfGXBhPESAUdU1uEsFapX019jILpRdCiKAcjEl7ra3");
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 
 	@Test
@@ -84,15 +87,15 @@ public class GoogleCalendarApiServiceImplTest {
 
 	@Test
 	public void testStopWatchEvent() throws GoogleApiSDKException {
-		StopWatchEventReq stopEventReq = new StopWatchEventReq("1-6", "x3ZhVWszU5vYU6wJJlg4RaJPKvc");
-		boolean isStopped = googleCalendarService.stopWatchEvent(stopEventReq);
-		assertTrue(isStopped);
+		StopWatchEventReq stopEventReq = new StopWatchEventReq("2-4", "9C0dOEpGs7L-ZBJy2BIC6AAQ8ak");
+		 ErrorResp errorResp = googleCalendarService.stopWatchEvent(stopEventReq);
+		assertNull(errorResp);
 	}
 
 	@Test
 	public void testWatchEvent() throws GoogleApiSDKException {
-		//Params params = new Params("3600000");
-		WatchEventReq eventReq = new WatchEventReq("2-6", "web_hook", "https://clinic.truequit.com/notifications/");
+		Params params = new Params("3600000");
+		WatchEventReq eventReq = new WatchEventReq("2-6", "web_hook", "https://clinic.truequit.com/notifications/", params);
 		WatchEventResp resp = googleCalendarService.watchEvent(eventReq, "ambrose.gregory21@gmail.com");
 		assertNotNull(resp);
 	}

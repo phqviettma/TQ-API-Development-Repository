@@ -14,7 +14,7 @@ public class MockUtil {
 		when(env.getAwsAccessKeyId()).thenReturn("");
 		when(env.getSimplyBookCompanyLogin()).thenReturn("truequit");
 		when(env.getSimplyBookUser()).thenReturn("admin");
-		when(env.getSimplyBookPassword()).thenReturn("epymutehy");
+		when(env.getSimplyBookPassword()).thenReturn("");
 		when(env.getSimplyBookServiceUrlLogin()).thenReturn("https://user-api.simplybook.asia/login");
 		when(env.getSimplyBookAdminServiceUrl()).thenReturn("https://user-api.simplybook.asia/admin/");
 		when(env.getInfusionSoftApiName()).thenReturn("https://fd940.infusionsoft.com/api/xmlrpc");

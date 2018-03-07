@@ -1,10 +1,13 @@
 {
+	"action": "check",
+	"params": {
     "email": "testingdev@tma.com.vn",
     "lastName": "Park",
     "firstName": "Jay",
     "name": "Park Jay",
-    "accessToken": "ya29.GltwBYAGatg5RLLEBEnQMuOh1Xy50usIxSt6a1A0CPCoWcaRoH-qWXFx94VSNkXKhXHyu4liLpERHXH8Gh9hkONV6NKKGlqD2dAhJqdLMbRD346UcD94Dk0Ex6ib",
-    "refreshToken": "1/l7BGuihohWX232SVo6GjlEEQzDfT0bXAFHarX4-dYV8",
-    "googleEmail": "jayparkjay34@gmail.com",
-    "action": "connect"
+    "accessToken": "ya29.GltwBWRyS7Ye7w25cz0xX0WbXUaMc2O7E-vYPuFeIHgrz_QbRST_lhAYAOYKmqEJdIHo2CVdQjDDW51egJVYN984PWXpZmEfqDYUzAPB4MuQkk5AkMQtmoeCMX9-",
+    "refreshToken": "1/d84nvSvx9BZibH-wi8plzja--TzgMIgNEj57bqBmRZ4",
+    "googleEmail": "jayparkjay34@gmail.com"
+
+	}
 }

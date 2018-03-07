@@ -22,12 +22,13 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
+import com.tq.googlecalendar.resp.ApiResponse;
 
 public class UtilsExecutor {
 	private static final ObjectMapper m_mapper = new ObjectMapper();
 	private static final Logger m_log = LoggerFactory.getLogger(UtilsExecutor.class);
 
-	public static String request(GoogleCalendarReq apiReq) throws Exception {
+	public static ApiResponse request(GoogleCalendarReq apiReq) throws Exception {
 		HttpRequestBase req = null;
 		switch (apiReq.getHttpMethod()) {
 		case "GET":
@@ -54,7 +55,7 @@ public class UtilsExecutor {
 		return request(req);
 	}
 
-	public static String request(HttpRequestBase req) throws Exception {
+	public static ApiResponse request(HttpRequestBase req) throws Exception {
 		SSLContext sslcontext = SSLContexts.custom().build();
 		SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext,
 				new String[] { "TLSv1.1", "TLSv1.2" }, null, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
@@ -70,7 +71,10 @@ public class UtilsExecutor {
 			}
 
 			HttpResponse response = httpClient.execute(req);
-			return response.getEntity() == null ? null : EntityUtils.toString(response.getEntity(), "UTF-8");
+			int statusCode = response.getStatusLine().getStatusCode();
+			String entity = response.getEntity() == null ? null : EntityUtils.toString(response.getEntity(), "UTF-8");
+			ApiResponse apiResponse = new ApiResponse(entity, statusCode);
+			return apiResponse;
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e.getMessage(), e);
 		}
