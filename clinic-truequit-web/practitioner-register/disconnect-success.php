@@ -8,8 +8,7 @@
             <div class="row text-center" style="margin-top:200px">
                 <div class="col-sm-6 col-sm-offset-3">
                 <br><br> <h2 style="color:#0fad00">Disconnect successfully</h2>
-                <p style="font-size:20px;color:#5C5C5C;">Thank you for connecting to TrueQuit Program.</p>
-                <a href="https://clinic.truequit.com/connect" class="btn btn-success"> Back to Home Page </a>
+                <a href="connect" class="btn btn-success"> Back to connecting page </a>
             <br><br>
                 </div>
                 
