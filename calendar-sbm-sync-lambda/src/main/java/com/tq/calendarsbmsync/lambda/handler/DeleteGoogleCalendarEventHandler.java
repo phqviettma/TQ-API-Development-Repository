@@ -2,6 +2,7 @@ package com.tq.calendarsbmsync.lambda.handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,21 +27,23 @@ import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
+import com.tq.simplybook.req.SetWorkDayInfoInfoReq;
+import com.tq.simplybook.req.SetWorkDayInfoReq;
 import com.tq.simplybook.req.ToDate;
 import com.tq.simplybook.resp.Breaktime;
 import com.tq.simplybook.resp.UnitWorkingTime;
 import com.tq.simplybook.resp.WorkingTime;
 import com.tq.simplybook.resp.WorksDayInfoResp;
 import com.tq.simplybook.service.BookingServiceSbm;
+import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
-import com.tq.simplybook.service.SbmUnitService;
 
 public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalHandler {
 	private static final Logger m_log = LoggerFactory.getLogger(DeleteGoogleCalendarEventHandler.class);
 	private Env enV = null;
 	private ContactServiceInf contactService = null;
-	private TokenServiceSbm tokenService = null;	
+	private TokenServiceSbm tokenService = null;
 	private SpecialdayServiceSbm specialdayService = null;
 	private SbmBreakTimeManagement sbmBreakTimeManagement = null;
 	private ContactItemService contactItemService = null;
@@ -52,7 +55,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 			GoogleCalendarDbService googleCalendarService, SpecialdayServiceSbm specialdayService,
 			SbmBreakTimeManagement sbmBreakTimeManagement, ContactItemService contactItemService,
 			ContactServiceInf contactInfService, SbmGoogleCalendarDbService sbmCalendarService,
-			BookingServiceSbm bookingService,SbmUnitService unitService) {
+			BookingServiceSbm bookingService, SbmUnitService unitService) {
 		this.contactItemService = contactItemService;
 		this.enV = env;
 		this.tokenService = tokenService;
@@ -84,7 +87,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 		List<Items> eventTobeUnblocked = new ArrayList<>();
 		List<SbmGoogleCalendar> listSbmGoogleCalendar = new ArrayList<>();
 		List<String> clientEmailsForCancellation = new ArrayList<>();
-		
+
 		for (Items event : items) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 			if (sbmGoogleSync != null) {
@@ -94,13 +97,43 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				clientEmailsForCancellation.add(sbmGoogleSync.getClientEmail());
 			} else {
 				eventTobeUnblocked.add(event);
-				String date = UtcTimeUtil.extractDate(event.getStart().getDateTime());
-				PractitionerApptGroup group = apptGroupMap.get(date);
-				if (group == null) {
-					group = new PractitionerApptGroup();
-					apptGroupMap.put(date, group);
+				String dateTime = event.getStart().getDateTime();
+				if (dateTime == null) {
+					String startDate = event.getStart().getDate();
+					int providerId = Integer.valueOf(unitId[1]);
+					Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(companyLogin,
+							endpoint, token, startDate, event.getEnd().getDate(), providerId);
+					UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(startDate);
+					if (unitWorkingTime != null) {
+
+						Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
+						WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
+						Set<Breaktime> breakTimes = new HashSet<>();
+						Breaktime breakTime = new Breaktime();
+						breakTimes.add(breakTime);
+						SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(workingTime.getStart_time(),
+								workingTime.getEnd_time(), breakTimes, startDate, unitId[1], unitId[0]);
+						SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
+						boolean isUnBlocked = specialdayService.changeWorkDay(companyLogin, endpoint, token,
+								workDayInfo);
+						if (isUnBlocked) {
+							m_log.info("Timeslot on " + startDate + " has been unblocked");
+						} else {
+							m_log.info("Error during unblock for provider with id " + Integer.valueOf(unitId[1]));
+						}
+					}
+
+				} else {
+					dateTime = UtcTimeUtil.extractDate(event.getStart().getDateTime());
+					PractitionerApptGroup group = apptGroupMap.get(dateTime);
+					if (group == null) {
+						group = new PractitionerApptGroup();
+						apptGroupMap.put(dateTime, group);
+					}
+					group.addAppt(dateTime,
+							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
+
 				}
-				group.addAppt(date, new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
 			}
 		}
 
@@ -131,14 +164,16 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 		} else {
 			m_log.info("Can not cancel booking");
 		}
-		
+
 	}
 
 	private void removeBreakTime(Map<String, PractitionerApptGroup> apptGroup, String token, Integer unitId,
 			Integer eventId) throws SbmSDKException {
 		for (Entry<String, PractitionerApptGroup> entry : apptGroup.entrySet()) {
 			PractitionerApptGroup group = entry.getValue();
-			Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(enV.getSimplyBookCompanyLogin(),  enV.getSimplyBookAdminServiceUrl(), token, group.getStartDateString(), group.getEndDateString(), unitId);
+			Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(
+					enV.getSimplyBookCompanyLogin(), enV.getSimplyBookAdminServiceUrl(), token,
+					group.getStartDateString(), group.getEndDateString(), unitId);
 			UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(group.getStartDateString());
 			Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
 			WorkingTime workingTime = unitWorkingTimeMap.get(String.valueOf(unitId));
@@ -152,22 +187,23 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				String date = dateToSbmBreakTime.getKey();
 				if (!breakTimes.isEmpty()) {
 					sbmBreakTimeManagement.removeBreakTime(enV.getSimplyBookCompanyLogin(),
-							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
-							workingTime.getStart_time(),workingTime.getEnd_time(), date, breakTimes,
-							workDayInfoMapForUnitId);
+							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId, workingTime.getStart_time(),
+							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId);
 				}
 			}
 		}
 
 	}
 
-	private void excuteWithInfusionsoft(List<String> clientEmailsForCancellation) throws SbmSDKException, InfSDKExecption {
-		for(String email : clientEmailsForCancellation) {
+	private void excuteWithInfusionsoft(List<String> clientEmailsForCancellation)
+			throws SbmSDKException, InfSDKExecption {
+		for (String email : clientEmailsForCancellation) {
 			ContactItem contactItem = contactItemService.load(email);
-			if (contactItem == null || contactItem.getClient() == null || contactItem.getClient().getContactId() == null) {
-				m_log.info("There is no contact on Infusion Soft asociated to the email: " + email + ", ignored");	
+			if (contactItem == null || contactItem.getClient() == null
+					|| contactItem.getClient().getContactId() == null) {
+				m_log.info("There is no contact on Infusion Soft asociated to the email: " + email + ", ignored");
 			}
-	
+
 			Integer ifContactId = contactItem.getClient().getContactId();
 			Integer appliedTagId = enV.getInfusionsoftGoogleDeleteTag();
 			ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);

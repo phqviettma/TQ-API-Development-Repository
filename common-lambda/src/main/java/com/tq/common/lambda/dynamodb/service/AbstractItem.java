@@ -45,5 +45,9 @@ public abstract class AbstractItem<Item, ID> implements GenericItem<Item, ID> {
 		DynamoDBMapper dymapper = new DynamoDBMapper(getClient());
 		dymapper.delete(item);
 	}
+	public void saveItem(Item item) {
+		DynamoDBMapper dymapper = new DynamoDBMapper(getClient());
+		dymapper.save(item);
+	}
 
 }

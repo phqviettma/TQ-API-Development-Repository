@@ -14,11 +14,11 @@ public class SbmSettingServiceTest {
 
 	@Test
 	public void testGetCompanyTimeZone() throws SbmSDKException {
-		String companyLogin = "truequit";
+		String companyLogin = "canhchi";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "";
+		String password = "1900561594";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		CompanyTimeZone timeZone = sbmSettingService.getCompanyTimeZone(companyLogin, endpoint, userToken);
 		assertNotNull(timeZone.getTimezone());

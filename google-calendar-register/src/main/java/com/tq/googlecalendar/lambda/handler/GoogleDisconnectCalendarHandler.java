@@ -5,19 +5,19 @@ import org.slf4j.LoggerFactory;
 
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
+import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
-import com.tq.googlecalendar.lambda.context.Env;
 import com.tq.googlecalendar.lambda.exception.TrueQuitRegisterException;
-import com.tq.googlecalendar.lambda.model.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.TokenReq;
-import com.tq.googlecalendar.resp.ErrorResp;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
+import com.tq.googlecalendar.utils.GoogleCalendarUtil;
 
 public class GoogleDisconnectCalendarHandler implements Handler {
 	private static final Logger m_log = LoggerFactory.getLogger(GoogleDisconnectCalendarHandler.class);
@@ -51,25 +51,14 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 					googleCalendarSbmSync.getRefreshToken());
 
 			TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-			GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
 			StopWatchEventReq stopEventReq = new StopWatchEventReq(googleCalendarSbmSync.getSbmId(),
 					googleCalendarSbmSync.getGcWatchResourceId());
+			GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
 			boolean flag = false;
 			// work-around: can' stop channel in just one request. So as to make sure the
 			// channel is stopped successfully, we try to stop maximum of 3 times .
-			for (int i = 0; i <= 3; i++) {
-				ErrorResp errorResp = googleApiService.stopWatchEvent(stopEventReq);
-				if (errorResp != null) {
-					String errorMessage = errorResp.getError().getMessage();
-					if (errorMessage.contains("Channel") && errorMessage.contains("not found")) {
-						flag = true;
-						break;
-					} else {
-						throw new GoogleApiSDKException("Internal error");
-					}
-				}
-			}
-			if (flag) {
+			boolean isChecked = GoogleCalendarUtil.stopWatchChannel(googleApiService, stopEventReq, flag);
+			if (isChecked) {
 				googleCalendarService.delete(googleCalendarSbmSync);
 				m_log.info("Delete successfully");
 			} else {

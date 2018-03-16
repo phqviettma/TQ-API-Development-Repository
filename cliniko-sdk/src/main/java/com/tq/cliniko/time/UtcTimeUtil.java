@@ -12,8 +12,12 @@ import java.util.StringTokenizer;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UtcTimeUtil {
+	private static final Logger m_log = LoggerFactory.getLogger(UtcTimeUtil.class);
+
 	public static String getNowInUTC(String timezone) {
 		String interim = ZonedDateTime.now(ZoneId.of(timezone)).truncatedTo(ChronoUnit.SECONDS)
 				.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -40,7 +44,7 @@ public class UtcTimeUtil {
 			DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
 			return date.format(d);
 		} catch (ParseException e) {
-
+			m_log.info("" + e);
 		}
 		return null;
 	}
@@ -89,6 +93,7 @@ public class UtcTimeUtil {
 	public static String convertToTzFromLondonTz(DateTimeZone destTimeZone, String datetime) {
 		return convertTimeZone(DateTimeZone.forID("Europe/London"), destTimeZone, datetime);
 	}
+
 	public static String extractDateSbm(String datetime) {
 		String convertedDateTime = utcToBasicFormat(datetime);
 		DateFormat f = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -101,21 +106,22 @@ public class UtcTimeUtil {
 		}
 		return null;
 	}
-	public static String extractTimeSbm(String datetime) {
-		 StringTokenizer tk = new StringTokenizer(datetime);
-		 String date = tk.nextToken();  
-         String time = tk.nextToken();
 
-         SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-         SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a");
-         Date dt;
-         try {    
-             dt = sdf.parse(time);
-             return sdfs.format(dt);
-         } catch (ParseException e) {
-             e.printStackTrace();
-         }
-       
+	public static String extractTimeSbm(String datetime) {
+		StringTokenizer tk = new StringTokenizer(datetime);
+		String date = tk.nextToken();
+		String time = tk.nextToken();
+
+		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
+		SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a");
+		Date dt;
+		try {
+			dt = sdf.parse(time);
+			return sdfs.format(dt);
+		} catch (ParseException e) {
+
+		}
+
 		return null;
 	}
 }

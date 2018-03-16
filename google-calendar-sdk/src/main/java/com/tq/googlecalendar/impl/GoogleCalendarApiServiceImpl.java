@@ -65,7 +65,6 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			ApiResponse response = UtilsExecutor.request(new StopWatchEvent(accessToken, stopEventReq));
 			jsonResp = response.getEntity();
 			Integer statusCode = response.getStatusCode();
-			m_log.info("Status code "+ statusCode);
 			if (statusCode == 204) {
 				return null;
 			}
@@ -190,7 +189,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	private class GetEventWithoutToken extends GetGoogleCalendarApiReq {
 
 		public GetEventWithoutToken(String accessToken, Integer maxResult, String timeMin) throws Exception {
-			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&timeMin="
+			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&singleEvents=true&timeMin="
 					+ URLEncoder.encode(timeMin, "UTF-8"));
 
 		}

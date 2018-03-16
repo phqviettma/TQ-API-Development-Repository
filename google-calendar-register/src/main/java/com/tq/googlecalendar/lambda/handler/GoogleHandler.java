@@ -16,16 +16,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.GoogleRenewChannelDaoImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.GoogleWatchChannelDbServiceImpl;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
+import com.tq.googlecalendar.context.Env;
+import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
-import com.tq.googlecalendar.lambda.context.Env;
 import com.tq.googlecalendar.lambda.exception.GoogleExceptionHanlder;
-import com.tq.googlecalendar.lambda.model.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.lambda.model.GoogleConnectFailureResponse;
 import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
@@ -52,11 +55,11 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	private ContactServiceInf contactService = null;
 	private ContactItemService contactItemService = null;
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
+	private GoogleCalRenewService googleWatchChannelDbService = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private Handler connectHandler = null;
 	private Handler disconnectHandler = null;
 	private Handler checkStatusHandler = null;
-
 
 	public GoogleHandler() {
 
@@ -71,8 +74,10 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		this.tokenCalendarService = new TokenGoogleCalendarImpl();
 		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.contactItemService = new ContactItemServiceImpl(new ContactItemDaoImpl(amazonDynamoDB));
+		this.googleWatchChannelDbService = new GoogleWatchChannelDbServiceImpl(new GoogleRenewChannelDaoImpl(amazonDynamoDB));
 		this.connectHandler = new GoogleConnectCalendarHandler(eVariables, googleCalendarService, contactService,
-				contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm,apiServiceBuilder);
+				contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm, apiServiceBuilder,
+				googleWatchChannelDbService);
 		this.disconnectHandler = new GoogleDisconnectCalendarHandler(eVariables, googleCalendarService,
 				tokenCalendarService, apiServiceBuilder);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
@@ -123,7 +128,8 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 			m_log.error("Error occurs", e);
 
 			GoogleConnectFailureResponse failResponse = GoogleExceptionHanlder.handle(e);
-			String jsonResp = GoogleExceptionHanlder.buildFailMessageResponse(failResponse.isSucceeded(),failResponse.getErrorMessage());
+			String jsonResp = GoogleExceptionHanlder.buildFailMessageResponse(failResponse.isSucceeded(),
+					failResponse.getErrorMessage());
 			resp.setBody(jsonResp);
 			resp.setStatusCode(failResponse.getStatusCode());
 			return resp;
@@ -150,11 +156,10 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		try {
 			jsonResp = jsonMapper.writeValueAsString(response);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			m_log.info("Error during parsing {} : {} .", response, e);
 		}
 		return jsonResp;
 
 	}
 
-	
 }

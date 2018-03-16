@@ -12,6 +12,7 @@ include 'cliniko-connect'
 include 'calendar-sbm-sync-lambda'
 include 'google-calendar-sdk'
 include 'google-calendar-register'
+include 'truequit-watch-lambda'
 
 
 

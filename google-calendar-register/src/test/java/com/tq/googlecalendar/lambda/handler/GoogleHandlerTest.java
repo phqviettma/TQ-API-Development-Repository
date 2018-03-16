@@ -18,9 +18,11 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.utils.JsonUtils;
+import com.tq.googlecalendar.context.Env;
+import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
-import com.tq.googlecalendar.lambda.context.Env;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
@@ -41,10 +43,12 @@ public class GoogleHandlerTest {
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private SbmUnitService sbmUnitService = new SbmUnitServiceImpl();
 	private TokenServiceSbm tokenServiceSbm = new TokenServiceImpl();
+	private GoogleCalRenewService googleWatchChannelDbService= mock(GoogleCalRenewService.class);
+	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder =mock(GoogleCalendarApiServiceBuilder.class);
 	private GoogleCalendarCheckStatusHandler checkHandler = new GoogleCalendarCheckStatusHandler(calendarService);
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
-			contactService, contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm);
-	
+			contactService, contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm, mockedApiServiceBuilder, googleWatchChannelDbService);
+
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
 			calendarService, tokenCalendarService);
 
@@ -61,8 +65,7 @@ public class GoogleHandlerTest {
 		req.setBody(jsonString);
 
 		GoogleCalendarSbmSync googleCalendarSbmSync = new GoogleCalendarSbmSync("1-7", "phamthanhcute11@gmail.com",
-				"phamthanhcute11@gmail.com", "suong", "pham", "", "",
-				"-BLANK-", "x3ZhVWszU5vYU6wJJlg4RaJPKvc");
+				"phamthanhcute11@gmail.com", "suong", "pham", "", "", "-BLANK-", "x3ZhVWszU5vYU6wJJlg4RaJPKvc");
 
 		when(calendarService.query(any())).thenReturn(googleCalendarSbmSync);
 

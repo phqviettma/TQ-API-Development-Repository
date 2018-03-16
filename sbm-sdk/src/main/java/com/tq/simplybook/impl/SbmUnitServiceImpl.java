@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.simplybook.exception.SbmSDKException;
@@ -20,7 +23,7 @@ import com.tq.simplybook.utils.SbmExecute;
 import com.tq.simplybook.utils.SbmUtils;
 
 public class SbmUnitServiceImpl implements SbmUnitService {
-
+	private static final Logger m_log = LoggerFactory.getLogger(SbmUnitServiceImpl.class);
 	private static ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	@Override
@@ -29,6 +32,7 @@ public class SbmUnitServiceImpl implements SbmUnitService {
 		try {
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getUnitList",
 					new GetUnitListReq(isVisibleOnly, asArray, handleClasses));
+			m_log.info("Response from getUnitList method "+ jsonResp);
 			UnitInfoDetail readValueForObject = SbmUtils.readValueForObject(jsonResp, UnitInfoDetail.class);
 
 			return readValueForObject.getResult();

@@ -1,6 +1,5 @@
-package com.tq.googlecalendar.lambda.model;
+package com.tq.googlecalendar.impl;
 
-import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 
 public class GoogleCalendarApiServiceBuilder {
