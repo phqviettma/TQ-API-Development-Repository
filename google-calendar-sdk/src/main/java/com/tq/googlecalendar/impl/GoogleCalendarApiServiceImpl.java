@@ -167,7 +167,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	private class GetEventWithoutToken extends GetGoogleCalendarApiReq {
 
 		public GetEventWithoutToken(String accessToken, Integer maxResult, String timeMin) throws Exception {
-			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&timeMin="
+			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&singleEvents=true&timeMin="
 					+ URLEncoder.encode(timeMin, "UTF-8"));
 
 		}
