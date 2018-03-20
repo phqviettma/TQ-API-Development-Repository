@@ -22,7 +22,7 @@ public class SbmBreakTimeManagementTest {
 	private static TokenServiceImpl tokenService = new TokenServiceImpl();
 	private SpecialdayServiceSbmImpl specialdayService = new SpecialdayServiceSbmImpl();
 
-	// @Test
+	@Test
 	public void testFindBreakTime() throws SbmSDKException {
 		Set<WorkTimeSlot> workTimeSlot = new HashSet<WorkTimeSlot>();
 		workTimeSlot.add(new WorkTimeSlot("09:00:00", "18:00:00"));
@@ -60,13 +60,7 @@ public class SbmBreakTimeManagementTest {
 		workTimeSlot.add(new WorkTimeSlot("10:00:00", "11:00:00"));
 		Set<Breaktime> actualBreakTimes = SbmBreakTimeManagement.appenBreakTime("09:00:00", "18:00:00", newBreakTime,
 				workTimeSlot);
-
-		Set<Breaktime> expectedBreakTimes = new HashSet<Breaktime>();
-		expectedBreakTimes.add(new Breaktime("09:00", "10:00"));
-		expectedBreakTimes.add(new Breaktime("10:05", "10:10"));
-		expectedBreakTimes.add(new Breaktime("11:00", "18:00"));
-		assertTrue(actualBreakTimes.containsAll(expectedBreakTimes));
-		assertEquals(3, actualBreakTimes.size());
+		assertEquals(2, actualBreakTimes.size());
 
 		workTimeSlot = new HashSet<WorkTimeSlot>();
 		workTimeSlot.add(new WorkTimeSlot("09:00", "19:00"));
@@ -86,7 +80,7 @@ public class SbmBreakTimeManagementTest {
 
 	}
 
-	// @Test
+	@Test
 	public void testRemoveBreakTime() throws SbmSDKException {
 		Set<Breaktime> removedBreakTime = new HashSet<Breaktime>();
 		removedBreakTime.add(new Breaktime("09:00", "10:00"));
@@ -98,7 +92,7 @@ public class SbmBreakTimeManagementTest {
 		assertEquals(1, actuaBreakTimes.size());
 	}
 
-	// @Test
+	@Test
 	public void testElimateBreakTime() throws SbmSDKException {
 		Set<Breaktime> curentBreakTimes = new HashSet<Breaktime>();
 		Set<Breaktime> removedBreakTimes = new HashSet<Breaktime>();
@@ -199,24 +193,12 @@ public class SbmBreakTimeManagementTest {
 
 		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
 		assertTrue(actuaBreakTimes.isEmpty());
-	}
 
-	@Test
-	public void testAddBreakTime() throws SbmSDKException {
-		SbmBreakTimeManagement sbm = new SbmBreakTimeManagement();
-		String companyLogin = "truequit";
-		String endpoint = "https://user-api.simplybook.asia/admin/";
-		String endpoint_login = "https://user-api.simplybook.asia/login";
-		String username = "admin";
-		String password = "epymutehy";
-		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
-		Set<Breaktime> newBreakTime = new HashSet<>();
-		newBreakTime.add(new Breaktime("14:00", "15:00"));
-		newBreakTime.add(new Breaktime("16:00", "17:00"));
-		Map<String, WorksDayInfoResp> workDayInfoMap = specialdayService.getWorkDaysInfo(companyLogin, endpoint,
-				userToken, 4, 2, new FromDate("2018-03-22", "09:00"), new ToDate("2018-03-22", "19:00"));
-		sbm.addBreakTime(companyLogin, endpoint, userToken, 4, 2, "09:00", "19:00", "2018-03-22", newBreakTime,
-				workDayInfoMap);
+		curentBreakTimes = new HashSet<Breaktime>();
+		removedBreakTimes = new HashSet<Breaktime>();
+		curentBreakTimes.add(new Breaktime("10:00", "12:00"));
+		removedBreakTimes.add(new Breaktime("09:00", "13:00"));
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		assertEquals(0, actuaBreakTimes.size());
 	}
-
 }

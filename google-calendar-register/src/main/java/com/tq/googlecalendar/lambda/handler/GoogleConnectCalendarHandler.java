@@ -40,8 +40,7 @@ import com.tq.simplybook.service.TokenServiceSbm;
 public class GoogleConnectCalendarHandler implements Handler {
 	private static final Logger m_log = LoggerFactory.getLogger(GoogleConnectCalendarHandler.class);
 	private static String NO_TOKEN = "-BLANK-";
-	//TODO:change to 3600000
-	private static final String PARAMS = "86400";
+	private static final String PARAMS = "3600000";
 	private SbmUnitService sbmUnitService = null;
 	private TokenServiceSbm tokenServiceSbm = null;
 	private Env eVariables = null;
@@ -170,11 +169,12 @@ public class GoogleConnectCalendarHandler implements Handler {
 		return checkingDate;
 
 	}
+
 	private static Long buildLastCheckingTime() {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		Date date = cal.getTime();
 		long lastQueryTime = date.getTime();
 		return lastQueryTime;
-		
+
 	}
 }
