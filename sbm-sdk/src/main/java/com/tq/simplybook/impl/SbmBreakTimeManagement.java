@@ -333,16 +333,6 @@ public class SbmBreakTimeManagement {
 			});
 		}
 	}
-	public static void main(String[] args) {
-		Set<Breaktime> setCurrentBreakTime = new HashSet<>();
-		setCurrentBreakTime.add(new Breaktime("09:00", "10:00"));
-		setCurrentBreakTime.add(new Breaktime("07:00", "11:00"));
-		setCurrentBreakTime.add(new Breaktime("10:00", "12:00"));
-		setCurrentBreakTime.add(new Breaktime("16:00", "17:00"));
-		setCurrentBreakTime.add(new Breaktime("17:00", "18:00"));
-		Set<Breaktime> newBreakTime = mergeBreakTime(setCurrentBreakTime);
-		System.out.println(newBreakTime);
-	}
 
 	private static Set<Breaktime> mergeBreakTime(Set<Breaktime> in) {
 		String[] timeLine = new String[24];
