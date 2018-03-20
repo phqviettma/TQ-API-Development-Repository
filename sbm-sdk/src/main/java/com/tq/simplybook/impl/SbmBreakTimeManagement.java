@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.Stack;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ public class SbmBreakTimeManagement {
 
 		WorksDayInfoResp workDayInfo = workDayInfoMap.get(date);
 		Set<WorkTimeSlot> workTimeSlots = workDayInfo.getInfo();
-
 		Set<Breaktime> breakTimes = appenBreakTime(envStartWorkingTime, envEndWorkingTime, newBreakTime, workTimeSlots);
 
 		if (!breakTimes.isEmpty()) {
@@ -85,8 +83,11 @@ public class SbmBreakTimeManagement {
 	static Set<Breaktime> appenBreakTime(String envStartWorkingTime, String envEndWorkingTime,
 			Set<Breaktime> newBreakTime, Set<WorkTimeSlot> workTimeSlots) {
 		Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
+		m_log.info("Current breakTime" + currentBreakTimes);
 		currentBreakTimes.addAll(newBreakTime);
+		m_log.info("Current breakTime" + currentBreakTimes + "new breakTime " + newBreakTime);
 		Set<Breaktime> newBreakTimes = mergeBreakTime(currentBreakTimes);
+		m_log.info("new breakTime" + currentBreakTimes);
 		return newBreakTimes;
 	}
 
@@ -181,7 +182,7 @@ public class SbmBreakTimeManagement {
 					// 1 0 1 0
 					breakTime.setStart_time(e.time.toString());
 				}
-				// Example: current: 10h-12h removed: 9h-13h so newbreakTime: 9h-12h
+				// Example: current: 10h-12h removed: 9h-13h so newbreakTime: 9h-13h
 				if (s.time.isBefore(endTime) && (e.time.isAfter(endTime) || e.time.equals(endTime))) {
 					// 0 1 0 1
 					breakTime.setEnd_time(s.time.toString());
@@ -334,49 +335,42 @@ public class SbmBreakTimeManagement {
 		}
 	}
 
-	private static Set<Breaktime> mergeBreakTime(Set<Breaktime> in) {
-		String[] timeLine = new String[24];
-		for (Breaktime currentBreakTime : in) {
-			String startTime = currentBreakTime.getStart_time();
+	private static Set<Breaktime> mergeBreakTime(Set<Breaktime> currentBreakTime) {
+		boolean[] timeLine = new boolean[24];
+		for (Breaktime breakTime : currentBreakTime) {
+			String startTime = breakTime.getStart_time();
 			String[] splitStartTime = startTime.split(":");
 			Integer startTimeHour = Integer.parseInt(splitStartTime[0]);
-			String endTime = currentBreakTime.getEnd_time();
+			String endTime = breakTime.getEnd_time();
 			String[] splitEndTime = endTime.split(":");
 			Integer endTimeHour = Integer.parseInt(splitEndTime[0]);
-			if (")".equals(timeLine[startTimeHour])) {
-				timeLine[startTimeHour] = null;
-			} else {
-				timeLine[startTimeHour] = "(";
-			}
-			if ("(".equals(timeLine[endTimeHour])) {
-				timeLine[endTimeHour] = null;
-			} else {
-
-				timeLine[endTimeHour] = ")";
+			for (int index = startTimeHour; index < endTimeHour; index++) {
+				timeLine[index] = true;
 			}
 		}
-
-		Stack<String> stackTime = new Stack<>();
 		Set<Breaktime> newBreakTime = new HashSet<>();
-		int startTime = 0;
-		for (int i = 0; i < 24; i++) {
-			if (timeLine[i] != null) {
-				if ("(".equals(timeLine[i])) {
-					if (stackTime.isEmpty()) {
-						startTime = i;
-					}
-					stackTime.push(timeLine[i]);
-
-				} else if (")".equals(timeLine[i])) {
-					stackTime.pop();
-					if (stackTime.isEmpty()) {
-						Breaktime breakTime = new Breaktime(startTime + ":00", i + ":00");
-						newBreakTime.add(breakTime);
-					}
+		int startPoint = 0;
+		boolean flag = false;
+		for (int j = 0; j < 24; j++) {
+			if (timeLine[j]) {
+				if (flag) {
+					continue;
 				}
-			}
+				startPoint = j;
+				flag = true;
 
+			} else {
+				if (flag) { // F
+					Breaktime brkTime = new Breaktime(startPoint + ":00", j + ":00");
+					newBreakTime.add(brkTime);
+					flag = false;
+				} else {
+					continue;
+				}
+
+			}
 		}
 		return newBreakTime;
 	}
+
 }

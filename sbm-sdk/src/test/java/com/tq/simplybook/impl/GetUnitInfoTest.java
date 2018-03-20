@@ -12,6 +12,7 @@ import com.tq.simplybook.req.FromDate;
 import com.tq.simplybook.req.ToDate;
 import com.tq.simplybook.resp.UnitProviderInfo;
 import com.tq.simplybook.resp.UnitWorkingTime;
+import com.tq.simplybook.resp.WorkingTime;
 
 public class GetUnitInfoTest {
 	private static TokenServiceImpl tokenService = new TokenServiceImpl();
@@ -25,7 +26,7 @@ public class GetUnitInfoTest {
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "1900561594";
+		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		List<UnitProviderInfo> info = unitService.getUnitList(companyLogin, endpoint, userToken, true, true, 1);
 		assertNotNull(info);
@@ -38,7 +39,7 @@ public class GetUnitInfoTest {
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "1900561594";
+		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		specialDayService.getWorkDaysInfo(companyLogin, endpoint, userToken, 4, 2, new FromDate("2018-03-22", "00:00"),
 				new ToDate("2018-03-22", "00:00"));
@@ -50,11 +51,14 @@ public class GetUnitInfoTest {
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "1900561594";
+		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
-		Map<String, UnitWorkingTime> a = unitService.getUnitWorkDayInfo(companyLogin, endpoint, userToken, "2018-03-20", "2018-03-23", 4);
-		System.out.println(a);
+		Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(companyLogin, endpoint,
+				userToken, "2018-03-20", "2018-03-23", 4);
+		UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get("2018-03-20");
+		Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
+		WorkingTime workingTime = unitWorkingTimeMap.get(String.valueOf(4));
+		assertNotNull(workingTime.getStart_time());
 	}
 
-	
 }
