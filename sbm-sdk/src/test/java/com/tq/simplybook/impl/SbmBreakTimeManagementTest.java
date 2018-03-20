@@ -3,24 +3,17 @@ package com.tq.simplybook.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
 
 import com.tq.simplybook.exception.SbmSDKException;
-import com.tq.simplybook.req.FromDate;
-import com.tq.simplybook.req.ToDate;
 import com.tq.simplybook.resp.Breaktime;
 import com.tq.simplybook.resp.WorkTimeSlot;
-import com.tq.simplybook.resp.WorksDayInfoResp;
 
 public class SbmBreakTimeManagementTest {
-	private static TokenServiceImpl tokenService = new TokenServiceImpl();
-	private SpecialdayServiceSbmImpl specialdayService = new SpecialdayServiceSbmImpl();
 
 	@Test
 	public void testFindBreakTime() throws SbmSDKException {
@@ -76,7 +69,7 @@ public class SbmBreakTimeManagementTest {
 		newBreakTime.add(new Breaktime("14:00", "15:00"));
 		newBreakTime.add(new Breaktime("16:00", "17:00"));
 		actualBreakTimes = SbmBreakTimeManagement.appenBreakTime("09:00", "19:00", newBreakTime, workTimeSlot);
-		System.out.println(actualBreakTimes);
+	
 
 	}
 

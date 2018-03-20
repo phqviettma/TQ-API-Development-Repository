@@ -360,7 +360,7 @@ public class SbmBreakTimeManagement {
 		Set<Breaktime> newBreakTime = new HashSet<>();
 		int startTime = 0;
 		for (int i = 0; i < 24; i++) {
-			try {
+			if (timeLine[i] != null) {
 				if ("(".equals(timeLine[i])) {
 					if (stackTime.isEmpty()) {
 						startTime = i;
@@ -374,10 +374,8 @@ public class SbmBreakTimeManagement {
 						newBreakTime.add(breakTime);
 					}
 				}
-
-			} catch (NullPointerException e) {
-
 			}
+
 		}
 		return newBreakTime;
 	}
