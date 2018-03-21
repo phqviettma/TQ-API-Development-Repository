@@ -175,6 +175,10 @@ public class SbmBreakTimeManagement {
 						continue;
 					}
 				}
+				if (s.time.equals(startTime) || s.time.isAfter(startTime) && e.time.isBefore(endTime)
+						|| e.time.equals(endTime)) {
+					return new HashSet<Breaktime>(retList);
+				}
 				// 0: means start or end of current breakTime, 1: means start or end of removed
 				// breakTime
 				// Example: current: 10h-12h removed: 9h-11h so newbreakTime: 11h-12h
@@ -188,21 +192,6 @@ public class SbmBreakTimeManagement {
 					breakTime.setEnd_time(s.time.toString());
 				}
 
-				if (s.time.isAfter(startTime) && e.time.isBefore(endTime)) {
-					// 0 1 1 0
-					Breaktime bt1 = new Breaktime();
-					bt1.setStart_time(breakTime.getStart_time());
-					bt1.setEnd_time(s.time.toString());
-
-					Breaktime bt2 = new Breaktime();
-					bt2.setStart_time(e.time.toString());
-					bt2.setEnd_time(breakTime.getEnd_time());
-
-					retList.add(bt1);
-					retList.add(bt2);
-
-					tobeRemoveBreakTimes.add(breakTime);
-				}
 			}
 		}
 

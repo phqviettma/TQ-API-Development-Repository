@@ -9,6 +9,8 @@ public interface GoogleRenewChannelDao extends GenericItem<GoogleRenewChannelInf
 	GoogleRenewChannelInfo loadDbItem(Long hashKey, String rangeKey);
 
 	List<GoogleRenewChannelInfo> queryItem(Long hashkey);
-	
+
 	void saveItem(GoogleRenewChannelInfo channelInfo);
+
+	public GoogleRenewChannelInfo queryIndex(String channelId);
 }

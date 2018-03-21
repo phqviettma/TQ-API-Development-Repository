@@ -47,4 +47,10 @@ public class GoogleWatchChannelDbServiceImpl implements GoogleCalRenewService {
 
 	}
 
+	@Override
+	public GoogleRenewChannelInfo query(String channelId) {
+
+		return googleWatchChannelDao.queryIndex(channelId);
+	}
+
 }

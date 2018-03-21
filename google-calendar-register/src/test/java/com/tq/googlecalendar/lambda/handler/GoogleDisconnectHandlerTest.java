@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
+import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
+import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
@@ -28,8 +30,9 @@ public class GoogleDisconnectHandlerTest {
 	private static Env mockedeEnv = MockUtil.mockEnv();
 	private TokenGoogleCalendarImpl tokenCalendarService = mock(TokenGoogleCalendarImpl.class);
 	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder =mock(GoogleCalendarApiServiceBuilder.class);
+	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
-			calendarService, tokenCalendarService, mockedApiServiceBuilder);
+			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService);
 	@Test
 	public void testDisconnect() throws TrueQuitRegisterException, GoogleApiSDKException{
 		GoogleRegisterReq req = new GoogleRegisterReq();
@@ -42,6 +45,8 @@ public class GoogleDisconnectHandlerTest {
 				"-BLANK-", "9C0dOEpGs7L-ZBJy2BIC6AAQ8ak");
 
 		when(calendarService.query(any())).thenReturn(googleCalendarSbmSync);
+		GoogleRenewChannelInfo renewChannelInfo = new GoogleRenewChannelInfo(1520553600000L, 1520671572000L, "2-4", "1/mLAy7U8YxEuJFYdWd3eheQAfx6L13lrxgLlKiK40fOY", "9C0dOEpGs7L-ZBJy2BIC6AAQ8ak", "suongpham53@gmail.com", null);
+		when(googleWatchChannelDbService.query(any())).thenReturn(renewChannelInfo);
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("accesstoken");
 		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp );

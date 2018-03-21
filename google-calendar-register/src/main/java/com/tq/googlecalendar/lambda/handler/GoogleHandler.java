@@ -79,7 +79,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 				contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm, apiServiceBuilder,
 				googleWatchChannelDbService);
 		this.disconnectHandler = new GoogleDisconnectCalendarHandler(eVariables, googleCalendarService,
-				tokenCalendarService, apiServiceBuilder);
+				tokenCalendarService, apiServiceBuilder, googleWatchChannelDbService);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
 
 	}

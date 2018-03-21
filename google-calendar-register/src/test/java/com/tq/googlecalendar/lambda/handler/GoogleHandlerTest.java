@@ -50,7 +50,7 @@ public class GoogleHandlerTest {
 			contactService, contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm, mockedApiServiceBuilder, googleWatchChannelDbService);
 
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
-			calendarService, tokenCalendarService);
+			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService);
 
 	@Test
 	public void testRegisterHandler() {
