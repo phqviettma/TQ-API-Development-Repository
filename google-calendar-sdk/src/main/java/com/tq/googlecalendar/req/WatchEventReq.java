@@ -16,7 +16,7 @@ public class WatchEventReq implements Serializable {
 	private String token;
 	private String type;
 	private String address;
-	//private Params params;
+	private Params params;
 
 	public String getId() {
 		return id;
@@ -50,26 +50,24 @@ public class WatchEventReq implements Serializable {
 		this.address = address;
 	}
 
-	/*public Params getParams() {
+	public Params getParams() {
 		return params;
 	}
 
 	public void setParams(Params params) {
 		this.params = params;
-	}*/
+	}
 
 	@Override
 	public String toString() {
 		return "WatchEventReq [id=" + id + ", token=" + token + ", type=" + type + ", address=" + address + "]";
 	}
 
-	
-
-	public WatchEventReq(String id, String type, String address) {
+	public WatchEventReq(String id, String type, String address, Params params) {
 		this.id = id;
 		this.type = type;
 		this.address = address;
-		//this.params = params;
+		this.params = params;
 	}
 
 	public WatchEventReq() {

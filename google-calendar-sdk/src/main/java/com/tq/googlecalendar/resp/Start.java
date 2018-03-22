@@ -14,6 +14,7 @@ public class Start implements Serializable {
 	private static final long serialVersionUID = 8092009487873623881L;
 	private String dateTime;
 	private String timeZone;
+	private String date;
 
 	public String getDateTime() {
 		return dateTime;
@@ -31,9 +32,18 @@ public class Start implements Serializable {
 		this.timeZone = timeZone;
 	}
 
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	
 	@Override
 	public String toString() {
-		return "Start [dateTime=" + dateTime + ", timeZone=" + timeZone + "]";
+		return "Start [dateTime=" + dateTime + ", timeZone=" + timeZone + ", date=" + date + "]";
 	}
 
 	public Start(String dateTime, String timeZone) {

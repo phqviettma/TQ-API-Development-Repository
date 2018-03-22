@@ -15,6 +15,7 @@ import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.req.GoogleCalendarParser;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.req.UtilsExecutor;
+import com.tq.googlecalendar.resp.ApiResponse;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 
@@ -41,6 +42,7 @@ public class TokenGoogleCalendarImpl implements TokenGoogleCalendarService{
 		params.add(new BasicNameValuePair("refresh_token", body.getRefresh_token()));
 		params.add(new BasicNameValuePair("grant_type", body.getGrant_type()));
 		req.setEntity(new UrlEncodedFormEntity(params));
-		return UtilsExecutor.request(req);
+		ApiResponse response = UtilsExecutor.request(req);
+		return response.getEntity();
 	}
 }

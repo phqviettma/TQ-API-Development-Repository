@@ -1,15 +1,17 @@
 <?php
 require_once __DIR__.'/vendor/autoload.php';
 session_start();
-	if(isset($_SESSION['email'])){
-	    
-    	$url = 'https://9a87rzr9jd.execute-api.us-east-1.amazonaws.com/prod/connect';
-    	$practitioner_email = $_SESSION['email'];
+
+	if(isset($_GET['email'])){
+	  
+    	$url = 'https://rkzu4v25bc.execute-api.us-east-1.amazonaws.com/prod/connect';
+    	$practitioner_email = $_GET['email'];
     	pushDataToLambda($url,$practitioner_email);
     }
 	else 
 	{
-    	header('Location: '.$callback_url.'disconnect-failure.php');
+	    echo $_GET['email'];
+    //	header('Location: '.$callback_url.'disconnect-failure.php');
 	}
 	
 	function pushDataToLambda($url,$practitioner_email)
@@ -19,7 +21,7 @@ session_start();
 						$request = $http_request->post($url,array(
 									'content-type' => 'application/json'
 							),array());
-						$data = ['email' => $practitioner_email,
+						$data = ['params' =>['email'=> $practitioner_email],
 						'action'=>'disconnect'
 						];
 						$request->setBody( json_encode($data));

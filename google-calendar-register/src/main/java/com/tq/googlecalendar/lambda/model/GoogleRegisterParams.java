@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserInfoResp implements Serializable {
+public class GoogleRegisterParams implements Serializable {
 	/**
-		 * 
-		 */
-	private static final long serialVersionUID = 4213124658354140623L;
+	 * 
+	 */
+	private static final long serialVersionUID = 815473435599519161L;
 	private String name;
 	private String firstName;
 	private String lastName;
@@ -20,7 +20,6 @@ public class UserInfoResp implements Serializable {
 	private String accessToken;
 	private String refreshToken;
 	private String googleEmail;
-	private String action;
 
 	public String getGoogleEmail() {
 		return googleEmail;
@@ -86,19 +85,11 @@ public class UserInfoResp implements Serializable {
 		this.refreshToken = refreshToken;
 	}
 
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
-	}
-
 	@Override
 	public String toString() {
-		return "UserInfoResp [name=" + name + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-				+ ", gender=" + gender + ", accessToken=" + accessToken + ", refreshToken=" + refreshToken
-				+ ", googleEmail=" + googleEmail + ", action=" + action + "]";
+		return "GoogleRegisterParams [name=" + name + ", firstName=" + firstName + ", lastName=" + lastName + ", email="
+				+ email + ", gender=" + gender + ", accessToken=" + accessToken + ", refreshToken=" + refreshToken
+				+ ", googleEmail=" + googleEmail + "]";
 	}
 
 }

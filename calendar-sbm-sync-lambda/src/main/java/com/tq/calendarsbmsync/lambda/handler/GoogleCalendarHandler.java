@@ -140,7 +140,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 								timeMin = UtcTimeUtil.getTimeFullOffset(currentTime, settingInfo.getValue());
 								timeMinQuery = true;
 								eventList = googleApiService.getEventWithoutToken(maxResult, timeMin);
-							} else {
+						} else {
 								if (!"-BLANK-".equals(nextPageToken)) {
 									eventList = googleApiService.getEventAtLastTime(maxResult, lastQueryTimeMin,
 											nextPageToken);

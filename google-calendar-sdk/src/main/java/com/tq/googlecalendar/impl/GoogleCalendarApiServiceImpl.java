@@ -15,7 +15,9 @@ import com.tq.googlecalendar.req.PostGoogleCalendarApiReq;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.UtilsExecutor;
 import com.tq.googlecalendar.req.WatchEventReq;
+import com.tq.googlecalendar.resp.ApiResponse;
 import com.tq.googlecalendar.resp.CalendarEvents;
+import com.tq.googlecalendar.resp.ErrorResp;
 import com.tq.googlecalendar.resp.EventResp;
 import com.tq.googlecalendar.resp.GoogleCalendarSettingsInfo;
 import com.tq.googlecalendar.resp.WatchEventResp;
@@ -33,7 +35,8 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	public EventResp createEvent(EventReq events) throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new CreateEvent(accessToken, events));
+			ApiResponse response = UtilsExecutor.request(new CreateEvent(accessToken, events));
+			jsonResp = response.getEntity();
 			m_log.info("createEvent json response: " + String.valueOf(jsonResp));
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, EventResp.class);
 
@@ -44,6 +47,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 	@Override
 	public boolean deleteEvent(String eventId) throws GoogleApiSDKException {
+
 		try {
 			UtilsExecutor.request(new DeleteEvent(accessToken, eventId));
 		} catch (Exception e) {
@@ -52,15 +56,26 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		return true;
 
 	}
+
 	@Override
-	public boolean stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException {
+	public ErrorResp stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException {
+		String jsonResp;
 		try {
-			UtilsExecutor.request(new StopWatchEvent(accessToken,stopEventReq));
+
+			ApiResponse response = UtilsExecutor.request(new StopWatchEvent(accessToken, stopEventReq));
+			jsonResp = response.getEntity();
+			Integer statusCode = response.getStatusCode();
+			if (statusCode == 204) {
+				return null;
+			}
+			else {
+				return GoogleCalendarParser.readJsonValueForObject(jsonResp, ErrorResp.class);
+			}
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
 		}
-		return true;
 	}
+
 	private class GetEventNextPage extends GetGoogleCalendarApiReq {
 
 		public GetEventNextPage(String accessToken, Integer maxResults, String syncToken, String nextPageToken) {
@@ -88,20 +103,22 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		}
 
 	}
-	private class StopWatchEvent extends PostGoogleCalendarApiReq{
+
+	private class StopWatchEvent extends PostGoogleCalendarApiReq {
 
 		public StopWatchEvent(String accessToken, Object object) {
-			super(accessToken,"channels/stop", object);
-			
+			super(accessToken, "channels/stop", object);
+
 		}
-		
+
 	}
 
 	@Override
 	public EventResp getEvent(String eventId) throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new GetEvent(accessToken, eventId));
+			ApiResponse response = UtilsExecutor.request(new GetEvent(accessToken, eventId));
+			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, EventResp.class);
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
@@ -121,7 +138,8 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	public WatchEventResp watchEvent(WatchEventReq req, String email) throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new WatchEvent(accessToken, email, req));
+			ApiResponse response = UtilsExecutor.request(new WatchEvent(accessToken, email, req));
+			jsonResp = response.getEntity();
 			m_log.info("Watch event json response" + String.valueOf(jsonResp));
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, WatchEventResp.class);
 		} catch (Exception e) {
@@ -144,7 +162,10 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new GetEventNextPage(accessToken, maxResult, syncToken, pageToken));
+
+			ApiResponse response = UtilsExecutor
+					.request(new GetEventNextPage(accessToken, maxResult, syncToken, pageToken));
+			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
@@ -156,7 +177,8 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	public CalendarEvents getEventWithoutToken(Integer maxResult, String timeMin) throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new GetEventWithoutToken(accessToken, maxResult, timeMin));
+			ApiResponse response = UtilsExecutor.request(new GetEventWithoutToken(accessToken, maxResult, timeMin));
+			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
@@ -178,7 +200,8 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	public GoogleCalendarSettingsInfo getSettingInfo(String settingId) throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new GetSettingInfo(accessToken, settingId));
+			ApiResponse response = UtilsExecutor.request(new GetSettingInfo(accessToken, settingId));
+			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, GoogleCalendarSettingsInfo.class);
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
@@ -200,7 +223,9 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new GetEventWithNextSyncToken(accessToken, maxResult, nextSyncToken));
+			ApiResponse response = UtilsExecutor
+					.request(new GetEventWithNextSyncToken(accessToken, maxResult, nextSyncToken));
+			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
@@ -222,7 +247,10 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			jsonResp = UtilsExecutor.request(new GetEventAtTime(accessToken, maxResult, nextPageToken, lastQueryTimeMin));
+
+			ApiResponse response = UtilsExecutor
+					.request(new GetEventAtTime(accessToken, maxResult, nextPageToken, lastQueryTimeMin));
+			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
@@ -231,8 +259,8 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 	private class GetEventAtTime extends GetGoogleCalendarApiReq {
 
-		public GetEventAtTime(String accessToken, Integer maxResult, String nextPageToken,
-				String lastQueryTimeMin) throws UnsupportedEncodingException {
+		public GetEventAtTime(String accessToken, Integer maxResult, String nextPageToken, String lastQueryTimeMin)
+				throws UnsupportedEncodingException {
 			super(accessToken,
 					"calendars/primary/events?maxResults=" + maxResult
 							+ "&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&timeMin="
@@ -242,5 +270,4 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 	}
 
-	
 }

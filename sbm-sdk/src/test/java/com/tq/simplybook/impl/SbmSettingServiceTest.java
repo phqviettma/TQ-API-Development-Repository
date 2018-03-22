@@ -14,7 +14,7 @@ public class SbmSettingServiceTest {
 
 	@Test
 	public void testGetCompanyTimeZone() throws SbmSDKException {
-		String companyLogin = "truequit";
+		String companyLogin = "canhchi";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";

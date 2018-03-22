@@ -83,7 +83,6 @@ public class Items implements Serializable {
 	}
 
 	public Items(String kind, String id, String created, String updated, Start start, String status, End end) {
-
 		this.kind = kind;
 		this.id = id;
 		this.created = created;

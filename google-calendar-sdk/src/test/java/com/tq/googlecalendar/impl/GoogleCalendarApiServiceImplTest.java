@@ -1,20 +1,27 @@
 package com.tq.googlecalendar.impl;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.req.Attendees;
 import com.tq.googlecalendar.req.EventReq;
+import com.tq.googlecalendar.req.Params;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.req.WatchEventReq;
 import com.tq.googlecalendar.resp.End;
+import com.tq.googlecalendar.resp.ErrorResp;
 import com.tq.googlecalendar.resp.EventResp;
 import com.tq.googlecalendar.resp.GoogleCalendarSettingsInfo;
 import com.tq.googlecalendar.resp.Start;
@@ -23,10 +30,29 @@ import com.tq.googlecalendar.resp.WatchEventResp;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 
 public class GoogleCalendarApiServiceImplTest {
-	
-	private GoogleCalendarApiServiceImpl googleCalendarService = new GoogleCalendarApiServiceImpl(
-			"");
-	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
+
+	private GoogleCalendarApiServiceImpl googleCalendarService = mock(GoogleCalendarApiServiceImpl.class);
+	private TokenGoogleCalendarService tokenCalendarService = mock(TokenGoogleCalendarService.class);
+
+	@Before
+	public void init() throws GoogleApiSDKException {
+		EventResp eventResp = new EventResp();
+		eventResp.setId("111111");
+		when(googleCalendarService.createEvent(any())).thenReturn(eventResp);
+		when(googleCalendarService.deleteEvent(any())).thenReturn(true);
+		when(googleCalendarService.getEvent(any())).thenReturn(eventResp);
+		GoogleCalendarSettingsInfo settingInfo = new GoogleCalendarSettingsInfo();
+		settingInfo.setId("setting");
+		when(googleCalendarService.getSettingInfo(any())).thenReturn(settingInfo);
+		WatchEventResp watchResp = new WatchEventResp();
+		watchResp.setId("channelId");
+		when(googleCalendarService.watchEvent(any(), any())).thenReturn(watchResp);
+		ErrorResp errorResp = new ErrorResp();
+		when(googleCalendarService.stopWatchEvent(any())).thenReturn(errorResp);
+		TokenResp tokenResp = new TokenResp();
+		tokenResp.setId_token("tokenId");
+		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
+	}
 
 	@Test
 	public void testCreateEvent() throws GoogleApiSDKException {
@@ -37,7 +63,6 @@ public class GoogleCalendarApiServiceImplTest {
 		attendees.add(new Attendees("suong", "suong"));
 		EventReq req = new EventReq(startTime, endTime, description, attendees, description);
 		EventResp events = googleCalendarService.createEvent(req);
-		System.out.println(events);
 		assertNotNull(events.getId());
 	}
 
@@ -84,16 +109,17 @@ public class GoogleCalendarApiServiceImplTest {
 
 	@Test
 	public void testStopWatchEvent() throws GoogleApiSDKException {
-		StopWatchEventReq stopEventReq = new StopWatchEventReq("1-6", "x3ZhVWszU5vYU6wJJlg4RaJPKvc");
-		boolean isStopped = googleCalendarService.stopWatchEvent(stopEventReq);
-		assertTrue(isStopped);
+		StopWatchEventReq stopEventReq = new StopWatchEventReq("2-4", "9C0dOEpGs7L-ZBJy2BIC6AAQ8ak");
+		ErrorResp errorResp = googleCalendarService.stopWatchEvent(stopEventReq);
+		assertNull(errorResp.getError());
 	}
 
 	@Test
 	public void testWatchEvent() throws GoogleApiSDKException {
-		//Params params = new Params("3600000");
-		WatchEventReq eventReq = new WatchEventReq("2-6", "web_hook", "https://clinic.truequit.com/notifications/");
-		WatchEventResp resp = googleCalendarService.watchEvent(eventReq, "ambrose.gregory21@gmail.com");
+		Params params = new Params("3600000");
+		WatchEventReq eventReq = new WatchEventReq("2-6", "web_hook", "https://clinic.truequit.com/notifications/",
+				params);
+		WatchEventResp resp = googleCalendarService.watchEvent(eventReq, "example@gmail.com");
 		assertNotNull(resp);
 	}
 }

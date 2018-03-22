@@ -61,13 +61,12 @@ public class GoogleCalendarHandlerTest {
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("sync_message.json"));
 		req.setBody(body);
 		GoogleCalendarSbmSync googleCalendarSbm = new GoogleCalendarSbmSync();
-		googleCalendarSbm.setSbmId("1-6");
-		googleCalendarSbm.setEmail("trancanh27@gmail.com");
-		googleCalendarSbm.setGoogleEmail("phamthanhcute11@gmail.com");
-		googleCalendarSbm.setRefreshToken("1/A9smC2Y-21FBLOoU-SOmkWcVuk4ypiGqP7URnrjFjMk");
-		googleCalendarSbm.setNextSyncToken("-BLANK-");
-		googleCalendarSbm.setNextPageToken("CigKGjBxb3ZodWswMXB0Yzk5ZDc5bnQzczRoMmxzGAEggICA-M3XpogWGg0IABIAGKCSismV69gC");
-		googleCalendarSbm.setLastQueryTimeMin("2018-02-20T08:38:13.000+07:00");
+		googleCalendarSbm.setSbmId("2-4");
+		googleCalendarSbm.setEmail("suongpham53@gmail.com");
+		googleCalendarSbm.setGoogleEmail("suongpham53@gmail.com");
+		googleCalendarSbm.setRefreshToken("1/_ZrLdUzpSrc1bOcPbweRcBqd2j2O4G-4N9NhWoUGWqU");
+		googleCalendarSbm.setNextSyncToken("CIjhwaev69kCEIjhwaev69kCGAU=");
+		googleCalendarSbm.setNextPageToken("-BLANK-");
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(496);
 		ContactItem contactItem = new ContactItem();
@@ -75,9 +74,10 @@ public class GoogleCalendarHandlerTest {
 		when(contactItemService.load(any())).thenReturn(contactItem);
 		when(googleCalendarService.load(any())).thenReturn(googleCalendarSbm);
 		SbmGoogleCalendar sbmGoogleCalendar = new SbmGoogleCalendar();
-		sbmGoogleCalendar.setEventId("37ajh3jqsfqmrbo8i245iv18o9");
+		sbmGoogleCalendar.setEventId("64b60aq1phbh39ls0dk95qib38");
 		sbmGoogleCalendar.setSbmId(24L);
-		when(sbmCalendarService.queryWithIndex(any())).thenReturn(sbmGoogleCalendar);
+		when(sbmCalendarService.queryWithIndex(sbmGoogleCalendar.getEventId())).thenReturn(sbmGoogleCalendar);
+		
 		AwsProxyResponse response = calendarHanler.handleRequest(req, context);
 		assertEquals(200,response.getStatusCode());
 	}

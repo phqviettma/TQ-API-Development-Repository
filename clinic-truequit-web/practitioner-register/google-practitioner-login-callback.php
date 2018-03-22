@@ -24,7 +24,7 @@ $service = new Google_Service_Calendar($client);
 		$name = filter_var($user['name'], FILTER_SANITIZE_SPECIAL_CHARS);
 		$last_name = filter_var($user['givenName'], FILTER_SANITIZE_SPECIAL_CHARS);
 	  	$first_name = filter_var($user['familyName'], FILTER_SANITIZE_SPECIAL_CHARS);
-		$url = 'https://9a87rzr9jd.execute-api.us-east-1.amazonaws.com/prod/connect';
+		$url = 'https://rkzu4v25bc.execute-api.us-east-1.amazonaws.com/prod/connect';
 		if(isset($_SESSION['email'])){
 			$user_email = $_SESSION['email']; 
 			pushDataToLambda($url,$user_email,$email,$last_name,$first_name,$name,$access_token,$refresh_token);
@@ -56,15 +56,16 @@ $service = new Google_Service_Calendar($client);
 						$request = $http_request->post($url,array(
 									'content-type' => 'application/json'
 							),array());
-						$data = ['email' => $practitioner_email,
+						$data =['action'=>'connect',
+						'params'=> ['email' => $practitioner_email,
 						'lastName'  => $practitioner_lastName,
 						'firstName' => $practitioner_firstName,
 						'name' => $practitioner_name,
 						'accessToken'=>$access_token,
 						'refreshToken'=>$refresh_token,
-						'googleEmail'=>$google_email,
-						'action'=>'connect'
-						];
+						'googleEmail'=>$google_email
+						
+						]];
 						$request->setBody( json_encode($data));
 						
 						$response = $request->send();
@@ -75,7 +76,7 @@ $service = new Google_Service_Calendar($client);
 					 
 						$callback_url='https://' . $_SERVER['HTTP_HOST'] .'/practitioner-register/';
 						if($status_code==200){
-							header('Location: '.$callback_url.'success.php');	
+						header('Location: connect?status=success');
 						}
 						else
 						{

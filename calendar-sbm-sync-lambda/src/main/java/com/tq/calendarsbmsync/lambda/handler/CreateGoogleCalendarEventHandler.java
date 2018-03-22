@@ -1,5 +1,6 @@
 package com.tq.calendarsbmsync.lambda.handler;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +19,8 @@ import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
+import com.tq.simplybook.req.SetWorkDayInfoInfoReq;
+import com.tq.simplybook.req.SetWorkDayInfoReq;
 import com.tq.simplybook.req.ToDate;
 import com.tq.simplybook.resp.Breaktime;
 import com.tq.simplybook.resp.UnitWorkingTime;
@@ -53,24 +56,52 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 
 	private boolean syncToSbm(List<Items> eventItems, String sbmId) throws SbmSDKException {
 		String companyLogin = env.getSimplyBookCompanyLogin();
-		String endpoint = env.getSimplyBookServiceUrlLogin();
+		String endpointLogin = env.getSimplyBookServiceUrlLogin();
+		String endpoint = env.getSimplyBookAdminServiceUrl();
 		String password = env.getSimplyBookPassword();
 		String username = env.getSimplyBookUser();
 		String unitId[] = sbmId.split("-");
-		String token = tokenService.getUserToken(companyLogin, username, password, endpoint);
+		String token = tokenService.getUserToken(companyLogin, username, password, endpointLogin);
 		PractitionerApptGroup apptGroup = new PractitionerApptGroup();
 		for (Items event : eventItems) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 			if (sbmGoogleSync == null) {
-				String date = UtcTimeUtil.extractDate(event.getStart().getDateTime());
+				String dateTime = event.getStart().getDateTime();
 
-				apptGroup.addAppt(date, new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
+				if (dateTime == null) {
+					String startDate = event.getStart().getDate();
+					int providerId =Integer.valueOf(unitId[1]);
+					Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(companyLogin, endpoint, token, startDate, event.getEnd().getDate(), providerId );
+					UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(startDate);
+					if(unitWorkingTime!=null) {
+						
+						Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
+						WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
+						Set<Breaktime> breakTimes = new HashSet<>();
+						Breaktime breakTime = new Breaktime(workingTime.getStart_time(),workingTime.getEnd_time());
+						breakTimes.add(breakTime );
+						SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(workingTime.getStart_time(), workingTime.getEnd_time(), breakTimes, startDate, unitId[1], unitId[0]);
+						SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq );
+						boolean isBlocked = specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);
+						if(isBlocked) {
+							m_log.info("Timeslot on " +startDate +" has been blocked");
+						}
+						else {
+							m_log.info("Error during set work day info for provider with id " + Integer.valueOf(unitId[1]));
+						}
+					}
+				} else {
+					String date = UtcTimeUtil.extractDate(event.getStart().getDateTime());
+					apptGroup.addAppt(date,
+							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
+					addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
+				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
 			}
 		}
 
-		addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
+		
 
 		return true;
 	}
