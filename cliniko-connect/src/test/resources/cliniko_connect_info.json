@@ -1,4 +1,6 @@
 {
-	"apiKey": "8fa56fcf4c1d03e8930abfeaa120fa44",
-	"status": "connect"
+	"action": "connect",
+	"params": {
+		"apiKey": "e795b490bf01c39fec5936169c923bb8"
+	}
 }
