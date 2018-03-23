@@ -18,8 +18,12 @@ import com.tq.cliniko.lambda.model.ClinikoPractitionerConnectReq;
 import com.tq.cliniko.lambda.resp.ClinikoConnectFailureResponse;
 import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
 import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.LatestClinikoAppointmentImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.LatestClinikoAppointmentServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.LatestClinikoAppointmentWrapper;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
+import com.tq.common.lambda.dynamodb.service.LatestClinikoAppointmentService;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
@@ -40,6 +44,8 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private ConnectHandler connectHandler = null;
 	private ConnectHandler disconnectHandler = null;
+	private LatestClinikoAppointmentWrapper latestClinikoApptWrapper = null;
+	private LatestClinikoAppointmentService clinikoApptService = null;
 
 	public ClinikoRegisterHandler() {
 		this.eVariables = Env.load();
@@ -49,9 +55,12 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		;
 		this.unitServiceSbm = new SbmUnitServiceImpl();
 		this.clinikoSyncService = new ClinikoSyncToSbmServiceImpl(new ClinikoSyncToSbmDaoImpl(amazonDynamoDB));
-		this.disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncService);
+		this.clinikoApptService = new LatestClinikoAppointmentServiceImpl(new LatestClinikoAppointmentImpl(amazonDynamoDB));
+		this.latestClinikoApptWrapper = new LatestClinikoAppointmentWrapper(clinikoApptService);
+		this.disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncService, latestClinikoApptWrapper, clinikoApptService);
+		
 		this.connectHandler = new ClinikoConnectHandler(eVariables, unitServiceSbm, tokenServiceSbm,
-				clinikoSyncService);
+				clinikoSyncService, clinikoApptService, latestClinikoApptWrapper);
 
 	}
 
