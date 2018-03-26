@@ -1,4 +1,4 @@
-package com.tq.calendarsbmsync.lambda.handler;
+package com.tq.gcsyncsbm.lambda.handler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -9,15 +9,16 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tq.cliniko.lambda.model.GeneralAppt;
-import com.tq.cliniko.lambda.model.PractitionerApptGroup;
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
+import com.tq.gcsyncsbm.lambda.model.GeneralAppt;
+import com.tq.gcsyncsbm.lambda.model.PractitionerApptGroup;
+import com.tq.gcsyncsbm.lambda.time.UtcTimeUtil;
+import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.resp.Items;
-import com.tq.simplybook.context.Env;
+import com.tq.inf.exception.InfSDKExecption;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
@@ -32,8 +33,8 @@ import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
-public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalHandler {
-	private static final Logger m_log = LoggerFactory.getLogger(CreateGoogleCalendarEventHandler.class);
+public class CreateGoogleEventHandler implements GCInternalHandler {
+	private static final Logger m_log = LoggerFactory.getLogger(CreateGoogleEventHandler.class);
 	private Env env = null;
 	private TokenServiceSbm tokenService = null;
 	private SpecialdayServiceSbm specialdayService = null;
@@ -42,9 +43,8 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	private SbmUnitService unitService = null;
 	private CalendarSyncService modifiedChannelService = null;
 
-	public CreateGoogleCalendarEventHandler(Env env, TokenServiceSbm tss, SpecialdayServiceSbm sds,
-			SbmBreakTimeManagement sbt, SbmGoogleCalendarDbService sdcs, SbmUnitService uss,
-			CalendarSyncService modifiedChannelService) {
+	public CreateGoogleEventHandler(Env env, TokenServiceSbm tss, SpecialdayServiceSbm sds, SbmBreakTimeManagement sbt,
+			SbmGoogleCalendarDbService sdcs, SbmUnitService uss, CalendarSyncService modifiedChannelService) {
 		this.env = env;
 		this.tokenService = tss;
 		this.specialdayService = sds;
@@ -55,7 +55,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	}
 
 	@Override
-	public void handle(List<Items> item, String sbmId) throws SbmSDKException {
+	public void handle(List<Items> item, String sbmId) throws SbmSDKException, InfSDKExecption {
 		syncToSbm(item, sbmId);
 	}
 
@@ -103,7 +103,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
 					addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
 					GCModifiedChannel modifiedItem = new GCModifiedChannel(sbmId, false);
-					modifiedChannelService.put(modifiedItem );
+					modifiedChannelService.put(modifiedItem);
 				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
@@ -137,5 +137,4 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 			}
 		}
 	}
-
 }

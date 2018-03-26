@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
+import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.googlecalendar.context.Env;
@@ -31,8 +32,9 @@ public class GoogleDisconnectHandlerTest {
 	private TokenGoogleCalendarImpl tokenCalendarService = mock(TokenGoogleCalendarImpl.class);
 	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder =mock(GoogleCalendarApiServiceBuilder.class);
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
+	private CalendarSyncService modifiedChannelService = mock(CalendarSyncService.class);
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
-			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService);
+			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);
 	@Test
 	public void testDisconnect() throws TrueQuitRegisterException, GoogleApiSDKException{
 		GoogleRegisterReq req = new GoogleRegisterReq();

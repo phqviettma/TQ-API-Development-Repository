@@ -29,6 +29,7 @@ public class Env {
 	private String googleClientId = new String(System.getenv("GOOGLE_CLIENT_ID"));
 	private String googleClientSecrets = new String(System.getenv("GOOGLE_CLIENT_SECRETS"));
 	public String googleNotifyDomain = new String(System.getenv("NOTIFICATION_DOMAIN"));
+	private Integer googleCalendarMaxResult = Integer.valueOf(System.getenv("GOOGLE_CALENDAR_MAX_RESULT"));
 
 	private Env() {
 
@@ -60,6 +61,7 @@ public class Env {
 		assertVar(googleClientSecrets, "GOOGLE_CLIENT_SECRETS");
 		assertVar(infusionsoftGoogleDeleteTag, "INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG");
 		assertVar(googleNotifyDomain, "NOTIFICATION_DOMAIN");
+		assertVar(googleCalendarMaxResult,"GOOGLE_CALENDAR_MAX_RESULT");
 	}
 
 	private static Env instance;
@@ -176,5 +178,10 @@ public class Env {
 	public static void mock(Env mockedInstance) {
 		instance = mockedInstance;
 	}
+
+	public Integer getGoogleCalendarMaxResult() {
+		return googleCalendarMaxResult;
+	}
+	
 
 }

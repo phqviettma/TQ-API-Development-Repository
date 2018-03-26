@@ -1,4 +1,4 @@
-package com.tq.calendarsbmsync.lambda.handler;
+package com.tq.gcsyncsbm.lambda.handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,9 +11,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tq.cliniko.lambda.model.GeneralAppt;
-import com.tq.cliniko.lambda.model.PractitionerApptGroup;
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
@@ -21,11 +18,14 @@ import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
+import com.tq.gcsyncsbm.lambda.model.GeneralAppt;
+import com.tq.gcsyncsbm.lambda.model.PractitionerApptGroup;
+import com.tq.gcsyncsbm.lambda.time.UtcTimeUtil;
+import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.resp.Items;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
-import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
@@ -41,8 +41,8 @@ import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
-public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalHandler {
-	private static final Logger m_log = LoggerFactory.getLogger(DeleteGoogleCalendarEventHandler.class);
+public class DeleteGoogleEventHandler implements GCInternalHandler {
+	private static final Logger m_log = LoggerFactory.getLogger(DeleteGoogleEventHandler.class);
 	private Env enV = null;
 	private ContactServiceInf contactService = null;
 	private TokenServiceSbm tokenService = null;
@@ -54,11 +54,12 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	private SbmUnitService unitService = null;
 	private CalendarSyncService calendarModifiedChannelService = null;
 
-	public DeleteGoogleCalendarEventHandler(Env env, TokenServiceSbm tokenService,
+	public DeleteGoogleEventHandler(Env env, TokenServiceSbm tokenService,
 			GoogleCalendarDbService googleCalendarService, SpecialdayServiceSbm specialdayService,
 			SbmBreakTimeManagement sbmBreakTimeManagement, ContactItemService contactItemService,
 			ContactServiceInf contactInfService, SbmGoogleCalendarDbService sbmCalendarService,
-			BookingServiceSbm bookingService, SbmUnitService unitService,CalendarSyncService calendarModifiedChannelService) {
+			BookingServiceSbm bookingService, SbmUnitService unitService,
+			CalendarSyncService calendarModifiedChannelService) {
 		this.contactItemService = contactItemService;
 		this.enV = env;
 		this.tokenService = tokenService;
@@ -156,7 +157,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 			m_log.info("Events are synced to SBM provider " + sbmId + " by unblocking : "
 					+ String.valueOf(eventTobeUnblocked));
 			GCModifiedChannel modifiedItem = new GCModifiedChannel(sbmId, false);
-			calendarModifiedChannelService.put(modifiedItem );
+			calendarModifiedChannelService.put(modifiedItem);
 		}
 
 	}

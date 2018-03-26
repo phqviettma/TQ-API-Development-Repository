@@ -16,16 +16,15 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
+import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
-import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
-import com.tq.inf.impl.ContactServiceImpl;
-import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.service.SbmUnitService;
@@ -38,26 +37,27 @@ public class GoogleHandlerTest {
 	private static SbmUnitService unitService = new SbmUnitServiceImpl();
 	private AmazonDynamoDB amazonDynamoDB = mock(AmazonDynamoDB.class);
 	private Context m_context = mock(Context.class);
-	private ContactServiceInf contactService = new ContactServiceImpl();
 	private ContactItemService contactItemService = mock(ContactItemService.class);
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private SbmUnitService sbmUnitService = new SbmUnitServiceImpl();
 	private TokenServiceSbm tokenServiceSbm = new TokenServiceImpl();
-	private GoogleCalRenewService googleWatchChannelDbService= mock(GoogleCalRenewService.class);
-	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder =mock(GoogleCalendarApiServiceBuilder.class);
+	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
+	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
+	private CalendarSyncService modifiedChannelService = mock(CalendarSyncService.class);
 	private GoogleCalendarCheckStatusHandler checkHandler = new GoogleCalendarCheckStatusHandler(calendarService);
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
-			contactService, contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm, mockedApiServiceBuilder, googleWatchChannelDbService);
+			contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm,
+			mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);
 
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
-			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService);
+			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);
 
 	@Test
 	public void testRegisterHandler() {
 		Env.mock(mockedeEnv);
 
 		GoogleHandler handler = new GoogleHandler(mockedeEnv, amazonDynamoDB, unitService, tokenService,
-				calendarService, contactService, contactItemService, connectHandler, checkHandler, disconnectHandler);
+				calendarService, contactItemService, connectHandler, checkHandler, disconnectHandler);
 
 		String jsonString = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("user_info.json"));
