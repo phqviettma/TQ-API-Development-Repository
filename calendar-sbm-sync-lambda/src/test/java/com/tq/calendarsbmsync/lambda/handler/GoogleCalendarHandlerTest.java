@@ -15,7 +15,6 @@ import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
@@ -23,16 +22,15 @@ import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
-import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
+import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.service.BookingServiceSbm;
+import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
-import com.tq.simplybook.service.SbmUnitService;
 
 public class GoogleCalendarHandlerTest {
 	private TokenServiceSbm tokenService = new TokenServiceImpl();
@@ -43,16 +41,15 @@ public class GoogleCalendarHandlerTest {
 	private SbmBreakTimeManagement sbmBreakTimeManagement = new SbmBreakTimeManagement();
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private SbmUnitService unitService = new SbmUnitServiceImpl();
-	private CalendarSyncService modifiedChannelService = mock(CalendarSyncService.class);
 	private CreateGoogleCalendarEventHandler handler = new CreateGoogleCalendarEventHandler(env, tokenService,
-			specialdayService, sbmBreakTimeManagement, sbmGoogleCalendarService, unitService, modifiedChannelService);
+			specialdayService, sbmBreakTimeManagement, sbmGoogleCalendarService, unitService);
 	private ContactItemService contactItemService = mock(ContactItemService.class);
 	private ContactServiceInf contactInfService = new ContactServiceImpl();
 	private SbmGoogleCalendarDbService sbmCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private BookingServiceSbm bookingService = new BookingServiceSbmImpl();
 	private DeleteGoogleCalendarEventHandler deleteHandler = new DeleteGoogleCalendarEventHandler(env, tokenService,
 			googleCalendarService, specialdayService, sbmBreakTimeManagement, contactItemService, contactInfService,
-			sbmCalendarService, bookingService, unitService, modifiedChannelService);
+			sbmCalendarService, bookingService, unitService);
 	GoogleCalendarHandler calendarHanler = new GoogleCalendarHandler(env, amazonDynamoDB, googleCalendarService,
 			specialdayService, handler, deleteHandler, unitService);
 	private Context context = mock(Context.class);

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.googlecalendar.context.Env;
@@ -31,11 +31,11 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private GoogleCalRenewService googleCalRenewService = null;
-	private CalendarSyncService calendarModifiedChannelService = null;
+	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
 
 	public GoogleDisconnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			TokenGoogleCalendarService tokenCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder,
-			GoogleCalRenewService googleCalRenewService, CalendarSyncService calendarModifiedChannelService) {
+			GoogleCalRenewService googleCalRenewService, GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.tokenCalendarService = tokenCalendarService;
@@ -69,7 +69,7 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 				if (renewChannel != null) {
 					googleCalRenewService.deleteItem(renewChannel);
 					m_log.info("Delete record in table GoogleRenewChannelInfo successfully");
-					GCModifiedChannel modifiedChannel = new GCModifiedChannel(googleCalendarSbmSync.getSbmId(),null);
+					GCModifiedChannel modifiedChannel = new GCModifiedChannel(googleCalendarSbmSync.getSbmId(),null, 0);
 					calendarModifiedChannelService.delete(modifiedChannel );
 				}
 

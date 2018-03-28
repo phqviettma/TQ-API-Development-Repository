@@ -18,18 +18,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tq.calendarsbmsync.lambda.model.SyncMessage;
 import com.tq.cliniko.time.UtcTimeUtil;
-import com.tq.common.lambda.dynamodb.dao.CalendarSynDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.GoogleCalendarModifiedSynDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmGoogleCalendarSyncDaoImpl;
-import com.tq.common.lambda.dynamodb.impl.CalendarSyncServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.GoogleCalendarModifiedSyncServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmGoogleCalendarServiceImpl;
+import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
@@ -47,13 +48,13 @@ import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
+import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.service.BookingServiceSbm;
+import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
-import com.tq.simplybook.service.SbmUnitService;
 
 public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static final Logger m_log = LoggerFactory.getLogger(GoogleCalendarHandler.class);
@@ -73,7 +74,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 	private GoogleCalendarInternalHandler deleteEventHandler = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private SbmUnitService unitService = null;
-	private CalendarSyncService modifiedChannelService = null;
+	private GoogleCalendarModifiedSyncService modifiedChannelService = null;
 
 	public GoogleCalendarHandler() {
 		this.m_env = Env.load();
@@ -81,7 +82,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 		this.sbmTimeManagement = new SbmBreakTimeManagement();
 		this.m_amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(m_env.getRegions(), m_env.getAwsAccessKeyId(),
 				m_env.getAwsSecretAccessKey());
-		this.modifiedChannelService = new CalendarSyncServiceImpl(new CalendarSynDaoImpl(m_amazonDynamoDB));
+		this.modifiedChannelService = new GoogleCalendarModifiedSyncServiceImpl(new GoogleCalendarModifiedSynDaoImpl(m_amazonDynamoDB));
 		this.sbmCalendarService = new SbmGoogleCalendarServiceImpl(new SbmGoogleCalendarSyncDaoImpl(m_amazonDynamoDB));
 		this.googleCalendarService = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(m_amazonDynamoDB));
 		this.tokenService = new TokenServiceImpl();
@@ -89,11 +90,11 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 		this.contactItemService = new ContactItemServiceImpl(new ContactItemDaoImpl(m_amazonDynamoDB));
 		this.unitService = new SbmUnitServiceImpl();
 		this.createEventHandler = new CreateGoogleCalendarEventHandler(m_env, tokenService, specialDayService,
-				sbmTimeManagement, sbmCalendarService, unitService, modifiedChannelService);
+				sbmTimeManagement, sbmCalendarService, unitService);
 		this.bookingService = new BookingServiceSbmImpl();
 		this.deleteEventHandler = new DeleteGoogleCalendarEventHandler(m_env, tokenService, googleCalendarService,
 				specialDayService, sbmTimeManagement, contactItemService, contactInfService, sbmCalendarService,
-				bookingService, unitService, modifiedChannelService);
+				bookingService, unitService);
 	}
 
 	// for testing only
@@ -207,6 +208,8 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						if (isDbChanged) {
 							m_log.info("Save to table GoogleCalendarSbmSync: " + googleCalendarSbmSync);
 							googleCalendarService.put(googleCalendarSbmSync);
+							GCModifiedChannel modifiedItem = new GCModifiedChannel(sbmId, 1, 0);
+							modifiedChannelService.put(modifiedItem );
 						}
 					}
 

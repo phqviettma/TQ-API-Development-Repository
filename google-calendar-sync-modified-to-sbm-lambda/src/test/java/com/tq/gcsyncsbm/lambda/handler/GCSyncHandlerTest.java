@@ -19,13 +19,10 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
-import com.tq.gcsyncsbm.lambda.handler.CalendarSyncHandler;
-import com.tq.gcsyncsbm.lambda.handler.CreateGoogleEventHandler;
-import com.tq.gcsyncsbm.lambda.handler.DeleteGoogleEventHandler;
 import com.tq.googlecalendar.context.Env;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
@@ -49,16 +46,16 @@ public class GCSyncHandlerTest {
 	private SbmBreakTimeManagement sbmBreakTimeManagement = new SbmBreakTimeManagement();
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private SbmUnitService unitService = new SbmUnitServiceImpl();
-	private CalendarSyncService modifiedChannelService = mock(CalendarSyncService.class);
+	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
 	private ContactItemService contactItemService = mock(ContactItemService.class);
 	private ContactServiceInf contactInfService = new ContactServiceImpl();
 	private SbmGoogleCalendarDbService sbmCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private BookingServiceSbm bookingService = new BookingServiceSbmImpl();
 	private CreateGoogleEventHandler createHandler = new CreateGoogleEventHandler(env, tokenService, specialdayService,
-			sbmBreakTimeManagement, sbmGoogleCalendarService, unitService, modifiedChannelService);
+			sbmBreakTimeManagement, sbmGoogleCalendarService, unitService);
 	private DeleteGoogleEventHandler deleteHandler = new DeleteGoogleEventHandler(env, tokenService,
 			googleCalendarService, specialdayService, sbmBreakTimeManagement, contactItemService, contactInfService,
-			sbmCalendarService, bookingService, unitService, modifiedChannelService);
+			sbmCalendarService, bookingService, unitService);
 	CalendarSyncHandler handler = new CalendarSyncHandler(env, amazonDynamoDB, googleCalendarService, specialdayService,
 			createHandler, deleteHandler, unitService, modifiedChannelService, sbmCalendarService);
 
@@ -83,8 +80,8 @@ public class GCSyncHandlerTest {
 		sbmGoogleCalendar.setSbmId(24L);
 		when(sbmCalendarService.queryWithIndex(sbmGoogleCalendar.getEventId())).thenReturn(sbmGoogleCalendar);
 		List<GCModifiedChannel> listModifiedItem = new ArrayList<>();
-		listModifiedItem.add(new GCModifiedChannel("2-4",true));
-		when(modifiedChannelService.scanItem()).thenReturn(listModifiedItem );
+		listModifiedItem.add(new GCModifiedChannel("2-4",1, 0));
+		when(modifiedChannelService.queryItem()).thenReturn(listModifiedItem );
 		AwsProxyResponse response = handler.handleRequest(req, context);
 		assertEquals(200, response.getStatusCode());
 	}

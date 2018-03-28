@@ -14,7 +14,7 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
@@ -50,13 +50,13 @@ public class GoogleConnectCalendarHandler implements Handler {
 	private ContactItemService contactItemService = null;
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
-	private CalendarSyncService calendarModifiedChannelService = null;
+	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
 
 	public GoogleConnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			ContactItemService contactItemService, TokenGoogleCalendarService tokenCalendarService,
 			SbmUnitService sbmUnitService, TokenServiceSbm tokenServiceSbm,
 			GoogleCalendarApiServiceBuilder apiServiceBuilder, GoogleCalRenewService googleCalRenewService,
-			CalendarSyncService calendarModifiedChannelService) {
+			GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.contactItemService = contactItemService;
@@ -127,7 +127,8 @@ public class GoogleConnectCalendarHandler implements Handler {
 							googleCalRenewService.put(channelInfo);
 							m_log.info(
 									"Added to GoogleCalendarChannelInfo table successfully " + channelInfo.toString());
-							GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(sbmId, true);
+							long timeStamp= Calendar.getInstance().getTimeInMillis();
+							GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(sbmId, -1, timeStamp);
 							calendarModifiedChannelService.put(modifiedChannelItem);
 							done = true;
 							break;

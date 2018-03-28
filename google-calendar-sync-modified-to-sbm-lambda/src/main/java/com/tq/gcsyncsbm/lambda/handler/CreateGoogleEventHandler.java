@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.gcsyncsbm.lambda.model.GeneralAppt;
 import com.tq.gcsyncsbm.lambda.model.PractitionerApptGroup;
@@ -41,17 +41,15 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 	private SbmBreakTimeManagement sbmBreakTimeManagement = null;
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
 	private SbmUnitService unitService = null;
-	private CalendarSyncService modifiedChannelService = null;
 
 	public CreateGoogleEventHandler(Env env, TokenServiceSbm tss, SpecialdayServiceSbm sds, SbmBreakTimeManagement sbt,
-			SbmGoogleCalendarDbService sdcs, SbmUnitService uss, CalendarSyncService modifiedChannelService) {
+			SbmGoogleCalendarDbService sdcs, SbmUnitService uss) {
 		this.env = env;
 		this.tokenService = tss;
 		this.specialdayService = sds;
 		this.sbmBreakTimeManagement = sbt;
 		this.sbmCalendarService = sdcs;
 		this.unitService = uss;
-		this.modifiedChannelService = modifiedChannelService;
 	}
 
 	@Override
@@ -102,8 +100,10 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 					apptGroup.addAppt(date,
 							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
 					addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
-					GCModifiedChannel modifiedItem = new GCModifiedChannel(sbmId, false);
-					modifiedChannelService.put(modifiedItem);
+					UUID uuid = UUID.randomUUID();
+					long bookingId = uuid.getMostSignificantBits();
+					sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(),"-BLANK-");
+					sbmCalendarService.put(sbmGoogleSync);
 				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");

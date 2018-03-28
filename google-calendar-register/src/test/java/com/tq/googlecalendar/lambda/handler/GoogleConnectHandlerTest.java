@@ -19,7 +19,7 @@ import org.mockito.stubbing.Answer;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
@@ -49,7 +49,7 @@ public class GoogleConnectHandlerTest {
 	private TokenGoogleCalendarImpl tokenCalendarService = mock(TokenGoogleCalendarImpl.class);
 	private SbmUnitService sbmUnitService = mock(SbmUnitService.class);
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
-	private CalendarSyncService modifiedChannelService = mock(CalendarSyncService.class);
+	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
 			contactItemService, tokenCalendarService, sbmUnitService, tokenService,
 			mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);

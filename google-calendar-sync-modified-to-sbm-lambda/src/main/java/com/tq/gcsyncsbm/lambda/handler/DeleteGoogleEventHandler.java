@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.common.lambda.dynamodb.model.ContactItem;
-import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
@@ -52,14 +50,12 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
 	private BookingServiceSbm bookingService = null;
 	private SbmUnitService unitService = null;
-	private CalendarSyncService calendarModifiedChannelService = null;
 
 	public DeleteGoogleEventHandler(Env env, TokenServiceSbm tokenService,
 			GoogleCalendarDbService googleCalendarService, SpecialdayServiceSbm specialdayService,
 			SbmBreakTimeManagement sbmBreakTimeManagement, ContactItemService contactItemService,
 			ContactServiceInf contactInfService, SbmGoogleCalendarDbService sbmCalendarService,
-			BookingServiceSbm bookingService, SbmUnitService unitService,
-			CalendarSyncService calendarModifiedChannelService) {
+			BookingServiceSbm bookingService, SbmUnitService unitService) {
 		this.contactItemService = contactItemService;
 		this.enV = env;
 		this.tokenService = tokenService;
@@ -69,7 +65,6 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 		this.sbmCalendarService = sbmCalendarService;
 		this.bookingService = bookingService;
 		this.unitService = unitService;
-		this.calendarModifiedChannelService = calendarModifiedChannelService;
 	}
 
 	@Override
@@ -156,8 +151,6 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 			removeBreakTime(apptGroupMap, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
 			m_log.info("Events are synced to SBM provider " + sbmId + " by unblocking : "
 					+ String.valueOf(eventTobeUnblocked));
-			GCModifiedChannel modifiedItem = new GCModifiedChannel(sbmId, false);
-			calendarModifiedChannelService.put(modifiedItem);
 		}
 
 	}

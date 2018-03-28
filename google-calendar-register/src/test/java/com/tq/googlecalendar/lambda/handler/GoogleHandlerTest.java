@@ -16,7 +16,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
-import com.tq.common.lambda.dynamodb.service.CalendarSyncService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
@@ -43,7 +43,7 @@ public class GoogleHandlerTest {
 	private TokenServiceSbm tokenServiceSbm = new TokenServiceImpl();
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
 	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
-	private CalendarSyncService modifiedChannelService = mock(CalendarSyncService.class);
+	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
 	private GoogleCalendarCheckStatusHandler checkHandler = new GoogleCalendarCheckStatusHandler(calendarService);
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
 			contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm,
