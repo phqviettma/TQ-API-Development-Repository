@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,12 +91,15 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 
 		for (Items event : items) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
-			if (sbmGoogleSync != null) {
+			if (sbmGoogleSync != null && "sbm".equals(sbmGoogleSync.getCheckKind())) {
 				listSbmGoogleCalendar.add(sbmGoogleSync);
 				sbmBookingIdsTobeCancelled.add(sbmGoogleSync.getSbmId());
 				eventsTobeCancelled.add(event);
 				clientEmailsForCancellation.add(sbmGoogleSync.getClientEmail());
-			} else {
+			}else if(sbmGoogleSync != null && "google".equals(sbmGoogleSync.getCheckKind())) {
+				
+			} 
+			else {
 				eventTobeUnblocked.add(event);
 				String dateTime = event.getStart().getDateTime();
 				if (dateTime == null) {
@@ -135,6 +139,12 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 
 				}
 			}
+			sbmGoogleSync = new SbmGoogleCalendar();
+			UUID uuid = UUID.randomUUID();
+			long bookingId = uuid.getMostSignificantBits();
+			sbmGoogleSync.setSbmId(bookingId);
+			sbmGoogleSync.setFlag(0);
+			sbmCalendarService.put(sbmGoogleSync);
 		}
 
 		if (!sbmBookingIdsTobeCancelled.isEmpty()) {
@@ -151,6 +161,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 			removeBreakTime(apptGroupMap, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
 			m_log.info("Events are synced to SBM provider " + sbmId + " by unblocking : "
 					+ String.valueOf(eventTobeUnblocked));
+
 		}
 
 	}
@@ -191,6 +202,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId);
 				}
 			}
+
 		}
 
 	}

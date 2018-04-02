@@ -127,8 +127,7 @@ public class GoogleConnectCalendarHandler implements Handler {
 							googleCalRenewService.put(channelInfo);
 							m_log.info(
 									"Added to GoogleCalendarChannelInfo table successfully " + channelInfo.toString());
-							long timeStamp= Calendar.getInstance().getTimeInMillis();
-							GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(sbmId, -1, timeStamp);
+							GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(sbmId, -1, 0);
 							calendarModifiedChannelService.put(modifiedChannelItem);
 							done = true;
 							break;

@@ -3,12 +3,11 @@ package com.tq.googlecalendar.lambda.handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
-import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
@@ -35,7 +34,8 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 
 	public GoogleDisconnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			TokenGoogleCalendarService tokenCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder,
-			GoogleCalRenewService googleCalRenewService, GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
+			GoogleCalRenewService googleCalRenewService,
+			GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.tokenCalendarService = tokenCalendarService;
@@ -69,8 +69,10 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 				if (renewChannel != null) {
 					googleCalRenewService.deleteItem(renewChannel);
 					m_log.info("Delete record in table GoogleRenewChannelInfo successfully");
-					GCModifiedChannel modifiedChannel = new GCModifiedChannel(googleCalendarSbmSync.getSbmId(),null, 0);
-					calendarModifiedChannelService.delete(modifiedChannel );
+					m_log.info("Channel Id" + googleCalendarSbmSync.getSbmId());
+					calendarModifiedChannelService.deleteDynamoItem(googleCalendarSbmSync.getSbmId());
+					m_log.info("Delete record in table GoogleModified successfully");
+
 				}
 
 			} else {

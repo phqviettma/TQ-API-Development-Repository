@@ -14,7 +14,6 @@ import com.tq.common.lambda.dynamodb.service.AbstractItem;
 
 public class GoogleCalendarModifiedSynDaoImpl extends AbstractItem<GCModifiedChannel, String>
 		implements GoogleCalendarModifiedSyncDao {
-
 	public GoogleCalendarModifiedSynDaoImpl(AmazonDynamoDB client) {
 		super(client, GCModifiedChannel.class);
 
@@ -40,13 +39,28 @@ public class GoogleCalendarModifiedSynDaoImpl extends AbstractItem<GCModifiedCha
 	@Override
 	public List<GCModifiedChannel> queryItem() {
 		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
-		queryCondition.put(":status", new AttributeValue().withN("1"));
+		queryCondition.put(":checkStatus", new AttributeValue().withN("1"));
 		DynamoDBQueryExpression<GCModifiedChannel> queryExpression = new DynamoDBQueryExpression<GCModifiedChannel>()
-				.withIndexName("Modified-Index").withKeyConditionExpression("status=:status")
+				.withIndexName("Modified-Index").withKeyConditionExpression("checkStatus=:checkStatus")
 				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
+
 		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
 		List<GCModifiedChannel> calendarSbmSync = mapper.query(GCModifiedChannel.class, queryExpression);
 		return calendarSbmSync;
 	}
+
+	@Override
+	public void deleteItem(String hashKey) {
+		GCModifiedChannel channel = new GCModifiedChannel();
+		channel.setChannelId(hashKey);
+		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
+		mapper.delete(channel);
+	}
+
+	@Override
+	public void saveItem(GCModifiedChannel item) {
+		super.saveItem(item);
+	}
+	
 
 }

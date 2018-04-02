@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
-import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.gcsyncsbm.lambda.model.GeneralAppt;
 import com.tq.gcsyncsbm.lambda.model.PractitionerApptGroup;
@@ -64,8 +63,10 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 		String password = env.getSimplyBookPassword();
 		String username = env.getSimplyBookUser();
 		String unitId[] = sbmId.split("-");
+	
 		String token = tokenService.getUserToken(companyLogin, username, password, endpointLogin);
 		PractitionerApptGroup apptGroup = new PractitionerApptGroup();
+		long checkTime = System.currentTimeMillis();
 		for (Items event : eventItems) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 			if (sbmGoogleSync == null) {
@@ -99,16 +100,21 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 					String date = UtcTimeUtil.extractDate(event.getStart().getDateTime());
 					apptGroup.addAppt(date,
 							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
+					long start = System.currentTimeMillis();
 					addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
+					 m_log.info("Add breakTime take " + (System.currentTimeMillis() - start)+" ms");
 					UUID uuid = UUID.randomUUID();
 					long bookingId = uuid.getMostSignificantBits();
-					sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(),"-BLANK-");
+					start = System.currentTimeMillis();
+					sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(),"-BLANK-", 1, "google");
 					sbmCalendarService.put(sbmGoogleSync);
+					 m_log.info("Save to database take " + (System.currentTimeMillis() - start)+" ms");
 				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
 			}
 		}
+		 m_log.info("Taking time per loop " + (System.currentTimeMillis() - checkTime)+" ms");
 
 		return true;
 	}
@@ -131,6 +137,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 			Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue();
 			String date = dateToSbmBreakTime.getKey();
 			if (!breakTimes.isEmpty()) {
+				
 				sbmBreakTimeManagement.addBreakTime(env.getSimplyBookCompanyLogin(), env.getSimplyBookAdminServiceUrl(),
 						token, unitId, eventId, workingTime.getStart_time(), workingTime.getEnd_time(), date,
 						breakTimes, workDayInfoMapForUnitId);

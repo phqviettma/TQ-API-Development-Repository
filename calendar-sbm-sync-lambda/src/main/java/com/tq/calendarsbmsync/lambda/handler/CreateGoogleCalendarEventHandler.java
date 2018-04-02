@@ -100,7 +100,8 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 					addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
 					UUID uuid = UUID.randomUUID();
 					long bookingId = uuid.getMostSignificantBits();
-					sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(),"-BLANK-");
+					sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(),"-BLANK-", 1, "google");
+					m_log.info("SbmGoogle sync value" +sbmGoogleSync);
 					sbmCalendarService.put(sbmGoogleSync);
 				}
 			} else {

@@ -28,7 +28,6 @@ public class SbmGoogleCalendarSyncDaoImpl extends AbstractItem<SbmGoogleCalendar
 	public SbmGoogleCalendar queryIndex(String eventId) {
 		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
 		queryCondition.put(":id", new AttributeValue().withS(eventId));
-
 		DynamoDBQueryExpression<SbmGoogleCalendar> queryExpression = new DynamoDBQueryExpression<SbmGoogleCalendar>()
 				.withIndexName("Event-Index").withKeyConditionExpression("eventId=:id")
 				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);

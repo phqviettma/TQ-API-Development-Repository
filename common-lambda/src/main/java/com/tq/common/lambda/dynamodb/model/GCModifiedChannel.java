@@ -2,12 +2,12 @@ package com.tq.common.lambda.dynamodb.model;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 @DynamoDBTable(tableName = "GCModifiedChannel")
 public class GCModifiedChannel {
 	private String channelId;
-	private Integer status;
+	private Integer checkStatus;
 	private long timeStamp;
 	
 
@@ -20,15 +20,15 @@ public class GCModifiedChannel {
 		this.channelId = channelId;
 	}
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Modified-Index", attributeName = "status")
-	public Integer getStatus() {
-		return status;
+	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Modified-Index", attributeName = "checkStatus")
+	public Integer getCheckStatus() {
+		return checkStatus;
 	}
 
-	public void setStatus(Integer status) {
-		this.status = status;
+	public void setCheckStatus(Integer checkStatus) {
+		this.checkStatus = checkStatus;
 	}
-	@DynamoDBRangeKey(attributeName = "timeStamp")
+	@DynamoDBIndexRangeKey(globalSecondaryIndexName = "Modified-Index",attributeName = "timeStamp")
 	public long getTimestamp() {
 		return timeStamp;
 	}
@@ -37,10 +37,10 @@ public class GCModifiedChannel {
 		this.timeStamp = timestamp;
 	}
 
-	public GCModifiedChannel(String channelId, Integer status, long timeStamp) {
+	public GCModifiedChannel(String channelId, Integer checkStatus, long timeStamp) {
 
 		this.channelId = channelId;
-		this.status = status;
+		this.checkStatus = checkStatus;
 		this.timeStamp = timeStamp;
 	}
 
@@ -50,7 +50,7 @@ public class GCModifiedChannel {
 
 	@Override
 	public String toString() {
-		return "GCModifiedChannel [channelId=" + channelId + ", status=" + status + ", timestamp=" + timeStamp
+		return "GCModifiedChannel [channelId=" + channelId + ", checkStatus=" + checkStatus + ", timestamp=" + timeStamp
 				+ "]";
 	}
 	

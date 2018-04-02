@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +136,13 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 
 				}
 			}
+			sbmGoogleSync = new SbmGoogleCalendar();
+			UUID uuid = UUID.randomUUID();
+			long bookingId = uuid.getMostSignificantBits();
+			sbmGoogleSync.setSbmId(bookingId);
+			sbmGoogleSync.setFlag(0);
+			sbmCalendarService.put(sbmGoogleSync );
+			
 		}
 
 		if (!sbmBookingIdsTobeCancelled.isEmpty()) {
