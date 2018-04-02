@@ -46,6 +46,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
 				.valueOf(lambdaContext.getEnvVar().getEnv(Config.INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG));
 		applyTagToInfusionsoft(lambdaContext, contactId, appliedTagId);
 		log.info("Applied tag for contact " + contactItem);
+		handleResponse(input, resp, contactItem);
 		return resp;
 	}
 
