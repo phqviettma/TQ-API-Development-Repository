@@ -24,14 +24,12 @@ import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmGoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
-import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
-import com.tq.gcsyncsbm.lambda.time.UtcTimeUtil;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
@@ -42,6 +40,7 @@ import com.tq.googlecalendar.resp.Items;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
+import com.tq.googlecalendar.time.UtcTimeUtil;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
@@ -118,21 +117,21 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 		AwsProxyResponse resp = new AwsProxyResponse();
 		boolean errorOccured = false;
 		m_log.info("Start GoogleCalendar-SBM synchronization lambda");
-		List<GCModifiedChannel> modifiedItem = modifiedChannelService.queryItem();
-		Iterator<GCModifiedChannel> it = modifiedItem.iterator();
+		List<GCModifiedChannel> modifiedItems = modifiedChannelService.queryItem();
+		Iterator<GCModifiedChannel> it = modifiedItems.iterator();
 		int processedChannelNum = 0;
 		int processedEventNum = 0;
+		long timeStamp = Calendar.getInstance().getTimeInMillis();
 
 		try {
-			  long start = System.currentTimeMillis();
+			long start = System.currentTimeMillis();
 			while (it.hasNext() && processedChannelNum < m_env.getNumberRecordDB()
 					&& processedEventNum < m_env.getNumberEvent()) {
-				GCModifiedChannel modifiedChannel = it.next();
-				m_log.info("Modified Item" + modifiedChannel);
+				GCModifiedChannel modifiedItem = it.next();
+				m_log.info("Modified Item" + modifiedItem);
 				long checkStartTime = System.currentTimeMillis();
-				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService
-						.load(modifiedChannel.getChannelId());
-				m_log.info("Load value in database take " + (System.currentTimeMillis() - checkStartTime)+"ms");
+				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.load(modifiedItem.getChannelId());
+				m_log.info("Load value in database take " + (System.currentTimeMillis() - checkStartTime) + "ms");
 				if (googleCalendarSbmSync != null) {
 					checkStartTime = System.currentTimeMillis();
 					TokenReq tokenReq = new TokenReq(m_env.getGoogleClientId(), m_env.getGoogleClientSecrets(),
@@ -140,7 +139,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					TokenResp token = tokenCalendarService.getToken(tokenReq);
 					GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(
 							token.getAccess_token());
-					m_log.info("Get token take " + (System.currentTimeMillis() - checkStartTime)+"ms");
+					m_log.info("Get token take " + (System.currentTimeMillis() - checkStartTime) + "ms");
 					List<Items> confirmedItems = new ArrayList<>();
 					List<Items> cancelledItems = new ArrayList<>();
 					CalendarEvents eventList = null;
@@ -166,7 +165,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 							timeMinQuery = true;
 							checkStartTime = System.currentTimeMillis();
 							eventList = googleApiService.getEventWithoutToken(maxResult, timeMin);
-							m_log.info("Get list event take " + (System.currentTimeMillis() - checkStartTime)+"ms");
+							m_log.info("Get list event take " + (System.currentTimeMillis() - checkStartTime) + "ms");
 						} else {
 							if (!"-BLANK-".equals(nextPageToken)) {
 								eventList = googleApiService.getEventAtLastTime(maxResult, lastQueryTimeMin,
@@ -187,38 +186,32 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					m_log.info("Fetched Google Events: " + eventList);
 
 					for (Items item : eventList.getItems()) {
-						SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(item.getId());
-						if (sbmGoogleSync == null) {
-							if ("confirmed".equals(item.getStatus())) {
-								confirmedItems.add(item);
-							} else if ("cancelled".equals(item.getStatus())) {
-								cancelledItems.add(item);
-							}
-						}
-						else if(sbmGoogleSync.getFlag()==1&& sbmGoogleSync.getCheckKind()=="sbm") {
+
+						if ("confirmed".equals(item.getStatus())) {
+							confirmedItems.add(item);
+						} else if ("cancelled".equals(item.getStatus())) {
 							cancelledItems.add(item);
 						}
-						else {
-							// Do nothing
-						}
+
 					}
 
 					if (!confirmedItems.isEmpty()) {
 						checkStartTime = System.currentTimeMillis();
 						createEventHandler.handle(confirmedItems, sbmId);
-						m_log.info("Handle create item take " + (System.currentTimeMillis() - checkStartTime)+"ms");
+						m_log.info("Handle create item take " + (System.currentTimeMillis() - checkStartTime) + "ms");
 					}
 					if (!cancelledItems.isEmpty()) {
 						checkStartTime = System.currentTimeMillis();
 						deleteEventHandler.handle(cancelledItems, sbmId);
-						m_log.info("Handle cancel item take " + (System.currentTimeMillis() - checkStartTime)+"ms");
+						m_log.info("Handle cancel item take " + (System.currentTimeMillis() - checkStartTime) + "ms");
 					}
 
 					String newNextPageToken = eventList.getNextPageToken();
 					boolean isDbChanged = false;
-
+					boolean allEventsSynced = false;
 					if (newNextPageToken == null) {
 						isDbChanged = true;
+						allEventsSynced = true;
 						googleCalendarSbmSync.setNextPageToken("-BLANK-");
 					} else {
 						isDbChanged = true;
@@ -230,21 +223,25 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					if (newNextSyncToken != null) {
 						isDbChanged = true;
 						googleCalendarSbmSync.setNextSyncToken(newNextSyncToken);
+
 					} else {
 						if (timeMinQuery == true) {
 							googleCalendarSbmSync.setLastQueryTimeMin(timeMin);
 						}
 					}
+					if (allEventsSynced) {
+						
+						modifiedItem.setTimestamp(timeStamp);
+						modifiedItem.setCheckStatus(0);
+						modifiedChannelService.put(modifiedItem);
+					}
+
 					if (isDbChanged) {
 						checkStartTime = System.currentTimeMillis();
 						m_log.info("Save to table GoogleCalendarSbmSync: " + googleCalendarSbmSync);
 						googleCalendarService.put(googleCalendarSbmSync);
-						long timeStamp = Calendar.getInstance().getTimeInMillis();
-						
-						GCModifiedChannel gcModifiedChannel = new GCModifiedChannel(sbmId, 1, timeStamp);
-						modifiedChannelService.saveItem(gcModifiedChannel);
-						m_log.info("Save successfully " + gcModifiedChannel);
-						m_log.info("Save to database take " + (System.currentTimeMillis() - checkStartTime)+"ms");
+						modifiedItem.setTimestamp(timeStamp);
+						modifiedChannelService.put(modifiedItem);
 					}
 
 					processedChannelNum++;
@@ -256,7 +253,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 				}
 
 			}
-			  m_log.info("One progress take " + (System.currentTimeMillis() - start)+"ms");
+			m_log.info("One progress take " + (System.currentTimeMillis() - start) + "ms");
 
 		} catch (Exception e) {
 			m_log.error("Error occurs", e);

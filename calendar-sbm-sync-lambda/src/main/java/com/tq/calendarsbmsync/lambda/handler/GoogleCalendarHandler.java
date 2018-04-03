@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -120,6 +121,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 		if (info != null) {
 			String googleState = info.getGoogleResourceState();
 			String sbmId = info.getGoogleChannelId();
+
 			try {
 				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.load(sbmId);
 				if (googleCalendarSbmSync != null) {
@@ -164,63 +166,36 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						}
 
 						m_log.info("Fetched Google Events: " + eventList);
-						if (eventList.getItems().size() > 5) {
-							for (int i = 0; i <= 5; i++) {
-								Items item = eventList.getItems().get(i);
-								if ("confirmed".equals(item.getStatus())) {
-									confirmedItems.add(item);
-								} else if ("cancelled".equals(item.getStatus())) {
-									cancelledItems.add(item);
-								}
-								i++;
+						Iterator<Items> item = eventList.getItems().iterator();
+						int index = 0;
+						while (item.hasNext() && index < 5) {
+							Items eventItem = item.next();
+							if ("confirmed".equals(eventItem.getStatus())) {
+								confirmedItems.add(eventItem);
+							} else if ("cancelled".equals(eventItem.getStatus())) {
+								cancelledItems.add(eventItem);
 							}
-
-							GCModifiedChannel modifiedItem = new GCModifiedChannel(sbmId, 1, 0);
+							index++;
+						}
+						GCModifiedChannel modifiedItem = modifiedChannelService.load(sbmId);
+						if (modifiedItem.getCheckStatus() == 0 || modifiedItem.getCheckStatus() == -1) {
+							long timeStamp = Calendar.getInstance().getTimeInMillis();
+							modifiedItem = new GCModifiedChannel(sbmId, 1, timeStamp);
 							modifiedChannelService.put(modifiedItem);
-							m_log.info("Save to modified Table successfully" +modifiedItem);
-
+							m_log.info("Save to modified Table successfully" + modifiedItem);
 						} else {
-							for (Items item : eventList.getItems()) {
-								if ("confirmed".equals(item.getStatus())) {
-									confirmedItems.add(item);
-								} else if ("cancelled".equals(item.getStatus())) {
-									cancelledItems.add(item);
-								}
-							}
-							GCModifiedChannel modifiedItem = new GCModifiedChannel(sbmId, 0, 0);
-							modifiedChannelService.put(modifiedItem);
-							m_log.info("Save to modified Table successfully" +modifiedItem);
+							// do nothing
 						}
 
 						if (!confirmedItems.isEmpty()) {
 							createEventHandler.handle(confirmedItems, sbmId);
 						}
 						if (!cancelledItems.isEmpty()) {
+							
 							deleteEventHandler.handle(cancelledItems, sbmId);
 
 						}
 
-						/*
-						 * String newNextPageToken = eventList.getNextPageToken(); boolean isDbChanged =
-						 * false;
-						 * 
-						 * if (newNextPageToken == null) { isDbChanged = true;
-						 * googleCalendarSbmSync.setNextPageToken("-BLANK-"); } else { isDbChanged =
-						 * true; googleCalendarSbmSync.setNextPageToken(newNextPageToken); }
-						 * 
-						 * String newNextSyncToken = eventList.getNextSyncToken();
-						 * 
-						 * if (newNextSyncToken != null) { isDbChanged = true;
-						 * googleCalendarSbmSync.setNextSyncToken(newNextSyncToken); } else { if
-						 * (timeMinQuery == true) { googleCalendarSbmSync.setLastQueryTimeMin(timeMin);
-						 * } }
-						 * 
-						 * if (isDbChanged) { m_log.info("Save to table GoogleCalendarSbmSync: " +
-						 * googleCalendarSbmSync); googleCalendarService.put(googleCalendarSbmSync);
-						 * GCModifiedChannel modifiedItem = new GCModifiedChannel(sbmId, 1, 0);
-						 * modifiedChannelService.put(modifiedItem); }
-						 */
-						
 					}
 
 					else {

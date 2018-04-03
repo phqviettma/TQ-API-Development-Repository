@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +16,12 @@ import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
-import com.tq.gcsyncsbm.lambda.model.GeneralAppt;
-import com.tq.gcsyncsbm.lambda.model.PractitionerApptGroup;
-import com.tq.gcsyncsbm.lambda.time.UtcTimeUtil;
 import com.tq.googlecalendar.context.Env;
+import com.tq.googlecalendar.model.GeneralAppt;
+import com.tq.googlecalendar.model.PractitionerApptGroup;
+import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
 import com.tq.googlecalendar.resp.Items;
+import com.tq.googlecalendar.time.UtcTimeUtil;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
@@ -43,6 +43,8 @@ import com.tq.simplybook.service.TokenServiceSbm;
 public class DeleteGoogleEventHandler implements GCInternalHandler {
 	private static final Logger m_log = LoggerFactory.getLogger(DeleteGoogleEventHandler.class);
 	private Env enV = null;
+	private static final String SBM = "sbm";
+	private static final String GOOGLE = "google";
 	private ContactServiceInf contactService = null;
 	private TokenServiceSbm tokenService = null;
 	private SpecialdayServiceSbm specialdayService = null;
@@ -91,68 +93,66 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 
 		for (Items event : items) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
+
 			if (sbmGoogleSync != null) {
-				listSbmGoogleCalendar.add(sbmGoogleSync);
-				sbmBookingIdsTobeCancelled.add(sbmGoogleSync.getSbmId());
-				eventsTobeCancelled.add(event);
-				clientEmailsForCancellation.add(sbmGoogleSync.getClientEmail());
-			} else {
-				eventTobeUnblocked.add(event);
-				String dateTime = event.getStart().getDateTime();
-				if (dateTime == null) {
-					String startDate = event.getStart().getDate();
-					int providerId = Integer.valueOf(unitId[1]);
-					Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(companyLogin,
-							endpoint, token, startDate, event.getEnd().getDate(), providerId);
-					UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(startDate);
-					if (unitWorkingTime != null) {
 
-						Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
-						WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
-						Set<Breaktime> breakTimes = new HashSet<>();
-						Breaktime breakTime = new Breaktime();
-						breakTimes.add(breakTime);
-						SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(workingTime.getStart_time(),
-								workingTime.getEnd_time(), breakTimes, startDate, unitId[1], unitId[0]);
-						SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
-						boolean isUnBlocked = specialdayService.changeWorkDay(companyLogin, endpoint, token,
-								workDayInfo);
-						if (isUnBlocked) {
-							m_log.info("Timeslot on " + startDate + " has been unblocked");
-						} else {
-							m_log.info("Error during unblock for provider with id " + Integer.valueOf(unitId[1]));
+				// do nothing
+				if (sbmGoogleSync.getFlag() == 1 && SBM.equals(sbmGoogleSync.getAgent())) {
+					listSbmGoogleCalendar.add(sbmGoogleSync);
+					sbmBookingIdsTobeCancelled.add(sbmGoogleSync.getSbmId());
+					eventsTobeCancelled.add(event);
+					clientEmailsForCancellation.add(sbmGoogleSync.getClientEmail());
+				} else if (sbmGoogleSync.getFlag() == 1 && GOOGLE.equals(sbmGoogleSync.getAgent())) {
+					eventTobeUnblocked.add(event);
+					String dateTime = event.getStart().getDateTime();
+					if (dateTime == null) {
+						String startDate = event.getStart().getDate();
+						int providerId = Integer.valueOf(unitId[1]);
+						Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(
+								companyLogin, endpoint, token, startDate, event.getEnd().getDate(), providerId);
+						UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(startDate);
+						if (unitWorkingTime != null) {
+
+							Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
+							WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
+							Set<Breaktime> breakTimes = new HashSet<>();
+							Breaktime breakTime = new Breaktime();
+							breakTimes.add(breakTime);
+							SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(
+									workingTime.getStart_time(), workingTime.getEnd_time(), breakTimes, startDate,
+									unitId[1], unitId[0]);
+							SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
+							specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);
+
+							sbmGoogleSync.setFlag(0);
+							sbmCalendarService.put(sbmGoogleSync);
+							m_log.info("Update into table SbmCalendarSync successfully ");
+
 						}
-					}
 
-				} else {
-					dateTime = UtcTimeUtil.extractDate(event.getStart().getDateTime());
-					PractitionerApptGroup group = apptGroupMap.get(dateTime);
-					if (group == null) {
-						group = new PractitionerApptGroup();
-						apptGroupMap.put(dateTime, group);
-					}
-					group.addAppt(dateTime,
-							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime()));
+					} else {
+						dateTime = UtcTimeUtil.extractDate(event.getStart().getDateTime());
+						PractitionerApptGroup group = apptGroupMap.get(dateTime);
+						if (group == null) {
+							group = new PractitionerApptGroup();
+							apptGroupMap.put(dateTime, group);
+						}
+						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
+								event.getEnd().getDateTime(), event.getId(), sbmGoogleSync));
 
+					}
 				}
 			}
-			sbmGoogleSync = new SbmGoogleCalendar();
-			UUID uuid = UUID.randomUUID();
-			long bookingId = uuid.getMostSignificantBits();
-			sbmGoogleSync.setSbmId(bookingId);
-			sbmGoogleSync.setFlag(0);
-			sbmCalendarService.put(sbmGoogleSync );
-			
 		}
 
 		if (!sbmBookingIdsTobeCancelled.isEmpty()) {
-			for (SbmGoogleCalendar sbmGoogleSync : listSbmGoogleCalendar) {
-				sbmCalendarService.delete(sbmGoogleSync);
-			}
 			cancelBooking(companyLogin, endpoint, token, sbmBookingIdsTobeCancelled);
 			excuteWithInfusionsoft(clientEmailsForCancellation);
 			m_log.info("Events are synced to SBM provider " + sbmId + " by cancellation: "
 					+ String.valueOf(eventsTobeCancelled));
+			for (SbmGoogleCalendar sbmGoogleSync : listSbmGoogleCalendar) {
+				sbmCalendarService.delete(sbmGoogleSync);
+			}
 		}
 
 		if (!apptGroupMap.isEmpty()) {
@@ -190,14 +190,23 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 					new FromDate(group.getStartDateString(), workingTime.getStart_time()),
 					new ToDate(group.getEndDateString(), workingTime.getEnd_time()));
 
-			for (Entry<String, Set<Breaktime>> dateToSbmBreakTime : group.getDateToSbmBreakTimesMap().entrySet()) {
-				Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue();
+			for (Entry<String, EventDateInfo> dateToSbmBreakTime : group.getEventDateInfoMap().entrySet()) {
+				Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue().breakTimeSet;
 				String date = dateToSbmBreakTime.getKey();
 				if (!breakTimes.isEmpty()) {
 					sbmBreakTimeManagement.removeBreakTime(enV.getSimplyBookCompanyLogin(),
 							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId, workingTime.getStart_time(),
 							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId);
 				}
+				List<SbmGoogleCalendar> sbmGoogleCalendarList = dateToSbmBreakTime.getValue().sbmGoogleCalendar;
+				long start = System.currentTimeMillis();
+
+				for (SbmGoogleCalendar sbmGoogleCalendar : sbmGoogleCalendarList) {
+					sbmGoogleCalendar.setFlag(0);
+					sbmCalendarService.put(sbmGoogleCalendar);
+				}
+
+				m_log.info("Save to database take " + (System.currentTimeMillis() - start) + " ms");
 			}
 		}
 

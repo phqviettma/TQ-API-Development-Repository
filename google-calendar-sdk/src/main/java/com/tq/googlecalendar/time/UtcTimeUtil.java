@@ -1,4 +1,4 @@
-package com.tq.gcsyncsbm.lambda.time;
+package com.tq.googlecalendar.time;
 
 import java.text.DateFormat;
 import java.text.ParseException;

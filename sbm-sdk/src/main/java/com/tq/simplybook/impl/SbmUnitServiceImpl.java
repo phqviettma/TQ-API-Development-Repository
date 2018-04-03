@@ -30,9 +30,11 @@ public class SbmUnitServiceImpl implements SbmUnitService {
 	public List<UnitProviderInfo> getUnitList(String companyLogin, String endpoint, String token, Boolean isVisibleOnly,
 			Boolean asArray, Integer handleClasses) throws SbmSDKException {
 		try {
+			long start = System.currentTimeMillis();
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getUnitList",
 					new GetUnitListReq(isVisibleOnly, asArray, handleClasses));
 			m_log.info("Response from getUnitList method "+ jsonResp);
+			 m_log.info("Get unit list take " + (System.currentTimeMillis() - start)+" ms");
 			UnitInfoDetail readValueForObject = SbmUtils.readValueForObject(jsonResp, UnitInfoDetail.class);
 
 			return readValueForObject.getResult();
@@ -46,8 +48,10 @@ public class SbmUnitServiceImpl implements SbmUnitService {
 	public Map<String, UnitWorkingTime> getUnitWorkDayInfo(String companyLogin, String endpoint, String token,
 			String dateStart, String dateEnd, int unitGroupId) throws SbmSDKException {
 		try {
+			long start = System.currentTimeMillis();
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getUnitWorkdayInfo",
 					new WorkingDuration(dateStart, dateEnd, unitGroupId));
+			 m_log.info("Get unitWorkDayInfo " + (System.currentTimeMillis() - start)+" ms");
 			Map<String, Object> map = JSON_MAPPER.readValue(jsonResp, new TypeReference<Map<String, Object>>() {
 			});
 
