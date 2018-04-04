@@ -13,10 +13,12 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.inf.impl.ContactServiceImpl;
@@ -41,6 +43,7 @@ public class GoogleCalendarHandlerTest {
 	private SbmBreakTimeManagement sbmBreakTimeManagement = new SbmBreakTimeManagement();
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private SbmUnitService unitService = new SbmUnitServiceImpl();
+	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
 	private CreateGoogleCalendarEventHandler handler = new CreateGoogleCalendarEventHandler(env, tokenService,
 			specialdayService, sbmBreakTimeManagement, sbmGoogleCalendarService, unitService);
 	private ContactItemService contactItemService = mock(ContactItemService.class);
@@ -51,7 +54,7 @@ public class GoogleCalendarHandlerTest {
 			googleCalendarService, specialdayService, sbmBreakTimeManagement, contactItemService, contactInfService,
 			sbmCalendarService, bookingService, unitService);
 	GoogleCalendarHandler calendarHanler = new GoogleCalendarHandler(env, amazonDynamoDB, googleCalendarService,
-			specialdayService, handler, deleteHandler, unitService);
+			specialdayService, handler, deleteHandler, unitService, modifiedChannelService);
 	private Context context = mock(Context.class);
 
 	@Test
@@ -62,10 +65,10 @@ public class GoogleCalendarHandlerTest {
 		req.setBody(body);
 		GoogleCalendarSbmSync googleCalendarSbm = new GoogleCalendarSbmSync();
 		googleCalendarSbm.setSbmId("2-4");
-		googleCalendarSbm.setEmail("suongpham53@gmail.com");
-		googleCalendarSbm.setGoogleEmail("suongpham53@gmail.com");
-		googleCalendarSbm.setRefreshToken("1/_ZrLdUzpSrc1bOcPbweRcBqd2j2O4G-4N9NhWoUGWqU");
-		googleCalendarSbm.setNextSyncToken("CIjhwaev69kCEIjhwaev69kCGAU=");
+		googleCalendarSbm.setEmail("tmatesting@gmail.com");
+		googleCalendarSbm.setGoogleEmail("jayparkjay34@gmail.com");
+		googleCalendarSbm.setRefreshToken("");
+		googleCalendarSbm.setNextSyncToken("CIDy_Nr-ndoCEIDy_Nr-ndoCGAU=");
 		googleCalendarSbm.setNextPageToken("-BLANK-");
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(496);
@@ -74,9 +77,14 @@ public class GoogleCalendarHandlerTest {
 		when(contactItemService.load(any())).thenReturn(contactItem);
 		when(googleCalendarService.load(any())).thenReturn(googleCalendarSbm);
 		SbmGoogleCalendar sbmGoogleCalendar = new SbmGoogleCalendar();
-		sbmGoogleCalendar.setEventId("64b60aq1phbh39ls0dk95qib38");
+		sbmGoogleCalendar.setEventId("4htksb3u20j48p4jj3o1mhnjqo");
+		sbmGoogleCalendar.setAgent("google");
+		sbmGoogleCalendar.setFlag(1);
 		sbmGoogleCalendar.setSbmId(24L);
-		when(sbmCalendarService.queryWithIndex(sbmGoogleCalendar.getEventId())).thenReturn(sbmGoogleCalendar);
+		GCModifiedChannel modifiedItem = new GCModifiedChannel();
+		modifiedItem.setCheckStatus(0);
+		when(modifiedChannelService.load(any())).thenReturn(modifiedItem);
+		when(sbmCalendarService.queryWithIndex(any())).thenReturn(sbmGoogleCalendar);
 		AwsProxyResponse response = calendarHanler.handleRequest(req, context);
 		assertEquals(200, response.getStatusCode());
 	}

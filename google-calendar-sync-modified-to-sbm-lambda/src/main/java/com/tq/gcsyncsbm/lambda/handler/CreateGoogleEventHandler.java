@@ -1,6 +1,5 @@
 package com.tq.gcsyncsbm.lambda.handler;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -82,11 +81,8 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 
 						Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
 						WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
-						Set<Breaktime> breakTimes = new HashSet<>();
-						Breaktime breakTime = new Breaktime(workingTime.getStart_time(), workingTime.getEnd_time());
-						breakTimes.add(breakTime);
 						SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(workingTime.getStart_time(),
-								workingTime.getEnd_time(), breakTimes, startDate, unitId[1], unitId[0]);
+								workingTime.getEnd_time(), null,1, startDate, unitId[1], unitId[0]);
 						SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
 						boolean isBlocked = specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);
 						if (isBlocked) {
@@ -151,6 +147,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 				long bookingId = uuid.getMostSignificantBits();
 				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, gevent, "-BLANK-", 1, "google");
 				sbmCalendarService.put(sbmGoogleSync);
+				m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
 			}
 
 			m_log.info("Save to database take " + (System.currentTimeMillis() - start) + " ms");

@@ -102,7 +102,8 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 	// for testing only
 	GoogleCalendarHandler(Env env, AmazonDynamoDB db, GoogleCalendarDbService googleCalendarService,
 			SpecialdayServiceSbm specialDayService, CreateGoogleCalendarEventHandler createHanler,
-			DeleteGoogleCalendarEventHandler deleteHandler, SbmUnitService unitService) {
+			DeleteGoogleCalendarEventHandler deleteHandler, SbmUnitService unitService,
+			GoogleCalendarModifiedSyncService modifiedChannelService) {
 		this.m_amazonDynamoDB = db;
 		this.m_env = env;
 		this.googleCalendarService = googleCalendarService;
@@ -110,6 +111,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 		this.createEventHandler = createHanler;
 		this.deleteEventHandler = deleteHandler;
 		this.unitService = unitService;
+		this.modifiedChannelService = modifiedChannelService;
 	}
 
 	@Override
@@ -177,6 +179,16 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 							}
 							index++;
 						}
+
+						if (!confirmedItems.isEmpty()) {
+							createEventHandler.handle(confirmedItems, sbmId);
+						}
+						if (!cancelledItems.isEmpty()) {
+
+							deleteEventHandler.handle(cancelledItems, sbmId);
+
+						}
+						
 						GCModifiedChannel modifiedItem = modifiedChannelService.load(sbmId);
 						if (modifiedItem.getCheckStatus() == 0 || modifiedItem.getCheckStatus() == -1) {
 							long timeStamp = Calendar.getInstance().getTimeInMillis();
@@ -185,15 +197,6 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 							m_log.info("Save to modified Table successfully" + modifiedItem);
 						} else {
 							// do nothing
-						}
-
-						if (!confirmedItems.isEmpty()) {
-							createEventHandler.handle(confirmedItems, sbmId);
-						}
-						if (!cancelledItems.isEmpty()) {
-							
-							deleteEventHandler.handle(cancelledItems, sbmId);
-
 						}
 
 					}

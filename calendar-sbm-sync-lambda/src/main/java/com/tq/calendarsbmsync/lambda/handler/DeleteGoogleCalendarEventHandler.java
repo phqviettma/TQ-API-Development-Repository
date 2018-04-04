@@ -2,7 +2,6 @@ package com.tq.calendarsbmsync.lambda.handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -102,6 +101,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 					eventsTobeCancelled.add(event);
 					clientEmailsForCancellation.add(sbmGoogleSync.getClientEmail());
 				} else if (sbmGoogleSync.getFlag() == 1 && GOOGLE.equals(sbmGoogleSync.getAgent())) {
+					
 					eventTobeUnblocked.add(event);
 					String dateTime = event.getStart().getDateTime();
 					if (dateTime == null) {
@@ -114,11 +114,8 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 
 							Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
 							WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
-							Set<Breaktime> breakTimes = new HashSet<>();
-							Breaktime breakTime = new Breaktime();
-							breakTimes.add(breakTime);
 							SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(
-									workingTime.getStart_time(), workingTime.getEnd_time(), breakTimes, startDate,
+									workingTime.getStart_time(), workingTime.getEnd_time(), null,0, startDate,
 									unitId[1], unitId[0]);
 							SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
 							specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);

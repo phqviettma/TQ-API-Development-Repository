@@ -234,18 +234,25 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 						modifiedItem.setTimestamp(timeStamp);
 						modifiedItem.setCheckStatus(0);
 						modifiedChannelService.put(modifiedItem);
+						m_log.info("Updated to Modified table"); 
+					}
+					else {
+						modifiedItem.setTimestamp(timeStamp);
+						modifiedItem.setCheckStatus(1);
+						modifiedChannelService.put(modifiedItem);
+			
 					}
 
 					if (isDbChanged) {
 						checkStartTime = System.currentTimeMillis();
 						m_log.info("Save to table GoogleCalendarSbmSync: " + googleCalendarSbmSync);
 						googleCalendarService.put(googleCalendarSbmSync);
-						modifiedItem.setTimestamp(timeStamp);
-						modifiedChannelService.put(modifiedItem);
+						
 					}
 
 					processedChannelNum++;
 					processedEventNum += eventList.getItems().size();
+				
 				}
 
 				else {

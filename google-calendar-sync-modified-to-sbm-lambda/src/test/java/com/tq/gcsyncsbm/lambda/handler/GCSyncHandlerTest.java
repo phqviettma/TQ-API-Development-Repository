@@ -64,10 +64,10 @@ public class GCSyncHandlerTest {
 		AwsProxyRequest req = new AwsProxyRequest();
 		GoogleCalendarSbmSync googleCalendarSbm = new GoogleCalendarSbmSync();
 		googleCalendarSbm.setSbmId("2-4");
-		googleCalendarSbm.setEmail("suongpham53@gmail.com");
-		googleCalendarSbm.setGoogleEmail("tttaitttaitttai@gmail.com");
-		googleCalendarSbm.setRefreshToken("1/Y482L09Olx9P7IjY4bKB2yT2wudQ3njk-jU8U_RkmhY");
-		googleCalendarSbm.setNextSyncToken("CJjGo6ra6NkCEJjGo6ra6NkCGAU=");
+		googleCalendarSbm.setEmail("tmatesting@gmail.com");
+		googleCalendarSbm.setGoogleEmail("jayparkjay34@gmail.com");
+		googleCalendarSbm.setRefreshToken("");
+		googleCalendarSbm.setNextSyncToken("CPjh7vfKn9oCEPjh7vfKn9oCGAU=");
 		googleCalendarSbm.setNextPageToken("-BLANK-");
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(496);
@@ -76,9 +76,11 @@ public class GCSyncHandlerTest {
 		when(contactItemService.load(any())).thenReturn(contactItem);
 		when(googleCalendarService.load(any())).thenReturn(googleCalendarSbm);
 		SbmGoogleCalendar sbmGoogleCalendar = new SbmGoogleCalendar();
-		sbmGoogleCalendar.setEventId("64b60aq1phbh39ls0dk95qib38");
+		sbmGoogleCalendar.setEventId("3se4p41fa9h2ftejaj7uthqd1f");
+		sbmGoogleCalendar.setAgent("google");
+		sbmGoogleCalendar.setFlag(1);
 		sbmGoogleCalendar.setSbmId(24L);
-		when(sbmCalendarService.queryWithIndex(sbmGoogleCalendar.getEventId())).thenReturn(sbmGoogleCalendar);
+		when(sbmCalendarService.queryWithIndex(any())).thenReturn(sbmGoogleCalendar);
 		List<GCModifiedChannel> listModifiedItem = new ArrayList<>();
 		listModifiedItem.add(new GCModifiedChannel("2-4",1, 0));
 		when(modifiedChannelService.queryItem()).thenReturn(listModifiedItem );

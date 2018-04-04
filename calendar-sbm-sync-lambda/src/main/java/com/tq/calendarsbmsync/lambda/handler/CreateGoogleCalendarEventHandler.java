@@ -1,6 +1,5 @@
 package com.tq.calendarsbmsync.lambda.handler;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -68,6 +67,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 		for (Items event : eventItems) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 			if (sbmGoogleSync == null) {
+				m_log.info("" + sbmGoogleSync);
 				String dateTime = event.getStart().getDateTime();
 
 				if (dateTime == null) {
@@ -77,14 +77,10 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							endpoint, token, startDate, event.getEnd().getDate(), providerId);
 					UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(startDate);
 					if (unitWorkingTime != null) {
-
 						Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
 						WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
-						Set<Breaktime> breakTimes = new HashSet<>();
-						Breaktime breakTime = new Breaktime(workingTime.getStart_time(), workingTime.getEnd_time());
-						breakTimes.add(breakTime);
 						SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(workingTime.getStart_time(),
-								workingTime.getEnd_time(), breakTimes, startDate, unitId[1], unitId[0]);
+								workingTime.getEnd_time(), null,1, startDate, unitId[1], unitId[0]);
 						SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
 						boolean isBlocked = specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);
 						if (isBlocked) {
@@ -101,7 +97,6 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 					String date = UtcTimeUtil.extractDate(event.getStart().getDateTime());
 					apptGroup.addAppt(date,
 							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(),event.getId(), sbmGoogleSync));
-					addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
 				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
@@ -146,6 +141,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				long bookingId = uuid.getMostSignificantBits();
 				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, gevent, "-BLANK-", 1, "google");
 				sbmCalendarService.put(sbmGoogleSync);
+				m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
 			}
 
 			m_log.info("Save to database take " + (System.currentTimeMillis() - start) + " ms");
