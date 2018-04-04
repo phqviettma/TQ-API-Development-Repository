@@ -238,12 +238,11 @@ public class CreateInternalHandler implements InternalHandler {
 			EventResp eventResp = googleApiService.createEvent(req);
 			m_log.info("Create event successfully with value " + eventResp.toString());
 			SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(payload.getBooking_id(), eventResp.getId(),
-					bookingInfo.getClient_email());
-			if (sbmGoogleCalendarSync != null) {
+					bookingInfo.getClient_email(), 1, "sbm");
 				sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
 				m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
 
-			}
+			
 		}
 		return true;
 

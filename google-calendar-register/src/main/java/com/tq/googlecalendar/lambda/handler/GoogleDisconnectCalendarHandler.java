@@ -7,6 +7,7 @@ import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
@@ -29,14 +30,18 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private GoogleCalRenewService googleCalRenewService = null;
+	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
 
 	public GoogleDisconnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
-			TokenGoogleCalendarService tokenCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder,GoogleCalRenewService googleCalRenewService) {
+			TokenGoogleCalendarService tokenCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder,
+			GoogleCalRenewService googleCalRenewService,
+			GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.tokenCalendarService = tokenCalendarService;
 		this.apiServiceBuilder = apiServiceBuilder;
 		this.googleCalRenewService = googleCalRenewService;
+		this.calendarModifiedChannelService = calendarModifiedChannelService;
 	}
 
 	@Override
@@ -61,11 +66,15 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 				googleCalendarService.delete(googleCalendarSbmSync);
 				m_log.info("Delete record in table GoogleCalendarSbmSync successfully");
 				GoogleRenewChannelInfo renewChannel = googleCalRenewService.query(googleCalendarSbmSync.getSbmId());
-				if(renewChannel!=null) {
-					 googleCalRenewService.deleteItem(renewChannel);
-					 m_log.info("Delete record in table GoogleRenewChannelInfo successfully");
+				if (renewChannel != null) {
+					googleCalRenewService.deleteItem(renewChannel);
+					m_log.info("Delete record in table GoogleRenewChannelInfo successfully");
+					m_log.info("Channel Id" + googleCalendarSbmSync.getSbmId());
+					calendarModifiedChannelService.deleteDynamoItem(googleCalendarSbmSync.getSbmId());
+					m_log.info("Delete record in table GoogleModified successfully");
+
 				}
-				
+
 			} else {
 				throw new GoogleApiSDKException("Internal error");
 			}

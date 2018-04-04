@@ -34,8 +34,10 @@ public class SpecialdayServiceSbmImpl implements SpecialdayServiceSbm {
 	public boolean changeWorkDay(String companyLogin, String endpoint, String userToken,
 			SetWorkDayInfoReq setWorkDayInfo) throws SbmSDKException {
 		try {
+			long start = System.currentTimeMillis();
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, userToken, "setWorkDayInfo",
 					setWorkDayInfo);
+			 m_log.info("Change workday Info take " + (System.currentTimeMillis() - start)+" ms");
 			SetWorkDayInfoResp readValueForObject = SbmUtils.readValueForObject(jsonResp, SetWorkDayInfoResp.class);
 			
 			return readValueForObject.getResult();
@@ -50,8 +52,11 @@ public class SpecialdayServiceSbmImpl implements SpecialdayServiceSbm {
 	@Override
 	public Map<String, WorksDayInfoResp> getWorkDaysInfo(String companyLogin, String endpoint, String token,
 			int unit_id, int event_id, FromDate fromDate, ToDate toDate) throws SbmSDKException {
-		return getWorkDaysInfo(companyLogin, endpoint, token,
+		long start = System.currentTimeMillis();
+		Map<String, WorksDayInfoResp> mapWorkDayInfo = getWorkDaysInfo(companyLogin, endpoint, token,
 				new WorkdayInfoReq(fromDate.toString(), toDate.toString(), unit_id, event_id));
+		m_log.info("GetWorkDay info take " + (System.currentTimeMillis() - start)+" ms");
+		return mapWorkDayInfo;
 	}
 
 	private Map<String, WorksDayInfoResp> getWorkDaysInfo(String companyLogin, String endpoint, String token,

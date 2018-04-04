@@ -29,6 +29,9 @@ public class Env {
 	private String googleClientId = new String(System.getenv("GOOGLE_CLIENT_ID"));
 	private String googleClientSecrets = new String(System.getenv("GOOGLE_CLIENT_SECRETS"));
 	public String googleNotifyDomain = new String(System.getenv("NOTIFICATION_DOMAIN"));
+	private Integer googleCalendarMaxResult = Integer.valueOf(System.getenv("GOOGLE_CALENDAR_MAX_RESULT"));
+	private Integer numberEvent = Integer.valueOf(System.getenv("NUMBER_EVENT"));
+	private Integer numberRecordDB = Integer.valueOf(System.getenv("NUMBER_RECORD_DB"));
 
 	private Env() {
 
@@ -60,6 +63,9 @@ public class Env {
 		assertVar(googleClientSecrets, "GOOGLE_CLIENT_SECRETS");
 		assertVar(infusionsoftGoogleDeleteTag, "INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG");
 		assertVar(googleNotifyDomain, "NOTIFICATION_DOMAIN");
+		assertVar(googleCalendarMaxResult, "GOOGLE_CALENDAR_MAX_RESULT");
+		assertVar(numberEvent, "NUMBER_EVENT");
+		assertVar(numberRecordDB, "NUMBER_RECORD_DB");
 	}
 
 	private static Env instance;
@@ -121,6 +127,14 @@ public class Env {
 		return infusionSoftAppointmentTimeField;
 	}
 
+	public Integer getNumberEvent() {
+		return numberEvent;
+	}
+
+	public Integer getNumberRecordDB() {
+		return numberRecordDB;
+	}
+
 	public String getInfusionSoftAppointmentLocationField() {
 		return infusionSoftAppointmentLocationField;
 	}
@@ -175,6 +189,10 @@ public class Env {
 
 	public static void mock(Env mockedInstance) {
 		instance = mockedInstance;
+	}
+
+	public Integer getGoogleCalendarMaxResult() {
+		return googleCalendarMaxResult;
 	}
 
 }

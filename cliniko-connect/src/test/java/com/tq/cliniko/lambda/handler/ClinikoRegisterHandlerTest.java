@@ -1,5 +1,6 @@
 package com.tq.cliniko.lambda.handler;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
+import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
@@ -25,10 +27,13 @@ import com.tq.simplybook.service.SbmUnitService;
 public class ClinikoRegisterHandlerTest {
 	private Env mockedeEnv = MockUtil.mockEnv();
 	private TokenServiceSbm tokenService = new TokenServiceImpl();
-	private SbmUnitService unitService = null;
+	private SbmUnitService unitService = new SbmUnitServiceImpl();
 	private AmazonDynamoDB amazonDynamoDB = mock(AmazonDynamoDB.class);
 	private Context m_context = mock(Context.class);
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = mock(ClinikoSyncToSbmService.class);
+	private ClinikoConnectHandler connectHandler = new ClinikoConnectHandler(mockedeEnv, unitService, tokenService,
+			clinikoSyncToSbmService);
+	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService);
 
 	@Before
 	public void init() {
@@ -39,7 +44,7 @@ public class ClinikoRegisterHandlerTest {
 	public void testHandler() {
 
 		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
-				tokenService, clinikoSyncToSbmService);
+				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler);
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_connect_info.json"));
@@ -52,7 +57,8 @@ public class ClinikoRegisterHandlerTest {
 				return null;
 			}
 		}).when(clinikoSyncToSbmService).put(any(ClinikoSbmSync.class));
-		handler.handleRequest(req, m_context);
+		AwsProxyResponse response = handler.handleRequest(req, m_context);
+		assertEquals(200, response.getStatusCode());
 
 	}
 }

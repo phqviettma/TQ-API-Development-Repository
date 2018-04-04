@@ -29,6 +29,7 @@ public class MockUtil {
 		when(env.getGoogleClientSecrets()).thenReturn("");
 		when(env.getInfusionsoftGoogleDeleteTag()).thenReturn(112);
 		when(env.getGoogleCalendarMaxResult()).thenReturn(10);
+		
 		return env;
 	}
 	

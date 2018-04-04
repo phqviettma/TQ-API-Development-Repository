@@ -118,10 +118,10 @@ public class SetWorkDayInfoInfoReq implements Serializable{
 	}
 	
 
-	public SetWorkDayInfoInfoReq(String start_time, String end_time, Set<Breaktime> breaktime, String date, String unit_group_id, String event_id) {
+	public SetWorkDayInfoInfoReq(String start_time, String end_time, Set<Breaktime> breaktime, int is_day_off, String date, String unit_group_id, String event_id) {
 		this.start_time = start_time;
 		this.end_time = end_time;
-		this.is_day_off = 0;
+		this.is_day_off = is_day_off;
 		this.breaktime = breaktime;
 		this.index = 0;
 		this.name = date;
