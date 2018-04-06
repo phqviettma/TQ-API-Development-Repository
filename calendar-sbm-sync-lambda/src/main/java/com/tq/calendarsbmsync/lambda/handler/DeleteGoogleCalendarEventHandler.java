@@ -10,12 +10,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
@@ -126,7 +126,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 						}
 
 					} else {
-						dateTime = UtcTimeUtil.extractDate(event.getStart().getDateTime());
+						dateTime = TimeUtils.extractDate(event.getStart().getDateTime());
 						PractitionerApptGroup group = apptGroupMap.get(dateTime);
 						if (group == null) {
 							group = new PractitionerApptGroup();

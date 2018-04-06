@@ -16,7 +16,7 @@ import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
 import com.tq.googlecalendar.resp.Items;
-import com.tq.googlecalendar.time.UtcTimeUtil;
+import com.tq.googlecalendar.time.TimeUtils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
@@ -97,7 +97,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 						}
 					}
 				} else {
-					String date = UtcTimeUtil.extractDate(event.getStart().getDateTime());
+					String date = TimeUtils.extractDate(event.getStart().getDateTime());
 					apptGroup.addAppt(date,
 							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(),event.getId(), sbmGoogleSync));
 				}

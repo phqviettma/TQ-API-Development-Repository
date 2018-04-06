@@ -1,7 +1,6 @@
 package com.tq.calendarsbmsync.lambda.handler;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -18,7 +17,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tq.calendarsbmsync.lambda.model.SyncMessage;
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarModifiedSynDaoImpl;
@@ -35,6 +33,7 @@ import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.req.TokenReq;
@@ -76,6 +75,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private SbmUnitService unitService = null;
 	private GoogleCalendarModifiedSyncService modifiedChannelService = null;
+	private static final String GC_UPDATE_TIME = "updatedMin";
 
 	public GoogleCalendarHandler() {
 		this.m_env = Env.load();
@@ -141,17 +141,16 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						String nextPageToken = googleCalendarSbmSync.getNextPageToken();
 						String lastQueryTimeMin = googleCalendarSbmSync.getLastQueryTimeMin();
 
-						String timeMin = null;
+						String updateTime = null;
 						if ("-BLANK-".equals(nextSyncToken)) {
 							if (lastQueryTimeMin == null) {
-								String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
-										.format(Calendar.getInstance().getTime());
+								String currentTime = TimeUtils.getPreviousTime();
 								GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-								timeMin = UtcTimeUtil.getTimeFullOffset(currentTime, settingInfo.getValue());
-								eventList = googleApiService.getEventWithoutToken(maxResult, timeMin);
+								updateTime = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
+								eventList = googleApiService.queryEvent(maxResult, GC_UPDATE_TIME, updateTime);
 							} else {
 								if (!"-BLANK-".equals(nextPageToken)) {
-									eventList = googleApiService.getEventAtLastTime(maxResult, lastQueryTimeMin,
+									eventList = googleApiService.getEventAtLastTime(maxResult,GC_UPDATE_TIME, lastQueryTimeMin,
 											nextPageToken);
 								} else {
 									throw new TrueQuitBadRequest(

@@ -20,7 +20,7 @@ import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
 import com.tq.googlecalendar.resp.Items;
-import com.tq.googlecalendar.time.UtcTimeUtil;
+import com.tq.googlecalendar.time.TimeUtils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
@@ -125,7 +125,7 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 						}
 
 					} else {
-						dateTime = UtcTimeUtil.extractDate(event.getStart().getDateTime());
+						dateTime = TimeUtils.extractDate(event.getStart().getDateTime());
 						PractitionerApptGroup group = apptGroupMap.get(dateTime);
 						if (group == null) {
 							group = new PractitionerApptGroup();

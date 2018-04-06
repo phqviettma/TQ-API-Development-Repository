@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.tq.cliniko.time.UtcTimeUtil;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.simplybook.resp.Breaktime;
 
 public class PractitionerApptGroup {
@@ -33,14 +33,14 @@ public class PractitionerApptGroup {
 			dateToSbmBreakTimesMap.put(date, breakTimeSet);
 		}
 
-		String start_time = UtcTimeUtil.extractTime(appt.getAppointmentStart());
-		String end_time = UtcTimeUtil.extractTime(appt.getAppointmentEnd());
+		String start_time = TimeUtils.extractTime(appt.getAppointmentStart());
+		String end_time = TimeUtils.extractTime(appt.getAppointmentEnd());
 		breakTimeSet.add(new Breaktime(start_time, end_time));
 
 	}
 
 	private void addDate(String date) {
-		Date newDate = UtcTimeUtil.parseDate(date);
+		Date newDate = TimeUtils.parseDate(date);
 		if (startDate == null || startDate.after(newDate)) {
 			startDate = newDate;
 		}

@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
-import com.tq.googlecalendar.time.UtcTimeUtil;
+import com.tq.googlecalendar.time.TimeUtils;
 import com.tq.simplybook.resp.Breaktime;
 
 public class PractitionerApptGroup {
@@ -38,8 +38,8 @@ public class PractitionerApptGroup {
 			dateToSbmBreakTimesMap.put(date, dateInfo);
 		}
 
-		String start_time = UtcTimeUtil.extractTime(appt.getAppointmentStart());
-		String end_time = UtcTimeUtil.extractTime(appt.getAppointmentEnd());
+		String start_time = TimeUtils.extractTime(appt.getAppointmentStart());
+		String end_time = TimeUtils.extractTime(appt.getAppointmentEnd());
 		
 		dateInfo.breakTimeSet.add(new Breaktime(start_time, end_time));
 		dateInfo.geventIdList.add(appt.getTaggedApptId());
@@ -51,7 +51,7 @@ public class PractitionerApptGroup {
 	}
 	
 	private void addDate(String date) {
-		Date newDate = UtcTimeUtil.parseDate(date);
+		Date newDate = TimeUtils.parseDate(date);
 		if (startDate == null || startDate.after(newDate)) {
 			startDate = newDate;
 		}

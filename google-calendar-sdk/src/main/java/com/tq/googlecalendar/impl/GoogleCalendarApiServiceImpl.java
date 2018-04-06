@@ -1,6 +1,5 @@
 package com.tq.googlecalendar.impl;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.slf4j.Logger;
@@ -67,8 +66,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			Integer statusCode = response.getStatusCode();
 			if (statusCode == 204) {
 				return null;
-			}
-			else {
+			} else {
 				return GoogleCalendarParser.readJsonValueForObject(jsonResp, ErrorResp.class);
 			}
 		} catch (Exception e) {
@@ -174,10 +172,10 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	}
 
 	@Override
-	public CalendarEvents getEventWithoutToken(Integer maxResult, String timeMin) throws GoogleApiSDKException {
+	public CalendarEvents getEventWithoutToken(Integer maxResult, String timeMin,String query) throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			ApiResponse response = UtilsExecutor.request(new GetEventWithoutToken(accessToken, maxResult, timeMin));
+			ApiResponse response = UtilsExecutor.request(new QueryEventAtSpecificTime(accessToken, maxResult,query, timeMin));
 			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
@@ -185,12 +183,12 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		}
 
 	}
+	private class QueryEventAtSpecificTime extends GetGoogleCalendarApiReq {
 
-	private class GetEventWithoutToken extends GetGoogleCalendarApiReq {
-
-		public GetEventWithoutToken(String accessToken, Integer maxResult, String timeMin) throws Exception {
-			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&showDeleted=true&singleEvents=true&timeMin="
-					+ URLEncoder.encode(timeMin, "UTF-8"));
+		public QueryEventAtSpecificTime(String accessToken, Integer maxResult, String query, String queryTime)
+				throws Exception {
+			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&singleEvents=true&" + query + "="
+					+ URLEncoder.encode(queryTime, "UTF-8"));
 
 		}
 
@@ -243,13 +241,13 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	}
 
 	@Override
-	public CalendarEvents getEventAtLastTime(Integer maxResult, String lastQueryTimeMin, String nextPageToken)
+	public CalendarEvents getEventAtLastTime(Integer maxResult,String filter, String lastQueryTimeMin, String nextPageToken)
 			throws GoogleApiSDKException {
 		String jsonResp;
 		try {
 
 			ApiResponse response = UtilsExecutor
-					.request(new GetEventAtTime(accessToken, maxResult, nextPageToken, lastQueryTimeMin));
+					.request(new GetEventWithLastTimeQuery(accessToken, maxResult, filter, lastQueryTimeMin, nextPageToken));
 			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
@@ -257,17 +255,34 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		}
 	}
 
-	private class GetEventAtTime extends GetGoogleCalendarApiReq {
 
-		public GetEventAtTime(String accessToken, Integer maxResult, String nextPageToken, String lastQueryTimeMin)
-				throws UnsupportedEncodingException {
+
+	private class GetEventWithLastTimeQuery extends GetGoogleCalendarApiReq {
+
+		public GetEventWithLastTimeQuery(String accessToken, Integer maxResult, String query, String lastQueryTimeMin,
+				String nextPageToken) throws Exception {
 			super(accessToken,
 					"calendars/primary/events?maxResults=" + maxResult
-							+ "&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&timeMin="
+							+ "&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&" + query + "="
 							+ URLEncoder.encode(lastQueryTimeMin, "UTF-8"));
 
 		}
 
 	}
+
+	@Override
+	public CalendarEvents queryEvent(Integer maxResult, String query, String time) throws GoogleApiSDKException {
+		String jsonResp;
+		try {
+			ApiResponse response = UtilsExecutor
+					.request(new QueryEventAtSpecificTime(accessToken, maxResult, query, time));
+			jsonResp = response.getEntity();
+			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
+		} catch (Exception e) {
+			throw new GoogleApiSDKException(e);
+		}
+	}
+
+	
 
 }

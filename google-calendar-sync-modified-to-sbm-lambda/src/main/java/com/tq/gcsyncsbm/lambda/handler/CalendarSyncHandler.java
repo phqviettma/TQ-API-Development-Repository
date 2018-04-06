@@ -40,7 +40,7 @@ import com.tq.googlecalendar.resp.Items;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
-import com.tq.googlecalendar.time.UtcTimeUtil;
+import com.tq.googlecalendar.time.TimeUtils;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
@@ -56,6 +56,7 @@ import com.tq.simplybook.service.TokenServiceSbm;
 public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static final Logger m_log = LoggerFactory.getLogger(CalendarSyncHandler.class);
 	private static int STATUS_CODE = 200;
+	private static final String GC_TIME_MIN ="timeMin";
 	private Env m_env = null;
 	private SpecialdayServiceSbm specialDayService = null;
 	private SbmBreakTimeManagement sbmTimeManagement = null;
@@ -161,14 +162,14 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 							String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
 									.format(Calendar.getInstance().getTime());
 							GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-							timeMin = UtcTimeUtil.getTimeFullOffset(currentTime, settingInfo.getValue());
+							timeMin = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
 							timeMinQuery = true;
 							checkStartTime = System.currentTimeMillis();
-							eventList = googleApiService.getEventWithoutToken(maxResult, timeMin);
+							eventList = googleApiService.getEventWithoutToken(maxResult,GC_TIME_MIN, timeMin);
 							m_log.info("Get list event take " + (System.currentTimeMillis() - checkStartTime) + "ms");
 						} else {
 							if (!"-BLANK-".equals(nextPageToken)) {
-								eventList = googleApiService.getEventAtLastTime(maxResult, lastQueryTimeMin,
+								eventList = googleApiService.getEventAtLastTime(maxResult,GC_TIME_MIN, lastQueryTimeMin,
 										nextPageToken);
 							} else {
 								throw new TrueQuitBadRequest(

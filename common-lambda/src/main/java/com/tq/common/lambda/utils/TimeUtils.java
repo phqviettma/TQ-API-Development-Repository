@@ -1,4 +1,4 @@
-package com.tq.googlecalendar.time;
+package com.tq.common.lambda.utils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -15,9 +16,15 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UtcTimeUtil {
-	private static final Logger m_log = LoggerFactory.getLogger(UtcTimeUtil.class);
-
+public class TimeUtils {
+	private static final Logger m_log = LoggerFactory.getLogger(TimeUtils.class);
+	public static String getPreviousTime() {
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.MINUTE, -5);
+		Date date = calendar.getTime();
+		String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss").format(date);
+		return currentTime;
+	}
 	public static String getNowInUTC(String timezone) {
 		String interim = ZonedDateTime.now(ZoneId.of(timezone)).truncatedTo(ChronoUnit.SECONDS)
 				.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -30,7 +37,7 @@ public class UtcTimeUtil {
 
 	public static String getTimeFullOffset(String time, String timeZone) {
 		DateTimeZone dateTimeZone = DateTimeZone.forID(timeZone);
-		String fullTime = UtcTimeUtil.parseTime(time);
+		String fullTime = TimeUtils.parseTime(time);
 		DateTime convertTime = new DateTime(fullTime, dateTimeZone);
 		return convertTime.toString();
 

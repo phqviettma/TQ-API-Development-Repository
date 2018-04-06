@@ -9,9 +9,9 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
@@ -94,7 +94,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 						}
 					}
 				} else {
-					String date = UtcTimeUtil.extractDate(event.getStart().getDateTime());
+					String date = TimeUtils.extractDate(event.getStart().getDateTime());
 					apptGroup.addAppt(date,
 							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(),event.getId(), sbmGoogleSync));
 				}
