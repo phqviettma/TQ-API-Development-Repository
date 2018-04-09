@@ -65,11 +65,11 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		ClinikoSbmSync clinikoSbmSync = clinikoSyncService.load(apiKey);
 		if (clinikoSbmSync == null) {
 			ClinikiAppointmentServiceImpl clinikoService = new ClinikiAppointmentServiceImpl(apiKey);
-			BusinessesInfo businesses = clinikoService.getListBusinesses();
 			User userInfo = clinikoService.getAuthenticateUser();
 			String email = userInfo.getEmail();
 			PractitionersInfo practitionerInfo = clinikoService.getPractitioner(userInfo.getId());
 			boolean done = false;
+			BusinessesInfo businesses = clinikoService.getListBusinesses();
 			for (Businesses business : businesses.getBusinesses()) {
 				String link = business.getPractitioners().getLinks().getSelf();
 				PractitionersInfo practitionersInfo = clinikoService.getBusinessPractitioner(link);

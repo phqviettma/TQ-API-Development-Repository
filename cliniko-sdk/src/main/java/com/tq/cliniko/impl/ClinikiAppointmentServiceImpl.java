@@ -240,7 +240,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 	private class GetAllSettingApiReq extends QueryClinikoApiReq {
 
 		public GetAllSettingApiReq(String apiKey) {
-			super(apiKey, "settings", null);
+			super(apiKey, "settings/public", null);
 
 		}
 

@@ -9,9 +9,9 @@ import org.junit.Test;
 
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.lambda.exception.TrueQuitRegisterException;
-import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterParams;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
 import com.tq.inf.exception.InfSDKExecption;
@@ -34,7 +34,7 @@ public class GoogleCalendarCheckStatusHandlerTest {
 		GoogleRegisterParams params = new GoogleRegisterParams();
 		params.setEmail("suongpham53@gmail.com");
 		req.setParams(params);
-		GoogleConnectStatusResponse resp = checkHandler.handle(req);
+		LambdaStatusResponse resp = checkHandler.handle(req);
 		assertEquals(resp.getStatus(), "connected");
 	}
 
@@ -47,7 +47,7 @@ public class GoogleCalendarCheckStatusHandlerTest {
 		GoogleRegisterParams params = new GoogleRegisterParams();
 		params.setEmail("suongpham53@gmail.com");
 		req.setParams(params);
-		GoogleConnectStatusResponse resp = checkHandler.handle(req);
+		LambdaStatusResponse resp = checkHandler.handle(req);
 		assertEquals(resp.getStatus(), "disconnected");
 	}
 }

@@ -19,16 +19,16 @@ import org.mockito.stubbing.Answer;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
-import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.exception.TrueQuitRegisterException;
-import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterParams;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
 import com.tq.googlecalendar.resp.TokenResp;
@@ -53,6 +53,7 @@ public class GoogleConnectHandlerTest {
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
 			contactItemService, tokenCalendarService, sbmUnitService, tokenService,
 			mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);
+
 
 	@Test
 	public void testConnectHandler()
@@ -103,7 +104,7 @@ public class GoogleConnectHandlerTest {
 				return null;
 			}
 		}).when(googleWatchChannelDbService).put(any(GoogleRenewChannelInfo.class));
-		GoogleConnectStatusResponse response = connectHandler.handle(req);
+		LambdaStatusResponse response = connectHandler.handle(req);
 		assertEquals(response.isSucceeded(), true);
 
 	}

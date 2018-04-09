@@ -13,12 +13,12 @@ import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.exception.TrueQuitRegisterException;
-import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterParams;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
 import com.tq.googlecalendar.resp.Error;
@@ -60,7 +60,7 @@ public class GoogleDisconnectHandlerTest {
 		error.setMessage("Channel id not found for project id");
 		value.setError(error );
 		when(googleCalendarApiService.stopWatchEvent(any())).thenReturn(value );
-		GoogleConnectStatusResponse response = disconnectHandler.handle(req);
+		LambdaStatusResponse response = disconnectHandler.handle(req);
 		assertEquals(response.isSucceeded(),true);
 	
 	}

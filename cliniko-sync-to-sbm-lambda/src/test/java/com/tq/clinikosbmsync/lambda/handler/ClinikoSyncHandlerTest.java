@@ -53,13 +53,13 @@ public class ClinikoSyncHandlerTest {
 		Set<Long> removed = new HashSet<>();
 		removed.add(11L);
 		LatestClinikoAppointment dpAppt1 = new LatestClinikoAppointment(created, removed, "2018-01-25T19:21:49Z",
-				"e795b490bf01c39fec5936169c923bb8");
+				"ff997f7d491b555f227262870a2717c1");
 		LatestClinikoAppointment dpAppt2 = new LatestClinikoAppointment(created, removed, "2018-03-25T19:21:49Z",
-				"e795b490bf01c39fec5936169c923bb8");
+				"ff997f7d491b555f227262870a2717c1");
 		latestClinikoAppt.add(dpAppt1);
 		latestClinikoAppt.add(dpAppt2);
 		when(clinikoAppointmentService.queryItem()).thenReturn(latestClinikoAppt);
-		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync("e795b490bf01c39fec5936169c923bb8", "chicanh@gmail.com", "58837-89589", 6, 1);
+		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync("ff997f7d491b555f227262870a2717c1", "chicanh@gmail.com", "58837-89589", 6, 1);
 		when(clinikoSyncService.load(any())).thenReturn(clinikoSbmSync );
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());

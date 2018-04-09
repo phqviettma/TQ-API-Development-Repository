@@ -8,12 +8,12 @@ import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.exception.TrueQuitRegisterException;
-import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.TokenReq;
@@ -45,9 +45,9 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 	}
 
 	@Override
-	public GoogleConnectStatusResponse handle(GoogleRegisterReq req)
+	public LambdaStatusResponse handle(GoogleRegisterReq req)
 			throws GoogleApiSDKException, TrueQuitRegisterException {
-		GoogleConnectStatusResponse response = new GoogleConnectStatusResponse();
+		LambdaStatusResponse response = new LambdaStatusResponse();
 		String sbmEmail = req.getParams().getEmail();
 		GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.query(sbmEmail);
 		if (googleCalendarSbmSync != null) {

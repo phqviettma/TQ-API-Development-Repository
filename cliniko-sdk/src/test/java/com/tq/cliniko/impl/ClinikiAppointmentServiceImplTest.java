@@ -14,10 +14,11 @@ import com.tq.cliniko.lambda.model.AppointmentsInfo;
 import com.tq.cliniko.lambda.model.Businesses;
 import com.tq.cliniko.lambda.model.BusinessesInfo;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
+import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
 
 public class ClinikiAppointmentServiceImplTest {
-	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("");
+	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("ff997f7d491b555f227262870a2717c1");
 
 	@Test
 	public void testGetAppointments() throws ClinikoSDKExeption {
@@ -68,7 +69,7 @@ public class ClinikiAppointmentServiceImplTest {
 		assertNull(result.getAppointment_start());
 	}
 
-	@Test
+	//@Test
 	public void testDeleteAppointment() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");
@@ -95,27 +96,36 @@ public class ClinikiAppointmentServiceImplTest {
 		getResult = m_service.getAppointment(result.getId());
 		assertNull(getResult);
 	}
+
 	@Test
-	public void testGetAuthenticateUser() throws ClinikoSDKExeption{
+	public void testGetAuthenticateUser() throws ClinikoSDKExeption {
 		User user = m_service.getAuthenticateUser();
 		assertNotNull(user);
 		System.out.println(user);
 	}
+
 	@Test
-	public void testGetPractitioner()throws ClinikoSDKExeption{
+	public void testGetPractitioner() throws ClinikoSDKExeption {
 		User user = m_service.getAuthenticateUser();
 		PractitionersInfo practitioner = m_service.getPractitioner(user.getId());
 		System.out.println(practitioner);
-		
+
 	}
+
 	@Test
-	public void testGetPractitionerByUrl()throws ClinikoSDKExeption{
+	public void testGetPractitionerByUrl() throws ClinikoSDKExeption {
 		BusinessesInfo businesses = m_service.getListBusinesses();
-		for(Businesses business:businesses.getBusinesses()) {
+		for (Businesses business : businesses.getBusinesses()) {
 			String link = business.getPractitioners().getLinks().getSelf();
 			PractitionersInfo practitionersInfo = m_service.getBusinessPractitioner(link);
 			System.out.println(practitionersInfo);
 		}
+	}
+
+	@Test
+	public void testGetSystemSettings() throws ClinikoSDKExeption {
+		Settings setting = m_service.getAllSettings();
+		System.out.println(setting);
 	}
 
 }

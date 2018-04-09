@@ -14,26 +14,26 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tq.common.lambda.dynamodb.dao.GoogleCalendarModifiedSynDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.GoogleCalendarModifiedSynDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleRenewChannelDaoImpl;
-import com.tq.common.lambda.dynamodb.impl.GoogleCalendarModifiedSyncServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.GoogleCalendarModifiedSyncServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleWatchChannelDbServiceImpl;
-import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
+import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.exception.GoogleExceptionHanlder;
 import com.tq.googlecalendar.lambda.model.GoogleConnectFailureResponse;
-import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
@@ -79,6 +79,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 				new GoogleRenewChannelDaoImpl(amazonDynamoDB));
 		this.connectHandler = new GoogleConnectCalendarHandler(eVariables, googleCalendarService, contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm, apiServiceBuilder,
 				googleWatchChannelDbService, calendarModifiedChannelService);
+
 		this.disconnectHandler = new GoogleDisconnectCalendarHandler(eVariables, googleCalendarService,
 				tokenCalendarService, apiServiceBuilder, googleWatchChannelDbService, calendarModifiedChannelService);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
@@ -109,7 +110,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("content-Type", "application/json");
 		resp.setHeaders(headers);
-		GoogleConnectStatusResponse response = new GoogleConnectStatusResponse();
+		LambdaStatusResponse response = new LambdaStatusResponse();
 		try {
 			if (CHECK.equals(req.getAction())) {
 				response = checkStatusHandler.handle(req);
@@ -151,7 +152,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		return req;
 	}
 
-	private static String buildResponse(GoogleConnectStatusResponse response) {
+	private static String buildResponse(LambdaStatusResponse response) {
 		String jsonResp = null;
 		try {
 			jsonResp = jsonMapper.writeValueAsString(response);
