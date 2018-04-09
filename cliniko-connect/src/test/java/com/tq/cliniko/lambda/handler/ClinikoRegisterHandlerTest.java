@@ -15,16 +15,15 @@ import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.tq.common.lambda.dynamodb.impl.LatestClinikoAppointmentWrapper;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.LatestClinikoAppointmentService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.simplybook.context.Env;
-import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
-import com.tq.simplybook.service.TokenServiceSbm;
+import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.service.SbmUnitService;
+import com.tq.simplybook.service.TokenServiceSbm;
 
 public class ClinikoRegisterHandlerTest {
 	private Env mockedeEnv = MockUtil.mockEnv();
@@ -34,10 +33,9 @@ public class ClinikoRegisterHandlerTest {
 	private Context m_context = mock(Context.class);
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = mock(ClinikoSyncToSbmService.class);
 	private LatestClinikoAppointmentService latestClinikoService = mock(LatestClinikoAppointmentService.class);
-	private LatestClinikoAppointmentWrapper latestClinikoServiceWrapper = mock(LatestClinikoAppointmentWrapper.class);
 	private ClinikoConnectHandler connectHandler = new ClinikoConnectHandler(mockedeEnv, unitService, tokenService,
-			clinikoSyncToSbmService, latestClinikoService, latestClinikoServiceWrapper);
-	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService, latestClinikoServiceWrapper, latestClinikoService);
+			clinikoSyncToSbmService, latestClinikoService);
+	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService, latestClinikoService);
 
 	@Before
 	public void init() {

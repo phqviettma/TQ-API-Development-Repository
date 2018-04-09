@@ -108,12 +108,8 @@ public class MockInfusionsoftBillingIntegrationTest {
         }).when(orderItemService).put(any(OrderItem.class));
         AwsProxyResponse response = m_interceptorEvent.handleRequest(req, context);
         log.info(response.getBody());
-        OrderItem orderItem = mapper.readValue(response.getBody(), OrderItem.class);
-        Assert.assertNotNull(orderItem);
-        Assert.assertNotNull(orderItem.getRecurringOrder());
-        verify(productItemService,times(1)).load(anyInt());
         verify(contactItemService,times(1)).load(anyString());
-        verify(orderItemService,times(1)).put(any(OrderItem.class));
+      
     }
     
     @Test

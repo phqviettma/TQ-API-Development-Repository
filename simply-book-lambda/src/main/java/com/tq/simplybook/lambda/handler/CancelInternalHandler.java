@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
@@ -21,6 +20,7 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
 import com.tq.googlecalendar.req.TokenReq;
@@ -179,7 +179,7 @@ public class CancelInternalHandler implements InternalHandler {
 			Settings settings = clinikoAppointmentService.getAllSettings();
 			String country = settings.getAccount().getCountry();
 			String time_zone = settings.getAccount().getTime_zone();
-			String latestTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
+			String latestTime = TimeUtils.getNowInUTC(country + "/" + time_zone);
 			latestClinikoAppts.setLatestUpdateTime(latestTime);
 
 			clinikoAppointmentService.deleteAppointment(sbmCliniko.getClinikoId());
@@ -206,7 +206,8 @@ public class CancelInternalHandler implements InternalHandler {
 			if (sbmGoogleCalendar == null) {
 				return false;
 			} else {
-				sbmGoogleCalendarService.delete(sbmGoogleCalendar);
+				sbmGoogleCalendar.setFlag(0);
+				sbmGoogleCalendarService.put(sbmGoogleCalendar);
 				m_log.info("Delete item on database successfully");
 				googleService.deleteEvent(sbmGoogleCalendar.getEventId());
 				m_log.info("Delete google event successfully");

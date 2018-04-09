@@ -13,17 +13,14 @@ public class GetBookingReq implements Serializable {
 	 */
 	private static final long serialVersionUID = 3352562819153893570L;
 	private String date_from;
-	private String date_to;
 	private String booking_type;
 	private String order;
 	private Integer unit_group_id;
 	private Integer event_id;
 
-	public GetBookingReq(String date_from, String date_to, String booking_type, String order, Integer unit_group_id,
-			Integer event_id) {
+	public GetBookingReq(String date_from, String booking_type, String order, Integer unit_group_id, Integer event_id) {
 
 		this.date_from = date_from;
-		this.date_to = date_to;
 		this.booking_type = booking_type;
 		this.order = order;
 		this.unit_group_id = unit_group_id;
@@ -50,14 +47,6 @@ public class GetBookingReq implements Serializable {
 		this.date_from = date_from;
 	}
 
-	public String getDate_to() {
-		return date_to;
-	}
-
-	public void setDate_to(String date_to) {
-		this.date_to = date_to;
-	}
-
 	public String getBooking_type() {
 		return booking_type;
 	}
@@ -68,7 +57,8 @@ public class GetBookingReq implements Serializable {
 
 	@Override
 	public String toString() {
-		return "GetBookingReq [date_from=" + date_from + ", date_to=" + date_to + "]";
+		return "GetBookingReq [date_from=" + date_from + ", booking_type=" + booking_type + ", order=" + order
+				+ ", unit_group_id=" + unit_group_id + ", event_id=" + event_id + "]";
 	}
 
 	public Integer getUnit_group_id() {
@@ -86,6 +76,5 @@ public class GetBookingReq implements Serializable {
 	public void setEvent_id(Integer event_id) {
 		this.event_id = event_id;
 	}
-	
 
 }

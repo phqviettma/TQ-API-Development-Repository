@@ -17,6 +17,7 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.CountryItem;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.utils.Utils;
+import com.tq.inf.exception.InfSDKExecption;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.ClientData;
 import com.tq.simplybook.service.ClientServiceSbm;
@@ -48,11 +49,14 @@ public class HandleEventContactExecution extends AbstractEventContactExecution {
 
                 // 3. creating the contact based on Contact of Click Funnel on Infusion soft
                 Integer contactInfId = addContactToInfusionsoft(funnelContact, lambdaContext);
-
+                //Applied tag
+                Integer appliedTagId = Integer
+						.valueOf(lambdaContext.getEnvVar().getEnv(Config.INFUSION_CLICKFUNNEL_OPTIN_TAG));
+                applyTagToInfusionsoft(lambdaContext, contactInfId, appliedTagId);
                 // 4. Saving the client & contact ID into DynamoDB.
                 contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, lambdaContext);
             }
-        } catch (IOException | CFLambdaException e) {
+        } catch (IOException | CFLambdaException | InfSDKExecption e) {
             throw new CFLambdaException(e.getMessage(), e);
         }
         // 5. Handle respond

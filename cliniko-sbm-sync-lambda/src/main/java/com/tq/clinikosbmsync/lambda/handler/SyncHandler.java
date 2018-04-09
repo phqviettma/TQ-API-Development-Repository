@@ -27,13 +27,13 @@ import com.tq.cliniko.lambda.model.GeneralAppt;
 import com.tq.cliniko.lambda.model.PractitionerApptGroup;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.dao.LatestClinikoApptsImpl;
 import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 import com.tq.common.lambda.dynamodb.service.LatestClinikoApptService;
 import com.tq.common.lambda.utils.DynamodbUtils;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
@@ -121,7 +121,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			String time_zone = settings.getAccount().getTime_zone();
 			dateTz = DateTimeZone.forID("Melbourne");
 			//dateTz = DateTimeZone.forID(country + "/" + time_zone);
-			latestUpdateTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
+			latestUpdateTime = TimeUtils.getNowInUTC(country + "/" + time_zone);
 
 			m_log.info("Now: " + latestUpdateTime + " at timezone " + country + "/" + time_zone);
 			if (dbTime == null) {
@@ -290,10 +290,10 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 
 		for (Long i : apptsToBeSynced) {
 			AppointmentInfo appt = lookupedMap.get(i);
-			appt.setAppointment_start(UtcTimeUtil.convertToTzFromLondonTz(dateTz, appt.getAppointment_start()));
-			appt.setAppointment_end(UtcTimeUtil.convertToTzFromLondonTz(dateTz, appt.getAppointment_end()));
+			appt.setAppointment_start(TimeUtils.convertToTzFromLondonTz(dateTz, appt.getAppointment_start()));
+			appt.setAppointment_end(TimeUtils.convertToTzFromLondonTz(dateTz, appt.getAppointment_end()));
 			if (appt != null) {
-				String date = UtcTimeUtil.extractDate(appt.getAppointment_start());
+				String date = TimeUtils.extractDate(appt.getAppointment_start());
 				ClinikoId cliniko = new ClinikoId();
 				cliniko.setBussinessId(AppoinmentUtil.getBusinessId(appt));
 				cliniko.setPractionerId(AppoinmentUtil.getPractitionerId(appt));

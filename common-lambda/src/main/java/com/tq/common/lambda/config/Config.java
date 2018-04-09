@@ -16,6 +16,8 @@ public class Config {
     public static final String INFUSIONSOFT_CLINIKO_PRACTITIONER_TAG = "INFUSIONSOFT_CLINIKO_PRACTITIONER_TAG";
     
     public static final String INFUSION_ORDER_PROMO_CODE = "INFUSION_ORDER_PROMO_CODE";
+    
+    public static final String INFUSION_CLICKFUNNEL_OPTIN_TAG = "INFUSION_CLICKFUNNEL_OPTIN_TAG";
 
     // Simply book
     public static final String SIMPLY_BOOK_COMPANY_LOGIN = "SIMPLY_BOOK_COMPANY_LOGIN";

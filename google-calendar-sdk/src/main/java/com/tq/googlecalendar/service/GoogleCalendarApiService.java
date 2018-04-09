@@ -25,13 +25,15 @@ public interface GoogleCalendarApiService {
 
 	CalendarEvents getEventWithNextSyncToken(Integer maxResult, String syncToken) throws GoogleApiSDKException;
 
-	CalendarEvents getEventWithoutToken(Integer maxResult, String timeMin) throws GoogleApiSDKException;
+	CalendarEvents getEventWithoutToken(Integer maxResult, String query, String timeMin) throws GoogleApiSDKException;
 
 	GoogleCalendarSettingsInfo getSettingInfo(String settingId) throws GoogleApiSDKException;
 
-	CalendarEvents getEventAtLastTime(Integer maxResult, String lastQueryTimeMin, String nextPageToken)
+	CalendarEvents getEventAtLastTime(Integer maxResult,String filterString, String lastQueryTimeMin, String nextPageToken)
 			throws GoogleApiSDKException;
 
 	ErrorResp stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException;
+
+	CalendarEvents queryEvent(Integer maxResult, String query, String time) throws GoogleApiSDKException;
 
 }

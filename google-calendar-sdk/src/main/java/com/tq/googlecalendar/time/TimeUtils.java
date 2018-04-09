@@ -1,4 +1,4 @@
-package com.tq.cliniko.time;
+package com.tq.googlecalendar.time;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -15,8 +15,8 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UtcTimeUtil {
-	private static final Logger m_log = LoggerFactory.getLogger(UtcTimeUtil.class);
+public class TimeUtils {
+	private static final Logger m_log = LoggerFactory.getLogger(TimeUtils.class);
 
 	public static String getNowInUTC(String timezone) {
 		String interim = ZonedDateTime.now(ZoneId.of(timezone)).truncatedTo(ChronoUnit.SECONDS)
@@ -30,7 +30,7 @@ public class UtcTimeUtil {
 
 	public static String getTimeFullOffset(String time, String timeZone) {
 		DateTimeZone dateTimeZone = DateTimeZone.forID(timeZone);
-		String fullTime = UtcTimeUtil.parseTime(time);
+		String fullTime = TimeUtils.parseTime(time);
 		DateTime convertTime = new DateTime(fullTime, dateTimeZone);
 		return convertTime.toString();
 

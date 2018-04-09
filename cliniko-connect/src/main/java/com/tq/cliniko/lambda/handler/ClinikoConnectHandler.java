@@ -1,5 +1,6 @@
 package com.tq.cliniko.lambda.handler;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,12 +21,11 @@ import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
 import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
-import com.tq.cliniko.time.UtcTimeUtil;
-import com.tq.common.lambda.dynamodb.impl.LatestClinikoAppointmentWrapper;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.LatestClinikoAppointment;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.LatestClinikoAppointmentService;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.resp.UnitProviderInfo;
@@ -39,17 +39,14 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	private TokenServiceSbm tokenServiceSbm = null;
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private LatestClinikoAppointmentService latestClinikoApptService = null;
-	private LatestClinikoAppointmentWrapper m_lcaw = null;
 
 	public ClinikoConnectHandler(Env env, SbmUnitService unitService, TokenServiceSbm tokenService,
-			ClinikoSyncToSbmService clinikoSyncService, LatestClinikoAppointmentService latestClinikoApptService,
-			LatestClinikoAppointmentWrapper m_lcaw) {
+			ClinikoSyncToSbmService clinikoSyncService, LatestClinikoAppointmentService latestClinikoApptService) {
 		this.eVariables = env;
 		this.unitServiceSbm = unitService;
 		this.tokenServiceSbm = tokenService;
 		this.clinikoSyncService = clinikoSyncService;
 		this.latestClinikoApptService = latestClinikoApptService;
-		this.m_lcaw = m_lcaw;
 	}
 
 	@Override
@@ -98,14 +95,15 @@ public class ClinikoConnectHandler implements ConnectHandler {
 							clinikoSbmSync = new ClinikoSbmSync(apiKey, email, clinikoId, Integer.valueOf(unitId),
 									Integer.valueOf(eventId));
 							clinikoSyncService.put(clinikoSbmSync);
-							LatestClinikoAppointment latestClinikoAppointment = new LatestClinikoAppointment();
+
 							Settings settings = clinikoService.getAllSettings();
 							String country = settings.getAccount().getCountry();
 							String time_zone = settings.getAccount().getTime_zone();
-							String latestUpdateTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
-							latestClinikoAppointment.setLatest_update_time(latestUpdateTime);
-							latestClinikoAppointment.setApiKey(apiKey);
-							m_lcaw.put(latestClinikoAppointment );
+							String latestUpdateTime = TimeUtils.getNowInUTC(country + "/" + time_zone);
+							long timeStamp = Calendar.getInstance().getTimeInMillis();
+							LatestClinikoAppointment latestClinikoAppointment = new LatestClinikoAppointment(apiKey,
+									latestUpdateTime, 1, timeStamp);
+							latestClinikoApptService.put(latestClinikoAppointment);
 							m_log.info("Add to database successfully" + clinikoSbmSync);
 							done = true;
 							break;

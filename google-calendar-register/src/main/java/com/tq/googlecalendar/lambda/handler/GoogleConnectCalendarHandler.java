@@ -11,8 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
@@ -31,7 +33,6 @@ import com.tq.googlecalendar.resp.WatchEventResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.exception.InfSDKExecption;
-import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.resp.UnitProviderInfo;
 import com.tq.simplybook.service.SbmUnitService;
@@ -46,25 +47,25 @@ public class GoogleConnectCalendarHandler implements Handler {
 	private Env eVariables = null;
 	private GoogleCalendarDbService googleCalendarService = null;
 	private GoogleCalRenewService googleCalRenewService = null;
-	private ContactServiceInf contactService = null;
 	private ContactItemService contactItemService = null;
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
+	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
 
 	public GoogleConnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
-			ContactServiceInf contactService, ContactItemService contactItemService,
-			TokenGoogleCalendarService tokenCalendarService, SbmUnitService sbmUnitService,
-			TokenServiceSbm tokenServiceSbm, GoogleCalendarApiServiceBuilder apiServiceBuilder,
-			GoogleCalRenewService googleCalRenewService) {
+			ContactItemService contactItemService, TokenGoogleCalendarService tokenCalendarService,
+			SbmUnitService sbmUnitService, TokenServiceSbm tokenServiceSbm,
+			GoogleCalendarApiServiceBuilder apiServiceBuilder, GoogleCalRenewService googleCalRenewService,
+			GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.contactItemService = contactItemService;
 		this.sbmUnitService = sbmUnitService;
 		this.tokenCalendarService = tokenCalendarService;
-		this.contactService = contactService;
 		this.tokenServiceSbm = tokenServiceSbm;
 		this.apiServiceBuilder = apiServiceBuilder;
 		this.googleCalRenewService = googleCalRenewService;
+		this.calendarModifiedChannelService = calendarModifiedChannelService;
 	}
 
 	@Override
@@ -90,8 +91,6 @@ public class GoogleConnectCalendarHandler implements Handler {
 			TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
 			String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
 			List<UnitProviderInfo> unitInfos = sbmUnitService.getUnitList(companyLogin, endpoint, token, true, true, 1);
-			String apiName = eVariables.getInfusionSoftApiName();
-			String apiKey = eVariables.getInfusionSoftApiKey();
 			boolean done = false;
 			for (UnitProviderInfo unitInfo : unitInfos) {
 				if (unitInfo.getEmail() != null && unitInfo.getEmail().equals(sbmEmail)) {
@@ -103,14 +102,6 @@ public class GoogleConnectCalendarHandler implements Handler {
 							String unitId = unitInfo.getId();
 							String sbmId = eventId + "-" + unitId;
 							Long lastQueryTime = buildLastCheckingTime();
-							/*
-							 * Map<String, String> dataRecord = new HashMap<>(); dataRecord.put("Email",
-							 * googleEmail); dataRecord.put("FirstName", req.getParams().getFirstName());
-							 * dataRecord.put("LastName", req.getParams().getLastName());
-							 * contactService.addWithDupCheck(apiName, apiKey, new
-							 * AddNewContactQuery().withDataRecord(dataRecord)); m_log.info("Add contact" +
-							 * googleEmail + " email to infusionsoft successfully");
-							 */
 							GoogleCalendarApiService googleApiService = apiServiceBuilder
 									.build(tokenResp.getAccess_token());
 							Params params = new Params(PARAMS);
@@ -136,6 +127,9 @@ public class GoogleConnectCalendarHandler implements Handler {
 							googleCalRenewService.put(channelInfo);
 							m_log.info(
 									"Added to GoogleCalendarChannelInfo table successfully " + channelInfo.toString());
+							long timeStamp = Calendar.getInstance().getTimeInMillis();
+							GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(sbmId, -1,timeStamp);
+							calendarModifiedChannelService.put(modifiedChannelItem);
 							done = true;
 							break;
 						}

@@ -17,7 +17,6 @@ import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
@@ -28,6 +27,7 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
 import com.tq.googlecalendar.req.Attendees;
@@ -180,8 +180,8 @@ public class CreateInternalHandler implements InternalHandler {
 		String country = settings.getAccount().getCountry();
 		String time_zone = settings.getAccount().getTime_zone();
 		DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
-		String sbmStartTime = UtcTimeUtil.parseTime(bookingInfo.getStart_date_time());
-		String sbmEndTime = UtcTimeUtil.parseTime(bookingInfo.getEnd_date_time());
+		String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
+		String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
 		DateTime start_time = new DateTime(sbmStartTime, timeZone);
 		DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
 		DateTime endTime = new DateTime(sbmEndTime, timeZone);
@@ -199,7 +199,7 @@ public class CreateInternalHandler implements InternalHandler {
 		Set<Long> createdId = latestClinikoAppts.getCreated();
 		createdId.add(result.getId());
 		latestClinikoAppts.setCreated(createdId);
-		String latestTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
+		String latestTime = TimeUtils.getNowInUTC(country + "/" + time_zone);
 		latestClinikoAppts.setLatestUpdateTime(latestTime);
 		m_log.info("LatestClinikoAppt" + latestClinikoAppts);
 		if (sbmCliniko != null) {
@@ -227,8 +227,8 @@ public class CreateInternalHandler implements InternalHandler {
 
 			// GoogleTimeZone
 			GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-			String sbmStartTime = UtcTimeUtil.parseTime(bookingInfo.getStart_date_time());
-			String sbmEndTime = UtcTimeUtil.parseTime(bookingInfo.getEnd_date_time());
+			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
+			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
 			Start start = new Start(sbmStartTime, settingInfo.getValue());
 			End end = new End(sbmEndTime, settingInfo.getValue());
 			List<Attendees> attendees = new ArrayList<>();
@@ -238,25 +238,24 @@ public class CreateInternalHandler implements InternalHandler {
 			EventResp eventResp = googleApiService.createEvent(req);
 			m_log.info("Create event successfully with value " + eventResp.toString());
 			SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(payload.getBooking_id(), eventResp.getId(),
-					bookingInfo.getClient_email());
-			if (sbmGoogleCalendarSync != null) {
+					bookingInfo.getClient_email(), 1, "sbm");
 				sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
 				m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
 
-			}
+			
 		}
 		return true;
 
 	}
 
 	private static String buildApppointmentTime(String start_date_time, String end_date_time) {
-		String startTime = UtcTimeUtil.extractTimeSbm(start_date_time);
-		String endTime = UtcTimeUtil.extractTimeSbm(end_date_time);
+		String startTime = TimeUtils.extractTimeSbm(start_date_time);
+		String endTime = TimeUtils.extractTimeSbm(end_date_time);
 		return startTime + ((endTime == null || endTime.isEmpty() ? "" : " - " + endTime));
 	}
 
 	private static String buildAppointmentDate(String start_date_time) {
-		String startDate = UtcTimeUtil.extractDateSbm(start_date_time);
+		String startDate = TimeUtils.extractDateSbm(start_date_time);
 	
 		return startDate==null? "":startDate ;
 	}

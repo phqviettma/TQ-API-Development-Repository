@@ -19,6 +19,7 @@ import org.mockito.stubbing.Answer;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
@@ -34,7 +35,6 @@ import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.resp.WatchEventResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.inf.exception.InfSDKExecption;
-import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.resp.UnitProviderInfo;
 import com.tq.simplybook.service.SbmUnitService;
@@ -45,14 +45,14 @@ public class GoogleConnectHandlerTest {
 	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private static Env mockedeEnv = MockUtil.mockEnv();
 	private static TokenServiceSbm tokenService = mock(TokenServiceSbm.class);
-	private ContactServiceInf contactService = mock(ContactServiceInf.class);
 	private ContactItemService contactItemService = mock(ContactItemService.class);
 	private TokenGoogleCalendarImpl tokenCalendarService = mock(TokenGoogleCalendarImpl.class);
 	private SbmUnitService sbmUnitService = mock(SbmUnitService.class);
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
+	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
-			contactService, contactItemService, tokenCalendarService, sbmUnitService, tokenService,
-			mockedApiServiceBuilder, googleWatchChannelDbService);
+			contactItemService, tokenCalendarService, sbmUnitService, tokenService,
+			mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);
 
 	@Test
 	public void testConnectHandler()

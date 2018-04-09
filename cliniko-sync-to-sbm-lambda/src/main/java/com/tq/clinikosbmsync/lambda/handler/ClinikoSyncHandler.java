@@ -26,18 +26,17 @@ import com.tq.cliniko.lambda.model.GeneralAppt;
 import com.tq.cliniko.lambda.model.PractitionerApptGroup;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
-import com.tq.cliniko.time.UtcTimeUtil;
 import com.tq.clinikosbmsync.lamdbda.context.Env;
 import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.LatestClinikoAppointmentImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.LatestClinikoAppointmentServiceImpl;
-import com.tq.common.lambda.dynamodb.impl.LatestClinikoAppointmentWrapper;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.LatestClinikoAppointment;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.LatestClinikoAppointmentService;
 import com.tq.common.lambda.utils.DynamodbUtils;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
@@ -58,7 +57,6 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private TokenServiceSbm m_tss = null;
 	private SbmBreakTimeManagement m_sbtm = null;
 	private LatestClinikoAppointmentService clinikoApptService = null;
-	private LatestClinikoAppointmentWrapper latestClinikoWrapper = null;
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private Integer maxAppt = 100;
 
@@ -71,21 +69,21 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		this.m_sbtm = new SbmBreakTimeManagement();
 		this.clinikoApptService = new LatestClinikoAppointmentServiceImpl(
 				new LatestClinikoAppointmentImpl(m_amazonDynamoDB));
-		this.latestClinikoWrapper = new LatestClinikoAppointmentWrapper(clinikoApptService);
+	
 		this.clinikoSyncService = new ClinikoSyncToSbmServiceImpl(new ClinikoSyncToSbmDaoImpl(m_amazonDynamoDB));
 	}
 
 	// for testing only
 	ClinikoSyncHandler(Env env, AmazonDynamoDB db, SpecialdayServiceSbm specialdayService, TokenServiceSbm tokenService,
 			SbmBreakTimeManagement sbmTimeManagement, LatestClinikoAppointmentService clinikoApptService,
-			LatestClinikoAppointmentWrapper latestClinikoWrapper, ClinikoSyncToSbmService clinikoSyncService) {
+		 ClinikoSyncToSbmService clinikoSyncService) {
 		this.m_env = env;
 		this.m_amazonDynamoDB = db;
 		this.m_sss = specialdayService;
 		this.m_tss = tokenService;
 		this.m_sbtm = sbmTimeManagement;
 		this.clinikoApptService = clinikoApptService;
-		this.latestClinikoWrapper = latestClinikoWrapper;
+	
 		this.clinikoSyncService = clinikoSyncService;
 	}
 
@@ -112,7 +110,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					String country = settings.getAccount().getCountry();
 					String time_zone = settings.getAccount().getTime_zone();
 
-					latestUpdateTime = UtcTimeUtil.getNowInUTC(country + "/" + time_zone);
+					latestUpdateTime = TimeUtils.getNowInUTC(country + "/" + time_zone);
 					if (dbTime == null) {
 						dbTime = latestUpdateTime;
 					}
@@ -190,6 +188,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						saveDb(latestUpdateTime, dbCreateSet, null);
 					}
 					m_log.info("Synchronized deleted appoinments to Simplybook.me completely");
+					break;
 				}
 			}
 		} catch (ClinikoSDKExeption | SbmSDKException e) {
@@ -253,10 +252,10 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 
 		for (Long i : apptsToBeSynced) {
 			AppointmentInfo appt = lookupedMap.get(i);
-			appt.setAppointment_start(UtcTimeUtil.convertToTzFromLondonTz(dateTz, appt.getAppointment_start()));
-			appt.setAppointment_end(UtcTimeUtil.convertToTzFromLondonTz(dateTz, appt.getAppointment_end()));
+			appt.setAppointment_start(TimeUtils.convertToTzFromLondonTz(dateTz, appt.getAppointment_start()));
+			appt.setAppointment_end(TimeUtils.convertToTzFromLondonTz(dateTz, appt.getAppointment_end()));
 			if (appt != null) {
-				String date = UtcTimeUtil.extractDate(appt.getAppointment_start());
+				String date = TimeUtils.extractDate(appt.getAppointment_start());
 				ClinikoId cliniko = new ClinikoId();
 				cliniko.setBussinessId(AppoinmentUtil.getBusinessId(appt));
 				cliniko.setPractionerId(AppoinmentUtil.getPractitionerId(appt));
@@ -337,7 +336,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		}
 
 		m_log.info("LatestClinikoAppt" + lca.toString());
-		latestClinikoWrapper.put(lca);
+		clinikoApptService.put(lca);
 	}
 
 }

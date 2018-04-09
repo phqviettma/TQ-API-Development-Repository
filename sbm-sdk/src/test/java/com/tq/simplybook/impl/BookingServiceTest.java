@@ -24,7 +24,7 @@ public class BookingServiceTest {
 		String password = "1900561594";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		BookingInfo info = bookingService.getBookingInfo(companyLogin, endpoint, userToken, 5L);
-		assertNotNull(info);
+		assertNotNull(info.getCompany_login());
 	}
 
 	@Test
@@ -35,14 +35,9 @@ public class BookingServiceTest {
 		String username = "admin";
 		String password = "1900561594";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
-		try {
-			GetBookingReq e = new GetBookingReq("2018-01-01", "2018-01-30", "all", "start_date", 6, 1);
-			List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint, userToken, e);
-			assertNotNull(bookingList);
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		}
+		GetBookingReq e = new GetBookingReq("2018-01-01", "all", "start_date", 6, 1);
+		List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint, userToken, e);
+		assertNotNull(bookingList);
 
 	}
 
