@@ -6,9 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -18,28 +16,37 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.tq.clinikosbmsync.lamdbda.context.Env;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
-import com.tq.common.lambda.dynamodb.model.LatestClinikoAppointment;
+import com.tq.common.lambda.dynamodb.model.ClinikoSyncStatus;
+import com.tq.common.lambda.dynamodb.model.SbmCliniko;
+import com.tq.common.lambda.dynamodb.service.ClinikoItemService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
-import com.tq.common.lambda.dynamodb.service.LatestClinikoAppointmentService;
+import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
+import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
+import com.tq.simplybook.service.BookingServiceSbm;
+import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
 public class ClinikoSyncHandlerTest {
 	private Env m_env = MockUtil.mockEnv();
+	private static final String API_KEY = "";
 	private Context m_context = mock(Context.class);
 	private AmazonDynamoDB amazonDynamoDB = mock(AmazonDynamoDB.class);
 	private SpecialdayServiceSbm specialdayService = new SpecialdayServiceSbmImpl();
 	private TokenServiceSbm tokenService = new TokenServiceImpl();
 	private SbmBreakTimeManagement sbmTimeManagement = new SbmBreakTimeManagement();
-	private LatestClinikoAppointmentService clinikoAppointmentService = mock(LatestClinikoAppointmentService.class);
 	private ClinikoSyncToSbmService clinikoSyncService = mock(ClinikoSyncToSbmService.class);
-
+	private ClinikoItemService clinikoItemService = mock(ClinikoItemService.class);
+	private SbmClinikoSyncService sbmClinikoSyncService = mock(SbmClinikoSyncService.class);
+	private SbmUnitService unitService = new SbmUnitServiceImpl();
+	private BookingServiceSbm bookingService = mock(BookingServiceSbm.class);
 	ClinikoSyncHandler handler = new ClinikoSyncHandler(m_env, amazonDynamoDB, specialdayService, tokenService,
-			sbmTimeManagement, clinikoAppointmentService, clinikoSyncService);
+			sbmTimeManagement, clinikoSyncService, clinikoItemService, sbmClinikoSyncService, unitService,
+			bookingService);
 
 	@Test
 	public void testSyncHandler() {
@@ -47,20 +54,13 @@ public class ClinikoSyncHandlerTest {
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_appointment.json"));
 		AwsProxyRequest req = new AwsProxyRequest();
 		req.setBody(jsonString);
-		List<LatestClinikoAppointment> latestClinikoAppt = new ArrayList<>();
-		Set<Long> created = new HashSet<>();
-		created.add(96011766L);
-		Set<Long> removed = new HashSet<>();
-		removed.add(11L);
-		LatestClinikoAppointment dpAppt1 = new LatestClinikoAppointment(created, removed, "2018-01-25T19:21:49Z",
-				"ff997f7d491b555f227262870a2717c1");
-		LatestClinikoAppointment dpAppt2 = new LatestClinikoAppointment(created, removed, "2018-03-25T19:21:49Z",
-				"ff997f7d491b555f227262870a2717c1");
-		latestClinikoAppt.add(dpAppt1);
-		latestClinikoAppt.add(dpAppt2);
-		when(clinikoAppointmentService.queryItem()).thenReturn(latestClinikoAppt);
-		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync("ff997f7d491b555f227262870a2717c1", "chicanh@gmail.com", "58837-89589", 6, 1);
-		when(clinikoSyncService.load(any())).thenReturn(clinikoSbmSync );
+		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync(API_KEY, "suongpham53@gmail.com", "62052-95259", "1-5");
+		when(clinikoSyncService.queryWithIndex(any())).thenReturn(clinikoSbmSync);
+		List<ClinikoSyncStatus> clinikoSync = new ArrayList<>();
+		clinikoSync.add(new ClinikoSyncStatus(ClinikoSyncStatus.CHECK_KEY, API_KEY, 190005555L, null));
+		when(clinikoItemService.queryIndex()).thenReturn(clinikoSync);
+		SbmCliniko sbmCliniko = new SbmCliniko(1186181382203654900L, 106383666L, 1, API_KEY, "cliniko");
+		when(sbmClinikoSyncService.queryIndex(any())).thenReturn(sbmCliniko);
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());
 	}

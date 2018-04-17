@@ -12,22 +12,22 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
-import com.tq.cliniko.service.ClinikoAppointmentService;
+import com.tq.common.lambda.dynamodb.dao.ClinikoCompanyInfoDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
-import com.tq.common.lambda.dynamodb.dao.LatestClinikoApptsImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmClinikoSyncDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmGoogleCalendarSyncDaoImpl;
+import com.tq.common.lambda.dynamodb.impl.ClinikoCompanyInfoServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
-import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceImpl;
-import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.impl.SbmClinikoSyncImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmGoogleCalendarServiceImpl;
+import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
+import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
-import com.tq.common.lambda.dynamodb.service.LatestClinikoApptService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.DynamodbUtils;
@@ -38,7 +38,6 @@ import com.tq.inf.impl.DataServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
 import com.tq.simplybook.context.Env;
-import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
@@ -63,19 +62,17 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private TokenServiceSbm m_tss = new TokenServiceImpl();
 	private SbmClinikoSyncService m_scs = new SbmClinikoSyncImpl(new SbmClinikoSyncDaoImpl(m_amazonDynamoDB));
 	private ContactItemService m_cis = new ContactItemServiceImpl(new ContactItemDaoImpl(m_amazonDynamoDB));
-	private LatestClinikoApptService m_lcs = new LatestClinikoApptServiceImpl(
-			new LatestClinikoApptsImpl(m_amazonDynamoDB));
-	private LatestClinikoApptServiceWrapper m_lcsw = new LatestClinikoApptServiceWrapper(m_lcs);
-	private SimplyBookClinikoMapping m_scm = new SimplyBookClinikoMapping(m_env);
 	private GoogleCalendarDbService m_gcs = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(m_amazonDynamoDB));
-	private ClinikoAppointmentService m_cas = new ClinikiAppointmentServiceImpl(m_env.getClinikoApiKey());
-	private SbmGoogleCalendarDbService m_sgcs = new SbmGoogleCalendarServiceImpl(new SbmGoogleCalendarSyncDaoImpl(m_amazonDynamoDB));
+	private SbmGoogleCalendarDbService m_sgcs = new SbmGoogleCalendarServiceImpl(
+			new SbmGoogleCalendarSyncDaoImpl(m_amazonDynamoDB));
 	private TokenGoogleCalendarImpl m_tgc = new TokenGoogleCalendarImpl();
-	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scm, m_scs,
-			m_lcsw, m_cas, m_gcs,m_sgcs,m_tgc);
+	private ClinikoSyncToSbmService clinikoSyncToSbmService = new ClinikoSyncToSbmServiceImpl(
+			new ClinikoSyncToSbmDaoImpl(m_amazonDynamoDB));
+	private ClinikoCompanyInfoService clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
+	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc, clinikoSyncToSbmService, clinikoCompanyService);
 	private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs,
-			m_lcsw, m_cas, m_scm, m_sgcs, m_gcs, m_tgc);
-	
+			m_sgcs, m_gcs, m_tgc, clinikoSyncToSbmService);
+
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
 		AwsProxyResponse resp = new AwsProxyResponse();

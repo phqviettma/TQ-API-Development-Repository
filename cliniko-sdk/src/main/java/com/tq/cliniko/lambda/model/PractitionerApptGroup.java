@@ -50,6 +50,10 @@ public class PractitionerApptGroup {
 		}
 	}
 
+	public Set<GeneralAppt> getAppts() {
+		return appts;
+	}
+
 	public String getStartDateString() {
 		DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
 		return date.format(startDate);

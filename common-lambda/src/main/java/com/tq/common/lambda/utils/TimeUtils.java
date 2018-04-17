@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class TimeUtils {
 	private static final Logger m_log = LoggerFactory.getLogger(TimeUtils.class);
+
 	public static String getPreviousTime() {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MINUTE, -5);
@@ -25,6 +27,7 @@ public class TimeUtils {
 		String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss").format(date);
 		return currentTime;
 	}
+
 	public static String getNowInUTC(String timezone) {
 		String interim = ZonedDateTime.now(ZoneId.of(timezone)).truncatedTo(ChronoUnit.SECONDS)
 				.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -101,6 +104,10 @@ public class TimeUtils {
 		return convertTimeZone(DateTimeZone.forID("Europe/London"), destTimeZone, datetime);
 	}
 
+	public static String convertToLondonTime(DateTimeZone timeZone, String dateTime) {
+		return convertTimeZone(timeZone, DateTimeZone.forID("GMT"), dateTime);
+	}
+
 	public static String extractDateSbm(String datetime) {
 		String convertedDateTime = utcToBasicFormat(datetime);
 		DateFormat f = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -131,4 +138,15 @@ public class TimeUtils {
 
 		return null;
 	}
+
+	public static String getNowInGMT() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.MINUTE, -5);
+		Date date = calendar.getTime();
+		String currentTime = sdf.format(date);
+		return currentTime;
+	}
+
 }

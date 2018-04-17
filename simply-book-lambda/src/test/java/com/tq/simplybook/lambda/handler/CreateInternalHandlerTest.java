@@ -10,14 +10,13 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
-import com.tq.cliniko.service.ClinikoAppointmentService;
-import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
+import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
-import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
+import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
+import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
@@ -28,7 +27,6 @@ import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
-import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
@@ -45,17 +43,17 @@ public class CreateInternalHandlerTest {
 	private ContactItem contactItem = new ContactItem();
 	private BookingServiceSbm bss = new BookingServiceSbmImpl();
 	private Env env = MockUtil.mockEnv();
-	private SimplyBookClinikoMapping scm = new SimplyBookClinikoMapping(env);
 	private SbmClinikoSyncService scs = mock(SbmClinikoSyncService.class);
-	private LatestClinikoApptServiceWrapper lcs = mock(LatestClinikoApptServiceWrapper.class);
-	private ClinikoAppointmentService cas = new ClinikiAppointmentServiceImpl(env.getClinikoApiKey());
 	private SbmGoogleCalendarDbService sbmGoogleService = mock(SbmGoogleCalendarDbService.class);
 	private GoogleCalendarDbService googleCalendarService = mock(GoogleCalendarDbService.class);
 	private TokenGoogleCalendarService tokenGoogleService = new TokenGoogleCalendarImpl();
-	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scm, scs, lcs, cas,
-			googleCalendarService, sbmGoogleService, tokenGoogleService);
+	private ClinikoSyncToSbmService clinikoSyncToSbmService = mock(ClinikoSyncToSbmService.class);
+	private ClinikoCompanyInfoService clinikoCompanyService = mock(ClinikoCompanyInfoService.class);
+	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scs,
+			googleCalendarService, sbmGoogleService, tokenGoogleService, clinikoSyncToSbmService,
+			clinikoCompanyService);
 
-	//@Test
+	@Test
 	public void test() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
 		ClientInfo ci = new ClientInfo();
 		ci.setEmail("truequit-testing@gmail.com");
@@ -66,20 +64,12 @@ public class CreateInternalHandlerTest {
 		payLoad.setBooking_id(94L);
 		payLoad.setBooking_hash("732acb8efee6b74dbacebe5d45da28e3");
 		payLoad.setNotification_type("create");
-		when(lcs.load()).thenReturn(new LatestClinikoAppts());
-		Mockito.doAnswer(new Answer<Void>() {
-			@Override
-			public Void answer(InvocationOnMock invocation) throws Throwable {
-				return null;
-			}
-		}).when(lcs).put(any(LatestClinikoAppts.class));
 		Mockito.doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				return null;
 			}
 		}).when(scs).put(any(SbmCliniko.class));
-		handler.handle(payLoad);
 		Mockito.doAnswer(new Answer<Void>() {
 
 			@Override
@@ -89,6 +79,11 @@ public class CreateInternalHandlerTest {
 			}
 
 		}).when(sbmGoogleService).put(any(SbmGoogleCalendar.class));
+		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync("ff997f7d491b555f227262870a2717c1", "chicanh@gmail.com",
+				"62052-95260", "1-12");
+		when(clinikoSyncToSbmService.load(any())).thenReturn(clinikoSbmSync);
+		when(googleCalendarService.load(any())).thenReturn(null);
+		handler.handle(payLoad);
 	}
 
 	@Test

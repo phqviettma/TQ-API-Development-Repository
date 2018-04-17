@@ -1,5 +1,6 @@
 package com.tq.sbmsync.lambda.handler;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -46,6 +47,17 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = null;
 	private static final Logger m_log = LoggerFactory.getLogger(SbmSyncGCHandler.class);
 
+	public SbmSyncGCHandler(GoogleCalendarDbService googleCalendarService, Env eVariables,
+			BookingServiceSbmImpl bookingSbmService, TokenServiceSbm tokenServiceSbm,
+			TokenGoogleCalendarService tokenCalendarService, SbmGoogleCalendarDbService sbmGoogleCalendarService) {
+		this.googleCalendarService = googleCalendarService;
+		this.eVariables = eVariables;
+		this.bookingSbmService = bookingSbmService;
+		this.tokenCalendarService = tokenCalendarService;
+		this.tokenServiceSbm = tokenServiceSbm;
+		this.sbmGoogleCalendarService = sbmGoogleCalendarService;
+	}
+
 	@Override
 	public LambdaStatusResponse handle(SbmSyncReq req) throws SbmSDKException, GoogleApiSDKException {
 		LambdaStatusResponse response = new LambdaStatusResponse();
@@ -59,7 +71,7 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 			String password = eVariables.getSimplyBookPassword();
 			String loginEndPoint = eVariables.getSimplyBookServiceUrlLogin();
 			String endpoint = eVariables.getSimplyBookAdminServiceUrl();
-			String dateFrom = Calendar.getInstance().toString();
+			String dateFrom = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 			String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
 			GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY, unitId, serviceId);
 			List<GetBookingResp> bookingList = bookingSbmService.getBookings(companyLogin, endpoint, token,
@@ -83,9 +95,12 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 						eVariables.getGoogleCalendarEventName());
 				EventResp eventResp = googleApiService.createEvent(eventReq);
 				m_log.info("Create event successfully with value " + eventResp.toString());
-				SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(Long.parseLong(bookingResp.getId()),
-						eventResp.getId(), bookingResp.getClient_email(), 1, AGENT);
-				if (sbmGoogleCalendarSync != null) {
+				SbmGoogleCalendar sbmGoogleCalendarSync = sbmGoogleCalendarService
+						.load(Long.parseLong(bookingResp.getId()));
+				if (sbmGoogleCalendarSync == null) {
+					sbmGoogleCalendarSync = new SbmGoogleCalendar(Long.parseLong(bookingResp.getId()),
+							eventResp.getId(), bookingResp.getClient_email(), 1, AGENT);
+
 					sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
 					m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
 				}

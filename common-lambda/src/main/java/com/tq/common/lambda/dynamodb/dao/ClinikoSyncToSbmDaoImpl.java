@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
@@ -24,14 +27,12 @@ public class ClinikoSyncToSbmDaoImpl extends AbstractItem<ClinikoSbmSync, String
 	}
 
 	@Override
-	public ClinikoSbmSync queryIndex(String email) {
+	public ClinikoSbmSync queryIndex(String apiKey) {
 		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
-		queryCondition.put(":email", new AttributeValue().withS(email));
-
+		queryCondition.put(":apiKey", new AttributeValue().withS(apiKey));
 		DynamoDBQueryExpression<ClinikoSbmSync> queryExpression = new DynamoDBQueryExpression<ClinikoSbmSync>()
-				.withIndexName("Event-Index").withKeyConditionExpression("email=:email")
+				.withIndexName("ClinikoSbm-Index").withKeyConditionExpression("apiKey=:apiKey")
 				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
-
 		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
 		List<ClinikoSbmSync> clinikoSbm = mapper.query(ClinikoSbmSync.class, queryExpression);
 

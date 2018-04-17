@@ -51,10 +51,10 @@ import com.tq.simplybook.service.TokenServiceSbm;
 
 public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static final Logger m_log = LoggerFactory.getLogger(SyncHandler.class);
-
+	private static final Integer maxResult = 5;
 	private Env m_env = null;
-	private Integer maxAppt = 100;
-
+	private Integer maxAppt = 5;
+	private static final Integer PRACTITIONER_ID = 0;
 	private AmazonDynamoDB m_amazonDynamoDB = null;
 
 	private ClinikoAppointmentService m_cas = null;
@@ -119,8 +119,8 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 			m_log.info("Loaded setting information from cliniko");
 			String country = settings.getAccount().getCountry();
 			String time_zone = settings.getAccount().getTime_zone();
-			dateTz = DateTimeZone.forID("Melbourne");
-			//dateTz = DateTimeZone.forID(country + "/" + time_zone);
+			// dateTz = DateTimeZone.forID("Melbourne");
+			dateTz = DateTimeZone.forID(country + "/" + time_zone);
 			latestUpdateTime = TimeUtils.getNowInUTC(country + "/" + time_zone);
 
 			m_log.info("Now: " + latestUpdateTime + " at timezone " + country + "/" + time_zone);
@@ -137,7 +137,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 					"DB appointments status, removed: " + (dbRemoveSet == null ? Collections.emptySet() : dbRemoveSet));
 
 			m_log.info("To fetch Cliniko appointment with start time:" + latestUpdateTime);
-			AppointmentsInfo appts = m_cas.getAppointments(latestUpdateTime);
+			AppointmentsInfo appts = m_cas.getAppointments(latestUpdateTime,maxResult,PRACTITIONER_ID );
 
 			m_log.info("Fetched: " + appts.getAppointments().size() + " created Cliniko appointment(s)");
 			if (appts != null && appts.getAppointments().size() > 0) {
@@ -176,7 +176,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 
 			m_log.info("Synchronized created appoinments to Simplybook.me completely");
 
-			AppointmentsInfo deletedApptInfo = m_cas.getCancelAppointments(latestUpdateTime);
+			AppointmentsInfo deletedApptInfo = m_cas.getCancelAppointments(latestUpdateTime, maxResult, PRACTITIONER_ID);
 			m_log.info("Fetched: " + deletedApptInfo.getAppointments().size() + " removed Cliniko appointment(s)");
 			if (deletedApptInfo != null && deletedApptInfo.getAppointments().size() > 0) {
 				List<AppointmentInfo> fetchedAppts = deletedApptInfo.getAppointments();
@@ -344,7 +344,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 					} else {
 						m_sbtm.removeBreakTime(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookAdminServiceUrl(),
 								token, unitId, eventId, m_env.getCliniko_start_time(), m_env.getCliniko_end_time(),
-								date, breakTimes, workDayInfoMapForUnitId);
+								date, breakTimes, workDayInfoMapForUnitId, true);
 					}
 				}
 

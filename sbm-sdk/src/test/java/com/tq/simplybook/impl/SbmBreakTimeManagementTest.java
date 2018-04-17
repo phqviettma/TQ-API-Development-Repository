@@ -3,6 +3,7 @@ package com.tq.simplybook.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Currency;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class SbmBreakTimeManagementTest {
 		workTimeSlot.add(new WorkTimeSlot("10:00:00", "11:00:00"));
 		Set<Breaktime> actualBreakTimes = SbmBreakTimeManagement.appenBreakTime("09:00:00", "18:00:00", newBreakTime,
 				workTimeSlot);
-		assertEquals(2, actualBreakTimes.size());
+		assertEquals(3, actualBreakTimes.size());
 
 		workTimeSlot = new HashSet<WorkTimeSlot>();
 		workTimeSlot.add(new WorkTimeSlot("09:00", "19:00"));
@@ -68,7 +69,6 @@ public class SbmBreakTimeManagementTest {
 		newBreakTime.add(new Breaktime("14:00", "15:00"));
 		newBreakTime.add(new Breaktime("16:00", "17:00"));
 		actualBreakTimes = SbmBreakTimeManagement.appenBreakTime("09:00", "19:00", newBreakTime, workTimeSlot);
-	
 
 	}
 
@@ -79,7 +79,7 @@ public class SbmBreakTimeManagementTest {
 		HashSet<WorkTimeSlot> workTimeSlot = new HashSet<WorkTimeSlot>();
 		workTimeSlot.add(new WorkTimeSlot("10:00:00", "11:00:00"));
 		Set<Breaktime> actuaBreakTimes = SbmBreakTimeManagement.removeBreakTime("09:00:00", "18:00:00",
-				removedBreakTime, workTimeSlot);
+				removedBreakTime, workTimeSlot, false);
 		actuaBreakTimes.contains(new Breaktime("11:00", "18:00"));
 		assertEquals(1, actuaBreakTimes.size());
 	}
@@ -92,8 +92,8 @@ public class SbmBreakTimeManagementTest {
 		removedBreakTimes.add(new Breaktime("09:00", "10:00"));
 		removedBreakTimes.add(new Breaktime("10:00", "11:00"));
 		Set<Breaktime> actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
-		// actuaBreakTimes.contains(new Breaktime("11:00", "12:00"));
-		assertEquals("09:00", actuaBreakTimes.iterator().next().getStart_time());
+		actuaBreakTimes.contains(new Breaktime("11:00", "12:00"));
+		assertEquals("11:00", actuaBreakTimes.iterator().next().getStart_time());
 		assertEquals("12:00", actuaBreakTimes.iterator().next().getEnd_time());
 		assertEquals(1, actuaBreakTimes.size());
 
@@ -101,7 +101,7 @@ public class SbmBreakTimeManagementTest {
 		removedBreakTimes = new HashSet<Breaktime>();
 		removedBreakTimes.add(new Breaktime("17:00", "18:00"));
 		curentBreakTimes.add(new Breaktime("15:00", "16:00"));
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		assertEquals("15:00", actuaBreakTimes.iterator().next().getStart_time());
 		assertEquals("16:00", actuaBreakTimes.iterator().next().getEnd_time());
 		assertEquals(1, actuaBreakTimes.size());
@@ -110,7 +110,7 @@ public class SbmBreakTimeManagementTest {
 		removedBreakTimes = new HashSet<Breaktime>();
 		removedBreakTimes.add(new Breaktime("16:00", "18:00"));
 		curentBreakTimes.add(new Breaktime("15:00", "17:00"));
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		assertEquals("15:00", actuaBreakTimes.iterator().next().getStart_time());
 		assertEquals("16:00", actuaBreakTimes.iterator().next().getEnd_time());
 		assertEquals(1, actuaBreakTimes.size());
@@ -119,7 +119,7 @@ public class SbmBreakTimeManagementTest {
 		removedBreakTimes = new HashSet<Breaktime>();
 		curentBreakTimes.add(new Breaktime("16:00", "18:00"));
 		removedBreakTimes.add(new Breaktime("15:00", "17:00"));
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		assertEquals("17:00", actuaBreakTimes.iterator().next().getStart_time());
 		assertEquals("18:00", actuaBreakTimes.iterator().next().getEnd_time());
 		assertEquals(1, actuaBreakTimes.size());
@@ -128,7 +128,7 @@ public class SbmBreakTimeManagementTest {
 		removedBreakTimes = new HashSet<Breaktime>();
 		curentBreakTimes.add(new Breaktime("09:00", "18:00"));
 		removedBreakTimes.add(new Breaktime("15:00", "16:00"));
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		Iterator<Breaktime> it = actuaBreakTimes.iterator();
 
 		Breaktime breakTime = it.next();
@@ -142,14 +142,14 @@ public class SbmBreakTimeManagementTest {
 		curentBreakTimes.add(new Breaktime("09:00", "18:00"));
 		removedBreakTimes.add(new Breaktime("09:00", "18:00"));
 
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		assertEquals(0, actuaBreakTimes.size());
 
 		curentBreakTimes = new HashSet<Breaktime>();
 		removedBreakTimes = new HashSet<Breaktime>();
 		curentBreakTimes.add(new Breaktime("12:00", "15:00"));
 		removedBreakTimes.add(new Breaktime("12:00", "13:00"));
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		assertEquals("12:00", actuaBreakTimes.iterator().next().getStart_time());
 		assertEquals("15:00", actuaBreakTimes.iterator().next().getEnd_time());
 		assertEquals(1, actuaBreakTimes.size());
@@ -158,7 +158,7 @@ public class SbmBreakTimeManagementTest {
 		removedBreakTimes = new HashSet<Breaktime>();
 		curentBreakTimes.add(new Breaktime("12:00", "15:00"));
 		removedBreakTimes.add(new Breaktime("13:00", "15:00"));
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 
 		assertEquals("12:00", actuaBreakTimes.iterator().next().getStart_time());
 		assertEquals("15:00", actuaBreakTimes.iterator().next().getEnd_time());
@@ -170,27 +170,34 @@ public class SbmBreakTimeManagementTest {
 		removedBreakTimes.add(new Breaktime("10:00", "11:00"));
 		removedBreakTimes.add(new Breaktime("12:00", "13:00"));
 
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		assertEquals(1, actuaBreakTimes.size());
 
 		curentBreakTimes = new HashSet<Breaktime>();
 		removedBreakTimes = new HashSet<Breaktime>();
 		removedBreakTimes.add(new Breaktime("10:00", "11:00"));
 
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		assertTrue(actuaBreakTimes.isEmpty());
 
 		curentBreakTimes = new HashSet<Breaktime>();
 		removedBreakTimes = new HashSet<Breaktime>();
 		curentBreakTimes.add(new Breaktime("10:00", "12:00"));
 		removedBreakTimes.add(new Breaktime("09:00", "13:00"));
-		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
 		assertEquals(0, actuaBreakTimes.size());
 		curentBreakTimes = new HashSet<Breaktime>();
 		removedBreakTimes = new HashSet<Breaktime>();
 		curentBreakTimes.add(new Breaktime("09:00", "11:00"));
 		curentBreakTimes.add(new Breaktime("13:00", "15:00"));
 		removedBreakTimes.add(new Breaktime("09:00", "11:00"));
+		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(curentBreakTimes, removedBreakTimes);
+		assertEquals(1, actuaBreakTimes.size());
+		curentBreakTimes = new HashSet<Breaktime>();
+		removedBreakTimes = new HashSet<Breaktime>();
+		curentBreakTimes.add(new Breaktime("09:00", "16:00"));
+		removedBreakTimes.add(new Breaktime("09:00", "10:00"));
+		removedBreakTimes.add(new Breaktime("10:00", "11:00"));
 		actuaBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(curentBreakTimes, removedBreakTimes);
 		assertEquals(1, actuaBreakTimes.size());
 	}

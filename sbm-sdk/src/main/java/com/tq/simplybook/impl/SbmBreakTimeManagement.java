@@ -48,7 +48,7 @@ public class SbmBreakTimeManagement {
 
 	public boolean removeBreakTime(String companyLogin, String endpoint, String token, int unit_id, int event_id,
 			String envStartWorkingTime, String envEndWorkingTime, String date, Set<Breaktime> removedBreakTime,
-			Map<String, WorksDayInfoResp> workDayInfoMap) throws SbmSDKException {
+			Map<String, WorksDayInfoResp> workDayInfoMap, boolean isCliniko) throws SbmSDKException {
 		WorksDayInfoResp workDayInfo = workDayInfoMap.get(date);
 
 		if (workDayInfo == null) {
@@ -57,9 +57,9 @@ public class SbmBreakTimeManagement {
 		} else {
 
 			Set<WorkTimeSlot> workTimeSlots = workDayInfo.getInfo();
-
-			Set<Breaktime> breakTimes = removeBreakTime(envStartWorkingTime, envEndWorkingTime, removedBreakTime,
-					workTimeSlots);
+			Set<Breaktime> breakTimes;
+			breakTimes = removeBreakTime(envStartWorkingTime, envEndWorkingTime, removedBreakTime, workTimeSlots,
+					isCliniko);
 
 			if (!breakTimes.isEmpty()) {
 				m_log.info("Break times to be removed for date " + date + ":" + String.valueOf(breakTimes));
@@ -69,9 +69,10 @@ public class SbmBreakTimeManagement {
 
 			SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq(envStartWorkingTime, envEndWorkingTime, 0,
 					breakTimes, 0, date, date, String.valueOf(unit_id), String.valueOf(event_id));
+			m_log.info("BreakTime in SbmManagement " + breakTimes);
 			boolean isRemoved = sss.changeWorkDay(companyLogin, endpoint, token, new SetWorkDayInfoReq(info));
 			if (isRemoved) {
-
+				m_log.info("Unblocked successfully ");
 				return true;
 			} else {
 				return false;
@@ -85,19 +86,21 @@ public class SbmBreakTimeManagement {
 		Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
 		currentBreakTimes.addAll(newBreakTime);
 		m_log.info("Current breakTime" + currentBreakTimes + "new breakTime " + newBreakTime);
-		Set<Breaktime> newBreakTimes = mergeBreakTime(currentBreakTimes);
-		return newBreakTimes;
+		// Set<Breaktime> newBreakTimes = mergeBreakTime(currentBreakTimes);
+		return currentBreakTimes;
 	}
 
 	static Set<Breaktime> removeBreakTime(String envStartWorkingTime, String envEndWorkingTime,
-			Set<Breaktime> removedBreakTime, Set<WorkTimeSlot> workTimeSlots) {
+			Set<Breaktime> removedBreakTime, Set<WorkTimeSlot> workTimeSlots, boolean isCliniko) {
 		Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
 		m_log.info("SBM Current BreakTimes " + currentBreakTimes.toString());
 		m_log.info("BreakTimes to be removed " + removedBreakTime.toString());
-
-		Set<Breaktime> remainingBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(currentBreakTimes,
-				removedBreakTime);
-
+		Set<Breaktime> remainingBreakTimes;
+		if (isCliniko) {
+			remainingBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(currentBreakTimes, removedBreakTime);
+		} else {
+			remainingBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(currentBreakTimes, removedBreakTime);
+		}
 		m_log.info("Remaining break times " + remainingBreakTimes.toString());
 
 		return remainingBreakTimes;
@@ -148,6 +151,67 @@ public class SbmBreakTimeManagement {
 	}
 
 	static Set<Breaktime> elimateBreakTimes(Set<Breaktime> curentBreakTimes, Set<Breaktime> removedBreakTimes) {
+
+		List<Breaktime> retList = new ArrayList<Breaktime>(curentBreakTimes);
+
+		List<Breaktime> tobeRemoveBreakTimes = new ArrayList<Breaktime>();
+
+		for (Breaktime rbt : removedBreakTimes) {
+			TimePoint s = new TimePoint(rbt.getStart_time(), 0);
+			TimePoint e = new TimePoint(rbt.getEnd_time(), 1);
+
+			for (int i = 0; i < retList.size(); i++) {
+				Breaktime breakTime = retList.get(i);
+
+				if (tobeRemoveBreakTimes.contains(breakTime)) {
+					continue;
+				}
+
+				LocalTime startTime = LocalTime.parse(breakTime.getStart_time());
+				LocalTime endTime = LocalTime.parse(breakTime.getEnd_time());
+
+				if (s.time.isBefore(startTime) || s.time.equals(startTime)) {
+					if (e.time.isAfter(endTime) || e.time.equals(endTime)) {
+						tobeRemoveBreakTimes.add(breakTime);
+						continue;
+					}
+				}
+				// 0: means start or end of current breakTime, 1: means start or end of removed
+				// breakTime
+				// Example: current: 10h-12h removed: 9h-11h so newbreakTime: 11h-12h
+				if ((s.time.isBefore(startTime) || s.time.equals(startTime)) && e.time.isAfter(startTime)) {
+					// 1 0 1 0
+					breakTime.setStart_time(e.time.toString());
+				}
+				// Example: current: 10h-12h removed: 9h-13h so newbreakTime: 9h-13h
+				if (s.time.isBefore(endTime) && (e.time.isAfter(endTime) || e.time.equals(endTime))) {
+					// 0 1 0 1
+					breakTime.setEnd_time(s.time.toString());
+				}
+				if(s.time.isAfter(startTime)&&e.time.isBefore(endTime)) {
+					Breaktime bt1 = new Breaktime();
+        			bt1.setStart_time(breakTime.getStart_time());
+        			bt1.setEnd_time(s.time.toString());
+        			
+        			Breaktime bt2 = new Breaktime();
+        			bt2.setStart_time(e.time.toString());
+        			bt2.setEnd_time(breakTime.getEnd_time());
+        			
+        			retList.add(bt1);
+        			retList.add(bt2);
+        			
+        			tobeRemoveBreakTimes.add(breakTime);
+				}
+
+			}
+		}
+
+		retList.removeAll(tobeRemoveBreakTimes);
+
+		return new HashSet<Breaktime>(retList);
+	}
+
+	static Set<Breaktime> elimateBreakTimesForGC(Set<Breaktime> curentBreakTimes, Set<Breaktime> removedBreakTimes) {
 
 		List<Breaktime> retList = new ArrayList<Breaktime>(curentBreakTimes);
 

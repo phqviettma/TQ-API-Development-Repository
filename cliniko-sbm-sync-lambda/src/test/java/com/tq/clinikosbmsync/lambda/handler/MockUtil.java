@@ -31,7 +31,7 @@ public class MockUtil {
 		when(env.getInfusionSoftCancelAppliedTag()).thenReturn(106);
 		when(env.getCliniko_start_time()).thenReturn("09:00");
 		when(env.getCliniko_end_time()).thenReturn("18:00");
-		when(env.getClinikoApiKey()).thenReturn("");
+		when(env.getClinikoApiKey()).thenReturn("ff997f7d491b555f227262870a2717c1");
 		Map<String, String> variable = new HashMap<String, String>();
 		variable.put("SBM_CLINIKO_MAPPING_1",
 				"{'event_id': '2', 'unit_id': '3', 'practitionerId': '89589', 'businessId': '58837'}");

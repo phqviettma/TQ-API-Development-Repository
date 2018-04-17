@@ -16,10 +16,9 @@ public class ClinikoSbmSync implements Serializable {
 	private String apiKey;
 	private String email;
 	private String clinikoId;
-	private Integer unitId;
-	private Integer serviceId;
+	private String sbmId;
 
-	@DynamoDBHashKey(attributeName = "apiKey")
+	@DynamoDBIndexHashKey(globalSecondaryIndexName = "ClinikoSbm-Index", attributeName = "apiKey")
 	public String getApiKey() {
 		return apiKey;
 	}
@@ -28,7 +27,16 @@ public class ClinikoSbmSync implements Serializable {
 		this.apiKey = apiKey;
 	}
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Email-Index", attributeName = "email")
+	@DynamoDBHashKey(attributeName = "sbmId")
+	public String getSbmId() {
+		return sbmId;
+	}
+
+	public void setSbmId(String sbmId) {
+		this.sbmId = sbmId;
+	}
+
+	@DynamoDBAttribute(attributeName = "email")
 	public String getEmail() {
 		return email;
 	}
@@ -37,38 +45,13 @@ public class ClinikoSbmSync implements Serializable {
 		this.email = email;
 	}
 
-	@DynamoDBAttribute(attributeName = "unitId")
-	public Integer getUnitId() {
-		return unitId;
-	}
-
-	public void setUnitId(Integer unitId) {
-		this.unitId = unitId;
-	}
-
-	@DynamoDBAttribute(attributeName = "serviceId")
-	public Integer getServiceId() {
-		return serviceId;
-	}
-
-	public void setServiceId(Integer serviceId) {
-		this.serviceId = serviceId;
-	}
-
-	public ClinikoSbmSync(String apiKey, String email, String clinikoId, Integer unitId, Integer serviceId) {
-
+	public ClinikoSbmSync(String apiKey, String email, String clinikoId, String sbmId) {
 		this.apiKey = apiKey;
 		this.email = email;
 		this.clinikoId = clinikoId;
-		this.unitId = unitId;
-		this.serviceId = serviceId;
+		this.sbmId = sbmId;
 	}
 
-	@Override
-	public String toString() {
-		return "ClinikoSbmSync [apiKey=" + apiKey + ", email=" + email + ", clinikoId=" + clinikoId + ", unitId="
-				+ unitId + ", serviceId=" + serviceId + "]";
-	}
 	@DynamoDBAttribute(attributeName = "clinikoId")
 	public String getClinikoId() {
 		return clinikoId;
@@ -80,6 +63,12 @@ public class ClinikoSbmSync implements Serializable {
 
 	public ClinikoSbmSync() {
 
+	}
+
+	@Override
+	public String toString() {
+		return "ClinikoSbmSync [apiKey=" + apiKey + ", email=" + email + ", clinikoId=" + clinikoId + ", sbmId=" + sbmId
+				+ "]";
 	}
 
 }

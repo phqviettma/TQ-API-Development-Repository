@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -14,15 +13,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
+import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.Settings;
-import com.tq.cliniko.service.ClinikoAppointmentService;
-import com.tq.common.lambda.dynamodb.impl.LatestClinikoApptServiceWrapper;
+import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
+import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
-import com.tq.common.lambda.dynamodb.model.LatestClinikoAppts;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
+import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
+import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
@@ -45,12 +46,9 @@ import com.tq.inf.query.AddDataQuery;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
-import com.tq.simplybook.context.SimplyBookClinikoMapping;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 import com.tq.simplybook.resp.BookingInfo;
-import com.tq.simplybook.resp.ClinikoId;
-import com.tq.simplybook.resp.SimplyBookId;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -61,30 +59,29 @@ public class CreateInternalHandler implements InternalHandler {
 	private ContactServiceInf contactService = null;
 	private ContactItemService contactItemService = null;
 	private SbmClinikoSyncService sbmClinikoService = null;
-	private LatestClinikoApptServiceWrapper latestApptService = null;
-	private ClinikoAppointmentService clinikoApptService = null;
-	private SimplyBookClinikoMapping sbmClinikoMapping = null;
 	private static final Logger m_log = LoggerFactory.getLogger(CreateInternalHandler.class);
 	private GoogleCalendarDbService googleCalendarService = null;
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = null;
 	private TokenGoogleCalendarService tokenCalendarService = null;
+	private ClinikoSyncToSbmService clinikoSyncToSbmService = null;
+	private ClinikoCompanyInfoService clinikoCompanyService = null;
+	private static final String AGENT = "sbm";
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
-			ContactItemService cis, SimplyBookClinikoMapping scm, SbmClinikoSyncService scs,
-			LatestClinikoApptServiceWrapper lcsw, ClinikoAppointmentService cas, GoogleCalendarDbService gcs,
-			SbmGoogleCalendarDbService sgcs, TokenGoogleCalendarService tcs) {
+			ContactItemService cis, SbmClinikoSyncService scs, GoogleCalendarDbService gcs,
+			SbmGoogleCalendarDbService sgcs, TokenGoogleCalendarService tcs, ClinikoSyncToSbmService csts,
+			ClinikoCompanyInfoService ccis) {
 		env = environtment;
 		tokenService = tss;
 		bookingService = bss;
 		contactService = csi;
 		contactItemService = cis;
-		sbmClinikoMapping = scm;
 		sbmClinikoService = scs;
-		latestApptService = lcsw;
-		clinikoApptService = cas;
 		googleCalendarService = gcs;
 		sbmGoogleCalendarService = sgcs;
 		tokenCalendarService = tcs;
+		clinikoSyncToSbmService = csts;
+		clinikoCompanyService = ccis;
 	}
 
 	@Override
@@ -108,15 +105,15 @@ public class CreateInternalHandler implements InternalHandler {
 		} else {
 			m_log.info("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
 		}
-
-		SimplyBookId simplybookId = new SimplyBookId(bookingInfo.getEvent_id(), bookingInfo.getUnit_id());
-		ClinikoId clinikoId = sbmClinikoMapping.sbmClinikoMapping(simplybookId);
 		boolean processed = false;
-
-		if (clinikoId != null) {
-			processed = executeWithCliniko(payload, bookingInfo, clinikoId);
-		} else {
-			processed = excuteWithGoogleCalendar(bookingInfo, payload, simplybookId);
+		String sbmId = bookingInfo.getEvent_id() + "-" + bookingInfo.getUnit_id();
+		ClinikoSbmSync clinikoSbmSync = clinikoSyncToSbmService.load(sbmId);
+		if (clinikoSbmSync != null) {
+			processed = executeWithCliniko(payload, bookingInfo, clinikoSbmSync);
+		}
+		GoogleCalendarSbmSync sbmGoogle = googleCalendarService.load(sbmId);
+		if (sbmGoogle != null) {
+			processed = excuteWithGoogleCalendar(bookingInfo, payload, sbmGoogle.getRefreshToken());
 		}
 		if (processed) {
 			m_log.info("The booking is synced to Cliniko/Google Calendar");
@@ -148,8 +145,7 @@ public class CreateInternalHandler implements InternalHandler {
 				bookingInfo.getLocation() == null ? "" : String.valueOf(bookingInfo.getLocation().getTitle()));
 		updateRecord.put(infusionSoftServiceProviderField, bookingInfo.getUnit_name());
 		updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getUnit_description());
-		updateRecord.put(infusionSoftAppointmentDateField,
-				buildAppointmentDate(bookingInfo.getStart_date_time()));
+		updateRecord.put(infusionSoftAppointmentDateField, buildAppointmentDate(bookingInfo.getStart_date_time()));
 		updateRecord.put(infusionsoftPractitionerFirstName, buildFirstName(bookingInfo.getUnit_name()));
 		updateRecord.put(infusionSoftPractitionerLastName, buildLastName(bookingInfo.getUnit_name()));
 		try {
@@ -171,79 +167,64 @@ public class CreateInternalHandler implements InternalHandler {
 		}
 	}
 
-	private boolean executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo, ClinikoId clinikoId)
+	private boolean executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo, ClinikoSbmSync clinikoSbmSync)
 			throws SbmSDKException, ClinikoSDKExeption {
+		String clinikoCompanyId[] = clinikoSbmSync.getClinikoId().split("-");
+		Integer practitionerId = Integer.valueOf(clinikoCompanyId[1]);
+		Integer businessId = Integer.valueOf(clinikoCompanyId[0]);
+		ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(businessId);
+		if (clinikoCompanyInfo != null) {
 
-		Integer appointmentTypeId = env.getCliniko_standard_appointment();
-		Integer clinikoPatientId = env.getClinikoPatientId();
-		Settings settings = clinikoApptService.getAllSettings();
-		String country = settings.getAccount().getCountry();
-		String time_zone = settings.getAccount().getTime_zone();
-		DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
-		String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
-		String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
-		DateTime start_time = new DateTime(sbmStartTime, timeZone);
-		DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
-		DateTime endTime = new DateTime(sbmEndTime, timeZone);
-		DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
+			ClinikiAppointmentServiceImpl clinikoApptService = new ClinikiAppointmentServiceImpl(
+					clinikoSbmSync.getApiKey());
+			Settings settings = clinikoApptService.getAllSettings();
+			String country = settings.getAccount().getCountry();
+			String time_zone = settings.getAccount().getTime_zone();
+			DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
+			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
+			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
+			DateTime start_time = new DateTime(sbmStartTime, timeZone);
+			DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
+			DateTime endTime = new DateTime(sbmEndTime, timeZone);
+			DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
+			AppointmentInfo result = clinikoApptService.createAppointment(new AppointmentInfo(
+					clinikoStartTime.toString(), clinikoEndTime.toString(), clinikoCompanyInfo.getPatientId(),
+					practitionerId, clinikoCompanyInfo.getAppointmentType(), businessId));
+			m_log.info("Create appointment successfully" + result.toString());
+			SbmCliniko sbmCliniko = new SbmCliniko(payload.getBooking_id(), result.getId(), 1,
+					clinikoSbmSync.getApiKey(), AGENT);
 
-		AppointmentInfo result = clinikoApptService
-				.createAppointment(new AppointmentInfo(clinikoStartTime.toString(), clinikoEndTime.toString(),
-						clinikoPatientId, clinikoId.getPractionerId(), appointmentTypeId, clinikoId.getBussinessId()));
-		m_log.info("Create appointment successfully" + result.toString());
-		SbmCliniko sbmCliniko = new SbmCliniko();
-		sbmCliniko.setClinikoId(result.getId());
-		sbmCliniko.setSbmId(payload.getBooking_id());
-
-		LatestClinikoAppts latestClinikoAppts = latestApptService.load();
-		Set<Long> createdId = latestClinikoAppts.getCreated();
-		createdId.add(result.getId());
-		latestClinikoAppts.setCreated(createdId);
-		String latestTime = TimeUtils.getNowInUTC(country + "/" + time_zone);
-		latestClinikoAppts.setLatestUpdateTime(latestTime);
-		m_log.info("LatestClinikoAppt" + latestClinikoAppts);
-		if (sbmCliniko != null) {
 			sbmClinikoService.put(sbmCliniko);
-			latestApptService.put(latestClinikoAppts);
 			m_log.info("Added to database successfully");
 		}
 
 		return true;
 	}
 
-	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, PayloadCallback payload,
-			SimplyBookId simplyBookId) throws GoogleApiSDKException, SbmSDKException {
-		String eventId = simplyBookId.getEvent_id();
-		String unitId = simplyBookId.getUnit_id();
-		String sbmId = eventId + "-" + unitId;
-		m_log.info("SbmId value" + sbmId);
-		GoogleCalendarSbmSync calendarSbm = googleCalendarService.load(sbmId);
-		m_log.info("Loaded value from googleCalendarSync Table" + calendarSbm.toString());
-		if (calendarSbm != null) {
-			TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(),
-					calendarSbm.getRefreshToken());
-			TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-			GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(tokenResp.getAccess_token());
+	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, PayloadCallback payload, String refreshToken)
+			throws GoogleApiSDKException, SbmSDKException {
 
-			// GoogleTimeZone
-			GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
-			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
-			Start start = new Start(sbmStartTime, settingInfo.getValue());
-			End end = new End(sbmEndTime, settingInfo.getValue());
-			List<Attendees> attendees = new ArrayList<>();
-			attendees.add(new Attendees(bookingInfo.getClient_email(), bookingInfo.getClient_name()));
-			EventReq req = new EventReq(start, end, bookingInfo.getUnit_description(), attendees,
-					env.getGoogleCalendarEventName());
-			EventResp eventResp = googleApiService.createEvent(req);
-			m_log.info("Create event successfully with value " + eventResp.toString());
-			SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(payload.getBooking_id(), eventResp.getId(),
-					bookingInfo.getClient_email(), 1, "sbm");
-				sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
-				m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
+		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
+		TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
+		GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(tokenResp.getAccess_token());
 
-			
-		}
+		// GoogleTimeZone
+		GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
+		String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
+		String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
+		Start start = new Start(sbmStartTime, settingInfo.getValue());
+		End end = new End(sbmEndTime, settingInfo.getValue());
+		List<Attendees> attendees = new ArrayList<>();
+		attendees.add(new Attendees(bookingInfo.getClient_email(), bookingInfo.getClient_name()));
+		EventReq req = new EventReq(start, end, bookingInfo.getUnit_description(), attendees,
+				env.getGoogleCalendarEventName());
+		EventResp eventResp = googleApiService.createEvent(req);
+		m_log.info("Create event successfully with value " + eventResp.toString());
+		SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(payload.getBooking_id(), eventResp.getId(),
+				bookingInfo.getClient_email(), 1, "sbm");
+		sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
+		m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
+
 		return true;
 
 	}
@@ -256,8 +237,8 @@ public class CreateInternalHandler implements InternalHandler {
 
 	private static String buildAppointmentDate(String start_date_time) {
 		String startDate = TimeUtils.extractDateSbm(start_date_time);
-	
-		return startDate==null? "":startDate ;
+
+		return startDate == null ? "" : startDate;
 	}
 
 	private static String buildFirstName(String name) {
@@ -267,10 +248,9 @@ public class CreateInternalHandler implements InternalHandler {
 
 	private static String buildLastName(String name) {
 		List<String> lastName = Arrays.asList(name.trim().split("\\s+"));
-		if(lastName.size()>1) {
+		if (lastName.size() > 1) {
 			return lastName.get(1);
-		}
-		else{
+		} else {
 			return "";
 		}
 	}

@@ -35,14 +35,14 @@ public class GetUnitInfoTest {
 
 	@Test
 	public void testGetWorkDayInfo() throws SbmSDKException {
-		String companyLogin = "canhchi";
+		String companyLogin = "canhcanh";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
 		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
-		specialDayService.getWorkDaysInfo(companyLogin, endpoint, userToken, 4, 2, new FromDate("2018-03-22", "00:00"),
-				new ToDate("2018-03-22", "00:00"));
+		specialDayService.getWorkDaysInfo(companyLogin, endpoint, userToken, 12, 1, new FromDate("2018-04-19", "08:00"),
+				new ToDate("2018-04-19", "19:00"));
 	}
 
 	@Test

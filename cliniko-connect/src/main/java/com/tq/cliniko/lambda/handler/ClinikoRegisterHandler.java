@@ -17,12 +17,15 @@ import com.tq.cliniko.lambda.exception.ClinikoExeptionHandler;
 import com.tq.cliniko.lambda.model.ClinikoPractitionerConnectReq;
 import com.tq.cliniko.lambda.resp.ClinikoConnectFailureResponse;
 import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
+import com.tq.common.lambda.dynamodb.dao.ClinikoCompanyInfoDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.ClinikoItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
-import com.tq.common.lambda.dynamodb.dao.LatestClinikoAppointmentImpl;
+import com.tq.common.lambda.dynamodb.impl.ClinikoCompanyInfoServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.ClinikoItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
-import com.tq.common.lambda.dynamodb.impl.LatestClinikoAppointmentServiceImpl;
+import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
+import com.tq.common.lambda.dynamodb.service.ClinikoItemService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
-import com.tq.common.lambda.dynamodb.service.LatestClinikoAppointmentService;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
@@ -43,7 +46,8 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private ConnectHandler connectHandler = null;
 	private ConnectHandler disconnectHandler = null;
-	private LatestClinikoAppointmentService clinikoApptService = null;
+	private ClinikoItemService clinikoItemService = null;
+	private ClinikoCompanyInfoService clinikoCompanyService = null;
 
 	public ClinikoRegisterHandler() {
 		this.eVariables = Env.load();
@@ -53,11 +57,12 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		;
 		this.unitServiceSbm = new SbmUnitServiceImpl();
 		this.clinikoSyncService = new ClinikoSyncToSbmServiceImpl(new ClinikoSyncToSbmDaoImpl(amazonDynamoDB));
-		this.clinikoApptService = new LatestClinikoAppointmentServiceImpl(new LatestClinikoAppointmentImpl(amazonDynamoDB));
-		this.disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncService, clinikoApptService);
-		
-		this.connectHandler = new ClinikoConnectHandler(eVariables, unitServiceSbm, tokenServiceSbm,
-				clinikoSyncService, clinikoApptService);
+		this.clinikoItemService = new ClinikoItemServiceImpl(new ClinikoItemDaoImpl(amazonDynamoDB));
+		this.clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(amazonDynamoDB));
+		this.disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncService, clinikoItemService);
+
+		this.connectHandler = new ClinikoConnectHandler(eVariables, unitServiceSbm, tokenServiceSbm, clinikoSyncService,
+				clinikoItemService, clinikoCompanyService);
 
 	}
 
