@@ -20,7 +20,7 @@ import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
 
 public class ClinikiAppointmentServiceImplTest {
-	ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("ff997f7d491b555f227262870a2717c1");
+	static ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("ff997f7d491b555f227262870a2717c1");
 	Integer maxResult = 100;
 
 	@Test
