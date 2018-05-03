@@ -85,7 +85,7 @@ public class SbmBreakTimeManagement {
 		Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
 		currentBreakTimes.addAll(newBreakTime);
 		m_log.info("Current breakTime" + currentBreakTimes + "new breakTime " + newBreakTime);
-		Set<Breaktime> newBreakTimes = mergeBreakTime(currentBreakTimes);
+		Set<Breaktime> newBreakTimes = mergeBreakTimes(currentBreakTimes);
 		return newBreakTimes;
 	}
 
@@ -322,33 +322,32 @@ public class SbmBreakTimeManagement {
 		}
 	}
 
-	private static Set<Breaktime> mergeBreakTime(Set<Breaktime> currentBreakTime) {
-		boolean[] timeLine = new boolean[24];
+	private static Set<Breaktime> mergeBreakTimes(Set<Breaktime> currentBreakTime) {
+		boolean[] timeLine = new boolean[1440];
 		for (Breaktime breakTime : currentBreakTime) {
-			String startTime = breakTime.getStart_time();
-			String[] splitStartTime = startTime.split(":");
-			Integer startTimeHour = Integer.parseInt(splitStartTime[0]);
-			String endTime = breakTime.getEnd_time();
-			String[] splitEndTime = endTime.split(":");
-			Integer endTimeHour = Integer.parseInt(splitEndTime[0]);
-			for (int index = startTimeHour; index < endTimeHour; index++) {
+			Integer startTime = hourToMin(breakTime.getStart_time());
+			Integer endTime = hourToMin(breakTime.getEnd_time());
+			
+			for(int index = startTime; index<endTime; index+=5) {
 				timeLine[index] = true;
 			}
 		}
 		Set<Breaktime> newBreakTime = new HashSet<>();
 		int startPoint = 0;
 		boolean flag = false;
-		for (int j = 0; j < 24; j++) {
-			if (timeLine[j]) {
-				if (flag) {
+		for(int j = 0; j< 1440;j+=5) {
+			if(timeLine[j]) {
+				if(flag) {
 					continue;
 				}
 				startPoint = j;
 				flag = true;
-
-			} else {
-				if (flag) { // F
-					Breaktime brkTime = new Breaktime(startPoint + ":00", j + ":00");
+			}
+			else {
+				if (flag) {
+					String newStartTime = minToHour(startPoint);
+					String newEndTime = minToHour(j);
+					Breaktime brkTime = new Breaktime(newStartTime, newEndTime);
 					newBreakTime.add(brkTime);
 					flag = false;
 				} else {
@@ -356,8 +355,21 @@ public class SbmBreakTimeManagement {
 				}
 
 			}
+			
 		}
 		return newBreakTime;
 	}
 
+	private static int hourToMin(String hour) {
+		String[] time = hour.split(":");
+		Integer hourTime = Integer.parseInt(time[0]);
+		Integer minutes = Integer.parseInt(time[1]);
+		return hourTime * 60 + minutes;
+	}
+	
+	private static String minToHour(int minutes) {
+		int hours = minutes / 60;
+		int minute = minutes%60;
+		return hours+":"+minute;
+	}
 }

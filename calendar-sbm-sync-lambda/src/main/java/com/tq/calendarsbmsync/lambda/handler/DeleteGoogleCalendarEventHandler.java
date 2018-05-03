@@ -121,7 +121,6 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);
 							sbmGoogleSync.setFlag(0);
 							sbmCalendarService.put(sbmGoogleSync);
-							m_log.info("Update into table SbmCalendarSync successfully ");
 
 						}
 
@@ -133,7 +132,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							apptGroupMap.put(dateTime, group);
 						}
 						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
-								event.getEnd().getDateTime(), event.getId(), sbmGoogleSync));
+								event.getEnd().getDateTime(), sbmGoogleSync));
 					}
 
 				}
