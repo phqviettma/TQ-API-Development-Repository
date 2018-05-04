@@ -80,7 +80,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public GetEventNextPage(String accessToken, Integer maxResults, String syncToken, String nextPageToken) {
 			super(accessToken, "calendars/primary/events?maxResults=" + maxResults
-					+ "&singleEvents=true&showDeleted=true&syncToken=" + syncToken + "&pageToken=" + nextPageToken);
+					+ "&orderBy=startTime&singleEvents=true&showDeleted=true&syncToken=" + syncToken + "&pageToken=" + nextPageToken);
 
 		}
 
@@ -189,7 +189,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	private class GetEventWithoutToken extends GetGoogleCalendarApiReq {
 
 		public GetEventWithoutToken(String accessToken, Integer maxResult, String timeMin) throws Exception {
-			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&showDeleted=true&singleEvents=true&timeMin="
+			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&showDeleted=true&orderBy=startTime&singleEvents=true&timeMin="
 					+ URLEncoder.encode(timeMin, "UTF-8"));
 
 		}
@@ -236,7 +236,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public GetEventWithNextSyncToken(String accessToken, Integer maxResult, String syncToken) {
 			super(accessToken, "calendars/primary/events?maxResults=" + maxResult
-					+ "&singleEvents=true&showDeleted=true&syncToken=" + syncToken);
+					+ "&orderBy=startTime&singleEvents=true&showDeleted=true&syncToken=" + syncToken);
 
 		}
 
@@ -263,7 +263,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 				throws UnsupportedEncodingException {
 			super(accessToken,
 					"calendars/primary/events?maxResults=" + maxResult
-							+ "&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&timeMin="
+							+ "&singleEvents=true&orderBy=startTime&showDeleted=true&pageToken=" + nextPageToken + "&timeMin="
 							+ URLEncoder.encode(lastQueryTimeMin, "UTF-8"));
 
 		}
