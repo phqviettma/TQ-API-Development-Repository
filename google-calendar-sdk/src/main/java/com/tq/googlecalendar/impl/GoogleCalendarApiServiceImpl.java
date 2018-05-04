@@ -236,7 +236,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public GetEventWithNextSyncToken(String accessToken, Integer maxResult, String syncToken) {
 			super(accessToken, "calendars/primary/events?maxResults=" + maxResult
-					+ "&orderBy=startTime&singleEvents=true&showDeleted=true&syncToken=" + syncToken);
+					+ "&singleEvents=true&showDeleted=true&syncToken=" + syncToken);
 
 		}
 
