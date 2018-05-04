@@ -39,7 +39,7 @@ public final class XmlRqcUtils {
                 log.debug(prams);
             }
             Object result = xmlRpcClient.execute(methodName, prams);
-            log.info(String.format("Took %d to execute %s .", System.currentTimeMillis() - start, System.currentTimeMillis() - start));
+            log.info(String.format("took %d to execute %s .",System.currentTimeMillis() - start, methodName));
             return result;
         } catch (MalformedURLException | XmlRpcException e) {
             throw new InfSDKExecption(e.getMessage(), e);

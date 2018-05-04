@@ -1,12 +1,13 @@
 package com.tq.googlecalendar.model;
 
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
+import com.tq.googlecalendar.resp.Items;
 
 public class GeneralAppt {
 
 	private String appointmentStart;
 	private String appointmentEnd;
-	private String taggedApptId;
+	private Items googleEvent;
 	private SbmGoogleCalendar sbmGoogleCalendar;
 
 	public String getAppointmentStart() {
@@ -25,14 +26,6 @@ public class GeneralAppt {
 		this.appointmentEnd = appointmentEnd;
 	}
 
-	public String getTaggedApptId() {
-		return taggedApptId;
-	}
-
-	public void setTaggedApptId(String taggedAppt) {
-		this.taggedApptId = taggedAppt;
-	}
-
 	public SbmGoogleCalendar getSbmGoogleCalendar() {
 		return sbmGoogleCalendar;
 	}
@@ -47,12 +40,21 @@ public class GeneralAppt {
 		this.appointmentEnd = appointmentEnd;
 	}
 
-	public GeneralAppt(String appointmentStart, String appointmentEnd, String taggedAppt,
+	public GeneralAppt(String appointmentStart, String appointmentEnd, Items googleEvent,
 			SbmGoogleCalendar sbmGoogleCalendar) {
+	
 		this.appointmentStart = appointmentStart;
 		this.appointmentEnd = appointmentEnd;
-		this.taggedApptId = taggedAppt;
+		this.googleEvent = googleEvent;
 		this.sbmGoogleCalendar = sbmGoogleCalendar;
+	}
+
+	public Items getGoogleEvent() {
+		return googleEvent;
+	}
+
+	public void setGoogleEvent(Items googleEvent) {
+		this.googleEvent = googleEvent;
 	}
 
 	public GeneralAppt() {

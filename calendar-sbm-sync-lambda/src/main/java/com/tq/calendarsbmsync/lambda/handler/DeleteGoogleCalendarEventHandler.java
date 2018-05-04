@@ -101,7 +101,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 					eventsTobeCancelled.add(event);
 					clientEmailsForCancellation.add(sbmGoogleSync.getClientEmail());
 				} else if (sbmGoogleSync.getFlag() == 1 && GOOGLE.equals(sbmGoogleSync.getAgent())) {
-					
+
 					eventTobeUnblocked.add(event);
 					String dateTime = event.getStart().getDateTime();
 					if (dateTime == null) {
@@ -115,13 +115,12 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
 							WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
 							SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(
-									workingTime.getStart_time(), workingTime.getEnd_time(), null,0, startDate,
+									workingTime.getStart_time(), workingTime.getEnd_time(), null, 0, startDate,
 									unitId[1], unitId[0]);
 							SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
 							specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);
 							sbmGoogleSync.setFlag(0);
 							sbmCalendarService.put(sbmGoogleSync);
-							m_log.info("Update into table SbmCalendarSync successfully ");
 
 						}
 
@@ -133,7 +132,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							apptGroupMap.put(dateTime, group);
 						}
 						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
-								event.getEnd().getDateTime(), event.getId(), sbmGoogleSync));
+								event.getEnd().getDateTime(), event, sbmGoogleSync));
 					}
 
 				}
@@ -142,7 +141,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 
 		if (!sbmBookingIdsTobeCancelled.isEmpty()) {
 			cancelBooking(companyLogin, endpoint, token, sbmBookingIdsTobeCancelled);
-			
+
 			excuteWithInfusionsoft(clientEmailsForCancellation);
 			m_log.info("Events are synced to SBM provider " + sbmId + " by cancellation: "
 					+ String.valueOf(eventsTobeCancelled));
@@ -163,13 +162,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	private void cancelBooking(String companyLogin, String endpoint, String token, List<Long> bookingIds)
 			throws SbmSDKException, InfSDKExecption {
 		String batchId = bookingService.createBatch(companyLogin, endpoint, token);
-		boolean isCancelled = bookingService.cancelBatch(companyLogin, endpoint, token, batchId, bookingIds);
-		if (isCancelled) {
-			m_log.info("Cancelled booking");
-
-		} else {
-			m_log.info("Can not cancel booking");
-		}
+		bookingService.cancelBatch(companyLogin, endpoint, token, batchId, bookingIds);
 
 	}
 
@@ -197,14 +190,12 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId, false);
 				}
 				List<SbmGoogleCalendar> sbmGoogleCalendarList = dateToSbmBreakTime.getValue().sbmGoogleCalendar;
-				long start = System.currentTimeMillis();
 
 				for (SbmGoogleCalendar sbmGoogleCalendar : sbmGoogleCalendarList) {
 					sbmGoogleCalendar.setFlag(0);
 					sbmCalendarService.put(sbmGoogleCalendar);
 				}
 
-				m_log.info("Save to database take " + (System.currentTimeMillis() - start) + " ms");
 			}
 
 		}

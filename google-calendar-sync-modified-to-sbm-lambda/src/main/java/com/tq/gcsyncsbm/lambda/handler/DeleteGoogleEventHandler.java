@@ -132,7 +132,7 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 							apptGroupMap.put(dateTime, group);
 						}
 						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
-								event.getEnd().getDateTime(), event.getId(), sbmGoogleSync));
+								event.getEnd().getDateTime(), event, sbmGoogleSync));
 
 					}
 				}

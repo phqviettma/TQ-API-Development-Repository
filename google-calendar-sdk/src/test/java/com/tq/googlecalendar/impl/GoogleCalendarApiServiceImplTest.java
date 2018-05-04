@@ -120,6 +120,20 @@ public class GoogleCalendarApiServiceImplTest {
 		WatchEventReq eventReq = new WatchEventReq("2-6", "web_hook", "https://clinic.truequit.com/notifications/",
 				params);
 		WatchEventResp resp = googleCalendarService.watchEvent(eventReq, "example@gmail.com");
-		assertNotNull(resp);
+		assertNotNull(resp.getId());
+	}
+
+	public static void main(String[] args) throws GoogleApiSDKException {
+		GoogleCalendarApiServiceImpl googleCalendarService = new GoogleCalendarApiServiceImpl(
+				"ya29.Gl2nBYu7CMjdln-cxQb12t6itT8CwEsLMWwrjnpULTi3uTFI_M2qPT8sUQW6Y1Y4wNn13deu6tQLmepObjlaOihtUZ2EAkdK-uXqRoXs52zP2LOE7OjrR_4EM2DjnVo");
+		for (int i = 1; i < 31; i++) {
+			String startTime = "2018-09-" + i + "T5:00:00.000Z";
+			Start start = new Start(startTime, "Asia/Saigon");
+			String endTime = "2018-09-"+i+"T6:00:00.000Z";
+			End end = new End(endTime , "Asia/Saigon");
+			String description = "This is description";
+			EventReq events = new EventReq(start, end, description, null, "");
+			googleCalendarService.createEvent(events);
+		}
 	}
 }

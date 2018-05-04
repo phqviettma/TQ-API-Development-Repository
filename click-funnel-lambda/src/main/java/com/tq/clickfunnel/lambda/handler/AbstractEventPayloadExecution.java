@@ -48,11 +48,11 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
          }
         return resp;
     }
-    public void applyTagToInfusionsoft(LambdaContext lambdaContext,Integer contactId, Integer appliedTagId ) throws InfSDKExecption
+    public boolean applyTagToInfusionsoft(LambdaContext lambdaContext,Integer contactId, Integer appliedTagId ) throws InfSDKExecption
     {
     	  EnvVar envVar = lambdaContext.getEnvVar();
           ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(contactId).withTagID(appliedTagId);
-          lambdaContext.getContactServiceInf().appyTag(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY), applyTagQuery);
+          return lambdaContext.getContactServiceInf().appyTag(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY), applyTagQuery);
     }
     public abstract AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException;
 }

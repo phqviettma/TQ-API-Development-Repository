@@ -2,6 +2,8 @@ package com.tq.clickfunnel.lambda.handler;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.tq.clickfunnel.lambda.context.CFLambdaContext;
@@ -9,11 +11,9 @@ import com.tq.clickfunnel.lambda.exception.CFLambdaException;
 import com.tq.clickfunnel.lambda.modle.CFContact;
 import com.tq.clickfunnel.lambda.modle.CFContactPayload;
 import com.tq.common.lambda.config.Config;
-import com.tq.common.lambda.config.EnvVar;
 import com.tq.common.lambda.context.LambdaContext;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.inf.exception.InfSDKExecption;
-import com.tq.inf.query.ApplyTagQuery;
 
 /**
  * 
@@ -23,7 +23,7 @@ import com.tq.inf.query.ApplyTagQuery;
  */
 
 public class HandleEventAffiliateBackpackSignupExecution extends AbstractEventContactExecution {
-
+	private static final Logger log = Logger.getLogger(HandleEventAffiliateBackpackSignupExecution.class);
 	@Override
 	public AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext)
 			throws CFLambdaException {
@@ -41,8 +41,8 @@ public class HandleEventAffiliateBackpackSignupExecution extends AbstractEventCo
 				Integer appliedTagId = Integer
 						.valueOf(lambdaContext.getEnvVar().getEnv(Config.INFUSIONSOFT_CLICKFUNNEL_AFFILIALTE_BACKPACK_SIGNUP_TAG));
 				// 3. Apply InfusionSoft tag
-				applyTagToInfusionsoft(lambdaContext, contactInfId, appliedTagId);
-
+				boolean isApplied = applyTagToInfusionsoft(lambdaContext, contactInfId, appliedTagId);
+				log.info(String.format("The tag %d is applied under contactId = %d. Result %b",appliedTagId,contactInfId,isApplied));
 				// 4. Saving the client & contact ID into DynamoDB.
 				contactItem = persitClientVoInDB(funnelContact, null, contactInfId, lambdaContext);
 			}

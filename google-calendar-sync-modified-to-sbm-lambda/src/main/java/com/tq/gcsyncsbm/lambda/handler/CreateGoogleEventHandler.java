@@ -89,7 +89,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 							m_log.info("Timeslot on " + startDate + " has been blocked");
 							UUID uuid = UUID.randomUUID();
 							long bookingId = uuid.getMostSignificantBits();
-							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), "-BLANK-", 1, "google");
+							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), "-BLANK-", 1, "google",event.getOrganizer().getEmail());
 							sbmCalendarService.put(sbmGoogleSync);
 						} else {
 							m_log.info("Error during set work day info for provider with id "
@@ -99,7 +99,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 				} else {
 					String date = TimeUtils.extractDate(event.getStart().getDateTime());
 					apptGroup.addAppt(date,
-							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(),event.getId(), sbmGoogleSync));
+							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(),event, sbmGoogleSync));
 				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
@@ -139,13 +139,12 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 						breakTimes, workDayInfoMapForUnitId);
 			}
 
-			List<String> geventIdList = entry.getValue().geventIdList;
+			List<Items> geventIdList = entry.getValue().geventList;
 			long start = System.currentTimeMillis();
-
-			for (String gevent : geventIdList) {
+			for ( Items gevent : geventIdList) {
 				UUID uuid = UUID.randomUUID();
 				long bookingId = uuid.getMostSignificantBits();
-				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, gevent, "-BLANK-", 1, "google");
+				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, gevent.getId(), "-BLANK-", 1, "google",gevent.getOrganizer().getEmail());
 				sbmCalendarService.put(sbmGoogleSync);
 				m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
 			}

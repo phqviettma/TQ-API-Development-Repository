@@ -96,7 +96,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				} else {
 					String date = TimeUtils.extractDate(event.getStart().getDateTime());
 					apptGroup.addAppt(date,
-							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(),event.getId(), sbmGoogleSync));
+							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(),event, sbmGoogleSync));
 				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
@@ -133,18 +133,16 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 						token, unitId, eventId, workingTime.getStart_time(), workingTime.getEnd_time(), date,
 						breakTimes, workDayInfoMapForUnitId);
 			}
-			List<String> geventIdList = dateToSbmBreakTime.getValue().geventIdList;
-			long start = System.currentTimeMillis();
+			List<Items> geventList = dateToSbmBreakTime.getValue().geventList;
 
-			for (String gevent : geventIdList) {
+			for (Items gevent : geventList) {
 				UUID uuid = UUID.randomUUID();
 				long bookingId = uuid.getMostSignificantBits();
-				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, gevent, "-BLANK-", 1, "google");
+				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, gevent.getId(), "-BLANK-", 1, "google",gevent.getOrganizer().getEmail());
 				sbmCalendarService.put(sbmGoogleSync);
 				m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
 			}
 
-			m_log.info("Save to database take " + (System.currentTimeMillis() - start) + " ms");
 		}
 	}
 
