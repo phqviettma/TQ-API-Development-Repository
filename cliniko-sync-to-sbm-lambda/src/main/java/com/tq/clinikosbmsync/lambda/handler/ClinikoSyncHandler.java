@@ -251,8 +251,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 				Long timeStamp = Calendar.getInstance().getTimeInMillis();
 				clinikoItem.setTimeStamp(timeStamp);
 				clinikoItem.setLatestTime(latestUpdateTime);
-				clinikoItemService.put(clinikoItem);
-				m_log.info("Updated timeStamp to database");
+				clinikoItemService.put(clinikoItem); 
 				break;
 			}
 		} catch (ClinikoSDKExeption | SbmSDKException e) {

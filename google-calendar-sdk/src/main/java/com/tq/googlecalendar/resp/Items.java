@@ -73,10 +73,6 @@ public class Items implements Serializable {
 		return end;
 	}
 
-	public void setEnd(End end) {
-		this.end = end;
-	}
-
 	public GoogleOrganizer getOrganizer() {
 		return organizer;
 	}
@@ -84,6 +80,11 @@ public class Items implements Serializable {
 	public void setOrganizer(GoogleOrganizer organizer) {
 		this.organizer = organizer;
 	}
+
+	public void setEnd(End end) {
+		this.end = end;
+	}
+
 
 	@Override
 	public String toString() {

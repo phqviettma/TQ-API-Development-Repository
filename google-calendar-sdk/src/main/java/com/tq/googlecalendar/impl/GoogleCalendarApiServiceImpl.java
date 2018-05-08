@@ -66,7 +66,8 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			Integer statusCode = response.getStatusCode();
 			if (statusCode == 204) {
 				return null;
-			} else {
+			}
+			else {
 				return GoogleCalendarParser.readJsonValueForObject(jsonResp, ErrorResp.class);
 			}
 		} catch (Exception e) {
@@ -187,13 +188,12 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public QueryEventAtSpecificTime(String accessToken, Integer maxResult, String query, String queryTime)
 				throws Exception {
-			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&singleEvents=true&" + query + "="
+			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&orderBy=startTime&singleEvents=true&" + query + "="
 					+ URLEncoder.encode(queryTime, "UTF-8"));
 
 		}
 
 	}
-
 	@Override
 	public GoogleCalendarSettingsInfo getSettingInfo(String settingId) throws GoogleApiSDKException {
 		String jsonResp;
@@ -254,22 +254,18 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			throw new GoogleApiSDKException(e);
 		}
 	}
-
-
-
 	private class GetEventWithLastTimeQuery extends GetGoogleCalendarApiReq {
 
 		public GetEventWithLastTimeQuery(String accessToken, Integer maxResult, String query, String lastQueryTimeMin,
 				String nextPageToken) throws Exception {
 			super(accessToken,
 					"calendars/primary/events?maxResults=" + maxResult
-							+ "&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&" + query + "="
+							+ "&orderBy=startTime&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&" + query + "="
 							+ URLEncoder.encode(lastQueryTimeMin, "UTF-8"));
 
 		}
 
 	}
-
 	@Override
 	public CalendarEvents queryEvent(Integer maxResult, String query, String time) throws GoogleApiSDKException {
 		String jsonResp;
@@ -282,7 +278,5 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			throw new GoogleApiSDKException(e);
 		}
 	}
-
-	
 
 }

@@ -23,9 +23,9 @@ import com.tq.cliniko.lambda.model.Practitioner;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.User;
 import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
-import com.tq.common.lambda.dynamodb.model.ClinikoSyncStatus;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
+import com.tq.common.lambda.dynamodb.model.ClinikoSyncStatus;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoItemService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
@@ -85,7 +85,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 					for (Practitioner practitioner : practitionerInfo.getPractitioners()) {
 						if (practitioner.getId().equals(practitioners.getId())) {
 							clinikoMap.put("clinikoId", business.getId() + "-" + practitioner.getId());
-							
+
 						}
 					}
 				}
@@ -108,11 +108,12 @@ public class ClinikoConnectHandler implements ConnectHandler {
 							long timeStamp = Calendar.getInstance().getTimeInMillis();
 							ClinikoSyncStatus clinikoItem = new ClinikoSyncStatus();
 							clinikoItem.setApiKey(apiKey);
-
 							clinikoItem.setTimeStamp(timeStamp);
 							clinikoItemService.put(clinikoItem);
 							m_log.info("Add to database successfully" + clinikoSbmSync);
-							saveDb(clinikoId, apiKey);
+							ClinikoCompanyInfo clinikoCompanyInfo = createDefaultPatient(clinikoId, apiKey);
+							clinikoCompanyService.put(clinikoCompanyInfo);
+							m_log.info("Save to database " + clinikoCompanyInfo);
 							done = true;
 							break;
 						}
@@ -131,7 +132,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		return response;
 	}
 
-	private void saveDb(String clinikoId, String apiKey) throws ClinikoSDKExeption {
+	private ClinikoCompanyInfo createDefaultPatient(String clinikoId, String apiKey) throws ClinikoSDKExeption {
 		String clinikoCompanyId[] = clinikoId.split("-");
 		Integer businessId = Integer.parseInt(clinikoCompanyId[0]);
 		Integer practitionerId = Integer.parseInt(clinikoCompanyId[1]);
@@ -145,10 +146,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 			}
 			Patient patient = clinikoApiService.createPatient(DEFAULT_PATIENT_NAME, DEFAULT_PATIENT_LAST_NAME);
 			clinikoCompanyInfo = new ClinikoCompanyInfo(patient.getId(), businessId, apptTypeId);
-			clinikoCompanyService.put(clinikoCompanyInfo);
-			m_log.info("Save to database " + clinikoCompanyInfo);
 		}
-
+		return clinikoCompanyInfo;
 	}
-
 }

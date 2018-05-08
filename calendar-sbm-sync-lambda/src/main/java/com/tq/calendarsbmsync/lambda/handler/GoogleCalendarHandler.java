@@ -1,6 +1,7 @@
 package com.tq.calendarsbmsync.lambda.handler;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -140,18 +141,18 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						String nextSyncToken = googleCalendarSbmSync.getNextSyncToken();
 						String nextPageToken = googleCalendarSbmSync.getNextPageToken();
 						String lastQueryTimeMin = googleCalendarSbmSync.getLastQueryTimeMin();
-
 						String updateTime = null;
 						if ("-BLANK-".equals(nextSyncToken)) {
 							if (lastQueryTimeMin == null) {
-								String currentTime = TimeUtils.getPreviousTime();
+								String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
+										.format(Calendar.getInstance().getTime());
 								GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
 								updateTime = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
-								eventList = googleApiService.queryEvent(maxResult, GC_UPDATE_TIME, updateTime);
+														eventList = googleApiService.queryEvent(maxResult, GC_UPDATE_TIME, updateTime);
 							} else {
 								if (!"-BLANK-".equals(nextPageToken)) {
 									eventList = googleApiService.getEventAtLastTime(maxResult,GC_UPDATE_TIME, lastQueryTimeMin,
-											nextPageToken);
+ 											nextPageToken);
 								} else {
 									throw new TrueQuitBadRequest(
 											"Illegal state, LastQueryTimeMin is set while NextPageToken is unset");
@@ -159,7 +160,8 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 							}
 						} else {
 							if ("-BLANK-".equals(nextPageToken)) {
-								eventList = googleApiService.getEventWithNextSyncToken(maxResult, nextSyncToken);
+								eventList = googleApiService.getEventAtLastTime(maxResult,GC_UPDATE_TIME, lastQueryTimeMin,
+											nextPageToken);
 							} else {
 								eventList = googleApiService.getEventWithNextPageToken(maxResult, nextSyncToken,
 										nextPageToken);

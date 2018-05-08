@@ -3,12 +3,15 @@ package com.tq.simplybook.impl;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Stack;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.slf4j.Logger;
@@ -26,6 +29,9 @@ public class SbmBreakTimeManagement {
 
 	private SpecialdayServiceSbm sss = new SpecialdayServiceSbmImpl();
 	private static final Logger m_log = LoggerFactory.getLogger(SbmBreakTimeManagement.class);
+	public static final String START_TAG = "(";
+	public static final String END_TAG = ")";
+	public static final String SEPARATOR = "-";
 
 	public boolean addBreakTime(String companyLogin, String endpoint, String token, int unit_id, int event_id,
 			String envStartWorkingTime, String envEndWorkingTime, String date, Set<Breaktime> newBreakTime,
@@ -85,9 +91,9 @@ public class SbmBreakTimeManagement {
 			Set<Breaktime> newBreakTime, Set<WorkTimeSlot> workTimeSlots) {
 		Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
 		currentBreakTimes.addAll(newBreakTime);
-		m_log.info("Current breakTime" + currentBreakTimes + "new breakTime " + newBreakTime);
-		// Set<Breaktime> newBreakTimes = mergeBreakTime(currentBreakTimes);
-		return currentBreakTimes;
+		Set<Breaktime> newBreakTimes = mergeBreakTime(currentBreakTimes);
+		return newBreakTimes;
+
 	}
 
 	static Set<Breaktime> removeBreakTime(String envStartWorkingTime, String envEndWorkingTime,
@@ -188,19 +194,19 @@ public class SbmBreakTimeManagement {
 					// 0 1 0 1
 					breakTime.setEnd_time(s.time.toString());
 				}
-				if(s.time.isAfter(startTime)&&e.time.isBefore(endTime)) {
+				if (s.time.isAfter(startTime) && e.time.isBefore(endTime)) {
 					Breaktime bt1 = new Breaktime();
-        			bt1.setStart_time(breakTime.getStart_time());
-        			bt1.setEnd_time(s.time.toString());
-        			
-        			Breaktime bt2 = new Breaktime();
-        			bt2.setStart_time(e.time.toString());
-        			bt2.setEnd_time(breakTime.getEnd_time());
-        			
-        			retList.add(bt1);
-        			retList.add(bt2);
-        			
-        			tobeRemoveBreakTimes.add(breakTime);
+					bt1.setStart_time(breakTime.getStart_time());
+					bt1.setEnd_time(s.time.toString());
+
+					Breaktime bt2 = new Breaktime();
+					bt2.setStart_time(e.time.toString());
+					bt2.setEnd_time(breakTime.getEnd_time());
+
+					retList.add(bt1);
+					retList.add(bt2);
+
+					tobeRemoveBreakTimes.add(breakTime);
 				}
 
 			}
@@ -387,41 +393,64 @@ public class SbmBreakTimeManagement {
 	}
 
 	private static Set<Breaktime> mergeBreakTime(Set<Breaktime> currentBreakTime) {
-		boolean[] timeLine = new boolean[24];
+
+		Map<LocalTime, List<String>> breakTimeMap = new HashMap();
+		int count = 1;
+
 		for (Breaktime breakTime : currentBreakTime) {
-			String startTime = breakTime.getStart_time();
-			String[] splitStartTime = startTime.split(":");
-			Integer startTimeHour = Integer.parseInt(splitStartTime[0]);
-			String endTime = breakTime.getEnd_time();
-			String[] splitEndTime = endTime.split(":");
-			Integer endTimeHour = Integer.parseInt(splitEndTime[0]);
-			for (int index = startTimeHour; index < endTimeHour; index++) {
-				timeLine[index] = true;
-			}
-		}
-		Set<Breaktime> newBreakTime = new HashSet<>();
-		int startPoint = 0;
-		boolean flag = false;
-		for (int j = 0; j < 24; j++) {
-			if (timeLine[j]) {
-				if (flag) {
-					continue;
-				}
-				startPoint = j;
-				flag = true;
+			LocalTime startTime = LocalTime.parse(breakTime.getStart_time());
+			LocalTime endTime = LocalTime.parse(breakTime.getEnd_time());
+			insertValue(breakTimeMap, startTime, count + SEPARATOR + START_TAG);
+			insertValue(breakTimeMap, endTime, count + SEPARATOR + END_TAG);
+			count++;
 
-			} else {
-				if (flag) { // F
-					Breaktime brkTime = new Breaktime(startPoint + ":00", j + ":00");
-					newBreakTime.add(brkTime);
-					flag = false;
-				} else {
-					continue;
+		}
+		Map<LocalTime, List<String>> treeMap = new TreeMap<>(breakTimeMap);
+		Stack<String> stack = new Stack<>();
+		Set<Breaktime> newBreakTimes = new HashSet<>();
+		LocalTime startPoint = null;
+		LocalTime endPoint = null;
+		for (LocalTime time : treeMap.keySet()) {
+			List<String> listValue = treeMap.get(time);
+			for (String value : listValue) {
+				String tag = value.split(SEPARATOR)[1];
+				switch (tag) {
+				case START_TAG:
+					if (stack.isEmpty()) {
+						startPoint = time;
+					}
+					stack.push(tag);
+					break;
+				case END_TAG: {
+
+					stack.pop();
+
+					break;
+				}
 				}
 
 			}
+			if (stack.isEmpty()) {
+				endPoint = time;
+				String startTime = startPoint.toString();// minToHour(startPoint);
+				String endTime = endPoint.toString();// minToHour(endPoint);
+				Breaktime breakTime = new Breaktime(startTime, endTime);
+				newBreakTimes.add(breakTime);
+			}
+
 		}
-		return newBreakTime;
+
+		return newBreakTimes;
 	}
 
+	private static void insertValue(Map<LocalTime, List<String>> breakTimeMap, LocalTime time, String tag) {
+		List<String> valueList = null;
+		if (breakTimeMap.containsKey(time)) {
+			valueList = breakTimeMap.get(time);
+		} else {
+			valueList = new ArrayList<>();
+		}
+		valueList.add(tag);
+		breakTimeMap.put(time, valueList);
+	}
 }

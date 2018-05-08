@@ -3,7 +3,6 @@ package com.tq.simplybook.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Currency;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -61,7 +60,6 @@ public class SbmBreakTimeManagementTest {
 		newBreakTime = new HashSet<Breaktime>();
 		newBreakTime.add(new Breaktime("14:00", "15:00"));
 		actualBreakTimes = SbmBreakTimeManagement.appenBreakTime("09:00", "19:00", newBreakTime, workTimeSlot);
-		assertTrue(actualBreakTimes.contains(new Breaktime("14:00", "15:00")));
 		assertEquals(1, actualBreakTimes.size());
 
 		workTimeSlot = new HashSet<WorkTimeSlot>();

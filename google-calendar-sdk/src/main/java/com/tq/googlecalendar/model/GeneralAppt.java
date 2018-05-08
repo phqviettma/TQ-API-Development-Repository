@@ -34,26 +34,33 @@ public class GeneralAppt {
 		this.sbmGoogleCalendar = sbmGoogleCalendar;
 	}
 
+	public Items getGoogleEvent() {
+		return googleEvent;
+	}
+
+	public void setGoogleEvent(Items googleEvent) {
+		this.googleEvent = googleEvent;
+	}
+
 	public GeneralAppt(String appointmentStart, String appointmentEnd) {
 
 		this.appointmentStart = appointmentStart;
 		this.appointmentEnd = appointmentEnd;
 	}
 
-	public GeneralAppt(String appointmentStart, String appointmentEnd, Items googleEvent,
+
+
+	public GeneralAppt(String appointmentStart, String appointmentEnd,
 			SbmGoogleCalendar sbmGoogleCalendar) {
 	
 		this.appointmentStart = appointmentStart;
 		this.appointmentEnd = appointmentEnd;
-		this.googleEvent = googleEvent;
 		this.sbmGoogleCalendar = sbmGoogleCalendar;
 	}
 
-	public Items getGoogleEvent() {
-		return googleEvent;
-	}
-
-	public void setGoogleEvent(Items googleEvent) {
+	public GeneralAppt(String appointmentStart, String appointmentEnd, Items googleEvent) {
+		this.appointmentStart = appointmentStart;
+		this.appointmentEnd = appointmentEnd;
 		this.googleEvent = googleEvent;
 	}
 

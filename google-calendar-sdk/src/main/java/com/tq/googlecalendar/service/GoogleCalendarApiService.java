@@ -30,10 +30,9 @@ public interface GoogleCalendarApiService {
 	GoogleCalendarSettingsInfo getSettingInfo(String settingId) throws GoogleApiSDKException;
 
 	CalendarEvents getEventAtLastTime(Integer maxResult,String filterString, String lastQueryTimeMin, String nextPageToken)
-			throws GoogleApiSDKException;
+ 			throws GoogleApiSDKException;
 
 	ErrorResp stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException;
-
 	CalendarEvents queryEvent(Integer maxResult, String query, String time) throws GoogleApiSDKException;
 
 }
