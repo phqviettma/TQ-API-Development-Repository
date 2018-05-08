@@ -193,7 +193,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				if (!breakTimes.isEmpty()) {
 					sbmBreakTimeManagement.removeBreakTime(enV.getSimplyBookCompanyLogin(),
 							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId, workingTime.getStart_time(),
-							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId);
+							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId, false);
 				}
 				List<SbmGoogleCalendar> sbmGoogleCalendarList = dateToSbmBreakTime.getValue().sbmGoogleCalendar;
 				long start = System.currentTimeMillis();
