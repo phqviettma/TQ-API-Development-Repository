@@ -1,5 +1,6 @@
 package com.tq.googlecalendar.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.slf4j.Logger;
@@ -66,7 +67,8 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 			Integer statusCode = response.getStatusCode();
 			if (statusCode == 204) {
 				return null;
-			} else {
+			}
+			else {
 				return GoogleCalendarParser.readJsonValueForObject(jsonResp, ErrorResp.class);
 			}
 		} catch (Exception e) {
@@ -78,7 +80,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public GetEventNextPage(String accessToken, Integer maxResults, String syncToken, String nextPageToken) {
 			super(accessToken, "calendars/primary/events?maxResults=" + maxResults
-					+ "&singleEvents=true&showDeleted=true&syncToken=" + syncToken + "&pageToken=" + nextPageToken);
+					+ "&orderBy=startTime&singleEvents=true&showDeleted=true&syncToken=" + syncToken + "&pageToken=" + nextPageToken);
 
 		}
 
@@ -172,10 +174,10 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	}
 
 	@Override
-	public CalendarEvents getEventWithoutToken(Integer maxResult, String timeMin,String query) throws GoogleApiSDKException {
+	public CalendarEvents getEventWithoutToken(Integer maxResult, String timeMin) throws GoogleApiSDKException {
 		String jsonResp;
 		try {
-			ApiResponse response = UtilsExecutor.request(new QueryEventAtSpecificTime(accessToken, maxResult,query, timeMin));
+			ApiResponse response = UtilsExecutor.request(new GetEventWithoutToken(accessToken, maxResult, timeMin));
 			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
@@ -183,12 +185,12 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		}
 
 	}
-	private class QueryEventAtSpecificTime extends GetGoogleCalendarApiReq {
 
-		public QueryEventAtSpecificTime(String accessToken, Integer maxResult, String query, String queryTime)
-				throws Exception {
-			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&singleEvents=true&" + query + "="
-					+ URLEncoder.encode(queryTime, "UTF-8"));
+	private class GetEventWithoutToken extends GetGoogleCalendarApiReq {
+
+		public GetEventWithoutToken(String accessToken, Integer maxResult, String timeMin) throws Exception {
+			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&showDeleted=true&orderBy=startTime&singleEvents=true&timeMin="
+					+ URLEncoder.encode(timeMin, "UTF-8"));
 
 		}
 
@@ -234,20 +236,20 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public GetEventWithNextSyncToken(String accessToken, Integer maxResult, String syncToken) {
 			super(accessToken, "calendars/primary/events?maxResults=" + maxResult
-					+ "&singleEvents=true&showDeleted=true&syncToken=" + syncToken);
+					+ "&orderBy=startTime&singleEvents=true&showDeleted=true&syncToken=" + syncToken);
 
 		}
 
 	}
 
 	@Override
-	public CalendarEvents getEventAtLastTime(Integer maxResult,String filter, String lastQueryTimeMin, String nextPageToken)
+	public CalendarEvents getEventAtLastTime(Integer maxResult, String lastQueryTimeMin, String nextPageToken)
 			throws GoogleApiSDKException {
 		String jsonResp;
 		try {
 
 			ApiResponse response = UtilsExecutor
-					.request(new GetEventWithLastTimeQuery(accessToken, maxResult, filter, lastQueryTimeMin, nextPageToken));
+					.request(new GetEventAtTime(accessToken, maxResult, nextPageToken, lastQueryTimeMin));
 			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
@@ -255,34 +257,17 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		}
 	}
 
+	private class GetEventAtTime extends GetGoogleCalendarApiReq {
 
-
-	private class GetEventWithLastTimeQuery extends GetGoogleCalendarApiReq {
-
-		public GetEventWithLastTimeQuery(String accessToken, Integer maxResult, String query, String lastQueryTimeMin,
-				String nextPageToken) throws Exception {
+		public GetEventAtTime(String accessToken, Integer maxResult, String nextPageToken, String lastQueryTimeMin)
+				throws UnsupportedEncodingException {
 			super(accessToken,
 					"calendars/primary/events?maxResults=" + maxResult
-							+ "&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&" + query + "="
+							+ "&singleEvents=true&orderBy=startTime&showDeleted=true&pageToken=" + nextPageToken + "&timeMin="
 							+ URLEncoder.encode(lastQueryTimeMin, "UTF-8"));
 
 		}
 
 	}
-
-	@Override
-	public CalendarEvents queryEvent(Integer maxResult, String query, String time) throws GoogleApiSDKException {
-		String jsonResp;
-		try {
-			ApiResponse response = UtilsExecutor
-					.request(new QueryEventAtSpecificTime(accessToken, maxResult, query, time));
-			jsonResp = response.getEntity();
-			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
-		} catch (Exception e) {
-			throw new GoogleApiSDKException(e);
-		}
-	}
-
-	
 
 }
