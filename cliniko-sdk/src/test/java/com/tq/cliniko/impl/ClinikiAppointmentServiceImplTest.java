@@ -20,7 +20,8 @@ import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
 
 public class ClinikiAppointmentServiceImplTest {
-	static ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("ff997f7d491b555f227262870a2717c1");
+	static ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl(
+			"ff997f7d491b555f227262870a2717c1");
 	Integer maxResult = 100;
 
 	@Test
@@ -72,7 +73,7 @@ public class ClinikiAppointmentServiceImplTest {
 		assertNull(result.getAppointment_start());
 	}
 
-	@Test
+	// @Test
 	public void testDeleteAppointment() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");

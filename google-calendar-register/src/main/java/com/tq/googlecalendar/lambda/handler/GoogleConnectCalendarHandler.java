@@ -51,13 +51,11 @@ public class GoogleConnectCalendarHandler implements Handler {
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
-
 	public GoogleConnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			ContactItemService contactItemService, TokenGoogleCalendarService tokenCalendarService,
 			SbmUnitService sbmUnitService, TokenServiceSbm tokenServiceSbm,
 			GoogleCalendarApiServiceBuilder apiServiceBuilder, GoogleCalRenewService googleCalRenewService,
 			GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
-
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.contactItemService = contactItemService;

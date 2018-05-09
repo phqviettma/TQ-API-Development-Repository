@@ -14,9 +14,7 @@ include 'google-calendar-sdk'
 include 'google-calendar-register'
 include 'truequit-watch-lambda'
 include 'cliniko-sync-to-sbm-lambda'
-include 'google-calendar-sync-modified-to-sbm-lambda'
 include 'sbm-sync-future-booking-lambda'
-
 
 
 
