@@ -12,7 +12,7 @@ public class MockUtil {
 		when(env.getRegions()).thenReturn(Regions.US_EAST_1);
 		when(env.getAwsSecretAccessKey()).thenReturn("");
 		when(env.getAwsAccessKeyId()).thenReturn("");
-		when(env.getSimplyBookCompanyLogin()).thenReturn("canhcanh");
+		when(env.getSimplyBookCompanyLogin()).thenReturn("truequit");
 		when(env.getSimplyBookUser()).thenReturn("admin");
 		when(env.getSimplyBookPassword()).thenReturn("");
 		when(env.getSimplyBookServiceUrlLogin()).thenReturn("https://user-api.simplybook.asia/login");

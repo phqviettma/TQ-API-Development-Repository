@@ -77,49 +77,55 @@ public class ClinikoConnectHandler implements ConnectHandler {
 			String email = userInfo.getEmail();
 			PractitionersInfo practitionerInfo = clinikoService.getPractitioner(userInfo.getId());
 			boolean done = false;
-			BusinessesInfo businesses = clinikoService.getListBusinesses();
-			for (Businesses business : businesses.getBusinesses()) {
-				String link = business.getPractitioners().getLinks().getSelf();
-				PractitionersInfo practitionersInfo = clinikoService.getBusinessPractitioner(link);
-				for (Practitioner practitioners : practitionersInfo.getPractitioners()) {
-					for (Practitioner practitioner : practitionerInfo.getPractitioners()) {
-						if (practitioner.getId().equals(practitioners.getId())) {
-							clinikoMap.put("clinikoId", business.getId() + "-" + practitioner.getId());
+			if (!practitionerInfo.getPractitioners().isEmpty()) {
+				BusinessesInfo businesses = clinikoService.getListBusinesses();
+				for (Businesses business : businesses.getBusinesses()) {
+					String link = business.getPractitioners().getLinks().getSelf();
+					PractitionersInfo practitionersInfo = clinikoService.getBusinessPractitioner(link);
 
+					for (Practitioner practitioners : practitionersInfo.getPractitioners()) {
+						for (Practitioner practitioner : practitionerInfo.getPractitioners()) {
+							if (practitioner.getId().equals(practitioners.getId())) {
+								clinikoMap.put("clinikoId", business.getId() + "-" + practitioner.getId());
+								m_log.info("Business" + business.getId() + "Practitioner Id" + practitioner.getId());
+							}
+						}
+					}
+
+				}
+				for (UnitProviderInfo unitInfo : unitInfos) {
+					if (unitInfo.getEmail() != null && unitInfo.getEmail().equals(email)) {
+						if (unitInfo.getEvent_map() != null) {
+							Set<String> eventInfos = unitInfo.getEvent_map().keySet();
+							Iterator<String> it = eventInfos.iterator();
+							if (it.hasNext()) {
+								String eventId = it.next();
+								String unitId = unitInfo.getId();
+								String sbmId = eventId + "-" + unitId;
+								String clinikoId = clinikoMap.get("clinikoId");
+								m_log.info("Cliniko Map" + clinikoMap);
+								clinikoSbmSync = new ClinikoSbmSync(apiKey, email, clinikoId, sbmId);
+								clinikoSyncService.put(clinikoSbmSync);
+								m_log.info("Save to database successfully with value " + clinikoSbmSync);
+								long timeStamp = Calendar.getInstance().getTimeInMillis();
+								ClinikoSyncStatus clinikoItem = new ClinikoSyncStatus();
+								clinikoItem.setApiKey(apiKey);
+								clinikoItem.setTimeStamp(timeStamp);
+								clinikoItemService.put(clinikoItem);
+								m_log.info("Add to database successfully" + clinikoSbmSync);
+								ClinikoCompanyInfo clinikoCompanyInfo = createDefaultPatient(clinikoId, apiKey);
+								clinikoCompanyService.put(clinikoCompanyInfo);
+								m_log.info("Save to database " + clinikoCompanyInfo);
+								done = true;
+								break;
+							}
 						}
 					}
 				}
-
+			} else {
+				throw new ClinikoConnectException("Do not have this practitioner in this business");
 			}
 
-			for (UnitProviderInfo unitInfo : unitInfos) {
-				if (unitInfo.getEmail() != null && unitInfo.getEmail().equals(email)) {
-					if (unitInfo.getEvent_map() != null) {
-						Set<String> eventInfos = unitInfo.getEvent_map().keySet();
-						Iterator<String> it = eventInfos.iterator();
-						if (it.hasNext()) {
-							String eventId = it.next();
-							String unitId = unitInfo.getId();
-							String sbmId = eventId + "-" + unitId;
-							String clinikoId = clinikoMap.get("clinikoId");
-							clinikoSbmSync = new ClinikoSbmSync(apiKey, email, clinikoId, sbmId);
-							clinikoSyncService.put(clinikoSbmSync);
-							m_log.info("Save to database successfully with value " + clinikoSbmSync);
-							long timeStamp = Calendar.getInstance().getTimeInMillis();
-							ClinikoSyncStatus clinikoItem = new ClinikoSyncStatus();
-							clinikoItem.setApiKey(apiKey);
-							clinikoItem.setTimeStamp(timeStamp);
-							clinikoItemService.put(clinikoItem);
-							m_log.info("Add to database successfully" + clinikoSbmSync);
-							ClinikoCompanyInfo clinikoCompanyInfo = createDefaultPatient(clinikoId, apiKey);
-							clinikoCompanyService.put(clinikoCompanyInfo);
-							m_log.info("Save to database " + clinikoCompanyInfo);
-							done = true;
-							break;
-						}
-					}
-				}
-			}
 			if (!done) {
 				throw new ClinikoConnectException(
 						"There is no Cliniko practitioner associated to the provided apiKey " + apiKey);
