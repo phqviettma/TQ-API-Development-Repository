@@ -132,7 +132,7 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 							apptGroupMap.put(dateTime, group);
 						}
 						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
-								event.getEnd().getDateTime(), event.getId(), sbmGoogleSync));
+								event.getEnd().getDateTime(), sbmGoogleSync));
 
 					}
 				}
@@ -190,7 +190,7 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 				if (!breakTimes.isEmpty()) {
 					sbmBreakTimeManagement.removeBreakTime(enV.getSimplyBookCompanyLogin(),
 							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId, workingTime.getStart_time(),
-							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId);
+							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId, false);
 				}
 				List<SbmGoogleCalendar> sbmGoogleCalendarList = dateToSbmBreakTime.getValue().sbmGoogleCalendar;
 				long start = System.currentTimeMillis();

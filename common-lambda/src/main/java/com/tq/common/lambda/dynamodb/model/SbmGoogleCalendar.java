@@ -18,6 +18,7 @@ public class SbmGoogleCalendar implements Serializable {
 	private String clientEmail;
 	private Integer flag;
 	private String agent;
+	private String googleEmail;
 
 	@DynamoDBAttribute(attributeName = "clientEmail")
 	public String getClientEmail() {
@@ -54,6 +55,14 @@ public class SbmGoogleCalendar implements Serializable {
 	public void setAgent(String agent) {
 		this.agent = agent;
 	}
+	@DynamoDBAttribute(attributeName = "googleEmail")
+	public String getGoogleEmail() {
+		return googleEmail;
+	}
+
+	public void setGoogleEmail(String googleEmail) {
+		this.googleEmail = googleEmail;
+	}
 
 	public SbmGoogleCalendar(Long sbmId, String eventId, String clientEmail, Integer flag, String checkKind) {
 
@@ -62,6 +71,15 @@ public class SbmGoogleCalendar implements Serializable {
 		this.clientEmail = clientEmail;
 		this.flag = flag;
 		this.agent = checkKind;
+	}
+
+	public SbmGoogleCalendar(Long sbmId, String eventId, Integer flag, String agent,
+			String googleEmail) {
+		this.sbmId = sbmId;
+		this.eventId = eventId;
+		this.flag = flag;
+		this.agent = agent;
+		this.googleEmail = googleEmail;
 	}
 
 	public SbmGoogleCalendar() {

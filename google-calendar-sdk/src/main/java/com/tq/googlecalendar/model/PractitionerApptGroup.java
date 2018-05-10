@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
-import com.tq.googlecalendar.time.TimeUtils;
+import com.tq.common.lambda.utils.TimeUtils;
+import com.tq.googlecalendar.resp.Items;
 import com.tq.simplybook.resp.Breaktime;
 
 public class PractitionerApptGroup {
@@ -22,7 +23,7 @@ public class PractitionerApptGroup {
 	private Date startDate = null;
 	private Date endDate = null;
 	private Map<String, EventDateInfo> dateToSbmBreakTimesMap = new HashMap<String, EventDateInfo>();
-	
+
 	public Map<String, EventDateInfo> getEventDateInfoMap() {
 		return dateToSbmBreakTimesMap;
 	}
@@ -40,16 +41,17 @@ public class PractitionerApptGroup {
 
 		String start_time = TimeUtils.extractTime(appt.getAppointmentStart());
 		String end_time = TimeUtils.extractTime(appt.getAppointmentEnd());
-		
+
 		dateInfo.breakTimeSet.add(new Breaktime(start_time, end_time));
 		dateInfo.geventIdList.add(appt.getTaggedApptId());
 		dateInfo.sbmGoogleCalendar.add(appt.getSbmGoogleCalendar());
+		dateInfo.googleEvents.add(appt.getGoogleEvent());
 	}
 
 	public Set<GeneralAppt> getAppts() {
 		return appts;
 	}
-	
+
 	private void addDate(String date) {
 		Date newDate = TimeUtils.parseDate(date);
 		if (startDate == null || startDate.after(newDate)) {
@@ -76,11 +78,11 @@ public class PractitionerApptGroup {
 		return "PractitionerApptGroup [appts=" + appts + ", apptDates=" + apptDates + ", startDate=" + startDate
 				+ ", endDate=" + endDate + ", dateToSbmBreakTimesMap=" + dateToSbmBreakTimesMap + "]";
 	}
-	
+
 	public class EventDateInfo {
 		public List<String> geventIdList = new LinkedList<String>();
 		public Set<Breaktime> breakTimeSet = new HashSet<Breaktime>();
 		public List<SbmGoogleCalendar> sbmGoogleCalendar = new ArrayList<>();
+		public List<Items> googleEvents = new ArrayList<>();
 	}
 }
-

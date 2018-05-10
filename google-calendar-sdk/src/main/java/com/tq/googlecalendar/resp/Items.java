@@ -19,6 +19,7 @@ public class Items implements Serializable {
 	private Start start;
 	private String status;
 	private End end;
+	private GoogleOrganizer organizer;
 
 	public String getKind() {
 		return kind;
@@ -72,6 +73,14 @@ public class Items implements Serializable {
 		return end;
 	}
 
+	public GoogleOrganizer getOrganizer() {
+		return organizer;
+	}
+
+	public void setOrganizer(GoogleOrganizer organizer) {
+		this.organizer = organizer;
+	}
+
 	public void setEnd(End end) {
 		this.end = end;
 	}
@@ -79,7 +88,7 @@ public class Items implements Serializable {
 	@Override
 	public String toString() {
 		return "Items [kind=" + kind + ", id=" + id + ", created=" + created + ", updated=" + updated + ", start="
-				+ start + ", status=" + status + ", end=" + end + "]";
+				+ start + ", status=" + status + ", end=" + end + ", organizer=" + organizer + "]";
 	}
 
 	public Items(String kind, String id, String created, String updated, Start start, String status, End end) {

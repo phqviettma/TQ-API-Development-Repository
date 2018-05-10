@@ -150,8 +150,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 								eventList = googleApiService.queryEvent(maxResult, GC_UPDATE_TIME, updateTime);
 							} else {
 								if (!"-BLANK-".equals(nextPageToken)) {
-									eventList = googleApiService.getEventAtLastTime(maxResult,GC_UPDATE_TIME, lastQueryTimeMin,
-											nextPageToken);
+									eventList = googleApiService.getEventAtLastTime(maxResult,GC_UPDATE_TIME, lastQueryTimeMin,nextPageToken);
 								} else {
 									throw new TrueQuitBadRequest(
 											"Illegal state, LastQueryTimeMin is set while NextPageToken is unset");

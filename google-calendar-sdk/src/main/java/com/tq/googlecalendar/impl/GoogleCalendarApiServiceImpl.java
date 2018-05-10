@@ -187,7 +187,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public QueryEventAtSpecificTime(String accessToken, Integer maxResult, String query, String queryTime)
 				throws Exception {
-			super(accessToken, "calendars/primary/events?maxResults=" + maxResult + "&singleEvents=true&" + query + "="
+			super(accessToken, "calendars/primary/events?orderBy=startTime&showDeleted=true&maxResults=" + maxResult + "&singleEvents=true&" + query + "="
 					+ URLEncoder.encode(queryTime, "UTF-8"));
 
 		}
@@ -241,13 +241,13 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	}
 
 	@Override
-	public CalendarEvents getEventAtLastTime(Integer maxResult,String filter, String lastQueryTimeMin, String nextPageToken)
+	public CalendarEvents getEventAtLastTime(Integer maxResult,String filter, String lastQueryTimeMin,String nextPageToken)
 			throws GoogleApiSDKException {
 		String jsonResp;
 		try {
 
 			ApiResponse response = UtilsExecutor
-					.request(new GetEventWithLastTimeQuery(accessToken, maxResult, filter, lastQueryTimeMin, nextPageToken));
+					.request(new GetEventWithLastTimeQuery(accessToken, maxResult, filter, lastQueryTimeMin,nextPageToken));
 			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
@@ -259,11 +259,10 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 	private class GetEventWithLastTimeQuery extends GetGoogleCalendarApiReq {
 
-		public GetEventWithLastTimeQuery(String accessToken, Integer maxResult, String query, String lastQueryTimeMin,
-				String nextPageToken) throws Exception {
+		public GetEventWithLastTimeQuery(String accessToken, Integer maxResult, String query, String lastQueryTimeMin,String nextPageToken) throws Exception {
 			super(accessToken,
-					"calendars/primary/events?maxResults=" + maxResult
-							+ "&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&" + query + "="
+					"calendars/primary/events?orderBy=startTime&maxResults=" + maxResult
+							+ "&singleEvents=true&showDeleted=true&"+ query + "="
 							+ URLEncoder.encode(lastQueryTimeMin, "UTF-8"));
 
 		}
@@ -281,6 +280,32 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
 		}
+	}
+
+	@Override
+	public CalendarEvents queryEventWithTimeMin(Integer maxResult, String timeMin,String nextPageToken) throws GoogleApiSDKException {
+		String jsonResp;
+		try {
+
+			ApiResponse response = UtilsExecutor
+					.request(new QueryEventWithTimeMin(accessToken, maxResult, timeMin,nextPageToken));
+			jsonResp = response.getEntity();
+			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
+		} catch (Exception e) {
+			throw new GoogleApiSDKException(e);
+		}
+	}
+	
+	private class QueryEventWithTimeMin extends GetGoogleCalendarApiReq{
+
+		public QueryEventWithTimeMin(String accessToken, Integer maxResult, String timeMin,String nextPageToken) throws Exception  {
+			super(accessToken,
+					"calendars/primary/events?orderBy=startTime&maxResults=" + maxResult
+							+ "&singleEvents=true&showDeleted=true&pageToken=" + nextPageToken + "&timeMin="
+							+ URLEncoder.encode(timeMin, "UTF-8"));
+			
+		}
+		
 	}
 
 	

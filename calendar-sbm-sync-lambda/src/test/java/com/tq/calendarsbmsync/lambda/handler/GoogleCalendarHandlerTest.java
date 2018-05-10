@@ -64,12 +64,13 @@ public class GoogleCalendarHandlerTest {
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("sync_message.json"));
 		req.setBody(body);
 		GoogleCalendarSbmSync googleCalendarSbm = new GoogleCalendarSbmSync();
-		googleCalendarSbm.setSbmId("2-4");
+		googleCalendarSbm.setSbmId("2-2");
 		googleCalendarSbm.setEmail("tmatesting@gmail.com");
-		googleCalendarSbm.setGoogleEmail("jayparkjay34@gmail.com");
+		googleCalendarSbm.setGoogleEmail("canh5870@gmail.com");
 		googleCalendarSbm.setRefreshToken("");
-		googleCalendarSbm.setNextSyncToken("CIDy_Nr-ndoCEIDy_Nr-ndoCGAU=");
-		googleCalendarSbm.setNextPageToken("-BLANK-");
+		googleCalendarSbm.setLastQueryTimeMin("2018-05-09T08:37:35.000+07:00");
+		googleCalendarSbm.setNextSyncToken("-BLANK-");
+		googleCalendarSbm.setNextPageToken("EjYKKzVxZWlqZWgxOWNnMGJsYXVpN3Ezb2NsOGNzXzIwMTkwNDE5VDA0MDAwMFoYgNjrqIDc4QI=");
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(496);
 		ContactItem contactItem = new ContactItem();

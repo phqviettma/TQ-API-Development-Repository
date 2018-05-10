@@ -344,7 +344,7 @@ public class SyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResp
 					} else {
 						m_sbtm.removeBreakTime(m_env.getSimplyBookCompanyLogin(), m_env.getSimplyBookAdminServiceUrl(),
 								token, unitId, eventId, m_env.getCliniko_start_time(), m_env.getCliniko_end_time(),
-								date, breakTimes, workDayInfoMapForUnitId);
+								date, breakTimes, workDayInfoMapForUnitId, true);
 					}
 				}
 
