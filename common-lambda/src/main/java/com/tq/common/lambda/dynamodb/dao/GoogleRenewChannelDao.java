@@ -12,5 +12,7 @@ public interface GoogleRenewChannelDao extends GenericItem<GoogleRenewChannelInf
 
 	void saveItem(GoogleRenewChannelInfo channelInfo);
 
-	public GoogleRenewChannelInfo queryIndex(String channelId);
+	public GoogleRenewChannelInfo queryChannelId(String resourceId);
+
+	public void deleteChannelList(List<GoogleRenewChannelInfo> googleChannelInfo);
 }

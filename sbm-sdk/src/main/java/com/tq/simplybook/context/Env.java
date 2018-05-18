@@ -61,12 +61,6 @@ public class Env {
 		assertVar(simplyBookPassword, "SIMPLY_BOOK_PASSWORD");
 		assertVar(simplyBookApiKey, "SIMPLY_BOOK_API_KEY");
 		assertVar(simplyBookSecretKey, "SIMPLY_BOOK_SECRET_KEY");
-		assertVar("clinikoApiKey", "CLINIKO_API_KEY");
-		assertVar("SBM_CLINIKO_MAPPING_1", "SBM_CLINIKO_MAPPING_1");
-		assertVar("clinikoPatientId", "CLINIKO_PATIENT_ID");
-		assertVar("cliniko_standard_appointment", "CLINIKO_STANDARD_APPOINTMENT");
-		assertVar("cliniko_start_time", "CLINIKO_START_TIME");
-		assertVar("cliniko_end_time", "CLINIKO_END_TIME");
 		assertVar(googleClientId, "GOOGLE_CLIENT_ID");
 		assertVar(googleClientSecrets, "GOOGLE_CLIENT_SECRETS");
 		assertVar(infusionsoftGoogleDeleteTag, "INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG");

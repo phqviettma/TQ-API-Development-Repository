@@ -1,9 +1,9 @@
 {
-    "googleChannelId": "2-2",
+     "googleChannelId": "b1a18b9f-7a35-4672-b9da-19cba094dd2b",
     "googleChannelToken": null,
-    "googleChannelExpiration": "Wed, 06 Jun 2018 03:24:15 GMT",
+    "googleChannelExpiration": "Fri, 15 Jun 2018 11:17:51 GMT",
     "googleResourceId": "_5WXcczxkDIoAb9kqpjiMb1bREA",
     "googleResourceState": "exists",
     "googleResourceUri": "https://www.googleapis.com/calendar/v3/calendars/canh5870@gmail.com/events?maxResults=250&alt=json",
-    "googleMessageNumber": "192793281"
+    "googleMessageNumber": "101207"
 }

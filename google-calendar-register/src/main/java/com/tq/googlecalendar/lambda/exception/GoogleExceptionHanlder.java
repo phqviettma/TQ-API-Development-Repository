@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
-import com.tq.googlecalendar.lambda.model.GoogleConnectFailureResponse;
+import com.tq.googlecalendar.lambda.resp.GoogleConnectFailureResponse;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.simplybook.exception.SbmSDKException;
 

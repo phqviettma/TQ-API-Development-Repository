@@ -46,11 +46,11 @@ public class GoogleRenewChannelDaoImpl extends AbstractItem<GoogleRenewChannelIn
 	}
 
 	@Override
-	public GoogleRenewChannelInfo queryIndex(String channelId) {
+	public GoogleRenewChannelInfo queryChannelId(String resourceId) {
 		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
-		queryCondition.put(":channelId", new AttributeValue().withS(channelId));
+		queryCondition.put(":resourceId", new AttributeValue().withS(resourceId));
 		DynamoDBQueryExpression<GoogleRenewChannelInfo> queryExpression = new DynamoDBQueryExpression<GoogleRenewChannelInfo>()
-				.withIndexName("Channel-index").withKeyConditionExpression("channelId=:channelId")
+				.withIndexName("Resource-Index").withKeyConditionExpression("resourceId=:resourceId")
 				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
 		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
 		List<GoogleRenewChannelInfo> channelInfo = mapper.query(GoogleRenewChannelInfo.class, queryExpression);
@@ -60,6 +60,14 @@ public class GoogleRenewChannelDaoImpl extends AbstractItem<GoogleRenewChannelIn
 			return null;
 
 		}
+		
+	}
+
+	@Override
+	public void deleteChannelList(List<GoogleRenewChannelInfo> googleChannelInfo) {
+		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
+		mapper.batchDelete(googleChannelInfo);
+
 	}
 
 }

@@ -6,6 +6,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
@@ -18,9 +21,9 @@ import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.exception.TrueQuitRegisterException;
-import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterParams;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
+import com.tq.googlecalendar.lambda.resp.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.resp.Error;
 import com.tq.googlecalendar.resp.ErrorResp;
 import com.tq.googlecalendar.resp.TokenResp;
@@ -42,13 +45,13 @@ public class GoogleDisconnectHandlerTest {
 		GoogleRegisterParams params = new GoogleRegisterParams();
 		params.setEmail("suongpham53@gmail.com");
 		req.setParams(params);
-		GoogleCalendarSbmSync googleCalendarSbmSync = new GoogleCalendarSbmSync("2-4", "phamthanhcute11@gmail.com",
-				"testingdev@tma.com.vn", "suong", "pham", "", "1/mLAy7U8YxEuJFYdWd3eheQAfx6L13lrxgLlKiK40fOY",
-				"-BLANK-", "9C0dOEpGs7L-ZBJy2BIC6AAQ8ak");
+		List<GoogleCalendarSbmSync> googleCalendarSbmSync = Arrays.asList(new GoogleCalendarSbmSync("1-7", "phamthanhcute11@gmail.com",
+				"phamthanhcute11@gmail.com", "suong", "pham", "",
+				"-BLANK-", ""));
 
-		when(calendarService.query(any())).thenReturn(googleCalendarSbmSync);
-		GoogleRenewChannelInfo renewChannelInfo = new GoogleRenewChannelInfo(1520553600000L, 1520671572000L, "2-4", "1/mLAy7U8YxEuJFYdWd3eheQAfx6L13lrxgLlKiK40fOY", "9C0dOEpGs7L-ZBJy2BIC6AAQ8ak", "suongpham53@gmail.com", null);
-		when(googleWatchChannelDbService.query(any())).thenReturn(renewChannelInfo);
+		when(calendarService.queryEmail(any())).thenReturn(googleCalendarSbmSync);
+		GoogleRenewChannelInfo renewChannelInfo = new GoogleRenewChannelInfo();
+		when(googleWatchChannelDbService.queryChannelId(any())).thenReturn(renewChannelInfo);
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("accesstoken");
 		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp );

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,17 +15,17 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
-import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.exception.TrueQuitRegisterException;
-import com.tq.googlecalendar.lambda.model.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
+import com.tq.googlecalendar.lambda.resp.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.req.Params;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.req.WatchEventReq;
@@ -40,7 +41,6 @@ import com.tq.simplybook.service.TokenServiceSbm;
 
 public class GoogleConnectCalendarHandler implements Handler {
 	private static final Logger m_log = LoggerFactory.getLogger(GoogleConnectCalendarHandler.class);
-	private static String NO_TOKEN = "-BLANK-";
 	private static final String PARAMS = "3600000";
 	private SbmUnitService sbmUnitService = null;
 	private TokenServiceSbm tokenServiceSbm = null;
@@ -79,8 +79,8 @@ public class GoogleConnectCalendarHandler implements Handler {
 		String endpoint = eVariables.getSimplyBookAdminServiceUrl();
 		String googleEmail = req.getParams().getGoogleEmail();
 		String sbmEmail = req.getParams().getEmail();
-		GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.query(sbmEmail);
-		if (googleCalendarSbmSync == null) {
+		List<GoogleCalendarSbmSync> googleCalendarSbmSync = googleCalendarService.queryEmail(sbmEmail);
+		if (googleCalendarSbmSync.isEmpty()) {
 			ContactItem contactItem = contactItemService.load(sbmEmail);
 			if (contactItem == null) {
 				throw new TrueQuitRegisterException("The email " + sbmEmail + " is not signed up yet ");
@@ -105,31 +105,37 @@ public class GoogleConnectCalendarHandler implements Handler {
 							GoogleCalendarApiService googleApiService = apiServiceBuilder
 									.build(tokenResp.getAccess_token());
 							Params params = new Params(PARAMS);
-							WatchEventReq watchEventReq = new WatchEventReq(sbmId, "web_hook",
-									eVariables.getGoogleNotifyDomain(), params);
-							WatchEventResp watchEventResp = googleApiService.watchEvent(watchEventReq, googleEmail);
 
-							m_log.info("Watch calendar successfully with response: " + watchEventResp);
-							String refreshToken = req.getParams().getRefreshToken();
-							Long checkingTime = buildCheckingTime(watchEventResp.getExpiration());
-							m_log.info("Checking time " + checkingTime);
-							GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync(sbmId, googleEmail, sbmEmail,
-									req.getParams().getLastName(), req.getParams().getFirstName(),
-									req.getParams().getAccessToken(), refreshToken, NO_TOKEN,
-									watchEventResp.getWatchResourceId());
+							for (String googleCalendarId : req.getParams().getGoogleCalendarId()) {
+								UUID uuid = UUID.randomUUID();
+								String channelId = uuid.toString();
+								WatchEventReq watchEventReq = new WatchEventReq(channelId, "web_hook",
+										eVariables.getGoogleNotifyDomain(), params);
+								WatchEventResp watchEventResp = googleApiService.watchEvent(watchEventReq,
+										googleCalendarId);
 
-							googleCalendarService.put(calendarSbm);
-							m_log.info("Added to database successfully " + calendarSbm.toString());
-							GoogleRenewChannelInfo channelInfo = new GoogleRenewChannelInfo(checkingTime,
-									watchEventResp.getExpiration(), sbmId, refreshToken,
-									watchEventResp.getWatchResourceId(), googleEmail, lastQueryTime);
-							m_log.info("Channel info " + channelInfo.toString());
-							googleCalRenewService.put(channelInfo);
-							m_log.info(
-									"Added to GoogleCalendarChannelInfo table successfully " + channelInfo.toString());
-							long timeStamp = Calendar.getInstance().getTimeInMillis();
-							GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(sbmId, -1,timeStamp);
-							calendarModifiedChannelService.put(modifiedChannelItem);
+								m_log.info("Watch calendar successfully with response: " + watchEventResp);
+								String refreshToken = req.getParams().getRefreshToken();
+								Long checkingTime = buildCheckingTime(watchEventResp.getExpiration());
+								GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync(sbmId, googleEmail,
+										sbmEmail, req.getParams().getLastName(), req.getParams().getFirstName(),
+										refreshToken, watchEventResp.getWatchResourceId(), googleCalendarId, channelId);
+
+								googleCalendarService.put(calendarSbm);
+								m_log.info("Added to database successfully " + calendarSbm.toString());
+
+								GoogleRenewChannelInfo channelInfo = new GoogleRenewChannelInfo(checkingTime,
+										watchEventResp.getExpiration(), refreshToken,
+										watchEventResp.getWatchResourceId(), googleEmail, lastQueryTime, channelId);
+								m_log.info("Channel info " + channelInfo.toString());
+								googleCalRenewService.put(channelInfo);
+								m_log.info("Added to GoogleCalendarChannelInfo table successfully "
+										+ channelInfo.toString());
+								long timeStamp = Calendar.getInstance().getTimeInMillis();
+								GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(sbmId, -1, timeStamp,
+										channelId, sbmEmail);
+								calendarModifiedChannelService.put(modifiedChannelItem);
+							}
 							done = true;
 							break;
 						}

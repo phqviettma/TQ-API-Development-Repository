@@ -13,5 +13,7 @@ public interface GoogleCalRenewService extends BaseItemService<GoogleRenewChanne
 
 	public void deleteItem(GoogleRenewChannelInfo channel);
 
-	public GoogleRenewChannelInfo query(String channelId);
+	public GoogleRenewChannelInfo queryChannelId(String channelId);
+
+	public void deleteRenewChannel(List<GoogleRenewChannelInfo> channelInfo);
 }

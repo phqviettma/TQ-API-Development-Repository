@@ -235,7 +235,7 @@ public class CreateInternalHandler implements InternalHandler {
 			attendees.add(new Attendees(bookingInfo.getClient_email(), bookingInfo.getClient_name()));
 			EventReq req = new EventReq(start, end, bookingInfo.getUnit_description(), attendees,
 					env.getGoogleCalendarEventName());
-			EventResp eventResp = googleApiService.createEvent(req);
+			EventResp eventResp = googleApiService.createEvent(req,calendarSbm.getGoogleCalendarId());
 			m_log.info("Create event successfully with value " + eventResp.toString());
 			SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(payload.getBooking_id(), eventResp.getId(),
 					bookingInfo.getClient_email(), 1, "sbm");

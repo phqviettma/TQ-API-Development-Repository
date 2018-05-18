@@ -54,7 +54,7 @@ public class SbmBreakTimeManagement {
 
 	public boolean removeBreakTime(String companyLogin, String endpoint, String token, int unit_id, int event_id,
 			String envStartWorkingTime, String envEndWorkingTime, String date, Set<Breaktime> removedBreakTime,
-			Map<String, WorksDayInfoResp> workDayInfoMap, boolean isCliniko) throws SbmSDKException {
+			Map<String, WorksDayInfoResp> workDayInfoMap) throws SbmSDKException {
 		WorksDayInfoResp workDayInfo = workDayInfoMap.get(date);
 
 		if (workDayInfo == null) {
@@ -64,8 +64,7 @@ public class SbmBreakTimeManagement {
 
 			Set<WorkTimeSlot> workTimeSlots = workDayInfo.getInfo();
 			Set<Breaktime> breakTimes;
-			breakTimes = removeBreakTime(envStartWorkingTime, envEndWorkingTime, removedBreakTime, workTimeSlots,
-					isCliniko);
+			breakTimes = removeBreakTime(envStartWorkingTime, envEndWorkingTime, removedBreakTime, workTimeSlots);
 
 			if (!breakTimes.isEmpty()) {
 				m_log.info("Break times to be removed for date " + date + ":" + String.valueOf(breakTimes));
@@ -97,17 +96,14 @@ public class SbmBreakTimeManagement {
 	}
 
 	static Set<Breaktime> removeBreakTime(String envStartWorkingTime, String envEndWorkingTime,
-			Set<Breaktime> removedBreakTime, Set<WorkTimeSlot> workTimeSlots, boolean isCliniko) {
+			Set<Breaktime> removedBreakTime, Set<WorkTimeSlot> workTimeSlots) {
 		Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
 		m_log.info("SBM Current BreakTimes " + currentBreakTimes.toString());
 		m_log.info("BreakTimes to be removed " + removedBreakTime.toString());
 		Set<Breaktime> remainingBreakTimes;
-		if (isCliniko) {
+		
 			remainingBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(currentBreakTimes, removedBreakTime);
-		} else {
-			//removedBreakTime = mergeBreakTime(removedBreakTime);
-			remainingBreakTimes = SbmBreakTimeManagement.elimateBreakTimesForGC(currentBreakTimes, removedBreakTime);
-		}
+		
 		m_log.info("Remaining break times " + remainingBreakTimes.toString());
 
 		return remainingBreakTimes;

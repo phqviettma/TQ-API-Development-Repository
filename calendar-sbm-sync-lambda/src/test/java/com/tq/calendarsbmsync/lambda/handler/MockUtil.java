@@ -4,7 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.regions.Regions;
-import com.tq.simplybook.context.Env;
+import com.tq.googlecalendar.context.Env;
 
 public class MockUtil {
 	public static Env mockEnv() {

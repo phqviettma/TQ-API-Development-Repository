@@ -52,7 +52,8 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 		this.env = Env.load();
 		this.amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(env.getRegions(), env.getAwsAccessKeyId(),
 				env.getAwsSecretAccessKey());
-		this.googleWatchChannelDbService = new GoogleWatchChannelDbServiceImpl(new GoogleRenewChannelDaoImpl(amazonDynamoDB));
+		this.googleWatchChannelDbService = new GoogleWatchChannelDbServiceImpl(
+				new GoogleRenewChannelDaoImpl(amazonDynamoDB));
 		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.tokenCalendarService = new TokenGoogleCalendarImpl();
 	}
@@ -73,21 +74,20 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 		Long checkDay = buildCheckingTime();
 		m_log.info("Start running lambda ");
 		List<GoogleRenewChannelInfo> channelInfo = googleWatchChannelDbService.queryItem(checkDay);
-		if (channelInfo.size()>0) {
-			for(GoogleRenewChannelInfo item : channelInfo) {
+		if (channelInfo.size() > 0) {
+			for (GoogleRenewChannelInfo item : channelInfo) {
 				try {
 					TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(),
 							item.getRefreshToken());
 					TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-					
-					StopWatchEventReq stopEventReq = new StopWatchEventReq(item.getChannelId(),
-							item.getResourceId());
+
+					StopWatchEventReq stopEventReq = new StopWatchEventReq(item.getChannelId(), item.getResourceId());
 					renewChannelAndCleanUpDb(item, stopEventReq, tokenResp);
-					
+
 				} catch (GoogleApiSDKException e) {
 					m_log.info("Internal error", e);
 				}
-				
+
 			}
 		}
 		resp.setBody(buildSuccessBodyResponse());
@@ -95,10 +95,10 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 		return resp;
 	}
 
-	private void renewChannelAndCleanUpDb(GoogleRenewChannelInfo channel, StopWatchEventReq stopEventReq, TokenResp tokenResp)
-			throws GoogleApiSDKException {
+	private void renewChannelAndCleanUpDb(GoogleRenewChannelInfo channel, StopWatchEventReq stopEventReq,
+			TokenResp tokenResp) throws GoogleApiSDKException {
 		boolean flag = false;
-		 long start = System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		GoogleCalendarApiService calendarApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
 		flag = GoogleCalendarUtil.stopWatchChannel(calendarApiService, stopEventReq, flag);
 		if (flag) {
@@ -109,8 +109,10 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 			m_log.info("Watch channel successfully " + watchResp);
 			Long checkingTime = buildCheckingTime(watchResp.getExpiration());
 			Long lastQueryTime = buildLastCheckingTime();
-			
-			GoogleRenewChannelInfo newChannelInfo = new GoogleRenewChannelInfo(checkingTime, watchResp.getExpiration(), channel.getChannelId(), channel.getRefreshToken(), channel.getResourceId(), channel.getGoogleEmail(), lastQueryTime);
+
+			GoogleRenewChannelInfo newChannelInfo = new GoogleRenewChannelInfo(checkingTime, watchResp.getExpiration(),
+					channel.getRefreshToken(), channel.getResourceId(), channel.getGoogleEmail(), lastQueryTime,
+					channel.getChannelId());
 			googleWatchChannelDbService.saveItem(newChannelInfo);
 			m_log.info("Save to database successfully " + newChannelInfo);
 			googleWatchChannelDbService.deleteItem(channel);
@@ -140,6 +142,7 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 		on.put("succeeded", true);
 		return on.toString();
 	}
+
 	private static Long buildCheckingTime(long expirationTime) {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		cal.setTimeInMillis(expirationTime);
@@ -153,13 +156,13 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 		return checkingDate;
 
 	}
+
 	private static Long buildLastCheckingTime() {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		Date date = cal.getTime();
 		long lastQueryTime = date.getTime();
 		return lastQueryTime;
-		
+
 	}
-	
 
 }

@@ -209,7 +209,7 @@ public class CancelInternalHandler implements InternalHandler {
 				sbmGoogleCalendar.setFlag(0);
 				sbmGoogleCalendarService.put(sbmGoogleCalendar);
 				m_log.info("Delete item on database successfully");
-				googleService.deleteEvent(sbmGoogleCalendar.getEventId());
+				googleService.deleteEvent(sbmGoogleCalendar.getEventId(), calendarSbm.getGoogleCalendarId());
 				m_log.info("Delete google event successfully");
 				return true;
 			}

@@ -16,11 +16,11 @@ public class GoogleRenewChannelInfo implements Serializable {
 	private static final long serialVersionUID = -509441797494676490L;
 	private Long checkDay;
 	private Long expirationTime;
-	private String channelId;
 	private String refreshToken;
 	private String resourceId;
 	private String googleEmail;
 	private Long lastCheckingTime;
+	private String channelId;
 
 	@DynamoDBAttribute(attributeName = "expirationTime")
 	public Long getExpirationTime() {
@@ -31,8 +31,7 @@ public class GoogleRenewChannelInfo implements Serializable {
 		this.expirationTime = expirationTime;
 	}
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Channel-index",attributeName = "channelId")
-	@DynamoDBRangeKey(attributeName = "channelId")
+	@DynamoDBAttribute(attributeName="channelId")
 	public String getChannelId() {
 		return channelId;
 	}
@@ -62,8 +61,8 @@ public class GoogleRenewChannelInfo implements Serializable {
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
 	}
-
-	@DynamoDBAttribute(attributeName = "resourceId")
+	@DynamoDBIndexHashKey(globalSecondaryIndexName="Resource-Index", attributeName="resourceId")
+	@DynamoDBRangeKey(attributeName = "resourceId")
 	public String getResourceId() {
 		return resourceId;
 	}
@@ -72,7 +71,7 @@ public class GoogleRenewChannelInfo implements Serializable {
 		this.resourceId = resourceId;
 	}
 
-	@DynamoDBAttribute(attributeName = "googleEmail")
+	@DynamoDBAttribute(attributeName="googleEmail")
 	public String getGoogleEmail() {
 		return googleEmail;
 	}
@@ -90,23 +89,26 @@ public class GoogleRenewChannelInfo implements Serializable {
 		this.lastCheckingTime = lastCheckingTime;
 	}
 
-	public GoogleRenewChannelInfo(Long checkDay, Long expirationTime, String channelId, String refreshToken,
-			String resourceId, String googleEmail, Long lastCheckingTime) {
+	
+
+	public GoogleRenewChannelInfo(Long checkDay, Long expirationTime, String refreshToken,
+			String resourceId, String googleEmail, Long lastCheckingTime, String channelId) {
 		this.checkDay = checkDay;
 		this.expirationTime = expirationTime;
-		this.channelId = channelId;
 		this.refreshToken = refreshToken;
 		this.resourceId = resourceId;
 		this.googleEmail = googleEmail;
 		this.lastCheckingTime = lastCheckingTime;
-
+		this.channelId = channelId;
 	}
 
 	@Override
 	public String toString() {
-		return "GoogleRenewChannelInfo [checkDay=" + checkDay + ", expirationTime=" + expirationTime + ", channelId="
-				+ channelId + ", refreshToken=" + refreshToken + ", resourceId=" + resourceId + ", googleEmail="
-				+ googleEmail + ", lastCheckingTime=" + lastCheckingTime + "]";
+		return "GoogleRenewChannelInfo [checkDay=" + checkDay + ", expirationTime=" + expirationTime + ", refreshToken="
+				+ refreshToken + ", resourceId=" + resourceId + ", googleEmail=" + googleEmail + ", lastCheckingTime="
+				+ lastCheckingTime + ", channelId=" + channelId + "]";
 	}
+
+
 
 }
