@@ -42,13 +42,6 @@ public class GoogleCalendarModifiedSyncServiceImpl implements GoogleCalendarModi
 
 		return calendarSyncDao.queryIndexCheckStatus();
 	}
-
-	@Override
-	public void deleteDynamoItem(String hashKey) {
-		calendarSyncDao.deleteItem(hashKey);
-
-	}
-
 	@Override
 	public void saveItem(GCModifiedChannel modifiedChannel) {
 		calendarSyncDao.saveItem(modifiedChannel);

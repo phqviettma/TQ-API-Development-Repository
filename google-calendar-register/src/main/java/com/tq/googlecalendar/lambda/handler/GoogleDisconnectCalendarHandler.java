@@ -53,6 +53,7 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 		GoogleConnectStatusResponse response = new GoogleConnectStatusResponse();
 		String sbmEmail = req.getParams().getEmail();
 		List<GoogleCalendarSbmSync> googleCalendarSbmSync = googleCalendarService.queryEmail(sbmEmail);
+		boolean stoppedWatch = false;
 		if (!googleCalendarSbmSync.isEmpty()) {
 			for (GoogleCalendarSbmSync googleSbm : googleCalendarSbmSync) {
 
@@ -63,27 +64,26 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 				StopWatchEventReq stopEventReq = new StopWatchEventReq(googleSbm.getChannelId(),
 						googleSbm.getGcWatchResourceId());
 				GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
-				GoogleRenewChannelInfo renewChannel = googleCalRenewService.queryChannelId(googleSbm.getGcWatchResourceId());
-				boolean flag = false;
 				// work-around: can' stop channel in just one request. So as to make sure the
 				// channel is stopped successfully, we try to stop maximum of 3 times .
-				boolean isChecked = GoogleCalendarUtil.stopWatchChannel(googleApiService, stopEventReq, flag);
-				if (isChecked && renewChannel != null) {
-					googleCalendarService.delete(googleSbm);
+			 GoogleCalendarUtil.stopWatchChannel(googleApiService, stopEventReq);	
+				stoppedWatch = true;
+			}
+			if(stoppedWatch) {
+				List<GCModifiedChannel> modifiedChannel = calendarModifiedChannelService.queryEmail(sbmEmail); 
+				List<GoogleRenewChannelInfo> renewChannel = googleCalRenewService.queryEmail(googleCalendarSbmSync.get(0).getGoogleEmail());
+				if (!renewChannel.isEmpty() && !modifiedChannel.isEmpty()) {
+					googleCalendarService.deleteGoogleItem(googleCalendarSbmSync);
 					m_log.info("Delete record in table GoogleSbmSync successfully");
-					googleCalRenewService.deleteItem(renewChannel);
+					googleCalRenewService.deleteRenewChannel(renewChannel);
+					calendarModifiedChannelService.deleteModifiedItem(modifiedChannel);
 				}
 				else {
 					throw new GoogleApiSDKException("Internal error");
 				}
 			}
-			List<GCModifiedChannel> modifiedItems = calendarModifiedChannelService.queryEmail(sbmEmail);
-			if (!modifiedItems.isEmpty()) {
-				calendarModifiedChannelService.deleteModifiedItem(modifiedItems);
-			} else
-				
-			{
-				throw new GoogleApiSDKException("Internal error");
+			else {
+				throw new GoogleApiSDKException("Can not stop watch this channel");
 			}
 
 		}

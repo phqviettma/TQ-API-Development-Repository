@@ -1,40 +1,44 @@
 package com.tq.common.lambda.dynamodb.model;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexRangeKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 @DynamoDBTable(tableName = "GCModifiedChannel")
 public class GCModifiedChannel {
-	private String sbmId;
-	private Integer checkStatus;
+	private String googleCalendarId;
+	private Integer checkingStatus;
 	private long timeStamp;
-	private String channelId;
 	private String email;
+	private String channelId;
 
-	@DynamoDBRangeKey(attributeName = "channelId")
-	public String getChannelId() {
-		return channelId;
+	@DynamoDBHashKey(attributeName = "googleCalendarId")
+	public String getGoogleCalendarId() {
+		return googleCalendarId;
 	}
 
-	public void setChannelId(String channelId) {
-		this.channelId = channelId;
+	public void setGoogleCalendarId(String googleCalendarId) {
+		this.googleCalendarId = googleCalendarId;
 	}
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Modified-Index", attributeName = "checkStatus")
-	public Integer getCheckStatus() {
-		return checkStatus;
+	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Status-Index", attributeName = "checkingStatus")
+	public Integer getCheckingStatus() {
+		return checkingStatus;
 	}
 
-	public void setCheckStatus(Integer checkStatus) {
-		this.checkStatus = checkStatus;
+	public void setCheckingStatus(Integer checkStatus) {
+		this.checkingStatus = checkStatus;
 	}
 
-	@DynamoDBIndexRangeKey(globalSecondaryIndexName = "Modified-Index", attributeName = "timeStamp")
-	public long getTimestamp() {
+	@DynamoDBIndexRangeKey(globalSecondaryIndexName = "Status-Index", attributeName = "timeStamp")
+	public long getTimeStamp() {
 		return timeStamp;
+	}
+
+	public void setTimeStamp(long timeStamp) {
+		this.timeStamp = timeStamp;
 	}
 
 	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Email-Index", attributeName = "email")
@@ -46,43 +50,27 @@ public class GCModifiedChannel {
 		this.email = email;
 	}
 
-	public void setTimestamp(long timestamp) {
-		this.timeStamp = timestamp;
+	@DynamoDBAttribute(attributeName = "channelId")
+	public String getChannelId() {
+		return channelId;
 	}
 
-	@DynamoDBHashKey(attributeName = "sbmId")
-	public String getSbmId() {
-		return sbmId;
-	}
-
-	public void setSbmId(String sbmId) {
-		this.sbmId = sbmId;
-	}
-
-	public GCModifiedChannel(String sbmId, Integer checkStatus, long timeStamp) {
-
-		this.sbmId = sbmId;
-		this.checkStatus = checkStatus;
-		this.timeStamp = timeStamp;
-	}
-	
-
-	public GCModifiedChannel(String sbmId, Integer checkStatus, long timeStamp, String channelId, String email) {
-		this.sbmId = sbmId;
-		this.checkStatus = checkStatus;
-		this.timeStamp = timeStamp;
+	public void setChannelId(String channelId) {
 		this.channelId = channelId;
-		this.email = email;
 	}
 
 	public GCModifiedChannel() {
 
 	}
 
-	@Override
-	public String toString() {
-		return "GCModifiedChannel [sbmId=" + sbmId + ", checkStatus=" + checkStatus + ", timeStamp=" + timeStamp
-				+ ", channelId=" + channelId + ", email=" + email + "]";
+	public GCModifiedChannel(String googleCalendarId, Integer checkingStatus, long timeStamp, String email,
+			String channelId) {
+
+		this.googleCalendarId = googleCalendarId;
+		this.checkingStatus = checkingStatus;
+		this.timeStamp = timeStamp;
+		this.email = email;
+		this.channelId = channelId;
 	}
 
 }

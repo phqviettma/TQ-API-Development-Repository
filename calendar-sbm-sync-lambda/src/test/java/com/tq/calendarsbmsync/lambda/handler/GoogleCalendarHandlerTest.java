@@ -80,7 +80,7 @@ public class GoogleCalendarHandlerTest {
 		sbmGoogleCalendar.setFlag(1);
 		sbmGoogleCalendar.setSbmId(24L);
 		GCModifiedChannel modifiedItem = new GCModifiedChannel();
-		modifiedItem.setCheckStatus(0);
+		modifiedItem.setCheckingStatus(0);
 		when(modifiedChannelService.load(any())).thenReturn(modifiedItem);
 		when(sbmCalendarService.queryWithIndex(any())).thenReturn(sbmGoogleCalendar);
 		AwsProxyResponse response = calendarHanler.handleRequest(req, context);

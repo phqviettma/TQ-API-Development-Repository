@@ -1,6 +1,5 @@
 package com.tq.common.lambda.dynamodb.dao;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,25 +39,14 @@ public class GoogleCalendarModifiedSynDaoImpl extends AbstractItem<GCModifiedCha
 	@Override
 	public List<GCModifiedChannel> queryIndexCheckStatus() {
 		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
-		queryCondition.put(":checkStatus", new AttributeValue().withN("1"));
+		queryCondition.put(":checkingStatus", new AttributeValue().withN("1"));
 		DynamoDBQueryExpression<GCModifiedChannel> queryExpression = new DynamoDBQueryExpression<GCModifiedChannel>()
-				.withIndexName("Modified-Index").withKeyConditionExpression("checkStatus=:checkStatus")
+				.withIndexName("Status-Index").withKeyConditionExpression("checkingStatus=:checkingStatus")
 				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
 
 		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
 		List<GCModifiedChannel> calendarSbmSync = mapper.query(GCModifiedChannel.class, queryExpression);
 		return calendarSbmSync;
-	}
-
-	@Override
-	public void deleteItem(String hashKey) {
-
-		GCModifiedChannel channel = new GCModifiedChannel();
-		channel.setChannelId(hashKey);
-		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
-		List<GCModifiedChannel> mm = new ArrayList<>();
-		mapper.batchDelete(mm);
-		mapper.delete(channel);
 	}
 
 	@Override

@@ -33,38 +33,39 @@ public class GoogleDisconnectHandlerTest {
 	private GoogleCalendarDbService calendarService = mock(GoogleCalendarDbService.class);
 	private static Env mockedeEnv = MockUtil.mockEnv();
 	private TokenGoogleCalendarImpl tokenCalendarService = mock(TokenGoogleCalendarImpl.class);
-	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder =mock(GoogleCalendarApiServiceBuilder.class);
+	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
 	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
-			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);
+			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService,
+			modifiedChannelService);
+
 	@Test
-	public void testDisconnect() throws TrueQuitRegisterException, GoogleApiSDKException{
+	public void testDisconnect() throws TrueQuitRegisterException, GoogleApiSDKException {
 		GoogleRegisterReq req = new GoogleRegisterReq();
 		req.setAction("disconnect");
 		GoogleRegisterParams params = new GoogleRegisterParams();
 		params.setEmail("suongpham53@gmail.com");
 		req.setParams(params);
-		List<GoogleCalendarSbmSync> googleCalendarSbmSync = Arrays.asList(new GoogleCalendarSbmSync("1-7", "phamthanhcute11@gmail.com",
-				"phamthanhcute11@gmail.com", "suong", "pham", "",
-				"-BLANK-", ""));
+		List<GoogleCalendarSbmSync> googleCalendarSbmSync = Arrays.asList(new GoogleCalendarSbmSync("1-7",
+				"phamthanhcute11@gmail.com", "phamthanhcute11@gmail.com", "suong", "pham", "", "-BLANK-", ""));
 
 		when(calendarService.queryEmail(any())).thenReturn(googleCalendarSbmSync);
-		GoogleRenewChannelInfo renewChannelInfo = new GoogleRenewChannelInfo();
-		when(googleWatchChannelDbService.queryChannelId(any())).thenReturn(renewChannelInfo);
+		List<GoogleRenewChannelInfo> renewChannelInfo = Arrays.asList(new GoogleRenewChannelInfo());
+		when(googleWatchChannelDbService.queryEmail(any())).thenReturn(renewChannelInfo);
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("accesstoken");
-		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp );
+		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
 		GoogleCalendarApiService googleCalendarApiService = mock(GoogleCalendarApiService.class);
 		when(mockedApiServiceBuilder.build(anyString())).thenReturn(googleCalendarApiService);
-		ErrorResp value =new ErrorResp();
+		ErrorResp value = new ErrorResp();
 		Error error = new Error();
 		error.setCode(404);
 		error.setMessage("Channel id not found for project id");
-		value.setError(error );
-		when(googleCalendarApiService.stopWatchEvent(any())).thenReturn(value );
+		value.setError(error);
+		when(googleCalendarApiService.stopWatchEvent(any())).thenReturn(value);
 		GoogleConnectStatusResponse response = disconnectHandler.handle(req);
-		assertEquals(response.isSucceeded(),true);
-	
+		assertEquals(response.isSucceeded(), true);
+
 	}
 }

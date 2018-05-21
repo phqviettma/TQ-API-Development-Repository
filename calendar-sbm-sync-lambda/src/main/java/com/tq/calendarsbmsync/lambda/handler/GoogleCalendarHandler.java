@@ -177,16 +177,15 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 							deleteEventHandler.handle(cancelledItems, googleCalendarSbmSync.getSbmId());
 
 						}
-
 						GCModifiedChannel modifiedItem = modifiedChannelService
-								.getChannel(googleCalendarSbmSync.getSbmId(), info.getGoogleChannelId());
+								.load(googleCalendarSbmSync.getGoogleCalendarId());
 						if (modifiedItem != null) {
-							if (modifiedItem.getCheckStatus() == 0 || modifiedItem.getCheckStatus() == -1) {
+							if (modifiedItem.getCheckingStatus() == 0 || modifiedItem.getCheckingStatus() == -1) {
 								long timeStamp = Calendar.getInstance().getTimeInMillis();
-								modifiedItem = new GCModifiedChannel(googleCalendarSbmSync.getSbmId(), 1, timeStamp,
-										info.getGoogleChannelId(), googleCalendarSbmSync.getEmail());
+								modifiedItem = new GCModifiedChannel(googleCalendarId, 1, timeStamp,
+										googleCalendarSbmSync.getEmail(), googleChannelId);
 								modifiedChannelService.put(modifiedItem);
-								m_log.info("Save to modified Table successfully" + modifiedItem);
+								m_log.info("Save to modified Table successfully" + modifiedItem.toString());
 							} else {
 								// do nothing
 							}

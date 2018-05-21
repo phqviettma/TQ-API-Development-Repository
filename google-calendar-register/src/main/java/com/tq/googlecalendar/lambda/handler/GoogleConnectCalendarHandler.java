@@ -117,23 +117,22 @@ public class GoogleConnectCalendarHandler implements Handler {
 								m_log.info("Watch calendar successfully with response: " + watchEventResp);
 								String refreshToken = req.getParams().getRefreshToken();
 								Long checkingTime = buildCheckingTime(watchEventResp.getExpiration());
-								GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync(sbmId, googleEmail,
-										sbmEmail, req.getParams().getLastName(), req.getParams().getFirstName(),
-										refreshToken, watchEventResp.getWatchResourceId(), googleCalendarId, channelId);
-
-								googleCalendarService.put(calendarSbm);
-								m_log.info("Added to database successfully " + calendarSbm.toString());
-
+								GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync(sbmId, sbmEmail,
+										googleCalendarId, req.getParams().getLastName(), req.getParams().getFirstName(),
+										refreshToken, googleEmail, watchEventResp.getWatchResourceId(),
+										watchEventResp.getId());
 								GoogleRenewChannelInfo channelInfo = new GoogleRenewChannelInfo(checkingTime,
 										watchEventResp.getExpiration(), refreshToken,
-										watchEventResp.getWatchResourceId(), googleEmail, lastQueryTime, channelId);
-								m_log.info("Channel info " + channelInfo.toString());
+										watchEventResp.getWatchResourceId(), lastQueryTime, channelId, googleEmail);
+								m_log.info("Added to database successfully " + channelInfo.toString());
+								long timeStamp = Calendar.getInstance().getTimeInMillis();
+								GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(googleCalendarId, -1,
+										timeStamp, sbmEmail, channelId);
+								googleCalendarService.put(calendarSbm);
+								m_log.info("Added to database successfully " + calendarSbm.toString());
 								googleCalRenewService.put(channelInfo);
 								m_log.info("Added to GoogleCalendarChannelInfo table successfully "
 										+ channelInfo.toString());
-								long timeStamp = Calendar.getInstance().getTimeInMillis();
-								GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(sbmId, -1, timeStamp,
-										channelId, sbmEmail);
 								calendarModifiedChannelService.put(modifiedChannelItem);
 							}
 							done = true;

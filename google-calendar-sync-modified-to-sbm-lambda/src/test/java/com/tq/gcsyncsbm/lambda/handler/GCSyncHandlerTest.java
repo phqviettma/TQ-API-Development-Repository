@@ -83,7 +83,7 @@ public class GCSyncHandlerTest {
 		sbmGoogleCalendar.setSbmId(24L);
 		when(sbmCalendarService.queryWithIndex(any())).thenReturn(sbmGoogleCalendar);
 		List<GCModifiedChannel> listModifiedItem = new ArrayList<>();
-		listModifiedItem.add(new GCModifiedChannel("2-4",1, 0));
+		listModifiedItem.add(new GCModifiedChannel());
 		when(modifiedChannelService.queryCheckStatusIndex()).thenReturn(listModifiedItem );
 		AwsProxyResponse response = handler.handleRequest(req, context);
 		assertEquals(200, response.getStatusCode());

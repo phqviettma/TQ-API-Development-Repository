@@ -18,8 +18,8 @@ public class GoogleCalendarDaoImpl extends AbstractItem<GoogleCalendarSbmSync, S
 
 	}
 
-	public GoogleCalendarSbmSync loadItem(String sbmId) {
-		return super.loadItem(sbmId);
+	public GoogleCalendarSbmSync loadItem(String googleCalendarId) {
+		return super.loadItem(googleCalendarId);
 	}
 
 	public List<GoogleCalendarSbmSync> queryEmail(String email) {

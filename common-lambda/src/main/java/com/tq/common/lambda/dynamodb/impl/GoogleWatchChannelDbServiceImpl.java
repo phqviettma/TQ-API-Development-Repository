@@ -20,7 +20,7 @@ public class GoogleWatchChannelDbServiceImpl implements GoogleCalRenewService {
 	}
 
 	@Override
-	public GoogleRenewChannelInfo load(Long key) {
+	public GoogleRenewChannelInfo load(String key) {
 
 		return googleWatchChannelDao.loadItem(key);
 	}
@@ -31,9 +31,9 @@ public class GoogleWatchChannelDbServiceImpl implements GoogleCalRenewService {
 	}
 
 	@Override
-	public List<GoogleRenewChannelInfo> queryItem(Long hashkey) {
+	public List<GoogleRenewChannelInfo> queryCheckingTime(Long hashkey) {
 
-		return googleWatchChannelDao.queryItem(hashkey);
+		return googleWatchChannelDao.queryCheckingTime(hashkey);
 	}
 
 	@Override
@@ -48,9 +48,9 @@ public class GoogleWatchChannelDbServiceImpl implements GoogleCalRenewService {
 	}
 
 	@Override
-	public GoogleRenewChannelInfo queryChannelId(String resourceId) {
+	public List<GoogleRenewChannelInfo> queryEmail(String sbmEmail) {
 
-		return googleWatchChannelDao.queryChannelId(resourceId);
+		return googleWatchChannelDao.querySbmEmail(sbmEmail);
 	}
 
 	@Override

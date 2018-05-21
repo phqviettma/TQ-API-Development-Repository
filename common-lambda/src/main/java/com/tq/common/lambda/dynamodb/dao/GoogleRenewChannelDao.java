@@ -5,14 +5,14 @@ import java.util.List;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
 import com.tq.common.lambda.dynamodb.service.GenericItem;
 
-public interface GoogleRenewChannelDao extends GenericItem<GoogleRenewChannelInfo, Long> {
+public interface GoogleRenewChannelDao extends GenericItem<GoogleRenewChannelInfo, String> {
 	GoogleRenewChannelInfo loadDbItem(Long hashKey, String rangeKey);
 
-	List<GoogleRenewChannelInfo> queryItem(Long hashkey);
+	List<GoogleRenewChannelInfo> queryCheckingTime(Long hashkey);
 
 	void saveItem(GoogleRenewChannelInfo channelInfo);
 
-	public GoogleRenewChannelInfo queryChannelId(String resourceId);
+	public List<GoogleRenewChannelInfo> querySbmEmail(String sbmEmail);
 
 	public void deleteChannelList(List<GoogleRenewChannelInfo> googleChannelInfo);
 }

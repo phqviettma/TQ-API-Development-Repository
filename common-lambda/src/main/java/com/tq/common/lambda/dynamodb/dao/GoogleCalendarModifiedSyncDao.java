@@ -10,8 +10,6 @@ public interface GoogleCalendarModifiedSyncDao extends GenericItem<GCModifiedCha
 
 	public List<GCModifiedChannel> queryIndexCheckStatus();
 
-	public void deleteItem(String hashKey);
-
 	void saveItem(GCModifiedChannel modifiedChannel);
 
 	public List<GCModifiedChannel> queryEmail(String email);

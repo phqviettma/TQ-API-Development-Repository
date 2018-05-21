@@ -129,10 +129,11 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					&& processedEventNum < m_env.getNumberEvent()) {
 				GCModifiedChannel modifiedItem = it.next();
 
-				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.load(modifiedItem.getChannelId());
+				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService
+						.load(modifiedItem.getChannelId());
 				if (googleCalendarSbmSync != null) {
 					String googleCalendarId = googleCalendarSbmSync.getGoogleCalendarId();
-				
+
 					TokenReq tokenReq = new TokenReq(m_env.getGoogleClientId(), m_env.getGoogleClientSecrets(),
 							googleCalendarSbmSync.getRefreshToken());
 					TokenResp token = tokenCalendarService.getToken(tokenReq);
@@ -155,8 +156,8 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 							GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
 							lastQueryTimeMin = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
 							timeMinQuery = true;
-						
-							eventList = googleApiService.getEventWithoutToken(maxResult,lastQueryTimeMin,GC_TIME_MIN ,
+
+							eventList = googleApiService.getEventWithoutToken(maxResult, lastQueryTimeMin, GC_TIME_MIN,
 									googleCalendarId);
 						} else {
 							if (nextPageToken != null) {
@@ -190,11 +191,11 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					}
 
 					if (!confirmedItems.isEmpty()) {
-						
+
 						createEventHandler.handle(confirmedItems, sbmId);
 					}
 					if (!cancelledItems.isEmpty()) {
-						
+
 						deleteEventHandler.handle(cancelledItems, sbmId);
 					}
 
@@ -221,13 +222,13 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 							googleCalendarSbmSync.setLastQueryTimeMin(lastQueryTimeMin);
 						}
 					}
-					
-					modifiedItem.setTimestamp(timeStamp);
-					
+
+					modifiedItem.setTimeStamp(timeStamp);
+
 					if (allEventsSynced) {
-						modifiedItem.setCheckStatus(0);
+						modifiedItem.setCheckingStatus(0);
 					}
-					
+
 					modifiedChannelService.put(modifiedItem);
 
 					if (isDbChanged) {

@@ -11,21 +11,20 @@ import com.tq.googlecalendar.service.GoogleCalendarApiService;
 public class GoogleCalendarUtil {
 	private static final Logger m_log = LoggerFactory.getLogger(GoogleCalendarUtil.class);
 
-	public static boolean stopWatchChannel(GoogleCalendarApiService googleApiService, StopWatchEventReq stopEventReq,
-			boolean flag) throws GoogleApiSDKException {
+	public static boolean stopWatchChannel(GoogleCalendarApiService googleApiService, StopWatchEventReq stopEventReq)
+			throws GoogleApiSDKException {
 
 		for (int i = 0; i <= 3; i++) {
 			ErrorResp errorResp = googleApiService.stopWatchEvent(stopEventReq);
 			if (errorResp != null) {
 				String errorMessage = errorResp.getError().getMessage();
 				if (errorMessage.contains("Channel") && errorMessage.contains("not found")) {
-					flag = true;
-					break;
+					return true;
 				} else {
 					m_log.info("Internal error");
 				}
 			}
 		}
-		return flag;
+		return false;
 	}
 }

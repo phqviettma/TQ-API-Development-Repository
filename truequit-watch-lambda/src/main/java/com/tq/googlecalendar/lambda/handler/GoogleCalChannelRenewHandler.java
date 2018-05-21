@@ -73,7 +73,7 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 		AwsProxyResponse resp = new AwsProxyResponse();
 		Long checkDay = buildCheckingTime();
 		m_log.info("Start running lambda ");
-		List<GoogleRenewChannelInfo> channelInfo = googleWatchChannelDbService.queryItem(checkDay);
+		List<GoogleRenewChannelInfo> channelInfo = googleWatchChannelDbService.queryCheckingTime(checkDay);
 		if (channelInfo.size() > 0) {
 			for (GoogleRenewChannelInfo item : channelInfo) {
 				try {
@@ -97,10 +97,10 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 
 	private void renewChannelAndCleanUpDb(GoogleRenewChannelInfo channel, StopWatchEventReq stopEventReq,
 			TokenResp tokenResp) throws GoogleApiSDKException {
-		boolean flag = false;
+
 		long start = System.currentTimeMillis();
 		GoogleCalendarApiService calendarApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
-		flag = GoogleCalendarUtil.stopWatchChannel(calendarApiService, stopEventReq, flag);
+		boolean flag = GoogleCalendarUtil.stopWatchChannel(calendarApiService, stopEventReq);
 		if (flag) {
 			Params params = new Params(PARAMS);
 			WatchEventReq watchReq = new WatchEventReq(channel.getChannelId(), CHANNEL_TYPE,
@@ -109,10 +109,9 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 			m_log.info("Watch channel successfully " + watchResp);
 			Long checkingTime = buildCheckingTime(watchResp.getExpiration());
 			Long lastQueryTime = buildLastCheckingTime();
-
 			GoogleRenewChannelInfo newChannelInfo = new GoogleRenewChannelInfo(checkingTime, watchResp.getExpiration(),
-					channel.getRefreshToken(), channel.getResourceId(), channel.getGoogleEmail(), lastQueryTime,
-					channel.getChannelId());
+					channel.getRefreshToken(), channel.getResourceId(), lastQueryTime, channel.getChannelId(),
+					channel.getGoogleEmail());
 			googleWatchChannelDbService.saveItem(newChannelInfo);
 			m_log.info("Save to database successfully " + newChannelInfo);
 			googleWatchChannelDbService.deleteItem(channel);

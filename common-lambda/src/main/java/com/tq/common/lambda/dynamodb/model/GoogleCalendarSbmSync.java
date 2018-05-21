@@ -44,7 +44,7 @@ public class GoogleCalendarSbmSync implements Serializable {
 		this.googleCalendarId = googleCalendarId;
 	}
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = "SbmIndex", attributeName = "sbmId")
+	@DynamoDBAttribute(attributeName = "sbmId")
 	public String getSbmId() {
 		return sbmId;
 	}
@@ -146,30 +146,16 @@ public class GoogleCalendarSbmSync implements Serializable {
 		this.gcWatchResourceId = gcResourceId;
 	}
 
-
-	public GoogleCalendarSbmSync(String sbmId, String googleEmail, String email, String lastname, String firstname,
-			String refreshToken, String nextSyncToken, String gcResourceId, String googleCalendarId, String channelId) {
+	public GoogleCalendarSbmSync(String sbmId, String email, String googleCalendarId, String lastname, String firstname,
+			String refreshToken, String googleEmail, String gcWatchResourceId, String channelId) {
 		this.sbmId = sbmId;
 		this.email = email;
-		this.lastname = lastname;
-		this.firstname = firstname;
-		this.refreshToken = refreshToken;
-		this.nextSyncToken = nextSyncToken;
-		this.googleEmail = googleEmail;
-		this.gcWatchResourceId = gcResourceId;
 		this.googleCalendarId = googleCalendarId;
-		this.channelId = channelId;
-	}
-	public GoogleCalendarSbmSync(String sbmId, String googleEmail, String email, String lastname, String firstname,
-			String refreshToken, String gcResourceId, String googleCalendarId, String channelId) {
-		this.sbmId = sbmId;
-		this.email = email;
 		this.lastname = lastname;
 		this.firstname = firstname;
 		this.refreshToken = refreshToken;
 		this.googleEmail = googleEmail;
-		this.gcWatchResourceId = gcResourceId;
-		this.googleCalendarId = googleCalendarId;
+		this.gcWatchResourceId = gcWatchResourceId;
 		this.channelId = channelId;
 	}
 
