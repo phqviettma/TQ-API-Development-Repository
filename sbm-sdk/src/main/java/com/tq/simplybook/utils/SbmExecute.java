@@ -47,7 +47,6 @@ public final class SbmExecute {
     public static <T extends Serializable> String executeWithUserToken(String companyLogin, String endpoint, String userToken,
             String method, T object) throws Exception {
         String json = getJsonRequest(method, object);
-        System.out.println(json);
         return invokeRequest(endpoint, json, new SbmHttpPostReq() {
             @Override
             public HttpPost buildPost(String endpoint) {
