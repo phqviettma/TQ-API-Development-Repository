@@ -39,8 +39,7 @@ public class GoogleCalChannelRenewHandlerTest {
 	public void testWatchHandler() throws GoogleApiSDKException {
 		AwsProxyRequest input = new AwsProxyRequest();
 		Context context = mock(Context.class);
-		GoogleRenewChannelInfo channelInfo = new GoogleRenewChannelInfo(1520553600000L, 1520671572000L, "2-4", "", "",
-				"suongpham53@gmail.com", null);
+		GoogleRenewChannelInfo channelInfo = new GoogleRenewChannelInfo();
 		when(googleWatchChannelDbService.load(any())).thenReturn(channelInfo);
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("accesstoken");

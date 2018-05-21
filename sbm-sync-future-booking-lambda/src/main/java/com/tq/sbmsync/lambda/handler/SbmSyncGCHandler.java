@@ -61,48 +61,52 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 	@Override
 	public LambdaStatusResponse handle(SbmSyncReq req) throws SbmSDKException, GoogleApiSDKException {
 		LambdaStatusResponse response = new LambdaStatusResponse();
-		GoogleCalendarSbmSync googleChannelInfo = googleCalendarService.query(req.getParams().getGoogleCalendarEmail());
-		if (googleChannelInfo != null) {
-			String sbmId[] = googleChannelInfo.getSbmId().split("-");
-			Integer unitId = Integer.valueOf(sbmId[1]);
-			Integer serviceId = Integer.valueOf(sbmId[0]);
-			String companyLogin = eVariables.getSimplyBookCompanyLogin();
-			String user = eVariables.getSimplyBookUser();
-			String password = eVariables.getSimplyBookPassword();
-			String loginEndPoint = eVariables.getSimplyBookServiceUrlLogin();
-			String endpoint = eVariables.getSimplyBookAdminServiceUrl();
-			String dateFrom = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
-			String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
-			GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY, unitId, serviceId);
-			List<GetBookingResp> bookingList = bookingSbmService.getBookings(companyLogin, endpoint, token,
-					getBookingReq);
-			Iterator<GetBookingResp> booking = bookingList.iterator();
-			while (booking.hasNext()) {
-				GetBookingResp bookingResp = booking.next();
-				TokenReq tokenReq = new TokenReq(eVariables.getGoogleClientId(), eVariables.getGoogleClientSecrets(),
-						googleChannelInfo.getRefreshToken());
-				TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-				GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(
-						tokenResp.getAccess_token());
-				GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-				String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
-				String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
-				Start start = new Start(sbmStartTime, settingInfo.getValue());
-				End end = new End(sbmEndTime, settingInfo.getValue());
-				List<Attendees> attendees = new ArrayList<>();
-				attendees.add(new Attendees(bookingResp.getClient_email(), bookingResp.getClient()));
-				EventReq eventReq = new EventReq(start, end, bookingResp.getEvent(), attendees,
-						eVariables.getGoogleCalendarEventName());
-				EventResp eventResp = googleApiService.createEvent(eventReq);
-				m_log.info("Create event successfully with value " + eventResp.toString());
-				SbmGoogleCalendar sbmGoogleCalendarSync = sbmGoogleCalendarService
-						.load(Long.parseLong(bookingResp.getId()));
-				if (sbmGoogleCalendarSync == null) {
-					sbmGoogleCalendarSync = new SbmGoogleCalendar(Long.parseLong(bookingResp.getId()),
-							eventResp.getId(), bookingResp.getClient_email(), 1, AGENT);
+		List<GoogleCalendarSbmSync> googleChannelInfo = googleCalendarService
+				.queryEmail(req.getParams().getEmail());
+		if (!googleChannelInfo.isEmpty()) {
+			for (GoogleCalendarSbmSync googleCalendarSbmSync : googleChannelInfo) {
+				String sbmId[] = googleCalendarSbmSync.getSbmId().split("-");
+				Integer unitId = Integer.valueOf(sbmId[1]);
+				Integer serviceId = Integer.valueOf(sbmId[0]);
+				String companyLogin = eVariables.getSimplyBookCompanyLogin();
+				String user = eVariables.getSimplyBookUser();
+				String password = eVariables.getSimplyBookPassword();
+				String loginEndPoint = eVariables.getSimplyBookServiceUrlLogin();
+				String endpoint = eVariables.getSimplyBookAdminServiceUrl();
+				String dateFrom = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+				String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
+				GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY, unitId, serviceId);
+				List<GetBookingResp> bookingList = bookingSbmService.getBookings(companyLogin, endpoint, token,
+						getBookingReq);
+				Iterator<GetBookingResp> booking = bookingList.iterator();
+				while (booking.hasNext()) {
+					GetBookingResp bookingResp = booking.next();
+					TokenReq tokenReq = new TokenReq(eVariables.getGoogleClientId(),
+							eVariables.getGoogleClientSecrets(), googleCalendarSbmSync.getRefreshToken());
+					TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
+					GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(
+							tokenResp.getAccess_token());
+					GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
+					String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
+					String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
+					Start start = new Start(sbmStartTime, settingInfo.getValue());
+					End end = new End(sbmEndTime, settingInfo.getValue());
+					List<Attendees> attendees = new ArrayList<>();
+					attendees.add(new Attendees(bookingResp.getClient_email(), bookingResp.getClient()));
+					EventReq eventReq = new EventReq(start, end, bookingResp.getEvent(), attendees,
+							eVariables.getGoogleCalendarEventName());
+					EventResp eventResp = googleApiService.createEvent(eventReq,
+							googleCalendarSbmSync.getGoogleCalendarId());
+					m_log.info("Create event successfully with value " + eventResp.toString());
+					SbmGoogleCalendar sbmGoogleCalendarSync = sbmGoogleCalendarService
+							.load(Long.parseLong(bookingResp.getId()));
+					if (sbmGoogleCalendarSync == null) {
+						sbmGoogleCalendarSync = new SbmGoogleCalendar(Long.parseLong(bookingResp.getId()),
+								eventResp.getId(), bookingResp.getClient_email(), 1, AGENT);
 
-					sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
-					m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
+						sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
+						m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
+					}
 				}
 			}
 		}

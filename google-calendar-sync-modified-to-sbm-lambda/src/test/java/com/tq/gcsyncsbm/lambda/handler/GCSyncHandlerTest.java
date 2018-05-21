@@ -66,9 +66,10 @@ public class GCSyncHandlerTest {
 		googleCalendarSbm.setSbmId("2-4");
 		googleCalendarSbm.setEmail("tmatesting@gmail.com");
 		googleCalendarSbm.setGoogleEmail("jayparkjay34@gmail.com");
-		googleCalendarSbm.setRefreshToken("");
-		googleCalendarSbm.setNextSyncToken("CPjh7vfKn9oCEPjh7vfKn9oCGAU=");
+		googleCalendarSbm.setRefreshToken("1/Y0U8LTsIDvN5s8AsDpUDJIUWsPv84w75HjQQla0zqiQ");
+		googleCalendarSbm.setNextSyncToken("-BLANK-");
 		googleCalendarSbm.setNextPageToken("-BLANK-");
+		googleCalendarSbm.setGoogleCalendarId("jayparkjay34@gmail.com");
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(496);
 		ContactItem contactItem = new ContactItem();
@@ -82,8 +83,8 @@ public class GCSyncHandlerTest {
 		sbmGoogleCalendar.setSbmId(24L);
 		when(sbmCalendarService.queryWithIndex(any())).thenReturn(sbmGoogleCalendar);
 		List<GCModifiedChannel> listModifiedItem = new ArrayList<>();
-		listModifiedItem.add(new GCModifiedChannel("2-4",1, 0));
-		when(modifiedChannelService.queryItem()).thenReturn(listModifiedItem );
+		listModifiedItem.add(new GCModifiedChannel());
+		when(modifiedChannelService.queryCheckStatusIndex()).thenReturn(listModifiedItem );
 		AwsProxyResponse response = handler.handleRequest(req, context);
 		assertEquals(200, response.getStatusCode());
 	}

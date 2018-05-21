@@ -7,32 +7,38 @@ import com.tq.googlecalendar.req.WatchEventReq;
 import com.tq.googlecalendar.resp.CalendarEvents;
 import com.tq.googlecalendar.resp.ErrorResp;
 import com.tq.googlecalendar.resp.EventResp;
+import com.tq.googlecalendar.resp.GoogleCalendarList;
 import com.tq.googlecalendar.resp.GoogleCalendarSettingsInfo;
 import com.tq.googlecalendar.resp.WatchEventResp;
 
 public interface GoogleCalendarApiService {
 
-	EventResp createEvent(EventReq events) throws GoogleApiSDKException;
+	EventResp createEvent(EventReq events,String googleCalendarId) throws GoogleApiSDKException;
 
-	boolean deleteEvent(String eventId) throws GoogleApiSDKException;
+	boolean deleteEvent(String eventId, String googleCalendarId) throws GoogleApiSDKException;
 
-	EventResp getEvent(String eventId) throws GoogleApiSDKException;
+	EventResp getEvent(String eventId, String googleCalendarId) throws GoogleApiSDKException;
 
-	WatchEventResp watchEvent(WatchEventReq req, String email) throws GoogleApiSDKException;
+	WatchEventResp watchEvent(WatchEventReq req, String googleCalendarId) throws GoogleApiSDKException;
 
-	CalendarEvents getEventWithNextPageToken(Integer maxResult, String syncToken, String pageToken)
+	CalendarEvents getEventWithNextPageToken(Integer maxResult, String syncToken, String pageToken,String googleCalendarId)
 			throws GoogleApiSDKException;
 
-	CalendarEvents getEventWithNextSyncToken(Integer maxResult, String syncToken) throws GoogleApiSDKException;
+	CalendarEvents getEventWithNextSyncToken(Integer maxResult, String syncToken,String googleCalendarId) throws GoogleApiSDKException;
 
-	CalendarEvents getEventWithoutToken(Integer maxResult, String query, String timeMin) throws GoogleApiSDKException;
+	CalendarEvents getEventWithoutToken(Integer maxResult, String query, String timeMin, String googleCalendarId) throws GoogleApiSDKException;
 
 	GoogleCalendarSettingsInfo getSettingInfo(String settingId) throws GoogleApiSDKException;
 
-	CalendarEvents getEventAtLastTime(Integer maxResult,String filterString, String lastQueryTimeMin, String nextPageToken)
- 			throws GoogleApiSDKException;
+	CalendarEvents getUpdatedEventWithPageToken(Integer maxResult, String lastQueryTimeMin,String nextPageToken,String googleCalendarId) throws GoogleApiSDKException;
 
 	ErrorResp stopWatchEvent(StopWatchEventReq stopEventReq) throws GoogleApiSDKException;
-	CalendarEvents queryEvent(Integer maxResult, String query, String time) throws GoogleApiSDKException;
+
+	CalendarEvents queryNewestEvent(Integer maxResult, String time, String googleCalendarId) throws GoogleApiSDKException;
+
+	CalendarEvents queryNextEventWithTimeMin(Integer maxResult, String timeMin, String nextPageToken, String googleCalendarId)
+			throws GoogleApiSDKException;
+	
+	GoogleCalendarList getListCalendar() throws GoogleApiSDKException;
 
 }

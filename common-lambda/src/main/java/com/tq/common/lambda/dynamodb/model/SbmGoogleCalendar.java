@@ -64,8 +64,6 @@ public class SbmGoogleCalendar implements Serializable {
 		this.googleEmail = googleEmail;
 	}
 
-
-
 	public SbmGoogleCalendar(Long sbmId, String eventId, String clientEmail, Integer flag, String checkKind) {
 
 		this.sbmId = sbmId;

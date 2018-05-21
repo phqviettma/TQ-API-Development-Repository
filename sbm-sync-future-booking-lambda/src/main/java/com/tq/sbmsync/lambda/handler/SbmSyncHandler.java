@@ -14,14 +14,17 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tq.common.lambda.dynamodb.dao.ClinikoCompanyInfoDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmClinikoSyncDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmGoogleCalendarSyncDaoImpl;
+import com.tq.common.lambda.dynamodb.impl.ClinikoCompanyInfoServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmClinikoSyncImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmGoogleCalendarServiceImpl;
+import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
@@ -54,6 +57,7 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 	private GoogleCalendarDbService googleCalendarDbService = null;
 	private TokenGoogleCalendarService tokenCalendarService = null;
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = null;
+	private ClinikoCompanyInfoService clinikoCompanyService = null;
 
 	public SbmSyncHandler() {
 		this.tokenService = new TokenServiceImpl();
@@ -67,16 +71,18 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 		this.tokenCalendarService = new TokenGoogleCalendarImpl();
 		this.sbmGoogleCalendarService = new SbmGoogleCalendarServiceImpl(
 				new SbmGoogleCalendarSyncDaoImpl(m_amazonDynamoDB));
+		this.clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
 		this.sbmSyncClinikoHandler = new SbmSyncClinikoHandler(clinikoSyncService, bookingService, tokenService, env,
-				sbmClinikoSyncService);
+				sbmClinikoSyncService, clinikoCompanyService);
 		this.sbmSyncGCHandler = new SbmSyncGCHandler(googleCalendarDbService, env, bookingService, tokenService,
 				tokenCalendarService, sbmGoogleCalendarService);
 	}
 
 	// for testing only
-	SbmSyncHandler(Env env,ClinikoSyncToSbmService clinikoSyncService, TokenServiceSbm tokenService,
+	SbmSyncHandler(Env env, ClinikoSyncToSbmService clinikoSyncService, TokenServiceSbm tokenService,
 			SbmClinikoSyncService sbmClinikoSyncService, GoogleCalendarDbService googleCalendarDbService,
-			TokenGoogleCalendarService tokenCalendarService, SbmGoogleCalendarDbService sbmGoogleCalendarService,SbmSyncClinikoHandler clinikoHandler, SbmSyncGCHandler gcHandler) {
+			TokenGoogleCalendarService tokenCalendarService, SbmGoogleCalendarDbService sbmGoogleCalendarService,
+			SbmSyncClinikoHandler clinikoHandler, SbmSyncGCHandler gcHandler) {
 		this.env = env;
 		this.tokenService = tokenService;
 		this.sbmClinikoSyncService = sbmClinikoSyncService;
@@ -85,7 +91,7 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 		this.sbmGoogleCalendarService = sbmGoogleCalendarService;
 		this.sbmSyncGCHandler = gcHandler;
 		this.sbmSyncClinikoHandler = clinikoHandler;
-		
+
 	}
 
 	@Override

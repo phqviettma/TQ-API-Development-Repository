@@ -9,9 +9,13 @@ public interface GoogleCalendarModifiedSyncService extends BaseItemService<GCMod
 
 	public void delete(GCModifiedChannel modifiedChannel);
 
-	public List<GCModifiedChannel> queryItem();
-
-	public void deleteDynamoItem(String hashKey);
+	public List<GCModifiedChannel> queryCheckStatusIndex();
 
 	public void saveItem(GCModifiedChannel modifiedChannel);
+
+	public List<GCModifiedChannel> queryEmail(String email);
+
+	public void deleteModifiedItem(List<GCModifiedChannel> gcModified);
+
+	public GCModifiedChannel getChannel(String hashKey, String rangeKey);
 }

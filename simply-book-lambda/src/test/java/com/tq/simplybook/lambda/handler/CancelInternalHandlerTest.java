@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
@@ -38,7 +37,7 @@ public class CancelInternalHandlerTest {
 	SbmClinikoSyncService scs = mock(SbmClinikoSyncService.class);
 	SbmGoogleCalendarDbService sbmGoogleService = mock(SbmGoogleCalendarDbService.class);
 	GoogleCalendarDbService googleCalendarService = mock(GoogleCalendarDbService.class);
-	ClinikoAppointmentService cas = new ClinikiAppointmentServiceImpl(env.getClinikoApiKey());
+	ClinikoAppointmentService cas = mock(ClinikoAppointmentService.class);
 	TokenGoogleCalendarImpl tokenCalendarService = new TokenGoogleCalendarImpl();
 	ClinikoSyncToSbmService clinikoSyncToSbmService = mock(ClinikoSyncToSbmService.class);
 

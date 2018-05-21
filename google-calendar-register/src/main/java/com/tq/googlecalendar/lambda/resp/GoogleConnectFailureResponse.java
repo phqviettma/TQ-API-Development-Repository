@@ -1,4 +1,4 @@
-package com.tq.googlecalendar.lambda.model;
+package com.tq.googlecalendar.lambda.resp;
 
 import java.io.Serializable;
 

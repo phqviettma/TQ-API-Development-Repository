@@ -12,33 +12,34 @@ import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.service.AbstractItem;
 
 public class GoogleCalendarDaoImpl extends AbstractItem<GoogleCalendarSbmSync, String> implements GoogleCalendarDao {
-	
+
 	public GoogleCalendarDaoImpl(AmazonDynamoDB client) {
 		super(client, GoogleCalendarSbmSync.class);
 
 	}
-	
-	public GoogleCalendarSbmSync loadItem(String sbmId) {
-		return super.loadItem(sbmId);
+
+	public GoogleCalendarSbmSync loadItem(String googleCalendarId) {
+		return super.loadItem(googleCalendarId);
 	}
-	
-	public GoogleCalendarSbmSync queryIndex(String email) {
-		Map<String, AttributeValue>queryCondition = new HashMap<String, AttributeValue>();
+
+	public List<GoogleCalendarSbmSync> queryEmail(String email) {
+		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
 		queryCondition.put(":email", new AttributeValue().withS(email));
-		
-		DynamoDBQueryExpression<GoogleCalendarSbmSync>queryExpression  = new DynamoDBQueryExpression<GoogleCalendarSbmSync>()
-				.withIndexName("Email-Index").withKeyConditionExpression("email=:email").withExpressionAttributeValues(queryCondition).withConsistentRead(false);
+
+		DynamoDBQueryExpression<GoogleCalendarSbmSync> queryExpression = new DynamoDBQueryExpression<GoogleCalendarSbmSync>()
+				.withIndexName("Email-Index").withKeyConditionExpression("email=:email")
+				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
 		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
 		List<GoogleCalendarSbmSync> calendarSbmSync = mapper.query(GoogleCalendarSbmSync.class, queryExpression);
-		
-		if(calendarSbmSync.size()>0) {
-			return calendarSbmSync.get(0);
-		}
-		else 
-		{
-			return null;
-			
-		}
+
+		return calendarSbmSync;
+	}
+
+	@Override
+	public void deleteGoogleItem(List<GoogleCalendarSbmSync> googleItem) {
+		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
+		mapper.batchDelete(googleItem);
+
 	}
 
 }

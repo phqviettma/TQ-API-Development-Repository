@@ -15,15 +15,16 @@ public class GoogleCalendarSbmSync implements Serializable {
 	private static final long serialVersionUID = 3130527856173772507L;
 	private String sbmId;
 	private String email;
+	private String googleCalendarId;
 	private String lastname;
 	private String firstname;
-	private String accessToken;
 	private String refreshToken;
 	private String nextSyncToken;
 	private String googleEmail;
 	private String nextPageToken;
 	private String gcWatchResourceId;
 	private String lastQueryTimeMin;
+	private String channelId;
 
 	@DynamoDBAttribute(attributeName = "gcWatchResourceId")
 	public String getGcWatchResourceId() {
@@ -34,7 +35,16 @@ public class GoogleCalendarSbmSync implements Serializable {
 		this.gcWatchResourceId = resourceId;
 	}
 
-	@DynamoDBHashKey(attributeName = "sbmId")
+	@DynamoDBAttribute(attributeName = "googleCalendarId")
+	public String getGoogleCalendarId() {
+		return googleCalendarId;
+	}
+
+	public void setGoogleCalendarId(String googleCalendarId) {
+		this.googleCalendarId = googleCalendarId;
+	}
+
+	@DynamoDBAttribute(attributeName = "sbmId")
 	public String getSbmId() {
 		return sbmId;
 	}
@@ -62,6 +72,15 @@ public class GoogleCalendarSbmSync implements Serializable {
 		return nextPageToken;
 	}
 
+	@DynamoDBHashKey(attributeName = "channelId")
+	public String getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
 	public void setNextPageToken(String nextPageToken) {
 		this.nextPageToken = nextPageToken;
 	}
@@ -86,15 +105,6 @@ public class GoogleCalendarSbmSync implements Serializable {
 
 	public void setFirstname(String firstname) {
 		this.firstname = firstname;
-	}
-
-	@DynamoDBAttribute(attributeName = "accessToken")
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
 	}
 
 	@DynamoDBAttribute(attributeName = "refreshToken")
@@ -125,16 +135,28 @@ public class GoogleCalendarSbmSync implements Serializable {
 	}
 
 	public GoogleCalendarSbmSync(String sbmId, String googleEmail, String email, String lastname, String firstname,
-			String accessToken, String refreshToken, String nextSyncToken, String gcResourceId) {
+			String refreshToken, String nextSyncToken, String gcResourceId) {
 		this.sbmId = sbmId;
 		this.email = email;
 		this.lastname = lastname;
 		this.firstname = firstname;
-		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.nextSyncToken = nextSyncToken;
 		this.googleEmail = googleEmail;
 		this.gcWatchResourceId = gcResourceId;
+	}
+
+	public GoogleCalendarSbmSync(String sbmId, String email, String googleCalendarId, String lastname, String firstname,
+			String refreshToken, String googleEmail, String gcWatchResourceId, String channelId) {
+		this.sbmId = sbmId;
+		this.email = email;
+		this.googleCalendarId = googleCalendarId;
+		this.lastname = lastname;
+		this.firstname = firstname;
+		this.refreshToken = refreshToken;
+		this.googleEmail = googleEmail;
+		this.gcWatchResourceId = gcWatchResourceId;
+		this.channelId = channelId;
 	}
 
 	public GoogleCalendarSbmSync() {
@@ -143,10 +165,11 @@ public class GoogleCalendarSbmSync implements Serializable {
 
 	@Override
 	public String toString() {
-		return "GoogleCalendarSbmSync [sbmId=" + sbmId + ", email=" + email + ", lastname=" + lastname + ", firstname="
-				+ firstname + ", accessToken=" + accessToken + ", refreshToken=" + refreshToken + ", nextSyncToken="
-				+ nextSyncToken + ", googleEmail=" + googleEmail + ", nextPageToken=" + nextPageToken
-				+ ", gcWatchResourceId=" + gcWatchResourceId + ", lastQueryTimeMin=" + lastQueryTimeMin + "]";
+		return "GoogleCalendarSbmSync [sbmId=" + sbmId + ", email=" + email + ", googleCalendarId=" + googleCalendarId
+				+ ", lastname=" + lastname + ", firstname=" + firstname + ", refreshToken=" + refreshToken
+				+ ", nextSyncToken=" + nextSyncToken + ", googleEmail=" + googleEmail + ", nextPageToken="
+				+ nextPageToken + ", gcWatchResourceId=" + gcWatchResourceId + ", lastQueryTimeMin=" + lastQueryTimeMin
+				+ "]";
 	}
 
 }

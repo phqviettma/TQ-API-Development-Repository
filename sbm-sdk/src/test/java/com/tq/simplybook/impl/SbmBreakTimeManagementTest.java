@@ -77,7 +77,7 @@ public class SbmBreakTimeManagementTest {
 		HashSet<WorkTimeSlot> workTimeSlot = new HashSet<WorkTimeSlot>();
 		workTimeSlot.add(new WorkTimeSlot("10:00:00", "11:00:00"));
 		Set<Breaktime> actuaBreakTimes = SbmBreakTimeManagement.removeBreakTime("09:00:00", "18:00:00",
-				removedBreakTime, workTimeSlot, false);
+				removedBreakTime, workTimeSlot);
 		actuaBreakTimes.contains(new Breaktime("11:00", "18:00"));
 		assertEquals(1, actuaBreakTimes.size());
 	}

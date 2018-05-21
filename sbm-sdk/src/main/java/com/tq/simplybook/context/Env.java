@@ -29,13 +29,6 @@ public class Env {
 	private String simplyBookPassword = new String(System.getenv("SIMPLY_BOOK_PASSWORD"));
 	private String simplyBookApiKey = new String(System.getenv("SIMPLY_BOOK_API_KEY"));
 	private String simplyBookSecretKey = new String(System.getenv("SIMPLY_BOOK_SECRET_KEY"));
-	private String clinikoApiKey = new String(System.getenv("CLINIKO_API_KEY"));
-	private String SBM_CLINIKO_MAPPING_1 = new String(System.getenv("SBM_CLINIKO_MAPPING_1"));
-	private Integer clinikoPatientId = Integer.valueOf(System.getenv("CLINIKO_PATIENT_ID"));
-	private Integer cliniko_standard_appointment = Integer.valueOf(System.getenv("CLINIKO_STANDARD_APPOINTMENT"));
-	private String cliniko_start_time = new String(System.getenv("CLINIKO_START_TIME"));
-	private String cliniko_end_time = new String(System.getenv("CLINIKO_END_TIME"));
-
 	private String googleClientId = new String(System.getenv("GOOGLE_CLIENT_ID"));
 	private String googleClientSecrets = new String(System.getenv("GOOGLE_CLIENT_SECRETS"));
 	private String googleCalendarEventName = new String(System.getenv("GOOGLE_CALENDAR_EVENT_NAME"));
@@ -61,12 +54,6 @@ public class Env {
 		assertVar(simplyBookPassword, "SIMPLY_BOOK_PASSWORD");
 		assertVar(simplyBookApiKey, "SIMPLY_BOOK_API_KEY");
 		assertVar(simplyBookSecretKey, "SIMPLY_BOOK_SECRET_KEY");
-		assertVar("clinikoApiKey", "CLINIKO_API_KEY");
-		assertVar("SBM_CLINIKO_MAPPING_1", "SBM_CLINIKO_MAPPING_1");
-		assertVar("clinikoPatientId", "CLINIKO_PATIENT_ID");
-		assertVar("cliniko_standard_appointment", "CLINIKO_STANDARD_APPOINTMENT");
-		assertVar("cliniko_start_time", "CLINIKO_START_TIME");
-		assertVar("cliniko_end_time", "CLINIKO_END_TIME");
 		assertVar(googleClientId, "GOOGLE_CLIENT_ID");
 		assertVar(googleClientSecrets, "GOOGLE_CLIENT_SECRETS");
 		assertVar(infusionsoftGoogleDeleteTag, "INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG");
@@ -139,9 +126,6 @@ public class Env {
 		return infusionsoftGoogleDeleteTag;
 	}
 
-	public Integer getClinikoPatientId() {
-		return Integer.valueOf(clinikoPatientId);
-	}
 
 	public Integer getInfusionSoftCancelAppliedTag() {
 		return Integer.valueOf(infusionSoftCancelAppliedTag);
@@ -169,10 +153,6 @@ public class Env {
 
 	public String getSimplyBookServiceUrlLogin() {
 		return simplyBookServiceUrlLogin;
-	}
-
-	public String getSBM_CLINIKO_MAPPING_1() {
-		return SBM_CLINIKO_MAPPING_1;
 	}
 
 	public String getSimplyBookAdminServiceUrl() {
@@ -207,21 +187,6 @@ public class Env {
 		return simplyBookSecretKey;
 	}
 
-	public String getClinikoApiKey() {
-		return clinikoApiKey;
-	}
-
-	public Integer getCliniko_standard_appointment() {
-		return Integer.valueOf(cliniko_standard_appointment);
-	}
-
-	public String getCliniko_start_time() {
-		return cliniko_start_time;
-	}
-
-	public String getCliniko_end_time() {
-		return cliniko_end_time;
-	}
 
 	public Map<String, String> getAllEnvVariables() {
 		return System.getenv();

@@ -251,7 +251,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 				Long timeStamp = Calendar.getInstance().getTimeInMillis();
 				clinikoItem.setTimeStamp(timeStamp);
 				clinikoItem.setLatestTime(latestUpdateTime);
-				clinikoItemService.put(clinikoItem); 
+				clinikoItemService.put(clinikoItem);
 				break;
 			}
 		} catch (ClinikoSDKExeption | SbmSDKException e) {
@@ -428,7 +428,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 				} else {
 					m_sbtm.removeBreakTime(env.getSimplyBookCompanyLogin(), env.getSimplyBookAdminServiceUrl(), token,
 							unitId, eventId, workingTime.getStart_time(), workingTime.getEnd_time(), date, breakTimes,
-							workDayInfoMapForUnitId, true);
+							workDayInfoMapForUnitId);
 				}
 			}
 

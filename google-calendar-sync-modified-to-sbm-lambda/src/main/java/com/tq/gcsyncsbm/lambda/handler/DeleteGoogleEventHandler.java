@@ -190,7 +190,7 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 				if (!breakTimes.isEmpty()) {
 					sbmBreakTimeManagement.removeBreakTime(enV.getSimplyBookCompanyLogin(),
 							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId, workingTime.getStart_time(),
-							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId, false);
+							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId);
 				}
 				List<SbmGoogleCalendar> sbmGoogleCalendarList = dateToSbmBreakTime.getValue().sbmGoogleCalendar;
 				long start = System.currentTimeMillis();

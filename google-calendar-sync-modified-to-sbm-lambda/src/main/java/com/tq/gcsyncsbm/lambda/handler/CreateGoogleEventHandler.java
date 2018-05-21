@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
-import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
 import com.tq.googlecalendar.resp.Items;
+import com.tq.googlecalendar.time.TimeUtils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
@@ -137,7 +137,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 						breakTimes, workDayInfoMapForUnitId);
 			}
 
-			List<Items> googleEvents = entry.getValue().geventList;
+			List<Items> googleEvents = entry.getValue().googleEvents;
 			for (Items googleEvent : googleEvents) {
 				UUID uuid = UUID.randomUUID();
 				long bookingId = uuid.getMostSignificantBits();

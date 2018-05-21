@@ -15,8 +15,10 @@ import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
+import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
+import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.response.LambdaStatusResponse;
@@ -37,17 +39,19 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 	private static final Logger m_log = LoggerFactory.getLogger(SbmSyncClinikoHandler.class);
 	private static final String BOOKING_TYPE = "non_cancelled";
 	private static final String ORDER_BY = "start_date";
-	private static final String AGENT ="sbm";
+	private static final String AGENT = "sbm";
 	private SbmClinikoSyncService sbmClinikoService = null;
+	private ClinikoCompanyInfoService clinikoCompanyService = null;
 
 	public SbmSyncClinikoHandler(ClinikoSyncToSbmService clinikoSyncDBService, BookingServiceSbmImpl bookingSbmService,
-			TokenServiceSbm tokenServiceSbm, Env eVariables, SbmClinikoSyncService sbmClinikoService) {
+			TokenServiceSbm tokenServiceSbm, Env eVariables, SbmClinikoSyncService sbmClinikoService,
+			ClinikoCompanyInfoService clinikoCompanyService) {
 		this.clinikoSyncDBService = clinikoSyncDBService;
 		this.bookingSbmService = bookingSbmService;
 		this.tokenServiceSbm = tokenServiceSbm;
 		this.eVariables = eVariables;
 		this.sbmClinikoService = sbmClinikoService;
-
+		this.clinikoCompanyService = clinikoCompanyService;
 	}
 
 	@Override
@@ -68,34 +72,37 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 			String endpoint = eVariables.getSimplyBookAdminServiceUrl();
 			String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
 			String dateFrom = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+			ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(bussinessId);
 			ClinikoAppointmentService clinikoApptService = new ClinikiAppointmentServiceImpl(
 					clinikoSbmSync.getApiKey());
 			GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY, unitId, eventId);
 			List<GetBookingResp> bookingList = bookingSbmService.getBookings(companyLogin, endpoint, token,
 					getBookingReq);
 			Iterator<GetBookingResp> booking = bookingList.iterator();
-			while (booking.hasNext()) {
-				GetBookingResp bookingResp = booking.next();
-				Settings settings = clinikoApptService.getAllSettings();
-				String country = settings.getAccount().getCountry();
-				String time_zone = settings.getAccount().getTime_zone();
-				DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
-				String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
-				String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
-				DateTime start_time = new DateTime(sbmStartTime, timeZone);
-				DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
-				DateTime endTime = new DateTime(sbmEndTime, timeZone);
-				DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
-				AppointmentInfo result = clinikoApptService.createAppointment(new AppointmentInfo(
-						clinikoStartTime.toString(), clinikoEndTime.toString(), eVariables.getClinikoPatientId(),
-						practitionerId, eVariables.getCliniko_standard_appointment(), bussinessId));
-				m_log.info("Create appointment successfully" + result.toString());
-				SbmCliniko sbmCliniko = sbmClinikoService.load(Long.parseLong(bookingResp.getId()));
-				if (sbmCliniko == null) {
-					sbmCliniko = new SbmCliniko(Long.parseLong(bookingResp.getId()), result.getId(), 1,
-							req.getParams().getClinikoApiKey(), AGENT);
-					sbmClinikoService.put(sbmCliniko);
-					m_log.info("Save to database successfully " + sbmCliniko);
+			if (clinikoCompanyInfo != null) {
+				while (booking.hasNext()) {
+					GetBookingResp bookingResp = booking.next();
+					Settings settings = clinikoApptService.getAllSettings();
+					String country = settings.getAccount().getCountry();
+					String time_zone = settings.getAccount().getTime_zone();
+					DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
+					String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
+					String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
+					DateTime start_time = new DateTime(sbmStartTime, timeZone);
+					DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
+					DateTime endTime = new DateTime(sbmEndTime, timeZone);
+					DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
+					AppointmentInfo result = clinikoApptService.createAppointment(new AppointmentInfo(
+							clinikoStartTime.toString(), clinikoEndTime.toString(), clinikoCompanyInfo.getPatientId(),
+							practitionerId,clinikoCompanyInfo.getAppointmentType(), bussinessId));
+					m_log.info("Create appointment successfully" + result.toString());
+					SbmCliniko sbmCliniko = sbmClinikoService.load(Long.parseLong(bookingResp.getId()));
+					if (sbmCliniko == null) {
+						sbmCliniko = new SbmCliniko(Long.parseLong(bookingResp.getId()), result.getId(), 1,
+								req.getParams().getClinikoApiKey(), AGENT);
+						sbmClinikoService.put(sbmCliniko);
+						m_log.info("Save to database successfully " + sbmCliniko);
+					}
 				}
 			}
 		}

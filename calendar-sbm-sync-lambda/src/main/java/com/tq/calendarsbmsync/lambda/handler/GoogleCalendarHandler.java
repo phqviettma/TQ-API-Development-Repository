@@ -1,7 +1,6 @@
 package com.tq.calendarsbmsync.lambda.handler;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -35,6 +34,7 @@ import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.common.lambda.utils.TimeUtils;
+import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.req.TokenReq;
@@ -46,7 +46,6 @@ import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
-import com.tq.simplybook.context.Env;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
@@ -76,7 +75,6 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private SbmUnitService unitService = null;
 	private GoogleCalendarModifiedSyncService modifiedChannelService = null;
-	private static final String GC_UPDATE_TIME = "updatedMin";
 
 	public GoogleCalendarHandler() {
 		this.m_env = Env.load();
@@ -123,11 +121,12 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 
 		if (info != null) {
 			String googleState = info.getGoogleResourceState();
-			String sbmId = info.getGoogleChannelId();
+			String googleChannelId = info.getGoogleChannelId();
 
 			try {
-				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.load(sbmId);
+				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.load(googleChannelId);
 				if (googleCalendarSbmSync != null) {
+					String googleCalendarId = googleCalendarSbmSync.getGoogleCalendarId();
 					TokenReq tokenReq = new TokenReq(m_env.getGoogleClientId(), m_env.getGoogleClientSecrets(),
 							googleCalendarSbmSync.getRefreshToken());
 					TokenResp token = tokenCalendarService.getToken(tokenReq);
@@ -138,33 +137,22 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						List<Items> confirmedItems = new ArrayList<>();
 						List<Items> cancelledItems = new ArrayList<>();
 						CalendarEvents eventList = null;
-						String nextSyncToken = googleCalendarSbmSync.getNextSyncToken();
 						String nextPageToken = googleCalendarSbmSync.getNextPageToken();
 						String lastQueryTimeMin = googleCalendarSbmSync.getLastQueryTimeMin();
 						String updateTime = null;
-						if ("-BLANK-".equals(nextSyncToken)) {
-							if (lastQueryTimeMin == null) {
-								String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
-										.format(Calendar.getInstance().getTime());
-								GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-								updateTime = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
-														eventList = googleApiService.queryEvent(maxResult, GC_UPDATE_TIME, updateTime);
-							} else {
-								if (!"-BLANK-".equals(nextPageToken)) {
-									eventList = googleApiService.getEventAtLastTime(maxResult,GC_UPDATE_TIME, lastQueryTimeMin,
- 											nextPageToken);
-								} else {
-									throw new TrueQuitBadRequest(
-											"Illegal state, LastQueryTimeMin is set while NextPageToken is unset");
-								}
-							}
+						if (lastQueryTimeMin == null) {
+							String currentTime = TimeUtils.getPreviousTime();
+							GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
+							updateTime = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
+							eventList = googleApiService.queryNewestEvent(maxResult, updateTime, googleCalendarId);
 						} else {
-							if ("-BLANK-".equals(nextPageToken)) {
-								eventList = googleApiService.getEventAtLastTime(maxResult,GC_UPDATE_TIME, lastQueryTimeMin,
-											nextPageToken);
+							if (nextPageToken != null) {
+
+								eventList = googleApiService.getUpdatedEventWithPageToken(maxResult, lastQueryTimeMin,
+										nextPageToken, googleCalendarId);
 							} else {
-								eventList = googleApiService.getEventWithNextPageToken(maxResult, nextSyncToken,
-										nextPageToken);
+								throw new TrueQuitBadRequest(
+										"Illegal state, LastQueryTimeMin is set while NextPageToken is unset");
 							}
 						}
 
@@ -182,21 +170,22 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						}
 
 						if (!confirmedItems.isEmpty()) {
-							createEventHandler.handle(confirmedItems, sbmId);
+							createEventHandler.handle(confirmedItems, googleCalendarSbmSync.getSbmId());
 						}
 						if (!cancelledItems.isEmpty()) {
 
-							deleteEventHandler.handle(cancelledItems, sbmId);
+							deleteEventHandler.handle(cancelledItems, googleCalendarSbmSync.getSbmId());
 
 						}
-
-						GCModifiedChannel modifiedItem = modifiedChannelService.load(sbmId);
+						GCModifiedChannel modifiedItem = modifiedChannelService
+								.load(googleCalendarSbmSync.getGoogleCalendarId());
 						if (modifiedItem != null) {
-							if (modifiedItem.getCheckStatus() == 0 || modifiedItem.getCheckStatus() == -1) {
+							if (modifiedItem.getCheckingStatus() == 0 || modifiedItem.getCheckingStatus() == -1) {
 								long timeStamp = Calendar.getInstance().getTimeInMillis();
-								modifiedItem = new GCModifiedChannel(sbmId, 1, timeStamp);
+								modifiedItem = new GCModifiedChannel(googleCalendarId, 1, timeStamp,
+										googleCalendarSbmSync.getEmail(), googleChannelId);
 								modifiedChannelService.put(modifiedItem);
-								m_log.info("Save to modified Table successfully" + modifiedItem);
+								m_log.info("Save to modified Table successfully" + modifiedItem.toString());
 							} else {
 								// do nothing
 							}
@@ -207,7 +196,8 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						m_log.info("Not handle this");
 					}
 				} else {
-					m_log.info("Channel Id " + sbmId + " is not in service, ignored the notification");
+					m_log.info(
+							"Channel Id " + info.getGoogleChannelId() + " is not in service, ignored the notification");
 				}
 			} catch (Exception e) {
 				resp.setStatusCode(500);

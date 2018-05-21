@@ -23,11 +23,6 @@ public class MockUtil {
 		when(env.getInfusionSoftAppointmentInstructionField()).thenReturn("_AppointmentInstructions");
 		when(env.getInfusionSoftCreateAppliedTag()).thenReturn(639);
 		when(env.getInfusionSoftCancelAppliedTag()).thenReturn(643);
-		when(env.getClinikoApiKey()).thenReturn("");
-		when(env.getCliniko_standard_appointment()).thenReturn(270071);
-		when(env.getClinikoPatientId()).thenReturn(47508555);
-		when(env.getCliniko_end_time()).thenReturn("18:00");
-		when(env.getCliniko_start_time()).thenReturn("09:00");
 		when(env.getInfusionftAppointmentDate()).thenReturn("_AppointmentDate2");
 		when(env.getInfusionsoftPractitionerFirstName()).thenReturn("_PractitionerFirstName");
 		when(env.getInfusionsoftPractitionerFirstName()).thenReturn("_PractitionerLastName");

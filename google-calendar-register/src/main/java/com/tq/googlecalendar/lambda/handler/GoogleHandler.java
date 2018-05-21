@@ -27,14 +27,14 @@ import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
-import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.lambda.exception.GoogleExceptionHanlder;
-import com.tq.googlecalendar.lambda.model.GoogleConnectFailureResponse;
 import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
+import com.tq.googlecalendar.lambda.resp.GoogleConnectFailureResponse;
+import com.tq.googlecalendar.lambda.resp.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
@@ -46,6 +46,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	private static final String CHECK = "check";
 	private static final String CONNECT = "connect";
 	private static final String DISCONNECT = "disconnect";
+	private static final String SHOW_CALENDAR = "show";
 	private static final Logger m_log = LoggerFactory.getLogger(GoogleHandler.class);
 	private static ObjectMapper jsonMapper = new ObjectMapper();
 	private SbmUnitService sbmUnitService = null;
@@ -61,6 +62,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	private Handler connectHandler = null;
 	private Handler disconnectHandler = null;
 	private Handler checkStatusHandler = null;
+	private Handler showCalendarHandler = null;
 
 	public GoogleHandler() {
 
@@ -71,26 +73,28 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 				eVariables.getAwsSecretAccessKey());
 		;
 		this.googleCalendarService = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(amazonDynamoDB));
-		this.calendarModifiedChannelService = new GoogleCalendarModifiedSyncServiceImpl(new GoogleCalendarModifiedSynDaoImpl(amazonDynamoDB));
+		this.calendarModifiedChannelService = new GoogleCalendarModifiedSyncServiceImpl(
+				new GoogleCalendarModifiedSynDaoImpl(amazonDynamoDB));
 		this.tokenCalendarService = new TokenGoogleCalendarImpl();
 		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.contactItemService = new ContactItemServiceImpl(new ContactItemDaoImpl(amazonDynamoDB));
 		this.googleWatchChannelDbService = new GoogleWatchChannelDbServiceImpl(
 				new GoogleRenewChannelDaoImpl(amazonDynamoDB));
-		this.connectHandler = new GoogleConnectCalendarHandler(eVariables, googleCalendarService, contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm, apiServiceBuilder,
-				googleWatchChannelDbService, calendarModifiedChannelService);
-
+		this.connectHandler = new GoogleConnectCalendarHandler(eVariables, googleCalendarService, contactItemService,
+				tokenCalendarService, sbmUnitService, tokenServiceSbm, apiServiceBuilder, googleWatchChannelDbService,
+				calendarModifiedChannelService);
 		this.disconnectHandler = new GoogleDisconnectCalendarHandler(eVariables, googleCalendarService,
 				tokenCalendarService, apiServiceBuilder, googleWatchChannelDbService, calendarModifiedChannelService);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
+		this.showCalendarHandler = new ShowGoogleCalendarHandler(tokenCalendarService, eVariables);
 
 	}
 
 	// for testing only
 	GoogleHandler(Env env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
-			GoogleCalendarDbService calendarService,
-			ContactItemService contactItemService, GoogleConnectCalendarHandler connectHandler,
-			GoogleCalendarCheckStatusHandler checkHandler, GoogleDisconnectCalendarHandler disconnectHandler) {
+			GoogleCalendarDbService calendarService, ContactItemService contactItemService,
+			GoogleConnectCalendarHandler connectHandler, GoogleCalendarCheckStatusHandler checkHandler,
+			GoogleDisconnectCalendarHandler disconnectHandler) {
 		this.amazonDynamoDB = db;
 		this.sbmUnitService = unitService;
 		this.tokenServiceSbm = tokenService;
@@ -110,11 +114,13 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("content-Type", "application/json");
 		resp.setHeaders(headers);
-		LambdaStatusResponse response = new LambdaStatusResponse();
+		GoogleConnectStatusResponse response = new GoogleConnectStatusResponse();
 		try {
 			if (CHECK.equals(req.getAction())) {
 				response = checkStatusHandler.handle(req);
 
+			} else if (SHOW_CALENDAR.equals(req.getAction())) {
+				response = showCalendarHandler.handle(req);
 			} else if (CONNECT.equals(req.getAction())) {
 				response = connectHandler.handle(req);
 
@@ -152,7 +158,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		return req;
 	}
 
-	private static String buildResponse(LambdaStatusResponse response) {
+	private static String buildResponse(GoogleConnectStatusResponse response) {
 		String jsonResp = null;
 		try {
 			jsonResp = jsonMapper.writeValueAsString(response);

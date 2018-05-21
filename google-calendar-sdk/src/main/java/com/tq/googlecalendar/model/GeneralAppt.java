@@ -42,14 +42,6 @@ public class GeneralAppt {
 		this.googleEvent = googleEvent;
 	}
 
-	public GeneralAppt(String appointmentStart, String appointmentEnd) {
-
-		this.appointmentStart = appointmentStart;
-		this.appointmentEnd = appointmentEnd;
-	}
-
-
-
 	public GeneralAppt(String appointmentStart, String appointmentEnd,
 			SbmGoogleCalendar sbmGoogleCalendar) {
 	

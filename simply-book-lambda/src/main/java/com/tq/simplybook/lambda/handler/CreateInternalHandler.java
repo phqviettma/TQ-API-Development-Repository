@@ -113,7 +113,8 @@ public class CreateInternalHandler implements InternalHandler {
 		}
 		GoogleCalendarSbmSync sbmGoogle = googleCalendarService.load(sbmId);
 		if (sbmGoogle != null) {
-			processed = excuteWithGoogleCalendar(bookingInfo, payload, sbmGoogle.getRefreshToken());
+			processed = excuteWithGoogleCalendar(bookingInfo, payload, sbmGoogle.getRefreshToken(),
+					sbmGoogle.getGoogleCalendarId());
 		}
 		if (processed) {
 			m_log.info("The booking is synced to Cliniko/Google Calendar");
@@ -201,8 +202,8 @@ public class CreateInternalHandler implements InternalHandler {
 		return true;
 	}
 
-	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, PayloadCallback payload, String refreshToken)
-			throws GoogleApiSDKException, SbmSDKException {
+	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, PayloadCallback payload, String refreshToken,
+			String googleCalendarId) throws GoogleApiSDKException, SbmSDKException {
 
 		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
 		TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
@@ -218,7 +219,7 @@ public class CreateInternalHandler implements InternalHandler {
 		attendees.add(new Attendees(bookingInfo.getClient_email(), bookingInfo.getClient_name()));
 		EventReq req = new EventReq(start, end, bookingInfo.getUnit_description(), attendees,
 				env.getGoogleCalendarEventName());
-		EventResp eventResp = googleApiService.createEvent(req);
+		EventResp eventResp = googleApiService.createEvent(req, googleCalendarId);
 		m_log.info("Create event successfully with value " + eventResp.toString());
 		SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(payload.getBooking_id(), eventResp.getId(),
 				bookingInfo.getClient_email(), 1, "sbm");

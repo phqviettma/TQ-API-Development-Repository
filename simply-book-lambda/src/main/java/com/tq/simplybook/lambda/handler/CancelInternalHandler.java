@@ -75,7 +75,7 @@ public class CancelInternalHandler implements InternalHandler {
 		}
 		GoogleCalendarSbmSync sbmGoogle = googleCalendarService.load(sbmId);
 		if (sbmGoogle != null) {
-			processed = excuteWithGoogleCalendar(sbmGoogle.getRefreshToken(), payload);
+			processed = excuteWithGoogleCalendar(sbmGoogle.getRefreshToken(), payload,sbmGoogle.getGoogleCalendarId());
 		}
 
 		if (processed) {
@@ -167,7 +167,7 @@ public class CancelInternalHandler implements InternalHandler {
 
 	}
 
-	private boolean excuteWithGoogleCalendar(String refreshToken, PayloadCallback payload)
+	private boolean excuteWithGoogleCalendar(String refreshToken, PayloadCallback payload,String googleCalendarId)
 			throws SbmSDKException, GoogleApiSDKException {
 			TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(),
 					refreshToken);
@@ -181,7 +181,7 @@ public class CancelInternalHandler implements InternalHandler {
 				sbmGoogleCalendar.setFlag(0);
 				sbmGoogleCalendarService.put(sbmGoogleCalendar);
 				m_log.info("Delete item on database successfully");
-				googleService.deleteEvent(sbmGoogleCalendar.getEventId());
+				googleService.deleteEvent(sbmGoogleCalendar.getEventId(),googleCalendarId);
 				m_log.info("Delete google event successfully");
 				return true;
 			}

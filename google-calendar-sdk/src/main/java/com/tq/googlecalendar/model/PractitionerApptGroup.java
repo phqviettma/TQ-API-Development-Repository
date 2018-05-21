@@ -39,12 +39,9 @@ public class PractitionerApptGroup {
 
 		String start_time = TimeUtils.extractTime(appt.getAppointmentStart());
 		String end_time = TimeUtils.extractTime(appt.getAppointmentEnd());
-
-
 		dateInfo.breakTimeSet.add(new Breaktime(start_time, end_time));
 		dateInfo.sbmGoogleCalendar.add(appt.getSbmGoogleCalendar());
-		dateInfo.geventList.add(appt.getGoogleEvent());
-
+		dateInfo.googleEvents.add(appt.getGoogleEvent());
 
 	}
 
@@ -83,5 +80,6 @@ public class PractitionerApptGroup {
 		public List<Items> geventList = new ArrayList<>();
 		public Set<Breaktime> breakTimeSet = new HashSet<Breaktime>();
 		public List<SbmGoogleCalendar> sbmGoogleCalendar = new ArrayList<>();
+		public List<Items> googleEvents = new ArrayList<>();
 	}
 }

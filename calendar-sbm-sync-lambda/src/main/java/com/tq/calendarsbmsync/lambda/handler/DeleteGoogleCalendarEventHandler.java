@@ -16,6 +16,7 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.TimeUtils;
+import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
@@ -23,7 +24,6 @@ import com.tq.googlecalendar.resp.Items;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
-import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
@@ -132,7 +132,8 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							apptGroupMap.put(dateTime, group);
 						}
 						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
-								event.getEnd().getDateTime(),sbmGoogleSync));
+
+								event.getEnd().getDateTime(), sbmGoogleSync));
 					}
 
 				}
@@ -187,7 +188,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				if (!breakTimes.isEmpty()) {
 					sbmBreakTimeManagement.removeBreakTime(enV.getSimplyBookCompanyLogin(),
 							enV.getSimplyBookAdminServiceUrl(), token, unitId, eventId, workingTime.getStart_time(),
-							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId, false);
+							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId);
 				}
 				List<SbmGoogleCalendar> sbmGoogleCalendarList = dateToSbmBreakTime.getValue().sbmGoogleCalendar;
 

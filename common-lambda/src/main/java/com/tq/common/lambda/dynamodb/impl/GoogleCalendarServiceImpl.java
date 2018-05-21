@@ -1,5 +1,7 @@
 package com.tq.common.lambda.dynamodb.impl;
 
+import java.util.List;
+
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDao;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
@@ -23,14 +25,19 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarDbService {
 	}
 
 	@Override
-	public GoogleCalendarSbmSync query(String email) {
+	public List<GoogleCalendarSbmSync> queryEmail(String email) {
 
-		return m_calendarSbmDao.queryIndex(email);
+		return m_calendarSbmDao.queryEmail(email);
 	}
 
 	@Override
 	public void delete(GoogleCalendarSbmSync googleCalendarSbmSync) {
 		m_calendarSbmDao.deleteItem(googleCalendarSbmSync);
 
+	}
+
+	@Override
+	public void deleteGoogleItem(List<GoogleCalendarSbmSync> googleItems) {
+		m_calendarSbmDao.deleteGoogleItem(googleItems);
 	}
 }

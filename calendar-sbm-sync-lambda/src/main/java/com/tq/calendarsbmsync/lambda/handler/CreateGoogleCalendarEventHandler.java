@@ -12,11 +12,11 @@ import org.slf4j.LoggerFactory;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.TimeUtils;
+import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
 import com.tq.googlecalendar.resp.Items;
-import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
@@ -39,6 +39,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	private SbmBreakTimeManagement sbmBreakTimeManagement = null;
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
 	private SbmUnitService unitService = null;
+	private static final String AGENT = "google";
 
 	public CreateGoogleCalendarEventHandler(Env env, TokenServiceSbm tss, SpecialdayServiceSbm sds,
 			SbmBreakTimeManagement sbt, SbmGoogleCalendarDbService sdcs, SbmUnitService uss) {
@@ -79,13 +80,14 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 						Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
 						WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
 						SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(workingTime.getStart_time(),
-								workingTime.getEnd_time(), null,1, startDate, unitId[1], unitId[0]);
+								workingTime.getEnd_time(), null, 1, startDate, unitId[1], unitId[0]);
 						SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
 						boolean isBlocked = specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);
 						if (isBlocked) {
 							UUID uuid = UUID.randomUUID();
 							long bookingId = uuid.getMostSignificantBits();
-							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), "-BLANK-", 1, "google");
+							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), 1, AGENT,
+									event.getOrganizer().getEmail());
 							sbmCalendarService.put(sbmGoogleSync);
 						} else {
 							m_log.info("Error during set work day info for provider with id "
@@ -95,7 +97,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				} else {
 					String date = TimeUtils.extractDate(event.getStart().getDateTime());
 					apptGroup.addAppt(date,
-							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(),event));
+							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(), event));
 				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
@@ -103,9 +105,8 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 		}
 		if (!apptGroup.getAppts().isEmpty()) {
 			addBreakTime(apptGroup, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
-			
-		}
 
+		}
 
 		return true;
 	}
@@ -124,7 +125,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 				new FromDate(group.getStartDateString(), workingTime.getStart_time()),
 				new ToDate(group.getEndDateString(), workingTime.getEnd_time()));
 
-		for (Entry<String, EventDateInfo> dateToSbmBreakTime :  group.getEventDateInfoMap().entrySet()) {
+		for (Entry<String, EventDateInfo> dateToSbmBreakTime : group.getEventDateInfoMap().entrySet()) {
 			Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue().breakTimeSet;
 			String date = dateToSbmBreakTime.getKey();
 			if (!breakTimes.isEmpty()) {
@@ -132,16 +133,15 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 						token, unitId, eventId, workingTime.getStart_time(), workingTime.getEnd_time(), date,
 						breakTimes, workDayInfoMapForUnitId);
 			}
-			List<Items> geventList = dateToSbmBreakTime.getValue().geventList;
-
-			for (Items gevent : geventList) {
+			List<Items> googleEvents = dateToSbmBreakTime.getValue().googleEvents;
+			for (Items googleEvent : googleEvents) {
 				UUID uuid = UUID.randomUUID();
 				long bookingId = uuid.getMostSignificantBits();
-				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, gevent.getId(), 1, "google",gevent.getOrganizer().getEmail());
+				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, AGENT,
+						googleEvent.getOrganizer().getEmail());
 				sbmCalendarService.put(sbmGoogleSync);
 				m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
 			}
-
 		}
 	}
 

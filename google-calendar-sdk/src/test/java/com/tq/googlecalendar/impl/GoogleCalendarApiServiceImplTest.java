@@ -23,6 +23,7 @@ import com.tq.googlecalendar.req.WatchEventReq;
 import com.tq.googlecalendar.resp.End;
 import com.tq.googlecalendar.resp.ErrorResp;
 import com.tq.googlecalendar.resp.EventResp;
+import com.tq.googlecalendar.resp.GoogleCalendarList;
 import com.tq.googlecalendar.resp.GoogleCalendarSettingsInfo;
 import com.tq.googlecalendar.resp.Start;
 import com.tq.googlecalendar.resp.TokenResp;
@@ -33,14 +34,15 @@ public class GoogleCalendarApiServiceImplTest {
 
 	private GoogleCalendarApiServiceImpl googleCalendarService = mock(GoogleCalendarApiServiceImpl.class);
 	private TokenGoogleCalendarService tokenCalendarService = mock(TokenGoogleCalendarService.class);
+	private String googleCalendarId = "primary";
 
 	@Before
 	public void init() throws GoogleApiSDKException {
 		EventResp eventResp = new EventResp();
 		eventResp.setId("111111");
-		when(googleCalendarService.createEvent(any())).thenReturn(eventResp);
-		when(googleCalendarService.deleteEvent(any())).thenReturn(true);
-		when(googleCalendarService.getEvent(any())).thenReturn(eventResp);
+		when(googleCalendarService.createEvent(any(), any())).thenReturn(eventResp);
+		when(googleCalendarService.deleteEvent(any(), any())).thenReturn(true);
+		when(googleCalendarService.getEvent(any(), any())).thenReturn(eventResp);
 		GoogleCalendarSettingsInfo settingInfo = new GoogleCalendarSettingsInfo();
 		settingInfo.setId("setting");
 		when(googleCalendarService.getSettingInfo(any())).thenReturn(settingInfo);
@@ -62,7 +64,7 @@ public class GoogleCalendarApiServiceImplTest {
 		List<Attendees> attendees = new ArrayList<>();
 		attendees.add(new Attendees("suong", "suong"));
 		EventReq req = new EventReq(startTime, endTime, description, attendees, description);
-		EventResp events = googleCalendarService.createEvent(req);
+		EventResp events = googleCalendarService.createEvent(req, googleCalendarId);
 		assertNotNull(events.getId());
 	}
 
@@ -72,9 +74,9 @@ public class GoogleCalendarApiServiceImplTest {
 		End endTime = new End("2018-01-03T09:13:51.714Z", "Asia/Saigon");
 		String description = "nn";
 		EventReq req = new EventReq(startTime, endTime, description, null, description);
-		EventResp events = googleCalendarService.createEvent(req);
+		EventResp events = googleCalendarService.createEvent(req, googleCalendarId);
 
-		boolean isDeleted = googleCalendarService.deleteEvent(events.getId());
+		boolean isDeleted = googleCalendarService.deleteEvent(events.getId(), googleCalendarId);
 		assertTrue(isDeleted);
 
 	}
@@ -85,9 +87,9 @@ public class GoogleCalendarApiServiceImplTest {
 		End endTime = new End("2018-01-03T09:13:51.714Z", "Asia/Saigon");
 		String description = "This is description";
 		EventReq req = new EventReq(startTime, endTime, description, null, description);
-		EventResp events = googleCalendarService.createEvent(req);
+		EventResp events = googleCalendarService.createEvent(req, googleCalendarId);
 
-		events = googleCalendarService.getEvent(events.getId());
+		events = googleCalendarService.getEvent(events.getId(), googleCalendarId);
 		assertNotNull(events);
 	}
 
@@ -123,17 +125,17 @@ public class GoogleCalendarApiServiceImplTest {
 		assertNotNull(resp.getId());
 	}
 
-	public static void main(String[] args) throws GoogleApiSDKException {
-		GoogleCalendarApiServiceImpl googleCalendarService = new GoogleCalendarApiServiceImpl(
-				"ya29.Gl2nBYu7CMjdln-cxQb12t6itT8CwEsLMWwrjnpULTi3uTFI_M2qPT8sUQW6Y1Y4wNn13deu6tQLmepObjlaOihtUZ2EAkdK-uXqRoXs52zP2LOE7OjrR_4EM2DjnVo");
-		for (int i = 1; i < 31; i++) {
-			String startTime = "2018-09-" + i + "T5:00:00.000Z";
-			Start start = new Start(startTime, "Asia/Saigon");
-			String endTime = "2018-09-"+i+"T6:00:00.000Z";
-			End end = new End(endTime , "Asia/Saigon");
-			String description = "This is description";
-			EventReq events = new EventReq(start, end, description, null, "");
-			googleCalendarService.createEvent(events);
-		}
+	@Test
+	public void testGetListCalendar() throws GoogleApiSDKException {
+		GoogleCalendarList resp = googleCalendarService.getListCalendar();
+		assertNotNull(resp.getKind());
+	}
+
+	@Test
+	public void testGetListEvent() throws GoogleApiSDKException {
+		googleCalendarService = new GoogleCalendarApiServiceImpl(
+				"ya29.Glu9BVeUBUNX0BDKKmOJD02m9tU1Iy22UFKFjy095YIkuoB0Iua6Ej-neLB0G782PJ8J1pzXJW2TmUlEDLlT2M9bhE3zFtFIQ8QY0a-TSuAvMSaLLi6voOl8Nrr6");
+		googleCalendarService.getEventWithoutToken(10, "2018-05-16T03:02:35.000+07:00", "timeMin", "primary");
+
 	}
 }

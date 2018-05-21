@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -64,11 +66,8 @@ public class GoogleHandlerTest {
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("user_info.json"));
 		AwsProxyRequest req = new AwsProxyRequest();
 		req.setBody(jsonString);
-
-		GoogleCalendarSbmSync googleCalendarSbmSync = new GoogleCalendarSbmSync("1-7", "phamthanhcute11@gmail.com",
-				"phamthanhcute11@gmail.com", "suong", "pham", "", "", "-BLANK-", "x3ZhVWszU5vYU6wJJlg4RaJPKvc");
-
-		when(calendarService.query(any())).thenReturn(googleCalendarSbmSync);
+		List<GoogleCalendarSbmSync> googleCalendarSbmSync =null;
+		when(calendarService.queryEmail(any())).thenReturn(googleCalendarSbmSync);
 
 		ContactItem contactItem = new ContactItem();
 		contactItem.setEmail("testingdev@tma.com.vn");

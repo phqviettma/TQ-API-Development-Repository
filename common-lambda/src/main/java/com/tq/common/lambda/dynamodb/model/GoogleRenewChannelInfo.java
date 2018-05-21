@@ -5,7 +5,6 @@ import java.io.Serializable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 @DynamoDBTable(tableName = "GoogleRenewChannelInfo")
@@ -16,11 +15,11 @@ public class GoogleRenewChannelInfo implements Serializable {
 	private static final long serialVersionUID = -509441797494676490L;
 	private Long checkDay;
 	private Long expirationTime;
-	private String channelId;
 	private String refreshToken;
 	private String resourceId;
-	private String googleEmail;
 	private Long lastCheckingTime;
+	private String channelId;
+	private String googleEmail;
 
 	@DynamoDBAttribute(attributeName = "expirationTime")
 	public Long getExpirationTime() {
@@ -31,21 +30,11 @@ public class GoogleRenewChannelInfo implements Serializable {
 		this.expirationTime = expirationTime;
 	}
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Channel-index",attributeName = "channelId")
-	@DynamoDBRangeKey(attributeName = "channelId")
-	public String getChannelId() {
-		return channelId;
-	}
-
-	public void setChannelId(String channelId) {
-		this.channelId = channelId;
-	}
-
 	public GoogleRenewChannelInfo() {
 
 	}
 
-	@DynamoDBHashKey(attributeName = "checkDay")
+	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Time-Index", attributeName = "checkDay")
 	public Long getCheckDay() {
 		return checkDay;
 	}
@@ -72,15 +61,6 @@ public class GoogleRenewChannelInfo implements Serializable {
 		this.resourceId = resourceId;
 	}
 
-	@DynamoDBAttribute(attributeName = "googleEmail")
-	public String getGoogleEmail() {
-		return googleEmail;
-	}
-
-	public void setGoogleEmail(String googleEmail) {
-		this.googleEmail = googleEmail;
-	}
-
 	@DynamoDBAttribute(attributeName = "lastCheckingTime")
 	public Long getLastCheckingTime() {
 		return lastCheckingTime;
@@ -90,23 +70,40 @@ public class GoogleRenewChannelInfo implements Serializable {
 		this.lastCheckingTime = lastCheckingTime;
 	}
 
-	public GoogleRenewChannelInfo(Long checkDay, Long expirationTime, String channelId, String refreshToken,
-			String resourceId, String googleEmail, Long lastCheckingTime) {
+	@DynamoDBHashKey(attributeName = "channelId")
+	public String getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
+	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Email-Index", attributeName = "googleEmail")
+	public String getGoogleEmail() {
+		return googleEmail;
+	}
+
+	public void setGoogleEmail(String googleEmail) {
+		this.googleEmail = googleEmail;
+	}
+
+	public GoogleRenewChannelInfo(Long checkDay, Long expirationTime, String refreshToken, String resourceId,
+			Long lastCheckingTime, String channelId, String googleEmail) {
 		this.checkDay = checkDay;
 		this.expirationTime = expirationTime;
-		this.channelId = channelId;
 		this.refreshToken = refreshToken;
 		this.resourceId = resourceId;
-		this.googleEmail = googleEmail;
 		this.lastCheckingTime = lastCheckingTime;
-
+		this.channelId = channelId;
+		this.googleEmail = googleEmail;
 	}
 
 	@Override
 	public String toString() {
-		return "GoogleRenewChannelInfo [checkDay=" + checkDay + ", expirationTime=" + expirationTime + ", channelId="
-				+ channelId + ", refreshToken=" + refreshToken + ", resourceId=" + resourceId + ", googleEmail="
-				+ googleEmail + ", lastCheckingTime=" + lastCheckingTime + "]";
+		return "GoogleRenewChannelInfo [checkDay=" + checkDay + ", expirationTime=" + expirationTime + ", refreshToken="
+				+ refreshToken + ", resourceId=" + resourceId + ", lastCheckingTime=" + lastCheckingTime
+				+ ", channelId=" + channelId + ", googleEmail=" + googleEmail + "]";
 	}
 
 }

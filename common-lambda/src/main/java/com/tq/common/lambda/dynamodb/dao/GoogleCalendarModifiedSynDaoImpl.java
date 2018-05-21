@@ -37,11 +37,11 @@ public class GoogleCalendarModifiedSynDaoImpl extends AbstractItem<GCModifiedCha
 	}
 
 	@Override
-	public List<GCModifiedChannel> queryItem() {
+	public List<GCModifiedChannel> queryIndexCheckStatus() {
 		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
-		queryCondition.put(":checkStatus", new AttributeValue().withN("1"));
+		queryCondition.put(":checkingStatus", new AttributeValue().withN("1"));
 		DynamoDBQueryExpression<GCModifiedChannel> queryExpression = new DynamoDBQueryExpression<GCModifiedChannel>()
-				.withIndexName("Modified-Index").withKeyConditionExpression("checkStatus=:checkStatus")
+				.withIndexName("Status-Index").withKeyConditionExpression("checkingStatus=:checkingStatus")
 				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
 
 		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
@@ -50,17 +50,34 @@ public class GoogleCalendarModifiedSynDaoImpl extends AbstractItem<GCModifiedCha
 	}
 
 	@Override
-	public void deleteItem(String hashKey) {
-		GCModifiedChannel channel = new GCModifiedChannel();
-		channel.setChannelId(hashKey);
-		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
-		mapper.delete(channel);
-	}
-
-	@Override
 	public void saveItem(GCModifiedChannel item) {
 		super.saveItem(item);
 	}
-	
+
+	@Override
+	public List<GCModifiedChannel> queryEmail(String email) {
+		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
+		queryCondition.put(":email", new AttributeValue().withS(email));
+		DynamoDBQueryExpression<GCModifiedChannel> queryExpression = new DynamoDBQueryExpression<GCModifiedChannel>()
+				.withIndexName("Email-Index").withKeyConditionExpression("email=:email")
+				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
+
+		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
+		List<GCModifiedChannel> calendarSbmSync = mapper.query(GCModifiedChannel.class, queryExpression);
+		return calendarSbmSync;
+	}
+
+	@Override
+	public void deleteModifiedItem(List<GCModifiedChannel> gcModifiedChannel) {
+	DynamoDBMapper mapper = new DynamoDBMapper(getClient());
+	mapper.batchDelete(gcModifiedChannel);
+		
+	}
+
+	@Override
+	public GCModifiedChannel getChannel(String hashKey, String rangeKey) {
+		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
+		return	mapper.load(GCModifiedChannel.class, hashKey,rangeKey);
+	}
 
 }

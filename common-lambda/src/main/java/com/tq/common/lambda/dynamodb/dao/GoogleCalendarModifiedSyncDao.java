@@ -8,9 +8,13 @@ import com.tq.common.lambda.dynamodb.service.GenericItem;
 public interface GoogleCalendarModifiedSyncDao extends GenericItem<GCModifiedChannel, String> {
 	public List<GCModifiedChannel> scanItem();
 
-	public List<GCModifiedChannel> queryItem();
-
-	public void deleteItem(String hashKey);
+	public List<GCModifiedChannel> queryIndexCheckStatus();
 
 	void saveItem(GCModifiedChannel modifiedChannel);
+
+	public List<GCModifiedChannel> queryEmail(String email);
+
+	public void deleteModifiedItem(List<GCModifiedChannel> gcModified);
+
+	public GCModifiedChannel getChannel(String hashKey, String rangeKey);
 }
