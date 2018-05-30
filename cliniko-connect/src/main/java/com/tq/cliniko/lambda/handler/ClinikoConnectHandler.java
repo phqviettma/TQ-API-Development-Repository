@@ -26,9 +26,11 @@ import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ClinikoSyncStatus;
+import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoItemService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.resp.UnitProviderInfo;
@@ -45,16 +47,18 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private static final String DEFAULT_PATIENT_NAME = "TrueQuit";
 	private static final String DEFAULT_PATIENT_LAST_NAME = "patient";
+	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
 
 	public ClinikoConnectHandler(Env env, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoSyncService, ClinikoItemService clinikoItemService,
-			ClinikoCompanyInfoService clinikoCompanyService) {
+			ClinikoCompanyInfoService clinikoCompanyService, SbmSyncFutureBookingsService sbmSyncFutureBookingService) {
 		this.eVariables = env;
 		this.unitServiceSbm = unitService;
 		this.tokenServiceSbm = tokenService;
 		this.clinikoSyncService = clinikoSyncService;
 		this.clinikoItemService = clinikoItemService;
 		this.clinikoCompanyService = clinikoCompanyService;
+		this.sbmSyncFutureBookingService = sbmSyncFutureBookingService;
 	}
 
 	@Override
@@ -116,6 +120,8 @@ public class ClinikoConnectHandler implements ConnectHandler {
 								ClinikoCompanyInfo clinikoCompanyInfo = createDefaultPatient(clinikoId, apiKey);
 								clinikoCompanyService.put(clinikoCompanyInfo);
 								m_log.info("Save to database " + clinikoCompanyInfo);
+								SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, apiKey, 1, timeStamp);
+								sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem );
 								done = true;
 								break;
 							}

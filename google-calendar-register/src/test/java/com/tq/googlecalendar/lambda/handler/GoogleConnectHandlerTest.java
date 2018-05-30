@@ -24,6 +24,8 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
@@ -37,6 +39,7 @@ import com.tq.googlecalendar.resp.WatchEventResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.simplybook.exception.SbmSDKException;
+import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.resp.UnitProviderInfo;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
@@ -50,11 +53,14 @@ public class GoogleConnectHandlerTest {
 	private TokenGoogleCalendarImpl tokenCalendarService = mock(TokenGoogleCalendarImpl.class);
 	private SbmUnitService sbmUnitService = mock(SbmUnitService.class);
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
+	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = mock(SbmSyncFutureBookingsService.class);
 	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
+	private BookingServiceSbmImpl bookingSbmService = mock(BookingServiceSbmImpl.class);
+	private SbmListBookingService sbmListBookingService = mock(SbmListBookingService.class);
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
 			contactItemService, tokenCalendarService, sbmUnitService, tokenService, mockedApiServiceBuilder,
-			googleWatchChannelDbService, modifiedChannelService);
-
+			googleWatchChannelDbService, modifiedChannelService, sbmSyncFutureBookingService, bookingSbmService,
+			sbmListBookingService);
 
 	@Test
 	public void testConnectHandler()
@@ -67,8 +73,7 @@ public class GoogleConnectHandlerTest {
 		params.setGoogleEmail("canh5870@gmail.com");
 		params.setFirstName("Suong");
 		params.setLastName("Pham");
-		List<String> googleCalendarId = Arrays.asList("canh5870@gmail.com",
-				"9l1sb3sb2942cbkofknlh24ap4@group.calendar.google.com");
+		List<String> googleCalendarId = Arrays.asList("canh5870@gmail.com");
 		params.setGoogleCalendarId(googleCalendarId);
 		req.setParams(params);
 		ContactItem contactItem = new ContactItem();
@@ -108,7 +113,7 @@ public class GoogleConnectHandlerTest {
 				return null;
 			}
 		}).when(googleWatchChannelDbService).put(any(GoogleRenewChannelInfo.class));
-		GoogleConnectStatusResponse  response = connectHandler.handle(req);
+		GoogleConnectStatusResponse response = connectHandler.handle(req);
 		assertEquals(response.isSucceeded(), true);
 
 	}

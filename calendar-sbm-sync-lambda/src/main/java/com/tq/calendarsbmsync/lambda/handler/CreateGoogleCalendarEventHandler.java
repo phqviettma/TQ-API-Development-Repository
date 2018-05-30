@@ -117,31 +117,36 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 		Map<String, UnitWorkingTime> unitWorkingDayInfoMap = unitService.getUnitWorkDayInfo(
 				env.getSimplyBookCompanyLogin(), env.getSimplyBookAdminServiceUrl(), token, group.getStartDateString(),
 				group.getEndDateString(), unitId);
-		UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(group.getStartDateString());
-		Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
-		WorkingTime workingTime = unitWorkingTimeMap.get(String.valueOf(unitId));
-		Map<String, WorksDayInfoResp> workDayInfoMapForUnitId = specialdayService.getWorkDaysInfo(
-				env.getSimplyBookCompanyLogin(), env.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
-				new FromDate(group.getStartDateString(), workingTime.getStart_time()),
-				new ToDate(group.getEndDateString(), workingTime.getEnd_time()));
+		if (!unitWorkingDayInfoMap.isEmpty()) {
+			UnitWorkingTime unitWorkingTime = unitWorkingDayInfoMap.get(group.getStartDateString());
+			Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
+			WorkingTime workingTime = unitWorkingTimeMap.get(String.valueOf(unitId));
+			Map<String, WorksDayInfoResp> workDayInfoMapForUnitId = specialdayService.getWorkDaysInfo(
+					env.getSimplyBookCompanyLogin(), env.getSimplyBookAdminServiceUrl(), token, unitId, eventId,
+					new FromDate(group.getStartDateString(), workingTime.getStart_time()),
+					new ToDate(group.getEndDateString(), workingTime.getEnd_time()));
 
-		for (Entry<String, EventDateInfo> dateToSbmBreakTime : group.getEventDateInfoMap().entrySet()) {
-			Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue().breakTimeSet;
-			String date = dateToSbmBreakTime.getKey();
-			if (!breakTimes.isEmpty()) {
-				sbmBreakTimeManagement.addBreakTime(env.getSimplyBookCompanyLogin(), env.getSimplyBookAdminServiceUrl(),
-						token, unitId, eventId, workingTime.getStart_time(), workingTime.getEnd_time(), date,
-						breakTimes, workDayInfoMapForUnitId);
+			for (Entry<String, EventDateInfo> dateToSbmBreakTime : group.getEventDateInfoMap().entrySet()) {
+				Set<Breaktime> breakTimes = dateToSbmBreakTime.getValue().breakTimeSet;
+				String date = dateToSbmBreakTime.getKey();
+				if (!breakTimes.isEmpty()) {
+					sbmBreakTimeManagement.addBreakTime(env.getSimplyBookCompanyLogin(),
+							env.getSimplyBookAdminServiceUrl(), token, unitId, eventId, workingTime.getStart_time(),
+							workingTime.getEnd_time(), date, breakTimes, workDayInfoMapForUnitId);
+				}
+				List<Items> googleEvents = dateToSbmBreakTime.getValue().googleEvents;
+				for (Items googleEvent : googleEvents) {
+					UUID uuid = UUID.randomUUID();
+					long bookingId = uuid.getMostSignificantBits();
+					SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, AGENT,
+							googleEvent.getOrganizer().getEmail());
+					sbmCalendarService.put(sbmGoogleSync);
+					m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
+				}
 			}
-			List<Items> googleEvents = dateToSbmBreakTime.getValue().googleEvents;
-			for (Items googleEvent : googleEvents) {
-				UUID uuid = UUID.randomUUID();
-				long bookingId = uuid.getMostSignificantBits();
-				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, AGENT,
-						googleEvent.getOrganizer().getEmail());
-				sbmCalendarService.put(sbmGoogleSync);
-				m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
-			}
+		}
+		else {
+			m_log.info("This time is not available");
 		}
 	}
 

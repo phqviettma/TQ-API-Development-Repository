@@ -1,4 +1,4 @@
- { "action": "connect",
+ { "action": "check",
     "params": {
         "email": "phamthanhcute11@gmail.com",
         "lastName": "canh",

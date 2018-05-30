@@ -1,5 +1,6 @@
 package com.tq.googlecalendar.lambda.handler;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -15,10 +16,14 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
+import com.tq.common.lambda.dynamodb.model.SbmBookingList;
+import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
@@ -35,6 +40,9 @@ import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.simplybook.exception.SbmSDKException;
+import com.tq.simplybook.impl.BookingServiceSbmImpl;
+import com.tq.simplybook.req.GetBookingReq;
+import com.tq.simplybook.resp.GetBookingResp;
 import com.tq.simplybook.resp.UnitProviderInfo;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
@@ -44,6 +52,8 @@ public class GoogleConnectCalendarHandler implements Handler {
 	private static final String PARAMS = "3600000";
 	private SbmUnitService sbmUnitService = null;
 	private TokenServiceSbm tokenServiceSbm = null;
+	private static final String BOOKING_TYPE = "non_cancelled";
+	private static final String ORDER_BY = "start_date";
 	private Env eVariables = null;
 	private GoogleCalendarDbService googleCalendarService = null;
 	private GoogleCalRenewService googleCalRenewService = null;
@@ -51,12 +61,17 @@ public class GoogleConnectCalendarHandler implements Handler {
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
+	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
+	private BookingServiceSbmImpl bookingService = null;
+	private SbmListBookingService sbmBookingDBService = null;
 
 	public GoogleConnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			ContactItemService contactItemService, TokenGoogleCalendarService tokenCalendarService,
 			SbmUnitService sbmUnitService, TokenServiceSbm tokenServiceSbm,
 			GoogleCalendarApiServiceBuilder apiServiceBuilder, GoogleCalRenewService googleCalRenewService,
-			GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
+			GoogleCalendarModifiedSyncService calendarModifiedChannelService,
+			SbmSyncFutureBookingsService sbmSyncFutureBookingService, BookingServiceSbmImpl bookingService,
+			SbmListBookingService sbmBookingDBService) {
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.contactItemService = contactItemService;
@@ -66,6 +81,9 @@ public class GoogleConnectCalendarHandler implements Handler {
 		this.apiServiceBuilder = apiServiceBuilder;
 		this.googleCalRenewService = googleCalRenewService;
 		this.calendarModifiedChannelService = calendarModifiedChannelService;
+		this.sbmSyncFutureBookingService = sbmSyncFutureBookingService;
+		this.bookingService = bookingService;
+		this.sbmBookingDBService = sbmBookingDBService;
 	}
 
 	@Override
@@ -129,11 +147,23 @@ public class GoogleConnectCalendarHandler implements Handler {
 								GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(googleCalendarId, -1,
 										timeStamp, sbmEmail, channelId);
 								googleCalendarService.put(calendarSbm);
-								m_log.info("Added to database successfully " + calendarSbm.toString());
+							
 								googleCalRenewService.put(channelInfo);
 								m_log.info("Added to GoogleCalendarChannelInfo table successfully "
 										+ channelInfo.toString());
 								calendarModifiedChannelService.put(modifiedChannelItem);
+								SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, null,
+										sbmEmail, 1, timeStamp);
+								sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
+								String dateFrom = new SimpleDateFormat("yyyy-MM-dd")
+										.format(Calendar.getInstance().getTime());
+								GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY,
+										Integer.valueOf(unitId), Integer.valueOf(eventId));
+								List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint,
+										token, getBookingReq);
+								SbmBookingList sbmBookingItem = new SbmBookingList(sbmId, bookingList);
+								sbmBookingDBService.put(sbmBookingItem );
+								m_log.info("Added to database successfully " + sbmBookingItem.toString());
 							}
 							done = true;
 							break;

@@ -35,7 +35,7 @@ import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.context.Env;
-import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
+import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.resp.CalendarEvents;
@@ -72,7 +72,8 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 	private BookingServiceSbm bookingService = null;
 	private GoogleCalendarInternalHandler createEventHandler = null;
 	private GoogleCalendarInternalHandler deleteEventHandler = null;
-	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
+	private TokenGoogleCalendarService tokenCalendarService = null;
+	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private SbmUnitService unitService = null;
 	private GoogleCalendarModifiedSyncService modifiedChannelService = null;
 
@@ -88,6 +89,8 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 		this.googleCalendarService = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(m_amazonDynamoDB));
 		this.tokenService = new TokenServiceImpl();
 		this.contactInfService = new ContactServiceImpl();
+		this.tokenCalendarService = new TokenGoogleCalendarImpl();
+		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.contactItemService = new ContactItemServiceImpl(new ContactItemDaoImpl(m_amazonDynamoDB));
 		this.unitService = new SbmUnitServiceImpl();
 		this.createEventHandler = new CreateGoogleCalendarEventHandler(m_env, tokenService, specialDayService,
@@ -102,7 +105,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 	GoogleCalendarHandler(Env env, AmazonDynamoDB db, GoogleCalendarDbService googleCalendarService,
 			SpecialdayServiceSbm specialDayService, CreateGoogleCalendarEventHandler createHanler,
 			DeleteGoogleCalendarEventHandler deleteHandler, SbmUnitService unitService,
-			GoogleCalendarModifiedSyncService modifiedChannelService) {
+			GoogleCalendarModifiedSyncService modifiedChannelService, TokenGoogleCalendarService tokenGoogleCalendarService,GoogleCalendarApiServiceBuilder googleCalendarServiceBuilder) {
 		this.m_amazonDynamoDB = db;
 		this.m_env = env;
 		this.googleCalendarService = googleCalendarService;
@@ -111,6 +114,8 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 		this.deleteEventHandler = deleteHandler;
 		this.unitService = unitService;
 		this.modifiedChannelService = modifiedChannelService;
+		this.tokenCalendarService = tokenGoogleCalendarService;
+		this.apiServiceBuilder = googleCalendarServiceBuilder;
 	}
 
 	@Override
@@ -130,8 +135,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 					TokenReq tokenReq = new TokenReq(m_env.getGoogleClientId(), m_env.getGoogleClientSecrets(),
 							googleCalendarSbmSync.getRefreshToken());
 					TokenResp token = tokenCalendarService.getToken(tokenReq);
-					GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(
-							token.getAccess_token());
+					GoogleCalendarApiService googleApiService = apiServiceBuilder.build(token.getAccess_token());
 					Integer maxResult = m_env.getGoogleCalendarMaxResult();
 					if ("sync".equals(googleState) || "exists".equals(googleState)) {
 						List<Items> confirmedItems = new ArrayList<>();

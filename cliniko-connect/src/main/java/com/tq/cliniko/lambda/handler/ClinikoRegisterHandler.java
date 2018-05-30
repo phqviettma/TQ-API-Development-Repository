@@ -20,12 +20,15 @@ import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
 import com.tq.common.lambda.dynamodb.dao.ClinikoCompanyInfoDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ClinikoItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.SbmSyncFutureBookingDaoImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoCompanyInfoServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.SbmSyncFutureBookingServiceImpl;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoItemService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
@@ -48,6 +51,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private ConnectHandler disconnectHandler = null;
 	private ClinikoItemService clinikoItemService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
+	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
 
 	public ClinikoRegisterHandler() {
 		this.eVariables = Env.load();
@@ -58,11 +62,12 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		this.unitServiceSbm = new SbmUnitServiceImpl();
 		this.clinikoSyncService = new ClinikoSyncToSbmServiceImpl(new ClinikoSyncToSbmDaoImpl(amazonDynamoDB));
 		this.clinikoItemService = new ClinikoItemServiceImpl(new ClinikoItemDaoImpl(amazonDynamoDB));
+		this.sbmSyncFutureBookingService = new SbmSyncFutureBookingServiceImpl(new SbmSyncFutureBookingDaoImpl(amazonDynamoDB));
 		this.clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(amazonDynamoDB));
-		this.disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncService, clinikoItemService);
+		this.disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncService, clinikoItemService, sbmSyncFutureBookingService);
 
 		this.connectHandler = new ClinikoConnectHandler(eVariables, unitServiceSbm, tokenServiceSbm, clinikoSyncService,
-				clinikoItemService, clinikoCompanyService);
+				clinikoItemService, clinikoCompanyService,sbmSyncFutureBookingService);
 
 	}
 

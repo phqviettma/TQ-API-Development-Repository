@@ -54,6 +54,9 @@ public class GoogleCalendarApiServiceImplTest {
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setId_token("tokenId");
 		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
+		GoogleCalendarList resp = new GoogleCalendarList();
+		resp.setKind("kind");
+		when(googleCalendarService.getListCalendar()).thenReturn(resp );
 	}
 
 	@Test
@@ -129,13 +132,5 @@ public class GoogleCalendarApiServiceImplTest {
 	public void testGetListCalendar() throws GoogleApiSDKException {
 		GoogleCalendarList resp = googleCalendarService.getListCalendar();
 		assertNotNull(resp.getKind());
-	}
-
-	@Test
-	public void testGetListEvent() throws GoogleApiSDKException {
-		googleCalendarService = new GoogleCalendarApiServiceImpl(
-				"ya29.Glu9BVeUBUNX0BDKKmOJD02m9tU1Iy22UFKFjy095YIkuoB0Iua6Ej-neLB0G782PJ8J1pzXJW2TmUlEDLlT2M9bhE3zFtFIQ8QY0a-TSuAvMSaLLi6voOl8Nrr6");
-		googleCalendarService.getEventWithoutToken(10, "2018-05-16T03:02:35.000+07:00", "timeMin", "primary");
-
 	}
 }

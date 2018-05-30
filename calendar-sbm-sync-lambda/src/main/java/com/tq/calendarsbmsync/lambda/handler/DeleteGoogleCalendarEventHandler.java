@@ -163,8 +163,10 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 	private void cancelBooking(String companyLogin, String endpoint, String token, List<Long> bookingIds)
 			throws SbmSDKException, InfSDKExecption {
 		String batchId = bookingService.createBatch(companyLogin, endpoint, token);
-		bookingService.cancelBatch(companyLogin, endpoint, token, batchId, bookingIds);
-
+		boolean isCancelled = bookingService.cancelBatch(companyLogin, endpoint, token, batchId, bookingIds);
+		if (isCancelled) {
+			m_log.info("Cancelled Booking with Ids " + bookingIds.toString());
+		}
 	}
 
 	private void removeBreakTime(Map<String, PractitionerApptGroup> apptGroup, String token, Integer unitId,

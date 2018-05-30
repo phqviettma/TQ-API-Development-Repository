@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 @DynamoDBTable(tableName = "SbmGoogleCalendar")
@@ -55,6 +56,7 @@ public class SbmGoogleCalendar implements Serializable {
 	public void setAgent(String agent) {
 		this.agent = agent;
 	}
+
 	@DynamoDBAttribute(attributeName = "googleEmail")
 	public String getGoogleEmail() {
 		return googleEmail;
@@ -73,8 +75,7 @@ public class SbmGoogleCalendar implements Serializable {
 		this.agent = checkKind;
 	}
 
-	public SbmGoogleCalendar(Long sbmId, String eventId, Integer flag, String agent,
-			String googleEmail) {
+	public SbmGoogleCalendar(Long sbmId, String eventId, Integer flag, String agent, String googleEmail) {
 		this.sbmId = sbmId;
 		this.eventId = eventId;
 		this.flag = flag;

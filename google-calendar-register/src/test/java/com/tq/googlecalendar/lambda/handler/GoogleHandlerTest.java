@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -22,38 +23,41 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
-import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
-import com.tq.simplybook.impl.SbmUnitServiceImpl;
-import com.tq.simplybook.impl.TokenServiceImpl;
+import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
 
 public class GoogleHandlerTest {
 	private GoogleCalendarDbService calendarService = mock(GoogleCalendarDbService.class);
 	private static Env mockedeEnv = MockUtil.mockEnv();
-	private static TokenServiceSbm tokenService = new TokenServiceImpl();
-	private static SbmUnitService unitService = new SbmUnitServiceImpl();
+	private static TokenServiceSbm tokenService =mock(TokenServiceSbm.class);
+	private static SbmUnitService unitService = mock(SbmUnitService.class);
 	private AmazonDynamoDB amazonDynamoDB = mock(AmazonDynamoDB.class);
 	private Context m_context = mock(Context.class);
 	private ContactItemService contactItemService = mock(ContactItemService.class);
-	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
-	private SbmUnitService sbmUnitService = new SbmUnitServiceImpl();
-	private TokenServiceSbm tokenServiceSbm = new TokenServiceImpl();
+	private TokenGoogleCalendarService tokenCalendarService = mock(TokenGoogleCalendarService.class);
+	private SbmUnitService sbmUnitService = mock(SbmUnitService.class);
+	private TokenServiceSbm tokenServiceSbm = mock(TokenServiceSbm.class);
+	private BookingServiceSbmImpl bookingSbmService  = mock(BookingServiceSbmImpl.class);
+	private  SbmListBookingService sbmListBookingService = mock(SbmListBookingService.class);
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
 	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
+	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = mock(SbmSyncFutureBookingsService.class);
 	private GoogleCalendarCheckStatusHandler checkHandler = new GoogleCalendarCheckStatusHandler(calendarService);
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
 			contactItemService, tokenCalendarService, sbmUnitService, tokenServiceSbm,
-			mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);
+			mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService, sbmSyncFutureBookingService, bookingSbmService, sbmListBookingService);
 
 
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
-			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService);
+			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService, modifiedChannelService, sbmSyncFutureBookingService, sbmListBookingService);
 
 	@Test
 	public void testRegisterHandler() {
@@ -66,7 +70,7 @@ public class GoogleHandlerTest {
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("user_info.json"));
 		AwsProxyRequest req = new AwsProxyRequest();
 		req.setBody(jsonString);
-		List<GoogleCalendarSbmSync> googleCalendarSbmSync =null;
+		List<GoogleCalendarSbmSync> googleCalendarSbmSync = Arrays.asList(new GoogleCalendarSbmSync());
 		when(calendarService.queryEmail(any())).thenReturn(googleCalendarSbmSync);
 
 		ContactItem contactItem = new ContactItem();

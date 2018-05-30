@@ -111,10 +111,10 @@ public class CreateInternalHandler implements InternalHandler {
 		if (clinikoSbmSync != null) {
 			processed = executeWithCliniko(payload, bookingInfo, clinikoSbmSync);
 		}
-		GoogleCalendarSbmSync sbmGoogle = googleCalendarService.load(sbmId);
-		if (sbmGoogle != null) {
-			processed = excuteWithGoogleCalendar(bookingInfo, payload, sbmGoogle.getRefreshToken(),
-					sbmGoogle.getGoogleCalendarId());
+		List<GoogleCalendarSbmSync> sbmGoogle = googleCalendarService.queryEmail(bookingInfo.getUnit_email());
+		if (!sbmGoogle.isEmpty()) {
+			processed = excuteWithGoogleCalendar(bookingInfo, payload, sbmGoogle.get(0).getRefreshToken(),
+					sbmGoogle.get(0).getGoogleCalendarId());
 		}
 		if (processed) {
 			m_log.info("The booking is synced to Cliniko/Google Calendar");

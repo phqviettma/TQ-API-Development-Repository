@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Account implements Serializable {
@@ -33,7 +34,6 @@ public class Account implements Serializable {
 		this.country = country;
 	}
 
-	
 	public String getTime_zone() {
 		return time_zone;
 	}
@@ -58,8 +58,18 @@ public class Account implements Serializable {
 		this.email_from = email_from;
 	}
 
+	public Account withTimeZone(String timeZone) {
+		this.setTime_zone(timeZone);
+		return this;
+	}
+
+	public Account withCountry(String country) {
+		this.setCountry(country);
+		return this;
+	}
+
 	public Account(String name, String country, String timezone, String country_code, String email_from) {
-		
+
 		this.name = name;
 		this.country = country;
 		this.time_zone = timezone;
@@ -76,7 +86,5 @@ public class Account implements Serializable {
 	public Account() {
 		super();
 	}
-	
-	
-	
+
 }

@@ -11,11 +11,14 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
@@ -36,9 +39,11 @@ public class GoogleDisconnectHandlerTest {
 	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
 	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
+	private SbmSyncFutureBookingsService sbmSyncFutureBookingsService = mock(SbmSyncFutureBookingsService.class);
+	private SbmListBookingService sbmListBookingService = mock(SbmListBookingService.class);
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
 			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService,
-			modifiedChannelService);
+			modifiedChannelService, sbmSyncFutureBookingsService, sbmListBookingService);
 
 	@Test
 	public void testDisconnect() throws TrueQuitRegisterException, GoogleApiSDKException {
@@ -64,6 +69,8 @@ public class GoogleDisconnectHandlerTest {
 		error.setMessage("Channel id not found for project id");
 		value.setError(error);
 		when(googleCalendarApiService.stopWatchEvent(any())).thenReturn(value);
+		List<GCModifiedChannel> modifiedChannels = Arrays.asList(new GCModifiedChannel());
+		when(modifiedChannelService.queryEmail(any())).thenReturn(modifiedChannels);
 		GoogleConnectStatusResponse response = disconnectHandler.handle(req);
 		assertEquals(response.isSucceeded(), true);
 

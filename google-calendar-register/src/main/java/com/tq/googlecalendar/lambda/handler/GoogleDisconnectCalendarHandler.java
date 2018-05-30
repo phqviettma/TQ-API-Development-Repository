@@ -8,9 +8,13 @@ import org.slf4j.LoggerFactory;
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
+import com.tq.common.lambda.dynamodb.model.SbmBookingList;
+import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
@@ -34,17 +38,22 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private GoogleCalRenewService googleCalRenewService = null;
 	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
+	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
+	private SbmListBookingService sbmListBookingService = null;
 
 	public GoogleDisconnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			TokenGoogleCalendarService tokenCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder,
 			GoogleCalRenewService googleCalRenewService,
-			GoogleCalendarModifiedSyncService calendarModifiedChannelService) {
+			GoogleCalendarModifiedSyncService calendarModifiedChannelService,
+			SbmSyncFutureBookingsService sbmSyncFutureBookingService, SbmListBookingService sbmListBookingService) {
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.tokenCalendarService = tokenCalendarService;
 		this.apiServiceBuilder = apiServiceBuilder;
 		this.googleCalRenewService = googleCalRenewService;
 		this.calendarModifiedChannelService = calendarModifiedChannelService;
+		this.sbmSyncFutureBookingService = sbmSyncFutureBookingService;
+		this.sbmListBookingService = sbmListBookingService;
 	}
 
 	@Override
@@ -78,6 +87,14 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 					m_log.info("Delete record in table GoogleSbmSync successfully");
 					googleCalRenewService.deleteRenewChannel(renewChannel);
 					calendarModifiedChannelService.deleteModifiedItem(modifiedChannel);
+					SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService
+							.load(googleCalendarSbmSync.get(0).getSbmId());
+					sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
+					SbmBookingList bookingListItem = sbmListBookingService
+							.load(googleCalendarSbmSync.get(0).getSbmId());
+					if (bookingListItem != null) {
+						sbmListBookingService.delete(bookingListItem);
+					}
 				} else {
 					throw new GoogleApiSDKException("Internal error");
 				}

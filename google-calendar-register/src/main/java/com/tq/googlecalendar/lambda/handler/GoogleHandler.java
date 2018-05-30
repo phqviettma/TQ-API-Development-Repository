@@ -18,14 +18,20 @@ import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarModifiedSynDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleRenewChannelDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.SbmListBookingDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.SbmSyncFutureBookingDaoImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarModifiedSyncServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleWatchChannelDbServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.SbmListBookingServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.SbmSyncFutureBookingServiceImpl;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.googlecalendar.context.Env;
@@ -36,6 +42,7 @@ import com.tq.googlecalendar.lambda.model.GoogleRegisterReq;
 import com.tq.googlecalendar.lambda.resp.GoogleConnectFailureResponse;
 import com.tq.googlecalendar.lambda.resp.GoogleConnectStatusResponse;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
+import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.service.SbmUnitService;
@@ -57,6 +64,9 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	private ContactItemService contactItemService = null;
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private GoogleCalRenewService googleWatchChannelDbService = null;
+	private SbmSyncFutureBookingsService sbmSyncFutureBooking = null;
+	private BookingServiceSbmImpl bookingSbmService  = null;
+	private  SbmListBookingService sbmListBookingService = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
 	private Handler connectHandler = null;
@@ -80,11 +90,16 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		this.contactItemService = new ContactItemServiceImpl(new ContactItemDaoImpl(amazonDynamoDB));
 		this.googleWatchChannelDbService = new GoogleWatchChannelDbServiceImpl(
 				new GoogleRenewChannelDaoImpl(amazonDynamoDB));
+		this.sbmSyncFutureBooking = new SbmSyncFutureBookingServiceImpl(
+				new SbmSyncFutureBookingDaoImpl(amazonDynamoDB));
+		this.bookingSbmService = new BookingServiceSbmImpl();
+		this.sbmListBookingService = new SbmListBookingServiceImpl(new SbmListBookingDaoImpl(amazonDynamoDB));
 		this.connectHandler = new GoogleConnectCalendarHandler(eVariables, googleCalendarService, contactItemService,
 				tokenCalendarService, sbmUnitService, tokenServiceSbm, apiServiceBuilder, googleWatchChannelDbService,
-				calendarModifiedChannelService);
+				calendarModifiedChannelService, sbmSyncFutureBooking, bookingSbmService, sbmListBookingService);
 		this.disconnectHandler = new GoogleDisconnectCalendarHandler(eVariables, googleCalendarService,
-				tokenCalendarService, apiServiceBuilder, googleWatchChannelDbService, calendarModifiedChannelService);
+				tokenCalendarService, apiServiceBuilder, googleWatchChannelDbService, calendarModifiedChannelService,
+				sbmSyncFutureBooking, sbmListBookingService);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
 		this.showCalendarHandler = new ShowGoogleCalendarHandler(tokenCalendarService, eVariables);
 

@@ -23,9 +23,6 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
-import com.tq.simplybook.impl.SbmUnitServiceImpl;
-import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
-import com.tq.simplybook.impl.TokenServiceImpl;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
@@ -36,13 +33,13 @@ public class ClinikoSyncHandlerTest {
 	private static final String API_KEY = "";
 	private Context m_context = mock(Context.class);
 	private AmazonDynamoDB amazonDynamoDB = mock(AmazonDynamoDB.class);
-	private SpecialdayServiceSbm specialdayService = new SpecialdayServiceSbmImpl();
-	private TokenServiceSbm tokenService = new TokenServiceImpl();
+	private SpecialdayServiceSbm specialdayService = mock(SpecialdayServiceSbm.class);
+	private TokenServiceSbm tokenService = mock(TokenServiceSbm.class);
 	private SbmBreakTimeManagement sbmTimeManagement = new SbmBreakTimeManagement();
 	private ClinikoSyncToSbmService clinikoSyncService = mock(ClinikoSyncToSbmService.class);
 	private ClinikoItemService clinikoItemService = mock(ClinikoItemService.class);
 	private SbmClinikoSyncService sbmClinikoSyncService = mock(SbmClinikoSyncService.class);
-	private SbmUnitService unitService = new SbmUnitServiceImpl();
+	private SbmUnitService unitService = mock(SbmUnitService.class);
 	private BookingServiceSbm bookingService = mock(BookingServiceSbm.class);
 	ClinikoSyncHandler handler = new ClinikoSyncHandler(m_env, amazonDynamoDB, specialdayService, tokenService,
 			sbmTimeManagement, clinikoSyncService, clinikoItemService, sbmClinikoSyncService, unitService,

@@ -11,19 +11,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
+import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
+import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.common.lambda.utils.TimeUtils;
-import com.tq.sbmsync.lambda.model.SbmSyncReq;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
@@ -41,22 +42,26 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 	private static final String ORDER_BY = "start_date";
 	private static final String AGENT = "sbm";
 	private SbmClinikoSyncService sbmClinikoService = null;
+	private ClinikoApiServiceBuilder apiServiceBuilder =null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
+	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
 
 	public SbmSyncClinikoHandler(ClinikoSyncToSbmService clinikoSyncDBService, BookingServiceSbmImpl bookingSbmService,
 			TokenServiceSbm tokenServiceSbm, Env eVariables, SbmClinikoSyncService sbmClinikoService,
-			ClinikoCompanyInfoService clinikoCompanyService) {
+			ClinikoCompanyInfoService clinikoCompanyService, SbmSyncFutureBookingsService sbmSyncFutureBookingService,ClinikoApiServiceBuilder apiServiceBuilder) {
 		this.clinikoSyncDBService = clinikoSyncDBService;
 		this.bookingSbmService = bookingSbmService;
 		this.tokenServiceSbm = tokenServiceSbm;
 		this.eVariables = eVariables;
 		this.sbmClinikoService = sbmClinikoService;
 		this.clinikoCompanyService = clinikoCompanyService;
+		this.sbmSyncFutureBookingService = sbmSyncFutureBookingService;
+		this.apiServiceBuilder = apiServiceBuilder;
 	}
 
 	@Override
-	public LambdaStatusResponse handle(SbmSyncReq req) throws SbmSDKException, ClinikoSDKExeption {
-		ClinikoSbmSync clinikoSbmSync = clinikoSyncDBService.queryWithIndex(req.getParams().getClinikoApiKey());
+	public LambdaStatusResponse handle(SbmSyncFutureBookings req) throws SbmSDKException, ClinikoSDKExeption {
+		ClinikoSbmSync clinikoSbmSync = clinikoSyncDBService.queryWithIndex(req.getClinikoApiKey());
 		LambdaStatusResponse response = new LambdaStatusResponse();
 		if (clinikoSbmSync != null) {
 			String sbmId[] = clinikoSbmSync.getSbmId().split("-");
@@ -73,11 +78,14 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 			String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
 			String dateFrom = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 			ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(bussinessId);
-			ClinikoAppointmentService clinikoApptService = new ClinikiAppointmentServiceImpl(
-					clinikoSbmSync.getApiKey());
+			ClinikoAppointmentService clinikoApptService = apiServiceBuilder.build(clinikoSbmSync.getApiKey());
 			GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY, unitId, eventId);
 			List<GetBookingResp> bookingList = bookingSbmService.getBookings(companyLogin, endpoint, token,
 					getBookingReq);
+			if (bookingList.isEmpty()) {
+				req.setSyncStatus(0);
+				sbmSyncFutureBookingService.put(req);
+			}
 			Iterator<GetBookingResp> booking = bookingList.iterator();
 			if (clinikoCompanyInfo != null) {
 				while (booking.hasNext()) {
@@ -92,18 +100,27 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 					DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
 					DateTime endTime = new DateTime(sbmEndTime, timeZone);
 					DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
-					AppointmentInfo result = clinikoApptService.createAppointment(new AppointmentInfo(
-							clinikoStartTime.toString(), clinikoEndTime.toString(), clinikoCompanyInfo.getPatientId(),
-							practitionerId,clinikoCompanyInfo.getAppointmentType(), bussinessId));
-					m_log.info("Create appointment successfully" + result.toString());
+
 					SbmCliniko sbmCliniko = sbmClinikoService.load(Long.parseLong(bookingResp.getId()));
 					if (sbmCliniko == null) {
+						AppointmentInfo result = clinikoApptService
+								.createAppointment(new AppointmentInfo(clinikoStartTime.toString(),
+										clinikoEndTime.toString(), clinikoCompanyInfo.getPatientId(), practitionerId,
+										clinikoCompanyInfo.getAppointmentType(), bussinessId));
+						m_log.info("Create appointment successfully" + result.toString());
 						sbmCliniko = new SbmCliniko(Long.parseLong(bookingResp.getId()), result.getId(), 1,
-								req.getParams().getClinikoApiKey(), AGENT);
+								req.getClinikoApiKey(), AGENT);
 						sbmClinikoService.put(sbmCliniko);
 						m_log.info("Save to database successfully " + sbmCliniko);
 					}
+					else {
+						if(bookingList.indexOf(bookingResp)==(bookingList.size()-1)) {
+							req.setSyncStatus(0);
+							sbmSyncFutureBookingService.put(req);
+						}
+					}
 				}
+
 			}
 		}
 		response.setSucceeded(true);

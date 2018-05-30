@@ -19,6 +19,7 @@ import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoItemService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
+import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
@@ -35,9 +36,11 @@ public class ClinikoRegisterHandlerTest {
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = mock(ClinikoSyncToSbmService.class);
 	private ClinikoItemService clinikoItemService = mock(ClinikoItemService.class);
 	private ClinikoCompanyInfoService clinikoCompanyService = mock(ClinikoCompanyInfoService.class);
+	private SbmSyncFutureBookingsService sbmSyncBookingService = mock(SbmSyncFutureBookingsService.class);
 	private ClinikoConnectHandler connectHandler = new ClinikoConnectHandler(mockedeEnv, unitService, tokenService,
-			clinikoSyncToSbmService, clinikoItemService, clinikoCompanyService);
-	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService, clinikoItemService);
+			clinikoSyncToSbmService, clinikoItemService, clinikoCompanyService, sbmSyncBookingService);
+	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService,
+			clinikoItemService, sbmSyncBookingService);
 
 	@Before
 	public void init() {
