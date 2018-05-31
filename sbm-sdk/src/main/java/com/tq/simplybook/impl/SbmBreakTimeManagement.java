@@ -64,6 +64,7 @@ public class SbmBreakTimeManagement {
 
 			Set<WorkTimeSlot> workTimeSlots = workDayInfo.getInfo();
 			Set<Breaktime> breakTimes;
+
 			breakTimes = removeBreakTime(envStartWorkingTime, envEndWorkingTime, removedBreakTime, workTimeSlots);
 
 			if (!breakTimes.isEmpty()) {
@@ -101,6 +102,7 @@ public class SbmBreakTimeManagement {
 		m_log.info("SBM Current BreakTimes " + currentBreakTimes.toString());
 		m_log.info("BreakTimes to be removed " + removedBreakTime.toString());
 		Set<Breaktime> remainingBreakTimes;
+
 		remainingBreakTimes = SbmBreakTimeManagement.elimateBreakTimes(currentBreakTimes, removedBreakTime);
 		m_log.info("Remaining break times " + remainingBreakTimes.toString());
 
@@ -421,6 +423,7 @@ public class SbmBreakTimeManagement {
 					stack.pop();
 
 					break;
+
 				}
 				}
 
@@ -430,6 +433,14 @@ public class SbmBreakTimeManagement {
 				String startTime = startPoint.toString();
 				String endTime = endPoint.toString();
 
+				Breaktime breakTime = new Breaktime(startTime, endTime);
+				newBreakTimes.add(breakTime);
+			}
+
+			if (stack.isEmpty()) {
+				endPoint = time;
+				String startTime = startPoint.toString();// minToHour(startPoint);
+				String endTime = endPoint.toString();// minToHour(endPoint);
 				Breaktime breakTime = new Breaktime(startTime, endTime);
 				newBreakTimes.add(breakTime);
 			}

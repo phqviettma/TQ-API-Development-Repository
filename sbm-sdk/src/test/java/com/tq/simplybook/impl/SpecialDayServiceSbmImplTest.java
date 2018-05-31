@@ -16,11 +16,11 @@ public class SpecialDayServiceSbmImplTest {
 	@Test
 	public void testSetWorkDayInfo() throws Exception {
 
-		String companyLogin = "truequit";
+		String companyLogin = "canhcanh";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "epymutehy";
+		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		Set<Breaktime> breaktime = new HashSet<>();
 		Breaktime breakTime = new Breaktime("00:00:00", "00:00:00");

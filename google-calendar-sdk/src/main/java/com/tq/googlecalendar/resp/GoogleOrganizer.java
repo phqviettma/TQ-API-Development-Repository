@@ -29,4 +29,5 @@ public class GoogleOrganizer {
 	public String toString() {
 		return "GoogleOrganizer [email=" + email + ", self=" + self + "]";
 	}
+
 }

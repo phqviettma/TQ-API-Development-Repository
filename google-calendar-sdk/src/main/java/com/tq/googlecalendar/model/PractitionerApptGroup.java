@@ -36,9 +36,9 @@ public class PractitionerApptGroup {
 			dateInfo = new EventDateInfo();
 			dateToSbmBreakTimesMap.put(date, dateInfo);
 		}
-
 		String start_time = TimeUtils.extractTime(appt.getAppointmentStart());
 		String end_time = TimeUtils.extractTime(appt.getAppointmentEnd());
+
 		dateInfo.breakTimeSet.add(new Breaktime(start_time, end_time));
 		dateInfo.sbmGoogleCalendar.add(appt.getSbmGoogleCalendar());
 		dateInfo.googleEvents.add(appt.getGoogleEvent());

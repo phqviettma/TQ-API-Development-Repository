@@ -76,11 +76,11 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 	}
 
 	private class GetEventNextPage extends GetGoogleCalendarApiReq {
-
 		public GetEventNextPage(String accessToken, Integer maxResults, String syncToken, String nextPageToken,
 				String googleCalendarId) {
 			super(accessToken, "calendars/" + googleCalendarId + "/events?maxResults=" + maxResults
 					+ "&singleEvents=true&showDeleted=true&syncToken=" + syncToken + "&pageToken=" + nextPageToken);
+
 
 		}
 
@@ -347,6 +347,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 		public GetListCalendar(String accessToken) {
 			super(accessToken, "users/me/calendarList?minAccessRole=owner");
+
 
 		}
 

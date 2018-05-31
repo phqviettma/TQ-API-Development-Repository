@@ -61,6 +61,7 @@ public class SbmBreakTimeManagementTest {
 		newBreakTime.add(new Breaktime("14:00", "15:00"));
 		actualBreakTimes = SbmBreakTimeManagement.appenBreakTime("09:00", "19:00", newBreakTime, workTimeSlot);
 		assertEquals(1, actualBreakTimes.size());
+		System.out.println(actualBreakTimes);
 
 		workTimeSlot = new HashSet<WorkTimeSlot>();
 		newBreakTime = new HashSet<Breaktime>();

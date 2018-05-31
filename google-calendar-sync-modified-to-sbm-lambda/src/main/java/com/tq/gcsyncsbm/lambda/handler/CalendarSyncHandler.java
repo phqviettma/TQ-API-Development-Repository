@@ -129,8 +129,8 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					&& processedEventNum < m_env.getNumberEvent()) {
 				GCModifiedChannel modifiedItem = it.next();
 
-				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService
-						.load(modifiedItem.getChannelId());
+				GoogleCalendarSbmSync googleCalendarSbmSync = googleCalendarService.load(modifiedItem.getChannelId());
+
 				if (googleCalendarSbmSync != null) {
 					String googleCalendarId = googleCalendarSbmSync.getGoogleCalendarId();
 
@@ -227,12 +227,15 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 
 					if (allEventsSynced) {
 						modifiedItem.setCheckingStatus(0);
+
 					}
 
 					modifiedChannelService.put(modifiedItem);
 
 					if (isDbChanged) {
+
 						googleCalendarService.put(googleCalendarSbmSync);
+
 					}
 
 					processedChannelNum++;

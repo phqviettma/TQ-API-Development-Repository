@@ -132,7 +132,6 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							apptGroupMap.put(dateTime, group);
 						}
 						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
-
 								event.getEnd().getDateTime(), sbmGoogleSync));
 					}
 

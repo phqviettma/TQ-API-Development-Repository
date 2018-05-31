@@ -144,9 +144,9 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 					m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
 				}
 			}
-		}
-		else {
+		} else {
 			m_log.info("This time is not available");
+
 		}
 	}
 

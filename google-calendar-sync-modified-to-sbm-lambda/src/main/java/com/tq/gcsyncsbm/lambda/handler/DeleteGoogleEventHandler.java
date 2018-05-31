@@ -113,7 +113,7 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 							Map<String, WorkingTime> unitWorkingTimeMap = unitWorkingTime.getWorkingTime();
 							WorkingTime workingTime = unitWorkingTimeMap.get(unitId[1]);
 							SetWorkDayInfoInfoReq workDayInfoReq = new SetWorkDayInfoInfoReq(
-									workingTime.getStart_time(), workingTime.getEnd_time(), null,0, startDate,
+									workingTime.getStart_time(), workingTime.getEnd_time(), null, 0, startDate,
 									unitId[1], unitId[0]);
 							SetWorkDayInfoReq workDayInfo = new SetWorkDayInfoReq(workDayInfoReq);
 							specialdayService.changeWorkDay(companyLogin, endpoint, token, workDayInfo);
