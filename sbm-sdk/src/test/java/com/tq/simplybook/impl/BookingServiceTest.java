@@ -66,7 +66,7 @@ public class BookingServiceTest {
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "1900561594";
+		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		ClientData clientData = new ClientData("Suong", "jasmine@gmail.com", "01225543977");
 		String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, userToken, "book",
