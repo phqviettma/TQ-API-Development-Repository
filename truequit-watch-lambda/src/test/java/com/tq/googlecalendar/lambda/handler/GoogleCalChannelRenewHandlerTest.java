@@ -6,6 +6,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -40,7 +43,12 @@ public class GoogleCalChannelRenewHandlerTest {
 		AwsProxyRequest input = new AwsProxyRequest();
 		Context context = mock(Context.class);
 		GoogleRenewChannelInfo channelInfo = new GoogleRenewChannelInfo();
+		channelInfo.setChannelId("channel id");
+		channelInfo.setResourceId(" resource id");
 		when(googleWatchChannelDbService.load(any())).thenReturn(channelInfo);
+		List<GoogleRenewChannelInfo> channelInfos = new ArrayList<>();
+		channelInfos.add(channelInfo);
+		when(googleWatchChannelDbService.queryCheckingTime(any())).thenReturn(channelInfos );
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("accesstoken");
 		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);

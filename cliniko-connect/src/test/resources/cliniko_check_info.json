@@ -1,5 +1,5 @@
 {
-	"action": "connect",
+	"action": "check",
 	"params": {
 		"apiKey": "ae4e2a30bbb471757e7ed579539d106f",
 		"practitionerEmail":"tmatesting@gmail.com"

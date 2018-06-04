@@ -42,8 +42,6 @@ import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
-import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.resp.BookingInfo;
 import com.tq.simplybook.resp.GetBookingResp;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -62,12 +60,10 @@ public class SbmSyncHandlerTest {
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = mock(SbmSyncFutureBookingsService.class);
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private GoogleCalendarApiServiceBuilder mockApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
-	private SbmSyncClinikoHandler clinikoHandler = new SbmSyncClinikoHandler(clinikoSyncService, bookingSbmService,
-			tokenService, env, sbmClinikoSyncService, clinikoCompanyService, sbmSyncFutureBookingService, mockClinikoApiService);
+	private SbmSyncClinikoHandler clinikoHandler = new SbmSyncClinikoHandler(clinikoSyncService, sbmClinikoSyncService, clinikoCompanyService, sbmSyncFutureBookingService, mockClinikoApiService, sbmListBookingService);
 	private SbmSyncGCHandler gcHandler = new SbmSyncGCHandler(googleCalendarDbService, env, tokenCalendarService,
 			sbmSyncFutureBookingService, sbmListBookingService, sbmGoogleCalendarService, mockApiServiceBuilder);
-	private SbmSyncHandler sbmSyncHandler = new SbmSyncHandler(env, clinikoSyncService, tokenService,
-			sbmClinikoSyncService, googleCalendarDbService, tokenCalendarService, clinikoHandler, gcHandler,
+	private SbmSyncHandler sbmSyncHandler = new SbmSyncHandler(env, clinikoSyncService, sbmClinikoSyncService, googleCalendarDbService, tokenCalendarService, clinikoHandler, gcHandler,
 			sbmSyncFutureBookingService);
 
 	@Test

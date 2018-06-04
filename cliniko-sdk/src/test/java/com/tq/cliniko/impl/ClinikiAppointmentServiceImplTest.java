@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
@@ -21,7 +22,7 @@ import com.tq.cliniko.lambda.model.User;
 
 public class ClinikiAppointmentServiceImplTest {
 	static ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl(
-			"ff997f7d491b555f227262870a2717c1");
+			"dfb4a2e724f99ad8a31d6bd77e0cb917");
 	Integer maxResult = 100;
 
 	@Test
@@ -54,6 +55,7 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
+	@Ignore
 	public void testCreateAppointments() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");
@@ -132,6 +134,7 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
+	@Ignore
 	public void testGetPractitionerAppointment() throws ClinikoSDKExeption {
 		AppointmentsInfo appt = m_service.getPractitionerAppointment(95260, 10);
 		assertTrue(appt.getAppointments().size() > 0);

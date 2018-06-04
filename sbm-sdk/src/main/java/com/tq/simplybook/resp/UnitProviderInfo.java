@@ -68,6 +68,11 @@ public class UnitProviderInfo implements Serializable {
 		this.event_map = event_map;
 	}
 
+	public UnitProviderInfo withEmail(String email) {
+		this.setEmail(email);
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return "UnitProviderInfo [id=" + id + ", name=" + name + ", description=" + description + ", phone=" + phone

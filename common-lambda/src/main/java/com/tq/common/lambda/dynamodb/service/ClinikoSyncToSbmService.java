@@ -6,4 +6,6 @@ public interface ClinikoSyncToSbmService extends BaseItemService<ClinikoSbmSync,
 	public void delete(ClinikoSbmSync clinikoSbm);
 
 	public ClinikoSbmSync queryWithIndex(String apiKey);
+
+	public ClinikoSbmSync queryEmail(String practitionerEmail);
 }

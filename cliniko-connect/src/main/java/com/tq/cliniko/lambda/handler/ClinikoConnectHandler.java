@@ -1,5 +1,6 @@
 package com.tq.cliniko.lambda.handler;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
+import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.exception.ClinikoConnectException;
 import com.tq.cliniko.lambda.model.AppointmentType;
 import com.tq.cliniko.lambda.model.Businesses;
@@ -23,16 +24,22 @@ import com.tq.cliniko.lambda.model.Practitioner;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.User;
 import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
+import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ClinikoSyncStatus;
+import com.tq.common.lambda.dynamodb.model.SbmBookingList;
 import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoItemService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
+import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
+import com.tq.simplybook.impl.BookingServiceSbmImpl;
+import com.tq.simplybook.req.GetBookingReq;
+import com.tq.simplybook.resp.GetBookingResp;
 import com.tq.simplybook.resp.UnitProviderInfo;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
@@ -45,13 +52,20 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private ClinikoItemService clinikoItemService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
+	private BookingServiceSbmImpl bookingService = null;
+	private ClinikoApiServiceBuilder apiServiceBuilder = null;
 	private static final String DEFAULT_PATIENT_NAME = "TrueQuit";
 	private static final String DEFAULT_PATIENT_LAST_NAME = "patient";
+	private static final String BOOKING_TYPE = "non_cancelled";
+	private static final String ORDER_BY = "start_date";
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
+	private SbmListBookingService sbmBookingDBService = null;
 
 	public ClinikoConnectHandler(Env env, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoSyncService, ClinikoItemService clinikoItemService,
-			ClinikoCompanyInfoService clinikoCompanyService, SbmSyncFutureBookingsService sbmSyncFutureBookingService) {
+			ClinikoCompanyInfoService clinikoCompanyService, SbmSyncFutureBookingsService sbmSyncFutureBookingService,
+			BookingServiceSbmImpl bookingService, SbmListBookingService sbmBookingDBService,
+			ClinikoApiServiceBuilder apiServiceBuilder) {
 		this.eVariables = env;
 		this.unitServiceSbm = unitService;
 		this.tokenServiceSbm = tokenService;
@@ -59,6 +73,9 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		this.clinikoItemService = clinikoItemService;
 		this.clinikoCompanyService = clinikoCompanyService;
 		this.sbmSyncFutureBookingService = sbmSyncFutureBookingService;
+		this.bookingService = bookingService;
+		this.sbmBookingDBService = sbmBookingDBService;
+		this.apiServiceBuilder = apiServiceBuilder;
 	}
 
 	@Override
@@ -76,7 +93,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		String apiKey = req.getParams().getApiKey();
 		ClinikoSbmSync clinikoSbmSync = clinikoSyncService.queryWithIndex(apiKey);
 		if (clinikoSbmSync == null) {
-			ClinikiAppointmentServiceImpl clinikoService = new ClinikiAppointmentServiceImpl(apiKey);
+			ClinikoAppointmentService clinikoService = apiServiceBuilder.build(apiKey);
 			User userInfo = clinikoService.getAuthenticateUser();
 			String email = userInfo.getEmail();
 			PractitionersInfo practitionerInfo = clinikoService.getPractitioner(userInfo.getId());
@@ -108,7 +125,8 @@ public class ClinikoConnectHandler implements ConnectHandler {
 								String sbmId = eventId + "-" + unitId;
 								String clinikoId = clinikoMap.get("clinikoId");
 								m_log.info("Cliniko Map" + clinikoMap);
-								clinikoSbmSync = new ClinikoSbmSync(apiKey, email, clinikoId, sbmId);
+								clinikoSbmSync = new ClinikoSbmSync(apiKey, req.getParams().getPractitionerEmail(),
+										clinikoId, sbmId);
 								clinikoSyncService.put(clinikoSbmSync);
 								m_log.info("Save to database successfully with value " + clinikoSbmSync);
 								long timeStamp = Calendar.getInstance().getTimeInMillis();
@@ -120,11 +138,23 @@ public class ClinikoConnectHandler implements ConnectHandler {
 								ClinikoCompanyInfo clinikoCompanyInfo = createDefaultPatient(clinikoId, apiKey);
 								clinikoCompanyService.put(clinikoCompanyInfo);
 								m_log.info("Save to database " + clinikoCompanyInfo);
-								SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, apiKey, 1, timeStamp);
-								sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem );
+								SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId,
+										apiKey, 1, timeStamp);
+								sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
+								String dateFrom = new SimpleDateFormat("yyyy-MM-dd")
+										.format(Calendar.getInstance().getTime());
+								GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY,
+										Integer.valueOf(unitId), Integer.valueOf(eventId));
+								List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint,
+										token, getBookingReq);
+								SbmBookingList sbmBookingItem = new SbmBookingList(sbmId, bookingList);
+								sbmBookingDBService.put(sbmBookingItem);
 								done = true;
 								break;
 							}
+						}
+						else {
+							m_log.info("Please set service for provider in SBM");
 						}
 					}
 				}
@@ -150,7 +180,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		Integer practitionerId = Integer.parseInt(clinikoCompanyId[1]);
 		ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(businessId);
 		if (clinikoCompanyInfo == null) {
-			ClinikiAppointmentServiceImpl clinikoApiService = new ClinikiAppointmentServiceImpl(apiKey);
+			ClinikoAppointmentService clinikoApiService = apiServiceBuilder.build(apiKey);
 			ClinikoAppointmentType appointmentType = clinikoApiService.getAppointmentType(practitionerId);
 			Integer apptTypeId = 0;
 			for (AppointmentType apptType : appointmentType.getAppointment_types()) {

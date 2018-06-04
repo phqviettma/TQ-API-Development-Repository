@@ -29,6 +29,7 @@ import com.tq.googlecalendar.resp.Start;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
+import com.tq.sbmsync.lambda.model.FindNewBooking;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.resp.GetBookingResp;
@@ -46,7 +47,8 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 
 	public SbmSyncGCHandler(GoogleCalendarDbService googleCalendarService, Env eVariables,
 			TokenGoogleCalendarService tokenCalendarService, SbmSyncFutureBookingsService sbmSyncFutureBookingService,
-			SbmListBookingService sbmListBookingService, SbmGoogleCalendarDbService sbmGoogleCalendarService,GoogleCalendarApiServiceBuilder apiServiceBuilder) {
+			SbmListBookingService sbmListBookingService, SbmGoogleCalendarDbService sbmGoogleCalendarService,
+			GoogleCalendarApiServiceBuilder apiServiceBuilder) {
 		this.googleCalendarService = googleCalendarService;
 		this.eVariables = eVariables;
 		this.tokenCalendarService = tokenCalendarService;
@@ -84,28 +86,24 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 					}
 					while (processNumber < syncNumber && booking.hasNext()) {
 						GetBookingResp bookingResp = booking.next();
+						String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
+						String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
+						Start start = new Start(sbmStartTime, settingInfo.getValue());
+						End end = new End(sbmEndTime, settingInfo.getValue());
+						List<Attendees> attendees = new ArrayList<>();
+						attendees.add(new Attendees(bookingResp.getClient_email(), bookingResp.getClient()));
+						EventReq eventReq = new EventReq(start, end, bookingResp.getEvent(), attendees,
+								eVariables.getGoogleCalendarEventName());
+						EventResp eventResp = googleApiService.createEvent(eventReq,
+								googleCalendarSbmSync.getGoogleCalendarId());
+						m_log.info("Create event successfully with value " + eventResp.toString());
+						SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(
+								Long.parseLong(bookingResp.getId()), eventResp.getId(), bookingResp.getClient_email(),
+								1, AGENT);
 
-						SbmGoogleCalendar sbmGoogleCalendarSync = sbmGoogleCalendarService
-								.load(Long.parseLong(bookingResp.getId()));
-						if (sbmGoogleCalendarSync == null) {
+						sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
+						m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
 
-							String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
-							String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
-							Start start = new Start(sbmStartTime, settingInfo.getValue());
-							End end = new End(sbmEndTime, settingInfo.getValue());
-							List<Attendees> attendees = new ArrayList<>();
-							attendees.add(new Attendees(bookingResp.getClient_email(), bookingResp.getClient()));
-							EventReq eventReq = new EventReq(start, end, bookingResp.getEvent(), attendees,
-									eVariables.getGoogleCalendarEventName());
-							EventResp eventResp = googleApiService.createEvent(eventReq,
-									googleCalendarSbmSync.getGoogleCalendarId());
-							m_log.info("Create event successfully with value " + eventResp.toString());
-							sbmGoogleCalendarSync = new SbmGoogleCalendar(Long.parseLong(bookingResp.getId()),
-									eventResp.getId(), bookingResp.getClient_email(), 1, AGENT);
-
-							sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
-							m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
-						}
 						processNumber++;
 					}
 					if (newBookings.getCount() == 0) {
@@ -138,25 +136,6 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 			}
 		}
 		return new FindNewBooking(num, newBooking);
-	}
-
-	private static class FindNewBooking {
-		private int count;
-		private List<GetBookingResp> bookingList;
-
-		public int getCount() {
-			return count;
-		}
-
-		public List<GetBookingResp> getBookingList() {
-			return bookingList;
-		}
-
-		public FindNewBooking(int count, List<GetBookingResp> bookingList) {
-			this.count = count;
-			this.bookingList = bookingList;
-		}
-
 	}
 
 }

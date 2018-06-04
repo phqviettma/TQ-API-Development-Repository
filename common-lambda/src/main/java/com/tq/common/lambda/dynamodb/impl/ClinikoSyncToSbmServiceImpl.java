@@ -34,4 +34,10 @@ public class ClinikoSyncToSbmServiceImpl implements ClinikoSyncToSbmService {
 		return m_clinikoSbmDao.queryIndex(apiKey);
 	}
 
+	@Override
+	public ClinikoSbmSync queryEmail(String practitionerEmail) {
+
+		return m_clinikoSbmDao.queryEmail(practitionerEmail);
+	}
+
 }

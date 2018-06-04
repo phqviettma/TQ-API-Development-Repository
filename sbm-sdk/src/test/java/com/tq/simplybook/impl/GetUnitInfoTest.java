@@ -26,7 +26,7 @@ public class GetUnitInfoTest {
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "";
+		String password = "1900561594";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		List<UnitProviderInfo> info = unitService.getUnitList(companyLogin, endpoint, userToken, true, true, 1);
 		assertNotNull(info);

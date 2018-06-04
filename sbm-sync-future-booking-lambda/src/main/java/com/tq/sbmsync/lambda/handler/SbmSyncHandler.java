@@ -40,17 +40,12 @@ import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
-import com.tq.simplybook.impl.BookingServiceSbmImpl;
-import com.tq.simplybook.impl.TokenServiceImpl;
-import com.tq.simplybook.service.TokenServiceSbm;
 
 public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static int STATUS_CODE = 200;
 	private static final Logger m_log = LoggerFactory.getLogger(SbmSyncHandler.class);
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private Env env = null;
-	private BookingServiceSbmImpl bookingService = null;
-	private TokenServiceSbm tokenService = null;
 	private SbmClinikoSyncService sbmClinikoSyncService = null;
 	private AmazonDynamoDB m_amazonDynamoDB = null;
 	private SbmInternalHandler sbmSyncGCHandler = null;
@@ -65,9 +60,8 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
 
 	public SbmSyncHandler() {
-		this.tokenService = new TokenServiceImpl();
 		this.env = Env.load();
-		this.bookingService = new BookingServiceSbmImpl();
+
 		this.m_amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(env.getRegions(), env.getAwsAccessKeyId(),
 				env.getAwsSecretAccessKey());
 		this.sbmClinikoSyncService = new SbmClinikoSyncImpl(new SbmClinikoSyncDaoImpl(m_amazonDynamoDB));
@@ -82,19 +76,18 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.sbmListBookingService = new SbmListBookingServiceImpl(new SbmListBookingDaoImpl(m_amazonDynamoDB));
 		this.clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
-		this.sbmSyncClinikoHandler = new SbmSyncClinikoHandler(clinikoSyncService, bookingService, tokenService, env,
-				sbmClinikoSyncService, clinikoCompanyService, sbmSyncFutureBookingService, clinikoApiServiceBuilder);
+		this.sbmSyncClinikoHandler = new SbmSyncClinikoHandler(clinikoSyncService, sbmClinikoSyncService,
+				clinikoCompanyService, sbmSyncFutureBookingService, clinikoApiServiceBuilder, sbmListBookingService);
 		this.sbmSyncGCHandler = new SbmSyncGCHandler(googleCalendarDbService, env, tokenCalendarService,
 				sbmSyncFutureBookingService, sbmListBookingService, sbmGoogleCalendarService, apiServiceBuilder);
 	}
 
 	// for testing only
-	SbmSyncHandler(Env env, ClinikoSyncToSbmService clinikoSyncService, TokenServiceSbm tokenService,
-			SbmClinikoSyncService sbmClinikoSyncService, GoogleCalendarDbService googleCalendarDbService,
-			TokenGoogleCalendarService tokenCalendarService, SbmSyncClinikoHandler clinikoHandler,
-			SbmSyncGCHandler gcHandler, SbmSyncFutureBookingsService sbmSyncFutureBookingService) {
+	SbmSyncHandler(Env env, ClinikoSyncToSbmService clinikoSyncService, SbmClinikoSyncService sbmClinikoSyncService,
+			GoogleCalendarDbService googleCalendarDbService, TokenGoogleCalendarService tokenCalendarService,
+			SbmSyncClinikoHandler clinikoHandler, SbmSyncGCHandler gcHandler,
+			SbmSyncFutureBookingsService sbmSyncFutureBookingService) {
 		this.env = env;
-		this.tokenService = tokenService;
 		this.sbmClinikoSyncService = sbmClinikoSyncService;
 		this.googleCalendarDbService = googleCalendarDbService;
 		this.tokenCalendarService = tokenCalendarService;
