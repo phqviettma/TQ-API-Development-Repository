@@ -32,9 +32,9 @@ public class GoogleRenewChannelDaoImpl extends AbstractItem<GoogleRenewChannelIn
 	@Override
 	public List<GoogleRenewChannelInfo> queryCheckingTime(Long checkingTime) {
 		Map<String, AttributeValue> queryCondition = new HashMap<String, AttributeValue>();
-		queryCondition.put(":checkingTime", new AttributeValue().withN(""+checkingTime));
+		queryCondition.put(":checkDay", new AttributeValue().withN("" + checkingTime));
 		DynamoDBQueryExpression<GoogleRenewChannelInfo> queryExpression = new DynamoDBQueryExpression<GoogleRenewChannelInfo>()
-				.withIndexName("Time-Index").withKeyConditionExpression("checkingTime=:checkingTime")
+				.withIndexName("Time-Index").withKeyConditionExpression("checkDay=:checkDay")
 				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
 		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
 		List<GoogleRenewChannelInfo> channelInfo = mapper.query(GoogleRenewChannelInfo.class, queryExpression);
