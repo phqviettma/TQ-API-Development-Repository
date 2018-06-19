@@ -57,6 +57,7 @@ public class BookingServiceSbmImpl implements BookingServiceSbm {
 		try {
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "cancelBatch",
 					new CancelBatchReq(batchId, bookingId));
+			m_log.info("Json response " + jsonResp);
 			CancelBatchResp readValueForObject = SbmUtils.readValueForObject(jsonResp, CancelBatchResp.class);
 			return readValueForObject.isResult();
 		} catch (Exception e) {
@@ -64,7 +65,9 @@ public class BookingServiceSbmImpl implements BookingServiceSbm {
 		}
 
 	}
-	public List<GetBookingResp> getBookings(String companyLogin, String endpoint, String token, GetBookingReq getBookingReq) throws SbmSDKException{
+
+	public List<GetBookingResp> getBookings(String companyLogin, String endpoint, String token,
+			GetBookingReq getBookingReq) throws SbmSDKException {
 		try {
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getBookings",
 					new ArrayList<>(Arrays.asList(getBookingReq)));
@@ -76,5 +79,5 @@ public class BookingServiceSbmImpl implements BookingServiceSbm {
 			throw new SbmSDKException(e.getMessage() + " during getBookings()", e);
 		}
 	}
-	
+
 }

@@ -141,12 +141,15 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 
 		if (!sbmBookingIdsTobeCancelled.isEmpty()) {
 			cancelBooking(companyLogin, endpoint, token, sbmBookingIdsTobeCancelled);
+
 			excuteWithInfusionsoft(clientEmailsForCancellation);
 			m_log.info("Events are synced to SBM provider " + sbmId + " by cancellation: "
 					+ String.valueOf(eventsTobeCancelled));
 			for (SbmGoogleCalendar sbmGoogleSync : listSbmGoogleCalendar) {
-				sbmCalendarService.delete(sbmGoogleSync);
+				sbmGoogleSync.setFlag(0);
+				sbmCalendarService.put(sbmGoogleSync);
 			}
+
 		}
 
 		if (!apptGroupMap.isEmpty()) {
@@ -213,12 +216,13 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 			if (contactItem == null || contactItem.getClient() == null
 					|| contactItem.getClient().getContactId() == null) {
 				m_log.info("There is no contact on Infusion Soft asociated to the email: " + email + ", ignored");
-			}
+			} else {
+				Integer ifContactId = contactItem.getClient().getContactId();
+				Integer appliedTagId = enV.getInfusionsoftGoogleDeleteTag();
+				ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
+				contactService.appyTag(enV.getInfusionSoftApiName(), enV.getInfusionSoftApiKey(), applyTagQuery);
 
-			Integer ifContactId = contactItem.getClient().getContactId();
-			Integer appliedTagId = enV.getInfusionsoftGoogleDeleteTag();
-			ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
-			contactService.appyTag(enV.getInfusionSoftApiName(), enV.getInfusionSoftApiKey(), applyTagQuery);
+			}
 		}
 	}
 }

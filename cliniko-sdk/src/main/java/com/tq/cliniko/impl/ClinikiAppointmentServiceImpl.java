@@ -169,7 +169,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 	private class GetAppointmentsApiReq extends QueryClinikoApiReq {
 		public GetAppointmentsApiReq(String apiKey, String queryStatement, int perPage,int practitionerId) throws Exception {
 			super(apiKey, "appointments",
-					"?q[]=" + "practitioner_id:="+practitionerId+"&per_page=" + String.valueOf(perPage)+"&"+ URLEncoder.encode(queryStatement, "UTF-8"));
+					"?q[]=" +URLEncoder.encode(queryStatement, "UTF-8") + "&practitioner_id:="+practitionerId+"&per_page=" + String.valueOf(perPage));
 		}
 	}
 
@@ -203,14 +203,14 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 	private class GetDeletedAppointment extends QueryClinikoApiReq {
 		public GetDeletedAppointment(String apiKey, String queryStatement, int perPage,int practitionerId) throws Exception {
 			super(apiKey, "appointments/deleted",
-					"?q[]=" + "practitioner_id:="+practitionerId+"&per_page=" + String.valueOf(perPage)+"&"+ URLEncoder.encode(queryStatement, "UTF-8"));
+					"?q[]=" + URLEncoder.encode(queryStatement, "UTF-8") + "&practitioner_id:="+practitionerId+"&per_page=" + String.valueOf(perPage));
 		}
 	}
 
 	private class GetCancelAppointment extends QueryClinikoApiReq {
 		public GetCancelAppointment(String apiKey, String queryStatement, int perPage,int practitionerId) throws Exception {
 			super(apiKey, "appointments/cancelled",
-					"?q[]="+ "practitioner_id:="+practitionerId+"&per_page=" + String.valueOf(perPage) +"&"+ URLEncoder.encode(queryStatement, "UTF-8") );
+					"?q[]="+ URLEncoder.encode(queryStatement, "UTF-8") + "&practitioner_id:="+practitionerId+"&per_page=" + String.valueOf(perPage) );
 		}
 	}
 

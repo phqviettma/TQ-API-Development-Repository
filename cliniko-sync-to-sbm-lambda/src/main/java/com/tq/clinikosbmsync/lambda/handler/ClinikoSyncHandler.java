@@ -127,132 +127,137 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 			while (it.hasNext()) {
 				ClinikoSyncStatus clinikoItem = it.next();
 				String apiKey = clinikoItem.getApiKey();
-				m_log.info("Sync for practitioner has apikey " + apiKey);
 				ClinikoSbmSync clinikoSbmSync = clinikoSyncService.queryWithIndex(apiKey);
-				String clinikoId[] = clinikoSbmSync.getClinikoId().split("-");
-				Integer practitionerId = Integer.parseInt(clinikoId[1]);
-				ClinikoAppointmentService clinikoApiService = new ClinikiAppointmentServiceImpl(apiKey);
-				Settings settings = clinikoApiService.getAllSettings();
-				m_log.info("Loaded setting information from cliniko");
-				String country = settings.getAccount().getCountry();
-				String time_zone = settings.getAccount().getTime_zone();
-				dateTz = DateTimeZone.forID(country + "/" + time_zone);
-				dbTime = clinikoItem.getLatestTime();
-				latestUpdateTime = TimeUtils.getNowInGMT();
-				AppointmentsInfo appts = null;
+				m_log.info("Syncing appointment with API key " + apiKey);
+				if (clinikoSbmSync != null) {
+					String clinikoId[] = clinikoSbmSync.getClinikoId().split("-");
+					Integer practitionerId = Integer.parseInt(clinikoId[1]);
+					ClinikoAppointmentService clinikoApiService = new ClinikiAppointmentServiceImpl(apiKey);
+					Settings settings = clinikoApiService.getAllSettings();
+					String country = settings.getAccount().getCountry();
+					String time_zone = settings.getAccount().getTime_zone();
+					dateTz = DateTimeZone.forID(country + "/" + time_zone);
+					dbTime = clinikoItem.getLatestTime();
+					latestUpdateTime = TimeUtils.getNowInGMT();
+					AppointmentsInfo appts = null;
 
-				if (dbTime == null) {
-					appts = clinikoApiService.getAppointments(latestUpdateTime, maxResult, practitionerId);
-				} else {
-					appts = clinikoApiService.getNewestAppointment(clinikoItem.getLatestTime(), maxResult,
-							practitionerId);
-				}
+					if (dbTime == null) {
+						appts = clinikoApiService.getAppointments(latestUpdateTime, maxResult, practitionerId);
+					} else {
+						appts = clinikoApiService.getNewestAppointment(clinikoItem.getLatestTime(), maxResult,
+								practitionerId);
+					}
 
-				if (appts.getAppointments().size() > 0) {
-					List<AppointmentInfo> fetchedAppts = appts.getAppointments();
-					FoundNewApptContext news = findNewAppts(fetchedAppts);
-					while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(appts)) {
-						appts = clinikoApiService.next(appts);
-						if (appts != null && appts.getAppointments().size() > 0) {
-							FoundNewApptContext newAppt = findNewAppts(appts.getAppointments());
-							if (newAppt.getCount() > 0) {
-								addUpToMax(news, newAppt, maxAppt);
+					if (appts.getAppointments().size() > 0) {
+						List<AppointmentInfo> fetchedAppts = appts.getAppointments();
+						FoundNewApptContext news = findNewAppts(fetchedAppts);
+						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(appts)) {
+							appts = clinikoApiService.next(appts);
+							if (appts != null && appts.getAppointments().size() > 0) {
+								FoundNewApptContext newAppt = findNewAppts(appts.getAppointments());
+								if (newAppt.getCount() > 0) {
+									addUpToMax(news, newAppt, maxAppt);
+								}
 							}
 						}
-					}
-					m_log.info("New appointmentIds " + news.getNewApptsId());
-					if (news.getCount() > 0) {
-						Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
-						long start = System.currentTimeMillis();
-						syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, true, clinikoSbmSync);
-						m_log.info(
-								"Take " + (System.currentTimeMillis() - start) + "s to sync create appointment to Sbm");
-						saveDb(news.getNewApptsId(), true, 1, apiKey, null);
+						m_log.info("New appointmentIds " + news.getNewApptsId());
+						if (news.getCount() > 0) {
+							Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
+							long start = System.currentTimeMillis();
+							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, true, clinikoSbmSync);
+							m_log.info("Take " + (System.currentTimeMillis() - start)
+									+ "s to sync create appointment to Sbm");
+							saveDb(news.getNewApptsId(), true, 1, apiKey, null);
+						} else {
+
+						}
 					} else {
 
 					}
-				} else {
+					m_log.info("Synchronized created appoinments to Simplybook.me completely");
+					AppointmentsInfo cancelledAppt;
+					if (dbTime == null) {
+						cancelledAppt = clinikoApiService.getCancelAppointments(latestUpdateTime, maxResult,
+								practitionerId);
+					} else {
+						cancelledAppt = clinikoApiService.getNewestCancelledAppointments(clinikoItem.getLatestTime(),
+								maxResult, practitionerId);
+					}
 
-				}
-				m_log.info("Synchronized created appoinments to Simplybook.me completely");
-				AppointmentsInfo cancelledAppt;
-				if (dbTime == null) {
-					cancelledAppt = clinikoApiService.getCancelAppointments(latestUpdateTime, maxResult,
-							practitionerId);
-				} else {
-					cancelledAppt = clinikoApiService.getNewestCancelledAppointments(clinikoItem.getLatestTime(),
-							maxResult, practitionerId);
-				}
-
-				m_log.info("Fetched: " + cancelledAppt.getAppointments().size() + " removed Cliniko appointment(s)");
-				if (cancelledAppt != null && cancelledAppt.getAppointments().size() > 0) {
-					List<AppointmentInfo> fetchedAppts = cancelledAppt.getAppointments();
-					FoundNewApptContext news = findNewCancelledAppts(fetchedAppts);
-					while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(cancelledAppt)) {
-						cancelledAppt = clinikoApiService.next(cancelledAppt);
-						if (cancelledAppt != null && cancelledAppt.getAppointments().size() > 0) {
-							FoundNewApptContext newAppt = findNewCancelledAppts(cancelledAppt.getAppointments());
-							if (newAppt.getCount() > 0) {
-								addUpToMax(news, newAppt, maxAppt);
+					m_log.info(
+							"Fetched: " + cancelledAppt.getAppointments().size() + " removed Cliniko appointment(s)");
+					if (cancelledAppt != null && cancelledAppt.getAppointments().size() > 0) {
+						List<AppointmentInfo> fetchedAppts = cancelledAppt.getAppointments();
+						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts);
+						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(cancelledAppt)) {
+							cancelledAppt = clinikoApiService.next(cancelledAppt);
+							if (cancelledAppt != null && cancelledAppt.getAppointments().size() > 0) {
+								FoundNewApptContext newAppt = findNewCancelledAppts(cancelledAppt.getAppointments());
+								if (newAppt.getCount() > 0) {
+									addUpToMax(news, newAppt, maxAppt);
+								}
 							}
 						}
-					}
-					m_log.info("New appointmentIds " + news.getNewApptsId());
-					if (news.getCount() > 0) {
-						Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
-						long start = System.currentTimeMillis();
-						syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false, clinikoSbmSync);
-						m_log.info(
-								"Take " + (System.currentTimeMillis() - start) + "s to sync cancel appointment to Sbm");
-						saveDb(news.getNewApptsId(), false, 1, apiKey, news.getBookingId());
-					} else {
+						m_log.info("New appointmentIds " + news.getNewApptsId());
+						if (news.getCount() > 0) {
+							Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
+							long start = System.currentTimeMillis();
+							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false, clinikoSbmSync);
+							m_log.info("Take " + (System.currentTimeMillis() - start)
+									+ "s to sync cancel appointment to Sbm");
+							saveDb(news.getNewApptsId(), false, 1, apiKey, news.getBookingId());
+						} else {
 
+						}
+					} else {
+						// there have no new cancel appointment
 					}
-				} else {
-					// there have no new cancel appointment
-				}
-				m_log.info("Synchronized cancelled appoinments to Simplybook.me completely");
-				//
-				AppointmentsInfo deletedAppt;
-				if (dbTime == null) {
-					deletedAppt = clinikoApiService.getDeletedAppointments(latestUpdateTime, maxResult, practitionerId);
-				} else {
-					deletedAppt = clinikoApiService.getDeletedAppointments(clinikoItem.getLatestTime(), maxResult,
-							practitionerId);
-				}
-				m_log.info("Fetched: " + deletedAppt.getAppointments().size() + " removed Cliniko appointment(s)");
-				if (deletedAppt != null && deletedAppt.getAppointments().size() > 0) {
-					List<AppointmentInfo> fetchedAppts = deletedAppt.getAppointments();
-					FoundNewApptContext news = findNewCancelledAppts(fetchedAppts);
-					while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(deletedAppt)) {
-						deletedAppt = clinikoApiService.next(deletedAppt);
-						if (deletedAppt != null && deletedAppt.getAppointments().size() > 0) {
-							FoundNewApptContext newAppt = findNewCancelledAppts(deletedAppt.getAppointments());
-							if (newAppt.getCount() > 0) {
-								addUpToMax(news, newAppt, maxAppt);
+					m_log.info("Synchronized cancelled appoinments to Simplybook.me completely");
+					//
+					AppointmentsInfo deletedAppt;
+					if (dbTime == null) {
+						deletedAppt = clinikoApiService.getDeletedAppointments(latestUpdateTime, maxResult,
+								practitionerId);
+					} else {
+						deletedAppt = clinikoApiService.getDeletedAppointments(clinikoItem.getLatestTime(), maxResult,
+								practitionerId);
+					}
+					m_log.info("Fetched: " + deletedAppt.getAppointments().size() + " removed Cliniko appointment(s)");
+					if (deletedAppt != null && deletedAppt.getAppointments().size() > 0) {
+						List<AppointmentInfo> fetchedAppts = deletedAppt.getAppointments();
+						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts);
+						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(deletedAppt)) {
+							deletedAppt = clinikoApiService.next(deletedAppt);
+							if (deletedAppt != null && deletedAppt.getAppointments().size() > 0) {
+								FoundNewApptContext newAppt = findNewCancelledAppts(deletedAppt.getAppointments());
+								if (newAppt.getCount() > 0) {
+									addUpToMax(news, newAppt, maxAppt);
+								}
 							}
 						}
-					}
-					m_log.info("New appointmentIds " + news.getNewApptsId());
-					if (news.getCount() > 0) {
-						Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
-						long start = System.currentTimeMillis();
-						syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false, clinikoSbmSync);
-						m_log.info(
-								"Take " + (System.currentTimeMillis() - start) + "s to sync delete appointment to Sbm");
-						saveDb(news.getNewApptsId(), false, 1, apiKey, news.getBookingId());
-					} else {
+						m_log.info("New appointmentIds " + news.getNewApptsId());
+						if (news.getCount() > 0) {
+							Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
+							long start = System.currentTimeMillis();
+							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false, clinikoSbmSync);
+							m_log.info("Take " + (System.currentTimeMillis() - start)
+									+ "s to sync delete appointment to Sbm");
+							saveDb(news.getNewApptsId(), false, 1, apiKey, news.getBookingId());
+						} else {
 
+						}
+					} else {
+						// there have no new deleted appointment
 					}
+					m_log.info("Synchronized deleted appoinments to Simplybook.me completely");
+					Long timeStamp = Calendar.getInstance().getTimeInMillis();
+					clinikoItem.setTimeStamp(timeStamp);
+					clinikoItem.setLatestTime(latestUpdateTime);
+					clinikoItemService.put(clinikoItem);
+					break;
 				} else {
-					// there have no new deleted appointment
+					m_log.info("Can't find the API key " + apiKey);
 				}
-				m_log.info("Synchronized deleted appoinments to Simplybook.me completely");
-				Long timeStamp = Calendar.getInstance().getTimeInMillis();
-				clinikoItem.setTimeStamp(timeStamp);
-				clinikoItem.setLatestTime(latestUpdateTime);
-				clinikoItemService.put(clinikoItem);
-				break;
 			}
 		} catch (ClinikoSDKExeption | SbmSDKException e) {
 			m_log.error("Error occurs", e);
