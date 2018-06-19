@@ -41,6 +41,11 @@ public class Practitioner implements Serializable {
 		this.user = user;
 	}
 
+	public Practitioner withPractitionerId(Integer id) {
+		this.setId(id);
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return "Practitioner [id=" + id + ", user=" + user + ", display_name=" + display_name + "]";

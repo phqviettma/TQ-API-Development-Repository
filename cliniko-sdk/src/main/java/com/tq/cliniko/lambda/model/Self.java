@@ -22,6 +22,10 @@ public class Self implements Serializable {
 		this.self = self;
 	}
 
+	public Self withSelf(String self) {
+		this.setSelf(self);
+		return this;
+	}
 
 	@Override
 	public String toString() {

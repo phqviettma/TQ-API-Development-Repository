@@ -49,6 +49,11 @@ public class Businesses implements Serializable {
 		this.practitioners = practitioners;
 	}
 
+	public Businesses withPractitioner(Links practitioner) {
+		this.setPractitioners(practitioner);
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return "Businesses [id=" + id + ", business_name=" + business_name + ", country=" + country + ", practitioners="

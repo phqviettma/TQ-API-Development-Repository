@@ -36,7 +36,7 @@ public class ClinikoSbmSync implements Serializable {
 		this.sbmId = sbmId;
 	}
 
-	@DynamoDBAttribute(attributeName = "email")
+	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Email-Index", attributeName = "email")
 	public String getEmail() {
 		return email;
 	}

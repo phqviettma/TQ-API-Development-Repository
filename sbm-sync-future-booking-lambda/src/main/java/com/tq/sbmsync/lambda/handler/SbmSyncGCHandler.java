@@ -29,6 +29,7 @@ import com.tq.googlecalendar.resp.Start;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
+import com.tq.sbmsync.lambda.model.FindNewBooking;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.resp.GetBookingResp;
@@ -143,25 +144,6 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 			}
 		}
 		return new FindNewBooking(num, newBooking);
-	}
-
-	private static class FindNewBooking {
-		private int count;
-		private List<GetBookingResp> bookingList;
-
-		public int getCount() {
-			return count;
-		}
-
-		public List<GetBookingResp> getBookingList() {
-			return bookingList;
-		}
-
-		public FindNewBooking(int count, List<GetBookingResp> bookingList) {
-			this.count = count;
-			this.bookingList = bookingList;
-		}
-
 	}
 
 }

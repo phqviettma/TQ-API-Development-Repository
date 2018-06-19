@@ -25,6 +25,11 @@ public class AppointmentType {
 		this.name = name;
 	}
 
+	public AppointmentType withId(Integer id) {
+		this.setId(id);
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return "AppointmentType [id=" + id + ", name=" + name + "]";

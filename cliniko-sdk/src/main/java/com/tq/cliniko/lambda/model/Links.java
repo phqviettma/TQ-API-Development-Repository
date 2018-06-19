@@ -13,7 +13,6 @@ public class Links implements Serializable {
 	 */
 	private static final long serialVersionUID = 4263174550509907185L;
 	private Self links;
-	
 
 	public Self getLinks() {
 		return links;
@@ -23,11 +22,14 @@ public class Links implements Serializable {
 		this.links = links;
 	}
 
+	public Links withLink(Self links) {
+		this.setLinks(links);
+		return this;
+	}
 
 	@Override
 	public String toString() {
 		return "Links [links=" + links + "]";
 	}
-
 
 }
