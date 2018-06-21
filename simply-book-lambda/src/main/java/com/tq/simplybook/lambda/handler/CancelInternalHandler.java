@@ -1,6 +1,7 @@
 package com.tq.simplybook.lambda.handler;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -73,9 +74,12 @@ public class CancelInternalHandler implements InternalHandler {
 
 			processed = executeWithCliniko(payload, clinikoSbmSync.getApiKey());
 		}
-		GoogleCalendarSbmSync sbmGoogle = googleCalendarService.load(sbmId);
+		List<GoogleCalendarSbmSync> sbmGoogle = googleCalendarService.queryEmail(bookingInfo.getUnit_email());
 		if (sbmGoogle != null) {
-			processed = excuteWithGoogleCalendar(sbmGoogle.getRefreshToken(), payload,sbmGoogle.getGoogleCalendarId());
+			processed = excuteWithGoogleCalendar(sbmGoogle.get(0).getRefreshToken(), payload,
+					sbmGoogle.get(0).getGoogleCalendarId());
+		} else {
+			m_log.info("There is do not have this practitioner");
 		}
 
 		if (processed) {
@@ -121,35 +125,35 @@ public class CancelInternalHandler implements InternalHandler {
 		ContactItem contactItem = contactItemService.load(clientEmail);
 
 		if (contactItem == null || contactItem.getClient() == null || contactItem.getClient().getContactId() == null) {
-			throw new SbmSDKException("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
+			m_log.info("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
+		} else {
+
+			Integer ifContactId = contactItem.getClient().getContactId();
+
+			Map<String, String> updateRecord = new HashMap<>();
+			updateRecord.put(infusionSoftAppointmentTimeField, "");
+			updateRecord.put(infusionSoftAppointmentLocationField, "");
+			updateRecord.put(infusionSoftServiceProviderField, "");
+			updateRecord.put(infusionSoftAppointmentInstructionField, "");
+			updateRecord.put(infusionSoftAppointmentDateField, "");
+			updateRecord.put(infusionSoftPractitionerLastName, "");
+			updateRecord.put(infusionsoftPractitionerFirstName, "");
+			try {
+				contactService.update(infusionSoftApiName, infusionSoftApiKey,
+						new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
+
+			} catch (InfSDKExecption e) {
+				throw new SbmSDKException("Updating custom field to Infusion Soft failed", e);
+			}
+
+			try {
+				ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
+
+				contactService.appyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
+			} catch (InfSDKExecption e) {
+				throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
+			}
 		}
-
-		Integer ifContactId = contactItem.getClient().getContactId();
-
-		Map<String, String> updateRecord = new HashMap<>();
-		updateRecord.put(infusionSoftAppointmentTimeField, "");
-		updateRecord.put(infusionSoftAppointmentLocationField, "");
-		updateRecord.put(infusionSoftServiceProviderField, "");
-		updateRecord.put(infusionSoftAppointmentInstructionField, "");
-		updateRecord.put(infusionSoftAppointmentDateField, "");
-		updateRecord.put(infusionSoftPractitionerLastName, "");
-		updateRecord.put(infusionsoftPractitionerFirstName, "");
-		try {
-			contactService.update(infusionSoftApiName, infusionSoftApiKey,
-					new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
-
-		} catch (InfSDKExecption e) {
-			throw new SbmSDKException("Updating custom field to Infusion Soft failed", e);
-		}
-
-		try {
-			ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
-
-			contactService.appyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
-		} catch (InfSDKExecption e) {
-			throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
-		}
-
 		return bookingInfo;
 	}
 
@@ -167,23 +171,22 @@ public class CancelInternalHandler implements InternalHandler {
 
 	}
 
-	private boolean excuteWithGoogleCalendar(String refreshToken, PayloadCallback payload,String googleCalendarId)
+	private boolean excuteWithGoogleCalendar(String refreshToken, PayloadCallback payload, String googleCalendarId)
 			throws SbmSDKException, GoogleApiSDKException {
-			TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(),
-					refreshToken);
+		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
 
-			TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-			GoogleCalendarApiService googleService = new GoogleCalendarApiServiceImpl(tokenResp.getAccess_token());
-			SbmGoogleCalendar sbmGoogleCalendar = sbmGoogleCalendarService.load(payload.getBooking_id());
-			if (sbmGoogleCalendar == null) {
-				return false;
-			} else {
-				sbmGoogleCalendar.setFlag(0);
-				sbmGoogleCalendarService.put(sbmGoogleCalendar);
-				m_log.info("Delete item on database successfully");
-				googleService.deleteEvent(sbmGoogleCalendar.getEventId(),googleCalendarId);
-				m_log.info("Delete google event successfully");
-				return true;
-			}
+		TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
+		GoogleCalendarApiService googleService = new GoogleCalendarApiServiceImpl(tokenResp.getAccess_token());
+		SbmGoogleCalendar sbmGoogleCalendar = sbmGoogleCalendarService.load(payload.getBooking_id());
+		if (sbmGoogleCalendar == null) {
+			return false;
+		} else {
+			sbmGoogleCalendar.setFlag(0);
+			sbmGoogleCalendarService.put(sbmGoogleCalendar);
+			m_log.info("Delete item on database successfully");
+			googleService.deleteEvent(sbmGoogleCalendar.getEventId(), googleCalendarId);
+			m_log.info("Delete google event successfully");
+			return true;
+		}
 	}
 }
