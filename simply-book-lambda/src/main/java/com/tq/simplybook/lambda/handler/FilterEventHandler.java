@@ -12,6 +12,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
+import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.common.lambda.dynamodb.dao.ClinikoCompanyInfoDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
@@ -68,8 +69,9 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private TokenGoogleCalendarImpl m_tgc = new TokenGoogleCalendarImpl();
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = new ClinikoSyncToSbmServiceImpl(
 			new ClinikoSyncToSbmDaoImpl(m_amazonDynamoDB));
+	private ClinikoApiServiceBuilder clinikoApiServiceBuilder =new ClinikoApiServiceBuilder();
 	private ClinikoCompanyInfoService clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
-	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc, clinikoSyncToSbmService, clinikoCompanyService);
+	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc, clinikoSyncToSbmService, clinikoCompanyService, clinikoApiServiceBuilder);
 	private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs,
 			m_sgcs, m_gcs, m_tgc, clinikoSyncToSbmService);
 

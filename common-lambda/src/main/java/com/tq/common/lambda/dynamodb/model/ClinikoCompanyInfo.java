@@ -12,18 +12,8 @@ public class ClinikoCompanyInfo implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 2885786689109867984L;
-	private Integer patientId;
 	private Integer businessId;
 	private Integer appointmentType;
-
-	@DynamoDBAttribute(attributeName = "patientId")
-	public Integer getPatientId() {
-		return patientId;
-	}
-
-	public void setPatientId(Integer patientId) {
-		this.patientId = patientId;
-	}
 
 	@DynamoDBAttribute(attributeName = "appointmentTypeId")
 	public Integer getAppointmentType() {
@@ -47,17 +37,15 @@ public class ClinikoCompanyInfo implements Serializable {
 		this.businessId = businessId;
 	}
 
-	public ClinikoCompanyInfo(Integer patientId, Integer businessId, Integer appointmentType) {
+	public ClinikoCompanyInfo(Integer businessId, Integer appointmentType) {
 
-		this.patientId = patientId;
 		this.businessId = businessId;
 		this.appointmentType = appointmentType;
 	}
 
 	@Override
 	public String toString() {
-		return "ClinikoCompanyInfo [patientId=" + patientId + ", businessId=" + businessId
-				+ ", appointmentType=" + appointmentType + "]";
+		return "ClinikoCompanyInfo [businessId=" + businessId + ", appointmentType=" + appointmentType + "]";
 	}
 
 }

@@ -5,7 +5,8 @@ import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
 import com.tq.cliniko.lambda.model.BusinessesInfo;
 import com.tq.cliniko.lambda.model.ClinikoAppointmentType;
-import com.tq.cliniko.lambda.model.Patient;
+import com.tq.cliniko.lambda.model.PatientDetail;
+import com.tq.cliniko.lambda.model.Patients;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
@@ -51,8 +52,10 @@ public interface ClinikoAppointmentService {
 	AppointmentsInfo getPractitionerAppointment(Integer practitionerId, Integer maxResultPerPage)
 			throws ClinikoSDKExeption;
 
-	Patient createPatient(String firstName, String lastName) throws ClinikoSDKExeption;
+	PatientDetail createPatient(String firstName, String lastName,String email, String phone) throws ClinikoSDKExeption;
 
 	ClinikoAppointmentType getAppointmentType(Integer practitionerId) throws ClinikoSDKExeption;
+	
+	Patients getPatient(String email) throws ClinikoSDKExeption;
 
 }

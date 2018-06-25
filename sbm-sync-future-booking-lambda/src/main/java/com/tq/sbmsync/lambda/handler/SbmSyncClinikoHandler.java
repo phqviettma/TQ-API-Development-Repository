@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
+import com.tq.cliniko.lambda.model.PatientDetail;
+import com.tq.cliniko.lambda.model.Patients;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
@@ -81,9 +83,17 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 						DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
 						DateTime endTime = new DateTime(sbmEndTime, timeZone);
 						DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
+						Patients patients = clinikoApptService.getPatient(bookingResp.getClient_email());
+						PatientDetail patientDetail = null;
+						if(patients.getPatients().isEmpty()) {
+							patientDetail = clinikoApptService.createPatient(bookingResp.getClient(),bookingResp.getClient(), bookingResp.getClient_email(), bookingResp.getPhone());
+						}
+						else {
+							patientDetail = patients.getPatients().get(0);
+						}
 						AppointmentInfo result = clinikoApptService
 								.createAppointment(new AppointmentInfo(clinikoStartTime.toString(),
-										clinikoEndTime.toString(), clinikoCompanyInfo.getPatientId(), practitionerId,
+										clinikoEndTime.toString(), patientDetail.getId(), practitionerId,
 										clinikoCompanyInfo.getAppointmentType(), bussinessId));
 						m_log.info("Create appointment successfully" + result.toString());
 						SbmCliniko sbmCliniko = new SbmCliniko(Long.parseLong(bookingResp.getId()), result.getId(), 1,

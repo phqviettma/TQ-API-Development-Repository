@@ -13,9 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
+import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
+import com.tq.cliniko.lambda.model.PatientDetail;
+import com.tq.cliniko.lambda.model.Patients;
 import com.tq.cliniko.lambda.model.Settings;
+import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
@@ -65,12 +68,13 @@ public class CreateInternalHandler implements InternalHandler {
 	private TokenGoogleCalendarService tokenCalendarService = null;
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
+	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
 	private static final String AGENT = "sbm";
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SbmClinikoSyncService scs, GoogleCalendarDbService gcs,
 			SbmGoogleCalendarDbService sgcs, TokenGoogleCalendarService tcs, ClinikoSyncToSbmService csts,
-			ClinikoCompanyInfoService ccis) {
+			ClinikoCompanyInfoService ccis, ClinikoApiServiceBuilder apiServiceBuilder) {
 		env = environtment;
 		tokenService = tss;
 		bookingService = bss;
@@ -82,6 +86,7 @@ public class CreateInternalHandler implements InternalHandler {
 		tokenCalendarService = tcs;
 		clinikoSyncToSbmService = csts;
 		clinikoCompanyService = ccis;
+		clinikoApiServiceBuilder = apiServiceBuilder;
 	}
 
 	@Override
@@ -173,14 +178,27 @@ public class CreateInternalHandler implements InternalHandler {
 		String clinikoCompanyId[] = clinikoSbmSync.getClinikoId().split("-");
 		Integer practitionerId = Integer.valueOf(clinikoCompanyId[1]);
 		Integer businessId = Integer.valueOf(clinikoCompanyId[0]);
+
+		ClinikoAppointmentService clinikoApptService = clinikoApiServiceBuilder.build(clinikoSbmSync.getApiKey());
+		Settings settings = clinikoApptService.getAllSettings();
+		String country = settings.getAccount().getCountry();
+		String time_zone = settings.getAccount().getTime_zone();
 		ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(businessId);
 		if (clinikoCompanyInfo != null) {
+			Patients patientInfo = clinikoApptService.getPatient(bookingInfo.getClient_email());
+			PatientDetail patientDetail = null;
+			if (patientInfo.getPatients().isEmpty()) {
+				String firstName = buildFirstName(bookingInfo.getClient_name());
+				String lastName = buildLastName(bookingInfo.getClient_name());
+				m_log.info(String.format("Client name %s has firstname: %s, lastname: %s", bookingInfo.getClient_name(),
+						firstName, lastName));
+				patientDetail = clinikoApptService.createPatient(firstName, lastName, bookingInfo.getClient_email(),
+						bookingInfo.getClient_phone());
+			} else {
 
-			ClinikiAppointmentServiceImpl clinikoApptService = new ClinikiAppointmentServiceImpl(
-					clinikoSbmSync.getApiKey());
-			Settings settings = clinikoApptService.getAllSettings();
-			String country = settings.getAccount().getCountry();
-			String time_zone = settings.getAccount().getTime_zone();
+				patientDetail = patientInfo.getPatients().get(0);
+
+			}
 			DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
 			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
@@ -188,17 +206,18 @@ public class CreateInternalHandler implements InternalHandler {
 			DateTime clinikoStartTime = start_time.withZone(DateTimeZone.UTC);
 			DateTime endTime = new DateTime(sbmEndTime, timeZone);
 			DateTime clinikoEndTime = endTime.withZone(DateTimeZone.UTC);
-			AppointmentInfo result = clinikoApptService.createAppointment(new AppointmentInfo(
-					clinikoStartTime.toString(), clinikoEndTime.toString(), clinikoCompanyInfo.getPatientId(),
-					practitionerId, clinikoCompanyInfo.getAppointmentType(), businessId));
+
+			AppointmentInfo result = clinikoApptService.createAppointment(
+					new AppointmentInfo(clinikoStartTime.toString(), clinikoEndTime.toString(), patientDetail.getId(),
+							practitionerId, clinikoCompanyInfo.getAppointmentType(), businessId));
 			m_log.info("Create appointment successfully" + result.toString());
 			SbmCliniko sbmCliniko = new SbmCliniko(payload.getBooking_id(), result.getId(), 1,
 					clinikoSbmSync.getApiKey(), AGENT);
 
 			sbmClinikoService.put(sbmCliniko);
 			m_log.info("Added to database successfully");
-		}
 
+		}
 		return true;
 	}
 
@@ -255,5 +274,4 @@ public class CreateInternalHandler implements InternalHandler {
 			return "";
 		}
 	}
-
 }

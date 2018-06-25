@@ -1,8 +1,5 @@
 package com.tq.cliniko.lambda.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.tq.cliniko.lambda.exception.ClinikoConnectException;
 import com.tq.cliniko.lambda.model.ClinikoPractitionerConnectReq;
 import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
@@ -20,7 +17,6 @@ public class ClinikoDisconnectHandler implements ConnectHandler {
 	private ClinikoItemService clinikoItemService = null;
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
 	private SbmListBookingService sbmListBookingService = null;
-	private static final Logger m_log = LoggerFactory.getLogger(ClinikoDisconnectHandler.class);
 
 	public ClinikoDisconnectHandler(ClinikoSyncToSbmService clinikoSyncService, ClinikoItemService clinikoItemService,
 			SbmSyncFutureBookingsService sbmSyncFutureBookingService, SbmListBookingService sbmListBookingService) {
@@ -40,12 +36,11 @@ public class ClinikoDisconnectHandler implements ConnectHandler {
 			ClinikoSyncStatus clinikoItem = clinikoItemService.load(apiKey);
 			if (clinikoItem != null) {
 				clinikoItemService.delete(clinikoItem);
-				m_log.info("Disconnect successfully");
 				SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService
 						.load(clinikoSbmSync.getSbmId());
-				sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
 				SbmBookingList sbmListBooking = sbmListBookingService.load(clinikoSbmSync.getSbmId());
-				if (sbmListBooking != null) {
+				if (sbmSyncFutureBookings!=null && sbmListBooking != null) {
+					sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
 					sbmListBookingService.delete(sbmListBooking);
 				}
 			}

@@ -75,7 +75,7 @@ public class CancelInternalHandler implements InternalHandler {
 			processed = executeWithCliniko(payload, clinikoSbmSync.getApiKey());
 		}
 		List<GoogleCalendarSbmSync> sbmGoogle = googleCalendarService.queryEmail(bookingInfo.getUnit_email());
-		if (sbmGoogle != null) {
+		if (!sbmGoogle.isEmpty()) {
 			processed = excuteWithGoogleCalendar(sbmGoogle.get(0).getRefreshToken(), payload,
 					sbmGoogle.get(0).getGoogleCalendarId());
 		} else {
@@ -127,7 +127,6 @@ public class CancelInternalHandler implements InternalHandler {
 		if (contactItem == null || contactItem.getClient() == null || contactItem.getClient().getContactId() == null) {
 			m_log.info("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
 		} else {
-
 			Integer ifContactId = contactItem.getClient().getContactId();
 
 			Map<String, String> updateRecord = new HashMap<>();

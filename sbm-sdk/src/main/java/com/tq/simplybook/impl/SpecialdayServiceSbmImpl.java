@@ -37,8 +37,8 @@ public class SpecialdayServiceSbmImpl implements SpecialdayServiceSbm {
 			long start = System.currentTimeMillis();
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, userToken, "setWorkDayInfo",
 					setWorkDayInfo);
-			 m_log.info("Change workday Info take " + (System.currentTimeMillis() - start)+" ms");
 			SetWorkDayInfoResp readValueForObject = SbmUtils.readValueForObject(jsonResp, SetWorkDayInfoResp.class);
+			m_log.info("Change workday Info take " + (System.currentTimeMillis() - start)+" ms");
 			
 			return readValueForObject.getResult();
 		} catch (Exception e) {

@@ -15,14 +15,15 @@ import com.tq.cliniko.lambda.model.AppointmentsInfo;
 import com.tq.cliniko.lambda.model.Businesses;
 import com.tq.cliniko.lambda.model.BusinessesInfo;
 import com.tq.cliniko.lambda.model.ClinikoAppointmentType;
-import com.tq.cliniko.lambda.model.Patient;
+import com.tq.cliniko.lambda.model.PatientDetail;
+import com.tq.cliniko.lambda.model.Patients;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
 
 public class ClinikiAppointmentServiceImplTest {
 	static ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl(
-			"dfb4a2e724f99ad8a31d6bd77e0cb917");
+			"874189e82c10331de622968e86459c2d");
 	Integer maxResult = 100;
 
 	@Test
@@ -142,7 +143,7 @@ public class ClinikiAppointmentServiceImplTest {
 
 	@Test
 	public void testCreatePatient() throws ClinikoSDKExeption {
-		Patient p = m_service.createPatient("Suong", "Pham");
+		PatientDetail p = m_service.createPatient("Suong", "Pham","suongpham@gmail.com","0123366655");
 		assertNotNull(p.getId());
 	}
 
@@ -150,6 +151,12 @@ public class ClinikiAppointmentServiceImplTest {
 	public void testGetAppointmentType() throws ClinikoSDKExeption {
 		ClinikoAppointmentType apptType = m_service.getAppointmentType(95260);
 		assertTrue(apptType.getAppointment_types().size() > 0);
+	}
+
+	@Test
+	public void testGetPatientDetails() throws ClinikoSDKExeption {
+		Patients patient = m_service.getPatient("toannhan@gmail.com");
+		System.out.println(patient);
 	}
 
 }

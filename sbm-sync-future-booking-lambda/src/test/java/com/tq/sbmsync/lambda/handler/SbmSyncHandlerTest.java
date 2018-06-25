@@ -76,14 +76,14 @@ public class SbmSyncHandlerTest {
 		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync("dfb4a2e724f99ad8a31d6bd77e0cb917", "thuongsu@gmail.com",
 				"63241-97566", "2-19");
 		when(clinikoSyncService.queryWithIndex(any())).thenReturn(clinikoSbmSync);
-		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(48933484, 63791, 284190);
+		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(48933484, 63791);
 		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyInfo);
 		List<GoogleCalendarSbmSync> googleCalendarSbm = Arrays.asList(new GoogleCalendarSbmSync("1-7",
 				"thuongsu@gmail.com", "primary", "Pham", "Suong", "1/Y482L09Olx9P7IjY4bKB2yT2wudQ3njk-jU8U_RkmhY", "suongpham53@gmail.com", "", ""));
 		when(googleCalendarDbService.queryEmail(any())).thenReturn(googleCalendarSbm);
 		SbmCliniko sbmCliniko = new SbmCliniko(34L, 111000L, 0, "", "");
 		when(sbmClinikoSyncService.load(any())).thenReturn(sbmCliniko);
-		List<GetBookingResp> bookingLists = Arrays.asList(new GetBookingResp("201","2018-05-05 09:00:00","2018-05-05 10:00:00","jasmine","","jasmine@gmail.com"));
+		List<GetBookingResp> bookingLists = Arrays.asList(new GetBookingResp("201","2018-05-05 09:00:00","2018-05-05 10:00:00","jasmine","","jasmine@gmail.com", "0122336666"));
 		SbmBookingList sbmBookingList = new SbmBookingList("1-7", bookingLists );
 		when(sbmListBookingService.load(any())).thenReturn(sbmBookingList);
 		GoogleCalendarApiService googleCalendarApiService = mock(GoogleCalendarApiService.class);
@@ -106,13 +106,13 @@ public class SbmSyncHandlerTest {
 		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync("Api Key", "test@gmail.com", "63791-98447", "1-7");
 		when(clinikoSyncService.queryWithIndex(any())).thenReturn(clinikoSbmSync );
 		when(tokenService.getUserToken(any(), any(), any(), any())).thenReturn("Sbm Token");
-		ClinikoCompanyInfo clinikoCompanyValue = new ClinikoCompanyInfo(1000, 10000, 10000);
+		ClinikoCompanyInfo clinikoCompanyValue = new ClinikoCompanyInfo(1000, 10000);
 		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyValue );
 		ClinikoAppointmentService clinikoApiService = mock(ClinikoAppointmentService.class);
 		when(mockClinikoApiService.build(any())).thenReturn(clinikoApiService );
 		SbmCliniko sbmCliniko = null ;
 		when(sbmClinikoSyncService.load(any())).thenReturn(sbmCliniko );
-		List<GetBookingResp> bookingInfo = Arrays.asList(new GetBookingResp("201","2018-05-05 09:00:00","2018-05-05 10:00:00","jasmine","","jasmine@gmail.com"));
+		List<GetBookingResp> bookingInfo = Arrays.asList(new GetBookingResp("201","2018-05-05 09:00:00","2018-05-05 10:00:00","jasmine","","jasmine@gmail.com", ""));
 		when(bookingSbmService.getBookings(any(), any(), any(), any())).thenReturn(bookingInfo  );
 		Account account = new Account().withTimeZone("Melbourne").withCountry("Australia");
 		Settings settingValue = new Settings(account );

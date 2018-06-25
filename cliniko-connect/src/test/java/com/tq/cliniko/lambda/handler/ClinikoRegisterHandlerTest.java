@@ -27,7 +27,7 @@ import com.tq.cliniko.lambda.model.Businesses;
 import com.tq.cliniko.lambda.model.BusinessesInfo;
 import com.tq.cliniko.lambda.model.ClinikoAppointmentType;
 import com.tq.cliniko.lambda.model.Links;
-import com.tq.cliniko.lambda.model.Patient;
+import com.tq.cliniko.lambda.model.PatientDetail;
 import com.tq.cliniko.lambda.model.Practitioner;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.Self;
@@ -144,9 +144,6 @@ public class ClinikoRegisterHandlerTest {
 		List<AppointmentType> appointment_types = Arrays.asList(new AppointmentType().withId(1));
 		clinikoApptType.setAppointment_types(appointment_types );
 		when(clinikoAptService.getAppointmentType(any())).thenReturn(clinikoApptType );
-		Patient patient = new Patient();
-		patient.setId(1);
-		when(clinikoAptService.createPatient(any(), any())).thenReturn(patient);
 		List<GetBookingResp> getBookingResp = Arrays.asList(new GetBookingResp());
 		when(bookingService.getBookings(any(), any(), any(), any())).thenReturn(getBookingResp );
 		AwsProxyResponse response = handler.handleRequest(req, m_context);

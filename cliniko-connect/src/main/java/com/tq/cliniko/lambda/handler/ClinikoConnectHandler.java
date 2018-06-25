@@ -19,7 +19,6 @@ import com.tq.cliniko.lambda.model.Businesses;
 import com.tq.cliniko.lambda.model.BusinessesInfo;
 import com.tq.cliniko.lambda.model.ClinikoAppointmentType;
 import com.tq.cliniko.lambda.model.ClinikoPractitionerConnectReq;
-import com.tq.cliniko.lambda.model.Patient;
 import com.tq.cliniko.lambda.model.Practitioner;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.User;
@@ -54,8 +53,6 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private BookingServiceSbmImpl bookingService = null;
 	private ClinikoApiServiceBuilder apiServiceBuilder = null;
-	private static final String DEFAULT_PATIENT_NAME = "TrueQuit";
-	private static final String DEFAULT_PATIENT_LAST_NAME = "patient";
 	private static final String BOOKING_TYPE = "non_cancelled";
 	private static final String ORDER_BY = "start_date";
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
@@ -135,7 +132,8 @@ public class ClinikoConnectHandler implements ConnectHandler {
 								clinikoItem.setTimeStamp(timeStamp);
 								clinikoItemService.put(clinikoItem);
 								m_log.info("Add to database successfully" + clinikoSbmSync);
-								ClinikoCompanyInfo clinikoCompanyInfo = createDefaultPatient(clinikoId, apiKey);
+								ClinikoCompanyInfo clinikoCompanyInfo = getAppointmentTypeByPractitioner(clinikoId,
+										apiKey);
 								clinikoCompanyService.put(clinikoCompanyInfo);
 								m_log.info("Save to database " + clinikoCompanyInfo);
 								SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId,
@@ -152,8 +150,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 								done = true;
 								break;
 							}
-						}
-						else {
+						} else {
 							m_log.info("Please set service for provider in SBM");
 						}
 					}
@@ -174,7 +171,8 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		return response;
 	}
 
-	private ClinikoCompanyInfo createDefaultPatient(String clinikoId, String apiKey) throws ClinikoSDKExeption {
+	private ClinikoCompanyInfo getAppointmentTypeByPractitioner(String clinikoId, String apiKey)
+			throws ClinikoSDKExeption {
 		String clinikoCompanyId[] = clinikoId.split("-");
 		Integer businessId = Integer.parseInt(clinikoCompanyId[0]);
 		Integer practitionerId = Integer.parseInt(clinikoCompanyId[1]);
@@ -186,8 +184,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 			for (AppointmentType apptType : appointmentType.getAppointment_types()) {
 				apptTypeId = apptType.getId();
 			}
-			Patient patient = clinikoApiService.createPatient(DEFAULT_PATIENT_NAME, DEFAULT_PATIENT_LAST_NAME);
-			clinikoCompanyInfo = new ClinikoCompanyInfo(patient.getId(), businessId, apptTypeId);
+			clinikoCompanyInfo = new ClinikoCompanyInfo(businessId, apptTypeId);
 		}
 		return clinikoCompanyInfo;
 	}
