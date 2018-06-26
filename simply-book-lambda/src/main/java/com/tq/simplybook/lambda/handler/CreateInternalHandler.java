@@ -146,6 +146,13 @@ public class CreateInternalHandler implements InternalHandler {
 		String infusionSoftAppointmentDateField = env.getInfusionftAppointmentDate();
 		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
 		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
+		String infusionsoftAppointmentAddress1 = env.getInfusionsoftApptAddress1();
+		String infusionsoftAppointmentAddress2 = env.getInfusionsoftApptAddress2();
+		String infusionsoftAppointmentCity = env.getInfusionsoftApptCity();
+		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
+		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
+		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
+		
 		int appliedTagId = env.getInfusionSoftCreateAppliedTag();
 		Map<String, String> updateRecord = new HashMap<>();
 
@@ -154,10 +161,16 @@ public class CreateInternalHandler implements InternalHandler {
 		updateRecord.put(infusionSoftAppointmentLocationField,
 				bookingInfo.getLocation() == null ? "" : String.valueOf(bookingInfo.getLocation().getTitle()));
 		updateRecord.put(infusionSoftServiceProviderField, bookingInfo.getUnit_name());
-		updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getUnit_description());
+		updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getLocation().getDescription());
 		updateRecord.put(infusionSoftAppointmentDateField, buildAppointmentDate(bookingInfo.getStart_date_time()));
 		updateRecord.put(infusionsoftPractitionerFirstName, buildFirstName(bookingInfo.getUnit_name()));
 		updateRecord.put(infusionSoftPractitionerLastName, buildLastName(bookingInfo.getUnit_name()));
+		updateRecord.put(infusionsoftAppointmentAddress1, bookingInfo.getLocation().getAddress1());
+		updateRecord.put(infusionsoftAppointmentAddress2, bookingInfo.getLocation().getAddress2());
+		updateRecord.put(infusionsoftAppointmentCity, bookingInfo.getLocation().getCity());
+		updateRecord.put(infusionsoftAppointmentCountry, bookingInfo.getLocation().getCountry_id());
+		updateRecord.put(infusionsoftAppointmentPhone, bookingInfo.getLocation().getPhone());
+		updateRecord.put(infusionsoftAppointmentZip, bookingInfo.getLocation().getZip());
 		try {
 
 			contactService.update(infusionSoftApiName, infusionSoftApiKey,

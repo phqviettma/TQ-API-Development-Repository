@@ -110,6 +110,12 @@ public class CancelInternalHandler implements InternalHandler {
 		String infusionSoftAppointmentDateField = env.getInfusionftAppointmentDate();
 		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
 		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
+		String infusionsoftAppointmentAddress1 = env.getInfusionsoftApptAddress1();
+		String infusionsoftAppointmentAddress2 = env.getInfusionsoftApptAddress2();
+		String infusionsoftAppointmentCity = env.getInfusionsoftApptCity();
+		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
+		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
+		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
 
 		int appliedTagId = env.getInfusionSoftCancelAppliedTag();
 		Long bookingId = payload.getBooking_id();
@@ -141,6 +147,12 @@ public class CancelInternalHandler implements InternalHandler {
 			updateRecord.put(infusionSoftAppointmentDateField, "");
 			updateRecord.put(infusionSoftPractitionerLastName, "");
 			updateRecord.put(infusionsoftPractitionerFirstName, "");
+			updateRecord.put(infusionsoftAppointmentAddress1, "");
+			updateRecord.put(infusionsoftAppointmentAddress2, "");
+			updateRecord.put(infusionsoftAppointmentCity, "");
+			updateRecord.put(infusionsoftAppointmentCountry, "");
+			updateRecord.put(infusionsoftAppointmentPhone, "");
+			updateRecord.put(infusionsoftAppointmentZip, "");
 			try {
 				contactService.update(infusionSoftApiName, infusionSoftApiKey,
 						new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));

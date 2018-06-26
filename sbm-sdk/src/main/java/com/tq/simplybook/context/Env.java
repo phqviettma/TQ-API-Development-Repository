@@ -33,6 +33,12 @@ public class Env {
 	private String googleClientSecrets = new String(System.getenv("GOOGLE_CLIENT_SECRETS"));
 	private String googleCalendarEventName = new String(System.getenv("GOOGLE_CALENDAR_EVENT_NAME"));
 	private Integer googleCalendarMaxResult = Integer.valueOf(System.getenv("GOOGLE_CALENDAR_MAX_RESULT"));
+	private String infusionsoftApptAddress1 = System.getenv("INFUSIONSOFT_APPT_ADDRESS_1");
+	private String infusionsoftApptAddress2 = System.getenv("INFUSIONSOFT_APPT_ADDRESS_2");
+	private String infusionsoftApptCity = System.getenv("INFUSIONSOFT_APPT_CITY");
+	private String infusionsoftApptZip = System.getenv("INFUSIONSOFT_APPT_ZIP");
+	private String infusionsoftApptCountry = System.getenv("INFUSIONSOFT_APPT_COUNTRY");
+	private String infusionsoftApptPhone = System.getenv("INFUSIONSOFT_APPT_PHONE");
 
 	private Env() {
 		assertVar(googleCalendarEventName, "GOOGLE_CALENDAR_EVENT_NAME");
@@ -61,6 +67,12 @@ public class Env {
 		assertVar(infusionftAppointmentDate, "INFUSIONSOFT_APT_DATE_FIELD");
 		assertVar(infusionsoftPractitionerFirstName, "INFUSIONSOFT_PRACTITIONER_FIRST_NAME");
 		assertVar(infusionsoftPractitionerLastName, "INFUSIONSOFT_PRACTITIONER_LAST_NAME");
+		assertVar(infusionsoftApptAddress1, "INFUSIONSOFT_APPT_ADDRESS_1");
+		assertVar(infusionsoftApptAddress2, "INFUSIONSOFT_APPT_ADDRESS_2");
+		assertVar(infusionsoftApptCity, "INFUSIONSOFT_APPT_CITY");
+		assertVar(infusionsoftApptZip, "INFUSIONSOFT_APPT_ZIP");
+		assertVar(infusionsoftApptCountry, "INFUSIONSOFT_APPT_COUNTRY");
+		assertVar(infusionsoftApptPhone, "INFUSIONSOFT_APPT_PHONE");
 	}
 
 	private static Env instance;
@@ -126,7 +138,6 @@ public class Env {
 		return infusionsoftGoogleDeleteTag;
 	}
 
-
 	public Integer getInfusionSoftCancelAppliedTag() {
 		return Integer.valueOf(infusionSoftCancelAppliedTag);
 	}
@@ -187,6 +198,29 @@ public class Env {
 		return simplyBookSecretKey;
 	}
 
+	public String getInfusionsoftApptAddress1() {
+		return infusionsoftApptAddress1;
+	}
+
+	public String getInfusionsoftApptAddress2() {
+		return infusionsoftApptAddress2;
+	}
+
+	public String getInfusionsoftApptCity() {
+		return infusionsoftApptCity;
+	}
+
+	public String getInfusionsoftApptZip() {
+		return infusionsoftApptZip;
+	}
+
+	public String getInfusionsoftApptCountry() {
+		return infusionsoftApptCountry;
+	}
+
+	public String getInfusionsoftApptPhone() {
+		return infusionsoftApptPhone;
+	}
 
 	public Map<String, String> getAllEnvVariables() {
 		return System.getenv();
