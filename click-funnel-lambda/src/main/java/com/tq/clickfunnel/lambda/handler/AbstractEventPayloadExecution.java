@@ -52,7 +52,7 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
     {
     	  EnvVar envVar = lambdaContext.getEnvVar();
           ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(contactId).withTagID(appliedTagId);
-          return lambdaContext.getContactServiceInf().appyTag(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY), applyTagQuery);
+          return lambdaContext.getContactServiceInf().applyTag(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY), applyTagQuery);
     }
     public abstract AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException;
 }

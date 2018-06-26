@@ -23,7 +23,7 @@ public interface ContactServiceInf {
 
     Boolean removeTag(String apiName, String apiKey, ApplyTagQuery removeTagQuery) throws InfSDKExecption;
 
-    Boolean appyTag(String apiName, String apiKey, ApplyTagQuery applyTagQuery) throws InfSDKExecption;
+    Boolean applyTag(String apiName, String apiKey, ApplyTagQuery applyTagQuery) throws InfSDKExecption;
     
     Boolean merge(String apiName, String apiKey, Integer duplicateContactId) throws InfSDKExecption;
     

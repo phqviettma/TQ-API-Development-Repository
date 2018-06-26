@@ -216,7 +216,7 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 			Integer ifContactId = contactItem.getClient().getContactId();
 			Integer appliedTagId = enV.getInfusionsoftGoogleDeleteTag();
 			ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
-			contactService.appyTag(enV.getInfusionSoftApiName(), enV.getInfusionSoftApiKey(), applyTagQuery);
+			contactService.applyTag(enV.getInfusionSoftApiName(), enV.getInfusionSoftApiKey(), applyTagQuery);
 		}
 	}
 }

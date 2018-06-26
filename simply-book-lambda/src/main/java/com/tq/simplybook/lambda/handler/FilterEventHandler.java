@@ -33,6 +33,7 @@ import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
+import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.impl.DataServiceImpl;
@@ -70,10 +71,11 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = new ClinikoSyncToSbmServiceImpl(
 			new ClinikoSyncToSbmDaoImpl(m_amazonDynamoDB));
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder =new ClinikoApiServiceBuilder();
+	private GoogleCalendarApiServiceBuilder googleApiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 	private ClinikoCompanyInfoService clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
-	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc, clinikoSyncToSbmService, clinikoCompanyService, clinikoApiServiceBuilder);
+	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc, clinikoSyncToSbmService, clinikoCompanyService, clinikoApiServiceBuilder, googleApiServiceBuilder);
 	private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs,
-			m_sgcs, m_gcs, m_tgc, clinikoSyncToSbmService);
+			m_sgcs, m_gcs, m_tgc, clinikoSyncToSbmService, clinikoApiServiceBuilder, googleApiServiceBuilder);
 
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {

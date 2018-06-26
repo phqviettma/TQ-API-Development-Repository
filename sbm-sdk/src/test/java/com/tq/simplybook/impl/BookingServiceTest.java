@@ -26,9 +26,9 @@ public class BookingServiceTest {
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "1900561594";
+		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
-		BookingInfo info = bookingService.getBookingInfo(companyLogin, endpoint, userToken, 5L);
+		BookingInfo info = bookingService.getBookingInfo(companyLogin, endpoint, userToken, 226L);
 		assertNotNull(info.getCompany_login());
 	}
 
@@ -41,7 +41,7 @@ public class BookingServiceTest {
 		String password = "";
 		String userToken = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 
-		GetBookingReq e = new GetBookingReq("2018-05-24", "non_cancelled", "start_date", 7, 1);
+		GetBookingReq e = new GetBookingReq("2018-06-25", "non_cancelled", "start_date", 2, 1);
 		List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint, userToken, e);
 		assertTrue(bookingList.size() > 0);
 

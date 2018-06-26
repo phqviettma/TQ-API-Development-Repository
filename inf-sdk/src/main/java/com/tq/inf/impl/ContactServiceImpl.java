@@ -118,7 +118,7 @@ public class ContactServiceImpl implements ContactServiceInf {
 	}
 
 	@Override
-	public Boolean appyTag(String apiName, String apiKey, ApplyTagQuery applyTagQuery) throws InfSDKExecption {
+	public Boolean applyTag(String apiName, String apiKey, ApplyTagQuery applyTagQuery) throws InfSDKExecption {
 		return addToGroup(apiName, apiKey, applyTagQuery);
 	}
 

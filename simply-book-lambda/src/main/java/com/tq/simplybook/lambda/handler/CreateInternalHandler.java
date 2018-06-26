@@ -19,6 +19,7 @@ import com.tq.cliniko.lambda.model.PatientDetail;
 import com.tq.cliniko.lambda.model.Patients;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
+import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
@@ -33,7 +34,7 @@ import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
-import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
+import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.req.Attendees;
 import com.tq.googlecalendar.req.EventReq;
 import com.tq.googlecalendar.req.TokenReq;
@@ -46,6 +47,7 @@ import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddDataQuery;
+import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
@@ -69,12 +71,13 @@ public class CreateInternalHandler implements InternalHandler {
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
+	private GoogleCalendarApiServiceBuilder googleApiBuilder = null;
 	private static final String AGENT = "sbm";
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SbmClinikoSyncService scs, GoogleCalendarDbService gcs,
 			SbmGoogleCalendarDbService sgcs, TokenGoogleCalendarService tcs, ClinikoSyncToSbmService csts,
-			ClinikoCompanyInfoService ccis, ClinikoApiServiceBuilder apiServiceBuilder) {
+			ClinikoCompanyInfoService ccis, ClinikoApiServiceBuilder apiServiceBuilder,GoogleCalendarApiServiceBuilder apiBuilder) {
 		env = environtment;
 		tokenService = tss;
 		bookingService = bss;
@@ -87,6 +90,7 @@ public class CreateInternalHandler implements InternalHandler {
 		clinikoSyncToSbmService = csts;
 		clinikoCompanyService = ccis;
 		clinikoApiServiceBuilder = apiServiceBuilder;
+		googleApiBuilder = apiBuilder;
 	}
 
 	@Override
@@ -106,9 +110,11 @@ public class CreateInternalHandler implements InternalHandler {
 		ContactItem contactItem = contactItemService.load(clientEmail);
 
 		if (contactItem != null && contactItem.getClient() != null && contactItem.getClient().getContactId() != null) {
-			executeWithInfusionSoft(payload, bookingInfo, contactItem);
+			executeWithInfusionSoft(payload, bookingInfo, contactItem.getClient().getContactId());
 		} else {
-			m_log.info("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
+			Integer contactId = addContactToInfusionsoft(bookingInfo);
+			executeWithInfusionSoft(payload, bookingInfo, contactId);
+			persitClientVoInDB(bookingInfo, contactId);
 		}
 		boolean processed = false;
 		String sbmId = bookingInfo.getEvent_id() + "-" + bookingInfo.getUnit_id();
@@ -128,7 +134,7 @@ public class CreateInternalHandler implements InternalHandler {
 		}
 	}
 
-	public void executeWithInfusionSoft(PayloadCallback payload, BookingInfo bookingInfo, ContactItem contactItem)
+	public boolean executeWithInfusionSoft(PayloadCallback payload, BookingInfo bookingInfo, Integer ifContactId)
 			throws SbmSDKException {
 
 		String infusionSoftApiName = env.getInfusionSoftApiName();
@@ -141,8 +147,6 @@ public class CreateInternalHandler implements InternalHandler {
 		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
 		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
 		int appliedTagId = env.getInfusionSoftCreateAppliedTag();
-
-		Integer ifContactId = contactItem.getClient().getContactId();
 		Map<String, String> updateRecord = new HashMap<>();
 
 		updateRecord.put(infusionSoftAppointmentTimeField,
@@ -166,11 +170,12 @@ public class CreateInternalHandler implements InternalHandler {
 		try {
 			ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
 
-			contactService.appyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
+			contactService.applyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
 			m_log.info("Applied Infusionsoft Tag successfully");
 		} catch (InfSDKExecption e) {
 			throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
 		}
+		return true;
 	}
 
 	private boolean executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo, ClinikoSbmSync clinikoSbmSync)
@@ -221,12 +226,12 @@ public class CreateInternalHandler implements InternalHandler {
 		return true;
 	}
 
-	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, PayloadCallback payload, String refreshToken,
+	boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, PayloadCallback payload, String refreshToken,
 			String googleCalendarId) throws GoogleApiSDKException, SbmSDKException {
 
 		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
 		TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-		GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(tokenResp.getAccess_token());
+		GoogleCalendarApiService googleApiService = googleApiBuilder.build(tokenResp.getAccess_token());
 
 		// GoogleTimeZone
 		GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
@@ -273,5 +278,38 @@ public class CreateInternalHandler implements InternalHandler {
 		} else {
 			return "";
 		}
+	}
+
+	protected Integer addContactToInfusionsoft(BookingInfo bookingInfo) throws SbmSDKException {
+		Integer contactId = null;
+		long start = System.currentTimeMillis();
+		try {
+			Map<String, String> dataRecord = new HashMap<>();
+			dataRecord.put("Email", bookingInfo.getClient_email());
+			dataRecord.put("FirstName", buildFirstName(bookingInfo.getClient_name()));
+			dataRecord.put("LastName", buildLastName(bookingInfo.getClient_name()));
+			dataRecord.put("Phone1", bookingInfo.getClient_phone());
+			contactId = contactService.addWithDupCheck(env.getInfusionSoftApiName(), env.getInfusionSoftApiKey(),
+					new AddNewContactQuery().withDataRecord(dataRecord));
+		} catch (InfSDKExecption e) {
+			throw new SbmSDKException("Create contact failed", e);
+		}
+		m_log.info(String.format("addINFContact()= %d ms", (System.currentTimeMillis() - start)));
+		return contactId;
+	}
+
+	private ContactItem persitClientVoInDB(BookingInfo bookingInfo, Integer contactInfId) {
+		// build client to save DynomaDB
+		long start = System.currentTimeMillis();
+		ClientInfo clientInfo = new ClientInfo().withClientId(bookingInfo.getClient_id()).withContactId(contactInfId)
+				.withEmail(bookingInfo.getClient_email()).withFirstName(buildFirstName(bookingInfo.getClient_name()))
+				.withLastName(buildLastName(bookingInfo.getClient_name())).withPhone1(bookingInfo.getClient_phone());
+
+		ContactItem contactItem = new ContactItem().withEmail(bookingInfo.getClient_email()) // unique
+				// key
+				.withContactInfo(clientInfo);
+		contactItemService.put(contactItem);
+		m_log.info(String.format("addDBContact()= %d ms", (System.currentTimeMillis() - start)));
+		return contactItem;
 	}
 }

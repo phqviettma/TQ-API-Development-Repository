@@ -8,7 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
+import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
+import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
@@ -20,7 +21,7 @@ import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
-import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
+import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
@@ -42,16 +43,20 @@ public class CancelInternalHandler implements InternalHandler {
 	private ContactServiceInf contactService = null;
 	private BookingServiceSbm bookingService = null;
 	private TokenServiceSbm tokenService = null;
-	private com.tq.common.lambda.dynamodb.service.ContactItemService contactItemService = null;
+	private ContactItemService contactItemService = null;
 	private SbmClinikoSyncService sbmClinikoService = null;
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = null;
 	private GoogleCalendarDbService googleCalendarService = null;
 	private TokenGoogleCalendarService tokenCalendarService = null;
 	private ClinikoSyncToSbmService clinikoSyncToSbmService = null;
+	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
+	private GoogleCalendarApiServiceBuilder googleApiServiceBuilder = null;
 
 	public CancelInternalHandler(Env m_env, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SbmClinikoSyncService scs, SbmGoogleCalendarDbService sgcs,
-			GoogleCalendarDbService gcs, TokenGoogleCalendarService tcs, ClinikoSyncToSbmService csts) {
+			GoogleCalendarDbService gcs, TokenGoogleCalendarService tcs, ClinikoSyncToSbmService csts,
+			ClinikoApiServiceBuilder clinikoApiServiceBuilder,
+			GoogleCalendarApiServiceBuilder googleApiServiceBuilder) {
 		env = m_env;
 		tokenService = tss;
 		bookingService = bss;
@@ -62,6 +67,8 @@ public class CancelInternalHandler implements InternalHandler {
 		googleCalendarService = gcs;
 		tokenCalendarService = tcs;
 		this.clinikoSyncToSbmService = csts;
+		this.clinikoApiServiceBuilder = clinikoApiServiceBuilder;
+		this.googleApiServiceBuilder = googleApiServiceBuilder;
 	}
 
 	@Override
@@ -78,10 +85,7 @@ public class CancelInternalHandler implements InternalHandler {
 		if (!sbmGoogle.isEmpty()) {
 			processed = excuteWithGoogleCalendar(sbmGoogle.get(0).getRefreshToken(), payload,
 					sbmGoogle.get(0).getGoogleCalendarId());
-		} else {
-			m_log.info("There is do not have this practitioner");
 		}
-
 		if (processed) {
 			m_log.info("The cancellation is synced to Cliniko/Google Calendar");
 		} else {
@@ -148,7 +152,7 @@ public class CancelInternalHandler implements InternalHandler {
 			try {
 				ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
 
-				contactService.appyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
+				contactService.applyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
 			} catch (InfSDKExecption e) {
 				throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
 			}
@@ -156,9 +160,9 @@ public class CancelInternalHandler implements InternalHandler {
 		return bookingInfo;
 	}
 
-	private boolean executeWithCliniko(PayloadCallback payload, String apiKey)
+	public boolean executeWithCliniko(PayloadCallback payload, String apiKey)
 			throws SbmSDKException, ClinikoSDKExeption {
-		ClinikiAppointmentServiceImpl clinikoAppointmentService = new ClinikiAppointmentServiceImpl(apiKey);
+		ClinikoAppointmentService clinikoAppointmentService = clinikoApiServiceBuilder.build(apiKey);
 		SbmCliniko sbmCliniko = sbmClinikoService.load(payload.getBooking_id());
 		if (sbmCliniko != null) {
 			clinikoAppointmentService.deleteAppointment(sbmCliniko.getClinikoId());
@@ -170,12 +174,12 @@ public class CancelInternalHandler implements InternalHandler {
 
 	}
 
-	private boolean excuteWithGoogleCalendar(String refreshToken, PayloadCallback payload, String googleCalendarId)
+	public boolean excuteWithGoogleCalendar(String refreshToken, PayloadCallback payload, String googleCalendarId)
 			throws SbmSDKException, GoogleApiSDKException {
 		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
 
 		TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-		GoogleCalendarApiService googleService = new GoogleCalendarApiServiceImpl(tokenResp.getAccess_token());
+		GoogleCalendarApiService googleService = googleApiServiceBuilder.build(tokenResp.getAccess_token());
 		SbmGoogleCalendar sbmGoogleCalendar = sbmGoogleCalendarService.load(payload.getBooking_id());
 		if (sbmGoogleCalendar == null) {
 			return false;
