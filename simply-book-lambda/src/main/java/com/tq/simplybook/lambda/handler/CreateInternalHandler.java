@@ -29,6 +29,7 @@ import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
@@ -72,12 +73,13 @@ public class CreateInternalHandler implements InternalHandler {
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
 	private GoogleCalendarApiServiceBuilder googleApiBuilder = null;
+	private CountryItemService countryItemService = null;
 	private static final String AGENT = "sbm";
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SbmClinikoSyncService scs, GoogleCalendarDbService gcs,
 			SbmGoogleCalendarDbService sgcs, TokenGoogleCalendarService tcs, ClinikoSyncToSbmService csts,
-			ClinikoCompanyInfoService ccis, ClinikoApiServiceBuilder apiServiceBuilder,GoogleCalendarApiServiceBuilder apiBuilder) {
+			ClinikoCompanyInfoService ccis, ClinikoApiServiceBuilder apiServiceBuilder,GoogleCalendarApiServiceBuilder apiBuilder,CountryItemService countryService) {
 		env = environtment;
 		tokenService = tss;
 		bookingService = bss;
@@ -91,6 +93,7 @@ public class CreateInternalHandler implements InternalHandler {
 		clinikoCompanyService = ccis;
 		clinikoApiServiceBuilder = apiServiceBuilder;
 		googleApiBuilder = apiBuilder;
+		countryItemService = countryService;
 	}
 
 	@Override
@@ -152,7 +155,10 @@ public class CreateInternalHandler implements InternalHandler {
 		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
 		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
 		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
-		
+		String infusionsoftApptCountryName = countryItemService.queryCountryCode(bookingInfo.getLocation().getCountry_id());
+		if(infusionsoftApptCountryName==null) {
+			infusionsoftApptCountryName = bookingInfo.getLocation().getCountry_id();
+		}
 		int appliedTagId = env.getInfusionSoftCreateAppliedTag();
 		Map<String, String> updateRecord = new HashMap<>();
 
@@ -168,7 +174,7 @@ public class CreateInternalHandler implements InternalHandler {
 		updateRecord.put(infusionsoftAppointmentAddress1, bookingInfo.getLocation().getAddress1());
 		updateRecord.put(infusionsoftAppointmentAddress2, bookingInfo.getLocation().getAddress2());
 		updateRecord.put(infusionsoftAppointmentCity, bookingInfo.getLocation().getCity());
-		updateRecord.put(infusionsoftAppointmentCountry, bookingInfo.getLocation().getCountry_id());
+		updateRecord.put(infusionsoftAppointmentCountry,infusionsoftApptCountryName);
 		updateRecord.put(infusionsoftAppointmentPhone, bookingInfo.getLocation().getPhone());
 		updateRecord.put(infusionsoftAppointmentZip, bookingInfo.getLocation().getZip());
 		try {

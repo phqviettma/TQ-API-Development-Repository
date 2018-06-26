@@ -16,18 +16,21 @@ import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.common.lambda.dynamodb.dao.ClinikoCompanyInfoDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.CountryItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmClinikoSyncDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmGoogleCalendarSyncDaoImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoCompanyInfoServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.CountryItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmClinikoSyncImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmGoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
+import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
@@ -72,8 +75,9 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 			new ClinikoSyncToSbmDaoImpl(m_amazonDynamoDB));
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder =new ClinikoApiServiceBuilder();
 	private GoogleCalendarApiServiceBuilder googleApiServiceBuilder = new GoogleCalendarApiServiceBuilder();
+	private CountryItemService countryItemService = new CountryItemServiceImpl(new CountryItemDaoImpl(m_amazonDynamoDB));
 	private ClinikoCompanyInfoService clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
-	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc, clinikoSyncToSbmService, clinikoCompanyService, clinikoApiServiceBuilder, googleApiServiceBuilder);
+	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc, clinikoSyncToSbmService, clinikoCompanyService, clinikoApiServiceBuilder, googleApiServiceBuilder, countryItemService);
 	private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs,
 			m_sgcs, m_gcs, m_tgc, clinikoSyncToSbmService, clinikoApiServiceBuilder, googleApiServiceBuilder);
 

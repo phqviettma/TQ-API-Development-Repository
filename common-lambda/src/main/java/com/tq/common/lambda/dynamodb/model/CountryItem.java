@@ -1,7 +1,7 @@
 package com.tq.common.lambda.dynamodb.model;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 @DynamoDBTable(tableName = "Country")
@@ -10,7 +10,7 @@ public class CountryItem {
     @DynamoDBHashKey(attributeName = "name")
     private String name;
     
-    @DynamoDBAttribute(attributeName = "code")
+    @DynamoDBIndexHashKey(globalSecondaryIndexName="Country-Index",attributeName = "code")
     private String code;
 
     public CountryItem() {

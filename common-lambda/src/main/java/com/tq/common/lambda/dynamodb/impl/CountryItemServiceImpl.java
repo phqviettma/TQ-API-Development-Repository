@@ -22,4 +22,10 @@ public class CountryItemServiceImpl implements CountryItemService {
         return m_countryItemDao.loadItem(name);
     }
 
+	@Override
+	public String queryCountryCode(String countryCode) {
+		
+		return m_countryItemDao.queryCountryCode(countryCode);
+	}
+
 }
