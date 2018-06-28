@@ -13,7 +13,7 @@ public class SyncMessage implements Serializable {
 	private String googleResourceId;
 	private String googleResourceUri;
 	private String googleResourceState;
-	private Integer googleMessageNumber;
+	private String googleMessageNumber;
 
 	public String getGoogleChannelId() {
 		return googleChannelId;
@@ -63,11 +63,11 @@ public class SyncMessage implements Serializable {
 		this.googleResourceState = googleResourceState;
 	}
 
-	public Integer getGoogleMessageNumber() {
+	public String getGoogleMessageNumber() {
 		return googleMessageNumber;
 	}
 
-	public void setGoogleMessageNumber(Integer googleMessageNumber) {
+	public void setGoogleMessageNumber(String googleMessageNumber) {
 		this.googleMessageNumber = googleMessageNumber;
 	}
 

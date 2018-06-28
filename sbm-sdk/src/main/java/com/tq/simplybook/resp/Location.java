@@ -89,6 +89,22 @@ public class Location {
 		this.title = title;
 	}
 
+	public Location() {
+	}
+
+	public Location(String id, String title, String description, String address1, String address2, String city,
+			String zip, String country_id, String phone) {
+		this.id = id;
+		this.title = title;
+		this.description = description;
+		this.address1 = address1;
+		this.address2 = address2;
+		this.city = city;
+		this.zip = zip;
+		this.country_id = country_id;
+		this.phone = phone;
+	}
+
 	@Override
 	public String toString() {
 		return "Location [id=" + id + ", title=" + title + ", description=" + description + ", address1=" + address1
