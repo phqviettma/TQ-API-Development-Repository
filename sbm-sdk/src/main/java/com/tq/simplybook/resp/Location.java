@@ -91,6 +91,10 @@ public class Location {
 
 	public Location() {
 	}
+	public Location withCountryCode(String countryCode) {
+		this.setCountry_id(countryCode);
+		return this;
+	}
 
 	public Location(String id, String title, String description, String address1, String address2, String city,
 			String zip, String country_id, String phone) {

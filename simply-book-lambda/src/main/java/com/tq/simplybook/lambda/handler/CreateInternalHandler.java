@@ -109,16 +109,10 @@ public class CreateInternalHandler implements InternalHandler {
 		if (bookingInfo == null) {
 			throw new SbmSDKException("There is no booking content asociated to the booking id: " + bookingId);
 		}
-		String clientEmail = bookingInfo.getClient_email();
-		ContactItem contactItem = contactItemService.load(clientEmail);
+		Integer contactId = addContactToInfusionsoft(bookingInfo);
+		executeWithInfusionSoft(payload, bookingInfo, contactId);
+		persitClientVoInDB(bookingInfo, contactId);
 
-		if (contactItem != null && contactItem.getClient() != null && contactItem.getClient().getContactId() != null) {
-			executeWithInfusionSoft(payload, bookingInfo, contactItem.getClient().getContactId());
-		} else {
-			Integer contactId = addContactToInfusionsoft(bookingInfo);
-			executeWithInfusionSoft(payload, bookingInfo, contactId);
-			persitClientVoInDB(bookingInfo, contactId);
-		}
 		boolean processed = false;
 		String sbmId = bookingInfo.getEvent_id() + "-" + bookingInfo.getUnit_id();
 		ClinikoSbmSync clinikoSbmSync = clinikoSyncToSbmService.load(sbmId);
@@ -184,7 +178,7 @@ public class CreateInternalHandler implements InternalHandler {
 					new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
 			m_log.info("Update infusionsoft field successfully" + updateRecord.toString());
 		} catch (InfSDKExecption e) {
-			throw new SbmSDKException("Updating custom field to Infusion Soft failed", e);
+			m_log.info("Updating custom field to Infusion Soft failed", e);
 		}
 
 		try {
@@ -193,7 +187,7 @@ public class CreateInternalHandler implements InternalHandler {
 			contactService.applyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
 			m_log.info("Applied Infusionsoft Tag successfully");
 		} catch (InfSDKExecption e) {
-			throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
+			m_log.info("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
 		}
 		return true;
 	}
@@ -259,8 +253,9 @@ public class CreateInternalHandler implements InternalHandler {
 		String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
 		Start start = new Start(sbmStartTime, settingInfo.getValue());
 		End end = new End(sbmEndTime, settingInfo.getValue());
-		String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingInfo.getClient_name(),bookingInfo.getClient_email(),bookingInfo.getClient_phone());
-		EventReq req = new EventReq(start, end, clientDescription ,
+		String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingInfo.getClient_name(),
+				bookingInfo.getClient_email(), bookingInfo.getClient_phone());
+		EventReq req = new EventReq(start, end, clientDescription,
 				bookingInfo.getClient_name() + "" + env.getGoogleCalendarEventName());
 		EventResp eventResp = googleApiService.createEvent(req, googleCalendarId);
 		m_log.info("Create event successfully with value " + eventResp.toString());
