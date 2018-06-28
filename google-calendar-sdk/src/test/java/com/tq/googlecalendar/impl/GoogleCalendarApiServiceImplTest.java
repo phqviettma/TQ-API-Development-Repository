@@ -7,14 +7,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
-import com.tq.googlecalendar.req.Attendees;
 import com.tq.googlecalendar.req.EventReq;
 import com.tq.googlecalendar.req.Params;
 import com.tq.googlecalendar.req.StopWatchEventReq;
@@ -64,9 +60,7 @@ public class GoogleCalendarApiServiceImplTest {
 		Start startTime = new Start("2018-01-03T08:13:51.714Z", "Asia/Saigon");
 		End endTime = new End("2018-01-03T09:13:51.714Z", "Asia/Saigon");
 		String description = "nn";
-		List<Attendees> attendees = new ArrayList<>();
-		attendees.add(new Attendees("suong", "suong"));
-		EventReq req = new EventReq(startTime, endTime, description, attendees, description);
+		EventReq req = new EventReq(startTime, endTime, description, description);
 		EventResp events = googleCalendarService.createEvent(req, googleCalendarId);
 		assertNotNull(events.getId());
 	}
@@ -76,7 +70,7 @@ public class GoogleCalendarApiServiceImplTest {
 		Start startTime = new Start("2018-01-03T08:13:51.714Z", "Asia/Saigon");
 		End endTime = new End("2018-01-03T09:13:51.714Z", "Asia/Saigon");
 		String description = "nn";
-		EventReq req = new EventReq(startTime, endTime, description, null, description);
+		EventReq req = new EventReq(startTime, endTime, description, description);
 		EventResp events = googleCalendarService.createEvent(req, googleCalendarId);
 
 		boolean isDeleted = googleCalendarService.deleteEvent(events.getId(), googleCalendarId);
@@ -89,7 +83,7 @@ public class GoogleCalendarApiServiceImplTest {
 		Start startTime = new Start("2018-01-03T08:13:51.714Z", "Asia/Saigon");
 		End endTime = new End("2018-01-03T09:13:51.714Z", "Asia/Saigon");
 		String description = "This is description";
-		EventReq req = new EventReq(startTime, endTime, description, null, description);
+		EventReq req = new EventReq(startTime, endTime, description, description);
 		EventResp events = googleCalendarService.createEvent(req, googleCalendarId);
 
 		events = googleCalendarService.getEvent(events.getId(), googleCalendarId);

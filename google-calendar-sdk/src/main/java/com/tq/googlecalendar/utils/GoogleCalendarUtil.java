@@ -27,4 +27,9 @@ public class GoogleCalendarUtil {
 		}
 		return false;
 	}
+	public static String buildClientInfo(String clientName, String clientEmail, String clientPhone) {
+		String clientDescription = "Name: " + clientName + "\n Email: "
+				+ clientEmail + "\n Phone Number: " + clientPhone;
+		return clientDescription;
+	}
 }

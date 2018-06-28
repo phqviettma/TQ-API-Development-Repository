@@ -1,7 +1,6 @@
 package com.tq.googlecalendar.req;
 
 import java.io.Serializable;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -18,7 +17,6 @@ public class EventReq implements Serializable {
 	private Start start;
 	private End end;
 	private String description;
-	private List<Attendees> attendees;
 	private String summary;
 	
 
@@ -46,13 +44,6 @@ public class EventReq implements Serializable {
 		this.description = description;
 	}
 
-	public List<Attendees> getAttendees() {
-		return attendees;
-	}
-
-	public void setAttendees(List<Attendees> attendees) {
-		this.attendees = attendees;
-	}
 
 	public String getSummary() {
 		return summary;
@@ -64,11 +55,10 @@ public class EventReq implements Serializable {
 
 	
 
-	public EventReq(Start start, End end, String description, List<Attendees> attendees, String summary) {
+	public EventReq(Start start, End end, String description, String summary) {
 		this.start = start;
 		this.end = end;
 		this.description = description;
-		this.attendees = attendees;
 		this.summary = summary;
 	}
 

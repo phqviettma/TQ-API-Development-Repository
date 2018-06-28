@@ -19,7 +19,6 @@ import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
-import com.tq.googlecalendar.req.Attendees;
 import com.tq.googlecalendar.req.EventReq;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.resp.End;
@@ -29,6 +28,7 @@ import com.tq.googlecalendar.resp.Start;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
+import com.tq.googlecalendar.utils.GoogleCalendarUtil;
 import com.tq.sbmsync.lambda.model.FindNewBooking;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
@@ -96,9 +96,8 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 								String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
 								Start start = new Start(sbmStartTime, settingInfo.getValue());
 								End end = new End(sbmEndTime, settingInfo.getValue());
-								List<Attendees> attendees = new ArrayList<>();
-								attendees.add(new Attendees(bookingResp.getClient_email(), bookingResp.getClient()));
-								EventReq eventReq = new EventReq(start, end, bookingResp.getEvent(), attendees,
+								String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingResp.getClient(),bookingResp.getClient_email(),bookingResp.getPhone());
+								EventReq eventReq = new EventReq(start, end, clientDescription,
 										eVariables.getGoogleCalendarEventName());
 								EventResp eventResp = googleApiService.createEvent(eventReq,
 										googleCalendarSbmSync.getGoogleCalendarId());
