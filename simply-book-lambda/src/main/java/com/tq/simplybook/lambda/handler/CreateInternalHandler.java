@@ -274,8 +274,8 @@ public class CreateInternalHandler implements InternalHandler {
 	}
 
 	private static String buildApppointmentTime(String start_date_time, String end_date_time) {
-		String startTime = TimeUtils.extractTimeSbm(start_date_time);
-		String endTime = TimeUtils.extractTimeSbm(end_date_time);
+		String startTime = TimeUtils.getTimeFormatTwHour(start_date_time);
+		String endTime = TimeUtils.getTimeFormatTwHour(end_date_time);
 		return startTime + ((endTime == null || endTime.isEmpty() ? "" : " - " + endTime));
 	}
 

@@ -126,8 +126,8 @@ public class TimeUtils {
 		String date = tk.nextToken();
 		String time = tk.nextToken();
 
-		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-		SimpleDateFormat sdfs = new SimpleDateFormat("hh:mm a");
+		SimpleDateFormat sdf = new SimpleDateFormat("h:mm:ss");
+		SimpleDateFormat sdfs = new SimpleDateFormat("h:mm a");
 		Date dt;
 		try {
 			dt = sdf.parse(time);
@@ -147,6 +147,20 @@ public class TimeUtils {
 		Date date = calendar.getTime();
 		String currentTime = sdf.format(date);
 		return currentTime;
+	}
+	public static String getTimeFormatTwHour(String dateTime) {
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date;
+		String displayValue = null;
+		try {
+			date = dateFormatter.parse(dateTime);
+			// Get time from date
+			SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
+			 displayValue = timeFormatter.format(date);
+		} catch (ParseException e) {
+		}
+		return displayValue;
+
 	}
 
 }
