@@ -29,11 +29,11 @@ public class ClinikoDisconnectHandler implements ConnectHandler {
 	@Override
 	public ClinikoConnectStatusResponse handle(ClinikoPractitionerConnectReq req) throws ClinikoConnectException {
 		ClinikoConnectStatusResponse response = new ClinikoConnectStatusResponse();
-		String apiKey = req.getParams().getApiKey();
-		ClinikoSbmSync clinikoSbmSync = clinikoSyncService.queryWithIndex(apiKey);
+		String practitionerEmail = req.getParams().getPractitionerEmail();
+		ClinikoSbmSync clinikoSbmSync = clinikoSyncService.queryEmail(practitionerEmail);
 		if (clinikoSbmSync != null) {
 			clinikoSyncService.delete(clinikoSbmSync);
-			ClinikoSyncStatus clinikoItem = clinikoItemService.load(apiKey);
+			ClinikoSyncStatus clinikoItem = clinikoItemService.load(clinikoSbmSync.getApiKey());
 			if (clinikoItem != null) {
 				clinikoItemService.delete(clinikoItem);
 				SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService

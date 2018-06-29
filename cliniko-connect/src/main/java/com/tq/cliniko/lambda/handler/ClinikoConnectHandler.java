@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
+import com.tq.cliniko.lambda.context.ClinikoEnv;
 import com.tq.cliniko.lambda.exception.ClinikoConnectException;
 import com.tq.cliniko.lambda.model.AppointmentType;
 import com.tq.cliniko.lambda.model.Businesses;
@@ -34,7 +35,6 @@ import com.tq.common.lambda.dynamodb.service.ClinikoItemService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
-import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.req.GetBookingReq;
@@ -44,7 +44,7 @@ import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
 
 public class ClinikoConnectHandler implements ConnectHandler {
-	private Env eVariables = null;
+	private ClinikoEnv eVariables = null;
 	private static final Logger m_log = LoggerFactory.getLogger(ClinikoConnectHandler.class);
 	private SbmUnitService unitServiceSbm = null;
 	private TokenServiceSbm tokenServiceSbm = null;
@@ -58,7 +58,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
 	private SbmListBookingService sbmBookingDBService = null;
 
-	public ClinikoConnectHandler(Env env, SbmUnitService unitService, TokenServiceSbm tokenService,
+	public ClinikoConnectHandler(ClinikoEnv env, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoSyncService, ClinikoItemService clinikoItemService,
 			ClinikoCompanyInfoService clinikoCompanyService, SbmSyncFutureBookingsService sbmSyncFutureBookingService,
 			BookingServiceSbmImpl bookingService, SbmListBookingService sbmBookingDBService,
