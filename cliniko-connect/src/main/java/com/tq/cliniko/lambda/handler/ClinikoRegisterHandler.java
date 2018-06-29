@@ -14,6 +14,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
+import com.tq.cliniko.lambda.context.ClinikoEnv;
 import com.tq.cliniko.lambda.exception.ClinikoExeptionHandler;
 import com.tq.cliniko.lambda.model.ClinikoPractitionerConnectReq;
 import com.tq.cliniko.lambda.resp.ClinikoConnectFailureResponse;
@@ -50,7 +51,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private static ObjectMapper jsonMapper = new ObjectMapper();
 	private SbmUnitService unitServiceSbm = null;
 	private TokenServiceSbm tokenServiceSbm = null;
-	private Env eVariables = null;
+	private ClinikoEnv eVariables = null;
 	private AmazonDynamoDB amazonDynamoDB = null;
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private ConnectHandler connectHandler = null;
@@ -64,7 +65,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
 
 	public ClinikoRegisterHandler() {
-		this.eVariables = Env.load();
+		this.eVariables = ClinikoEnv.load();
 		this.tokenServiceSbm = new TokenServiceImpl();
 		this.clinikoApiServiceBuilder = new ClinikoApiServiceBuilder();
 		this.amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(eVariables.getRegions(), eVariables.getAwsAccessKeyId(),
@@ -86,7 +87,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 
 	}
 
-	ClinikoRegisterHandler(Env env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
+	ClinikoRegisterHandler(ClinikoEnv env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoDbService, ClinikoConnectHandler connectHandler,
 			ClinikoDisconnectHandler disconnectHandler, CheckingHandler checkingHandler) {
 		this.amazonDynamoDB = db;

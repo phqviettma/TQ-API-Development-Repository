@@ -31,7 +31,6 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
-import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.context.Env;
@@ -105,7 +104,9 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 	GoogleCalendarHandler(Env env, AmazonDynamoDB db, GoogleCalendarDbService googleCalendarService,
 			SpecialdayServiceSbm specialDayService, CreateGoogleCalendarEventHandler createHanler,
 			DeleteGoogleCalendarEventHandler deleteHandler, SbmUnitService unitService,
-			GoogleCalendarModifiedSyncService modifiedChannelService, TokenGoogleCalendarService tokenGoogleCalendarService,GoogleCalendarApiServiceBuilder googleCalendarServiceBuilder) {
+			GoogleCalendarModifiedSyncService modifiedChannelService,
+			TokenGoogleCalendarService tokenGoogleCalendarService,
+			GoogleCalendarApiServiceBuilder googleCalendarServiceBuilder) {
 		this.m_amazonDynamoDB = db;
 		this.m_env = env;
 		this.googleCalendarService = googleCalendarService;
@@ -142,22 +143,15 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						List<Items> cancelledItems = new ArrayList<>();
 						CalendarEvents eventList = null;
 						String nextPageToken = googleCalendarSbmSync.getNextPageToken();
-						String lastQueryTimeMin = googleCalendarSbmSync.getLastQueryTimeMin();
-						String updateTime = null;
-						if (lastQueryTimeMin == null) {
-							String currentTime = TimeUtils.getPreviousTime();
-							GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-							updateTime = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
+						String currentTime = TimeUtils.getPreviousTime();
+						GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
+						String updateTime = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
+						if (nextPageToken == null) {
 							eventList = googleApiService.queryNewestEvent(maxResult, updateTime, googleCalendarId);
 						} else {
-							if (nextPageToken != null) {
 
-								eventList = googleApiService.getUpdatedEventWithPageToken(maxResult, lastQueryTimeMin,
-										nextPageToken, googleCalendarId);
-							} else {
-								throw new TrueQuitBadRequest(
-										"Illegal state, LastQueryTimeMin is set while NextPageToken is unset");
-							}
+							eventList = googleApiService.getUpdatedEventWithPageToken(maxResult, updateTime,
+									nextPageToken, googleCalendarId);
 						}
 
 						m_log.info("Fetched Google Events: " + eventList);
@@ -189,7 +183,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 								modifiedItem = new GCModifiedChannel(googleCalendarId, 1, timeStamp,
 										googleCalendarSbmSync.getEmail(), googleChannelId);
 								modifiedChannelService.put(modifiedItem);
-								m_log.info("Save to modified Table successfully" + modifiedItem.toString());
+								m_log.info("Save to modified table successfully" + modifiedItem.toString());
 							} else {
 								// do nothing
 							}

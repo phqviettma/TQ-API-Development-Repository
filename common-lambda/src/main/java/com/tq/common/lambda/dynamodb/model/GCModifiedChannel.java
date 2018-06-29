@@ -73,4 +73,10 @@ public class GCModifiedChannel {
 		this.channelId = channelId;
 	}
 
+	@Override
+	public String toString() {
+		return "GCModifiedChannel [googleCalendarId=" + googleCalendarId + ", checkingStatus=" + checkingStatus
+				+ ", timeStamp=" + timeStamp + ", email=" + email + ", channelId=" + channelId + "]";
+	}
+
 }
