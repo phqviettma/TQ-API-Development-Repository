@@ -164,7 +164,13 @@ public class CancelInternalHandler implements InternalHandler {
 			try {
 				ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
 
-				contactService.applyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
+				boolean isApplied = contactService.applyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
+				if(isApplied) {
+					m_log.info(String.format("Applied tag with id %d under contact id %d successfully",appliedTagId,ifContactId));
+				}
+				else {
+					m_log.info(String.format("Can not apply tag id %d under contact id: %d", appliedTagId, ifContactId));
+				}
 			} catch (InfSDKExecption e) {
 				throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
 			}
