@@ -49,6 +49,7 @@ import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 import com.tq.simplybook.resp.BookingInfo;
+import com.tq.simplybook.resp.Location;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -125,6 +126,9 @@ public class CreateInternalHandlerTest {
 		bookingInfo.setUnit_name("Suong pham");
 		bookingInfo.setStart_date_time("2018-06-27 10:00:00");
 		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
+		Location location = new Location();
+		location.setCountry_id("AU");
+		bookingInfo.setLocation(location );
 		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
 		when(csi.addWithDupCheck(any(), any(), any())).thenReturn(518);
 		when(csi.update(any(), any(), any())).thenReturn(518);
@@ -132,6 +136,7 @@ public class CreateInternalHandlerTest {
 		AppointmentInfo apptInfo = new AppointmentInfo();
 		apptInfo.setId(199000L);
 		when(clinikoApptService.createAppointment(any())).thenReturn(apptInfo);
+		when(countryItemService.queryCountryCode(any())).thenReturn("AU");
 		handler.handle(payLoad);
 	}
 
@@ -153,9 +158,13 @@ public class CreateInternalHandlerTest {
 		bookingInfo.setUnit_name("Suong pham");
 		bookingInfo.setStart_date_time("2018-06-27 10:00:00");
 		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
+		Location location = new Location();
+		location.setCountry_id("AU");
+		bookingInfo.setLocation(location );
 		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
 		when(csi.update(any(), any(), any())).thenReturn(122);
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
+		when(countryItemService.queryCountryCode(any())).thenReturn("AU");
 		boolean excuted = handler.executeWithInfusionSoft(payLoad, bookingInfo, contactItem.getClient().getContactId());
 		assertTrue(excuted);
 	}
@@ -170,6 +179,9 @@ public class CreateInternalHandlerTest {
 		bookingInfo.setUnit_name("Suong pham");
 		bookingInfo.setStart_date_time("2018-06-27 10:00:00");
 		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
+		Location location = new Location();
+		location.setCountry_id("AU");
+		bookingInfo.setLocation(location );
 		PayloadCallback payLoad = new PayloadCallback();
 		payLoad.setBooking_id(105L);
 		payLoad.setBooking_hash("f0d7728001d18b5f7463a8af809ac09f");
@@ -186,6 +198,7 @@ public class CreateInternalHandlerTest {
 		EventResp eventResp = new EventResp();
 		eventResp.setId("event_id");
 		when(googleApiService.createEvent(any(), any())).thenReturn(eventResp);
+		when(countryItemService.queryCountryCode(any())).thenReturn("AU");
 		boolean handled = handler.excuteWithGoogleCalendar(bookingInfo, payLoad, "", googleCalendarId);
 		assertTrue(handled);
 	}
