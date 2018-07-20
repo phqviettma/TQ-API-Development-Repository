@@ -45,9 +45,9 @@ import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.simplybook.exception.SbmSDKException;
-import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.resp.GetBookingResp;
 import com.tq.simplybook.resp.UnitProviderInfo;
+import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -61,7 +61,7 @@ public class ClinikoRegisterHandlerTest {
 	private ClinikoItemService clinikoItemService = mock(ClinikoItemService.class);
 	private ClinikoCompanyInfoService clinikoCompanyService = mock(ClinikoCompanyInfoService.class);
 	private SbmSyncFutureBookingsService sbmSyncBookingService = mock(SbmSyncFutureBookingsService.class);
-	private BookingServiceSbmImpl bookingService = mock(BookingServiceSbmImpl.class);
+	private BookingServiceSbm bookingService = mock(BookingServiceSbm.class);
 	private SbmListBookingService sbmListBookingService = mock(SbmListBookingService.class);
 	private ClinikoApiServiceBuilder mockApiServiceBuilder = mock(ClinikoApiServiceBuilder.class);
 	private CheckingHandler checkingHandler = new CheckingHandler(clinikoSyncToSbmService);

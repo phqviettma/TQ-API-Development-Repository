@@ -32,7 +32,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 	}
 
 	@Override
-	public AppointmentsInfo getAppointments(String startTime, Integer maxResult, int practitionerId)
+	public AppointmentsInfo getAppointments(String startTime, Integer maxResult, Integer practitionerId)
 			throws ClinikoSDKExeption {
 		String jsonResp;
 		try {

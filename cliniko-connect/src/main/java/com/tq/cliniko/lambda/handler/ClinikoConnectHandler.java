@@ -36,10 +36,10 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.simplybook.exception.SbmSDKException;
-import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.req.GetBookingReq;
 import com.tq.simplybook.resp.GetBookingResp;
 import com.tq.simplybook.resp.UnitProviderInfo;
+import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -51,7 +51,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private ClinikoItemService clinikoItemService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
-	private BookingServiceSbmImpl bookingService = null;
+	private BookingServiceSbm bookingService = null;
 	private ClinikoApiServiceBuilder apiServiceBuilder = null;
 	private static final String BOOKING_TYPE = "non_cancelled";
 	private static final String ORDER_BY = "start_date";
@@ -61,7 +61,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	public ClinikoConnectHandler(ClinikoEnv env, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoSyncService, ClinikoItemService clinikoItemService,
 			ClinikoCompanyInfoService clinikoCompanyService, SbmSyncFutureBookingsService sbmSyncFutureBookingService,
-			BookingServiceSbmImpl bookingService, SbmListBookingService sbmBookingDBService,
+			BookingServiceSbm bookingService, SbmListBookingService sbmBookingDBService,
 			ClinikoApiServiceBuilder apiServiceBuilder) {
 		this.eVariables = env;
 		this.unitServiceSbm = unitService;

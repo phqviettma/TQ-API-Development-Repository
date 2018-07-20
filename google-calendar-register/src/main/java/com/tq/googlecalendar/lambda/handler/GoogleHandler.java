@@ -101,7 +101,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 				tokenCalendarService, apiServiceBuilder, googleWatchChannelDbService, calendarModifiedChannelService,
 				sbmSyncFutureBooking, sbmListBookingService);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
-		this.showCalendarHandler = new ShowGoogleCalendarHandler(tokenCalendarService, eVariables);
+		this.showCalendarHandler = new ShowGoogleCalendarHandler(tokenCalendarService, eVariables, apiServiceBuilder);
 
 	}
 
@@ -109,7 +109,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	GoogleHandler(Env env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
 			GoogleCalendarDbService calendarService, ContactItemService contactItemService,
 			GoogleConnectCalendarHandler connectHandler, GoogleCalendarCheckStatusHandler checkHandler,
-			GoogleDisconnectCalendarHandler disconnectHandler) {
+			GoogleDisconnectCalendarHandler disconnectHandler, ShowGoogleCalendarHandler showCalendarHandler) {
 		this.amazonDynamoDB = db;
 		this.sbmUnitService = unitService;
 		this.tokenServiceSbm = tokenService;
@@ -119,6 +119,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		this.connectHandler = connectHandler;
 		this.checkStatusHandler = checkHandler;
 		this.disconnectHandler = disconnectHandler;
+		this.showCalendarHandler = showCalendarHandler;
 	}
 
 	@Override

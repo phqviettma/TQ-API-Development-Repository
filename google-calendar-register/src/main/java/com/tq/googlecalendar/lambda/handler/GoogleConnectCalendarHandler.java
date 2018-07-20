@@ -147,7 +147,7 @@ public class GoogleConnectCalendarHandler implements Handler {
 								GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(googleCalendarId, -1,
 										timeStamp, sbmEmail, channelId);
 								googleCalendarService.put(calendarSbm);
-							
+
 								googleCalRenewService.put(channelInfo);
 								m_log.info("Added to GoogleCalendarChannelInfo table successfully "
 										+ channelInfo.toString());
@@ -162,7 +162,7 @@ public class GoogleConnectCalendarHandler implements Handler {
 								List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint,
 										token, getBookingReq);
 								SbmBookingList sbmBookingItem = new SbmBookingList(sbmId, bookingList);
-								sbmBookingDBService.put(sbmBookingItem );
+								sbmBookingDBService.put(sbmBookingItem);
 								m_log.info("Added to database successfully " + sbmBookingItem.toString());
 							}
 							done = true;
@@ -171,7 +171,6 @@ public class GoogleConnectCalendarHandler implements Handler {
 					}
 
 				}
-
 			}
 			if (!done) {
 				throw new TrueQuitRegisterException(

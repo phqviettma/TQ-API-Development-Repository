@@ -72,8 +72,8 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
 		AwsProxyResponse resp = new AwsProxyResponse();
 		Long checkDay = buildCheckingTime();
-		m_log.info("Start running lambda ");
 		List<GoogleRenewChannelInfo> channelInfo = googleWatchChannelDbService.queryCheckingTime(checkDay);
+		m_log.info(String.format("Start checking with channel info %s at day %d ",channelInfo.toString(), checkDay));
 		if (channelInfo.size() > 0) {
 			for (GoogleRenewChannelInfo item : channelInfo) {
 				try {
@@ -113,9 +113,7 @@ public class GoogleCalChannelRenewHandler implements RequestHandler<AwsProxyRequ
 					channel.getRefreshToken(), channel.getResourceId(), lastQueryTime, channel.getChannelId(),
 					channel.getGoogleEmail());
 			googleWatchChannelDbService.saveItem(newChannelInfo);
-			m_log.info("Save to database successfully " + newChannelInfo);
-			googleWatchChannelDbService.deleteItem(channel);
-			m_log.info(String.format("renew channel at %d ms", (System.currentTimeMillis() - start)));
+			m_log.info(String.format("renew channel %s at %d ms",newChannelInfo,(System.currentTimeMillis() - start)));
 		} else {
 			m_log.error("Internal error");
 		}

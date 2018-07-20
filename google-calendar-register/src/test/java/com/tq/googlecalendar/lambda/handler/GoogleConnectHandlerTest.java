@@ -79,18 +79,13 @@ public class GoogleConnectHandlerTest {
 		ContactItem contactItem = new ContactItem();
 		contactItem.setEmail("testingdev@tma.com.vn");
 		when(contactItemService.load(any())).thenReturn(contactItem);
-		Mockito.doAnswer(new Answer<Void>() {
-			@Override
-			public Void answer(InvocationOnMock invocation) throws Throwable {
-				return null;
-			}
-		}).when(calendarService).put(any(GoogleCalendarSbmSync.class));
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("accesstoken");
 		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
 		List<UnitProviderInfo> value = new ArrayList<>();
 		UnitProviderInfo provider = new UnitProviderInfo();
 		provider.setEmail("testingdev@tma.com.vn");
+		provider.setId("1");
 		Map<String, Object> event_map = new HashMap<>();
 		event_map.put("2", null);
 		provider.setEvent_map(event_map);
@@ -117,4 +112,5 @@ public class GoogleConnectHandlerTest {
 		assertEquals(response.isSucceeded(), true);
 
 	}
+	
 }

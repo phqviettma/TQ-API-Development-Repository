@@ -39,7 +39,7 @@ public class HandleEventCreatedOrderExecution extends HandleEventOrderExecution 
 		}
 		ContactItem contactItem = lambdaContext.getContactItemService().load(contactEmail);
 		
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 		Integer contactId = contactItem.getClient().getContactId();
 
 		Integer appliedTagId = Integer

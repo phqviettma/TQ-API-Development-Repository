@@ -1,0 +1,13 @@
+ { "action": "check",
+    "params": {
+        "email": "phamthanhcute11@gmail.com",
+        "lastName": "canh",
+        "firstName": "tran",
+        "accessToken": "ya29.Glu9BQijKcxHcBN69Na3h6SaCf-UvCNa2uI7V_5tpOG8gZ3S-_odJzTO8i4l5q7ZjW_5hk6Gfw08qXbR_XSLKaK-9SvQF3bhyU-0cts0O_LDylxIiNfReplP0TgL",
+        "refreshToken": "1/mFv-CxsPB13OKU879CRsApnqxO7e8Q_TQutDTrbCqfQ",
+        "googleEmail": "canh5870@gmail.com",
+        "googleCalendarId": [
+            "canh5870@gmail.com"
+        ]
+    }
+}

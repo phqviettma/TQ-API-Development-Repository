@@ -14,7 +14,7 @@ import com.tq.cliniko.lambda.model.User;
 public interface ClinikoAppointmentService {
 	AppointmentInfo getAppointment(Long id) throws ClinikoSDKExeption;
 
-	AppointmentsInfo getAppointments(String startTime, Integer maxResult, int practitionerId) throws ClinikoSDKExeption;
+	AppointmentsInfo getAppointments(String startTime, Integer maxResult, Integer practitionerId) throws ClinikoSDKExeption;
 
 	AppointmentsInfo next(AppointmentsInfo apptInfo) throws ClinikoSDKExeption;
 

@@ -31,6 +31,8 @@ dependencies {
 
 test {
     exclude 'com/tq/clickfunnel/lambda/handler/StripeInterceptorEventPayloadExternalProxyTest.class'
+    exclude 'com/tq/clickfunnel/lambda/handler/HandleEventAffiliateBackpackSignupExecutionTest.class'
+    exclude 'com/tq/clickfunnel/lambda/handler/InfusionsoftInterceptorEventPayloadExternalProxyTest.class'
 }
 
 //http://docs.aws.amazon.com/lambda/latest/dg/create-deployment-pkg-zip-java.html

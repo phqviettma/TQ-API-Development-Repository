@@ -113,7 +113,7 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 					} else if (sbmSyncItem.getEmail() != null) {
 						sbmSyncGCHandler.handle(sbmSyncItem);
 					} else {
-						throw new SbmSDKException("");
+						throw new SbmSDKException("Error, can not sync to cliniko/google");
 					}
 				}
 			}
