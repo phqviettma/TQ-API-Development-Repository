@@ -8,8 +8,8 @@ public class SbmListBookingServiceImpl implements SbmListBookingService {
 
 	private SbmListBookingDao sbmListBookingDao;
 
-	public SbmListBookingServiceImpl(SbmListBookingDao sbmListBookingDao) {
-		this.sbmListBookingDao = sbmListBookingDao;
+	public SbmListBookingServiceImpl(SbmListBookingDao sbmBookingDao) {
+		sbmListBookingDao = sbmBookingDao;
 	}
 
 	@Override

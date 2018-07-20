@@ -1,5 +1,5 @@
 {
-  "id": 21783206,
+  "id": 17059575,
   "products":[
     {
       "id": 972615,
@@ -9,7 +9,7 @@
         "fractional": "10000.0",
         "currency": {
           "id": "usd",
-          "alternate_symbols": Array[1][
+          "alternate_symbols":[
             "US$"
           ],
           "decimal_mark": ".",
@@ -204,7 +204,7 @@
     "fractional": "10000.0",
     "currency": {
       "id": "usd",
-      "alternate_symbols": Array[1][
+      "alternate_symbols":[
         "US$"
       ],
       "decimal_mark": ".",

@@ -47,6 +47,7 @@ public class CFLambdaMockUtils {
         env.put("AMAZON_SECRET_ACCESS_KEY", Config.LOCALLY_AMAZON_SECRET_ACCESS_KEY);
         env.put("DYNAMODB_AWS_REGION", Config.DYNAMODB_LOCAL_REGION_ECLIPSE);
         env.put("INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG","110");
+        env.put("INFUSION_CLICKFUNNEL_OPTIN_TAG", "101");
         mockEnv.setValueSystems(env);
         return mockEnv;
     }
@@ -98,7 +99,6 @@ public class CFLambdaMockUtils {
         // LambdaContext mock for services
         when(lambdaContext.getClientServiceSbm()).thenReturn(clientServiceSbm);
         when(lambdaContext.getTokenServiceSbm()).thenReturn(tokenServiceSbm);
-
         when(lambdaContext.getContactServiceInf()).thenReturn(contactServiceInf);
         when(lambdaContext.getDataServiceInf()).thenReturn(dataServiceInf);
         when(lambdaContext.getOrderServiceInf()).thenReturn(orderServiceInf);

@@ -1,0 +1,52 @@
+{
+	2018-06-19=UnitWorkingTime[date=2018-06-19,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-20=UnitWorkingTime[date=2018-06-20,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-21=UnitWorkingTime[date=2018-06-21,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-22=UnitWorkingTime[date=2018-06-22,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-23=UnitWorkingTime[date=2018-06-23,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-24=UnitWorkingTime[date=2018-06-24,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-25=UnitWorkingTime[date=2018-06-25,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-26=UnitWorkingTime[date=2018-06-26,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-27=UnitWorkingTime[date=2018-06-27,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}],
+	2018-06-28=UnitWorkingTime[date=2018-06-28,
+	workingTime={
+		5=WorkingTime[start_time=09: 00: 00,
+		end_time=18: 00: 00]
+	}]
+}

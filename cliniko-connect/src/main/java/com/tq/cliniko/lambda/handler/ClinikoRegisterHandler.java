@@ -35,10 +35,10 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.utils.DynamodbUtils;
-import com.tq.simplybook.context.Env;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
+import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.TokenServiceSbm;
 
@@ -60,7 +60,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private ClinikoItemService clinikoItemService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
-	private BookingServiceSbmImpl bookingService = null;
+	private BookingServiceSbm bookingService = null;
 	private SbmListBookingService sbmBookingDBService = null;
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
 

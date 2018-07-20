@@ -9,11 +9,13 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
+import com.tq.common.lambda.dynamodb.model.SbmBookingList;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
@@ -35,6 +37,7 @@ import com.tq.googlecalendar.service.GoogleCalendarApiService;
 public class GoogleDisconnectHandlerTest {
 	private GoogleCalendarDbService calendarService = mock(GoogleCalendarDbService.class);
 	private static Env mockedeEnv = MockUtil.mockEnv();
+	private GoogleRegisterReq req = null;
 	private TokenGoogleCalendarImpl tokenCalendarService = mock(TokenGoogleCalendarImpl.class);
 	private GoogleCalendarApiServiceBuilder mockedApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private GoogleCalRenewService googleWatchChannelDbService = mock(GoogleCalRenewService.class);
@@ -45,22 +48,27 @@ public class GoogleDisconnectHandlerTest {
 			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService,
 			modifiedChannelService, sbmSyncFutureBookingsService, sbmListBookingService);
 
-	@Test
-	public void testDisconnect() throws TrueQuitRegisterException, GoogleApiSDKException {
-		GoogleRegisterReq req = new GoogleRegisterReq();
+	@Before
+	public void init() throws GoogleApiSDKException {
+		req = new GoogleRegisterReq();
 		req.setAction("disconnect");
 		GoogleRegisterParams params = new GoogleRegisterParams();
 		params.setEmail("suongpham53@gmail.com");
 		req.setParams(params);
+		TokenResp tokenResp = new TokenResp();
+		tokenResp.setAccess_token("accesstoken");
+		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
+	}
+
+	@Test
+	public void testDisconnect() throws TrueQuitRegisterException, GoogleApiSDKException {
 		List<GoogleCalendarSbmSync> googleCalendarSbmSync = Arrays.asList(new GoogleCalendarSbmSync("1-7",
 				"phamthanhcute11@gmail.com", "phamthanhcute11@gmail.com", "suong", "pham", "", "-BLANK-", ""));
 
 		when(calendarService.queryEmail(any())).thenReturn(googleCalendarSbmSync);
 		List<GoogleRenewChannelInfo> renewChannelInfo = Arrays.asList(new GoogleRenewChannelInfo());
 		when(googleWatchChannelDbService.queryEmail(any())).thenReturn(renewChannelInfo);
-		TokenResp tokenResp = new TokenResp();
-		tokenResp.setAccess_token("accesstoken");
-		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
+
 		GoogleCalendarApiService googleCalendarApiService = mock(GoogleCalendarApiService.class);
 		when(mockedApiServiceBuilder.build(anyString())).thenReturn(googleCalendarApiService);
 		ErrorResp value = new ErrorResp();
@@ -71,6 +79,9 @@ public class GoogleDisconnectHandlerTest {
 		when(googleCalendarApiService.stopWatchEvent(any())).thenReturn(value);
 		List<GCModifiedChannel> modifiedChannels = Arrays.asList(new GCModifiedChannel());
 		when(modifiedChannelService.queryEmail(any())).thenReturn(modifiedChannels);
+		SbmBookingList sbmBookingList = new SbmBookingList();
+		sbmBookingList.setSbmId("sbmId");
+		when(sbmListBookingService.load(any())).thenReturn(sbmBookingList);
 		GoogleConnectStatusResponse response = disconnectHandler.handle(req);
 		assertEquals(response.isSucceeded(), true);
 

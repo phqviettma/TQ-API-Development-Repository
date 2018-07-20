@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.googlecalendar.context.Env;
-import com.tq.googlecalendar.impl.GoogleCalendarApiServiceImpl;
+import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.resp.CalendarEvents;
@@ -72,6 +73,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 	private GCInternalHandler deleteEventHandler = null;
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
 	private BookingServiceSbm bookingService = null;
+	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 
 	public CalendarSyncHandler() {
 		this.m_env = Env.load();
@@ -89,6 +91,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 				new GoogleCalendarModifiedSynDaoImpl(m_amazonDynamoDB));
 		this.unitService = new SbmUnitServiceImpl();
 		this.tokenService = new TokenServiceImpl();
+		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.googleCalendarService = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(m_amazonDynamoDB));
 		this.createEventHandler = new CreateGoogleEventHandler(m_env, tokenService, specialDayService,
 				sbmTimeManagement, sbmCalendarService, unitService);
@@ -101,7 +104,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 	CalendarSyncHandler(Env env, AmazonDynamoDB db, GoogleCalendarDbService googleCalendarService,
 			SpecialdayServiceSbm specialDayService, CreateGoogleEventHandler createHandler,
 			DeleteGoogleEventHandler deleteHandler, SbmUnitService unitService,
-			GoogleCalendarModifiedSyncService modifiedChannelService, SbmGoogleCalendarDbService sbmCalendarService) {
+			GoogleCalendarModifiedSyncService modifiedChannelService, SbmGoogleCalendarDbService sbmCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder,TokenGoogleCalendarService tokenCalendarService) {
 		this.m_amazonDynamoDB = db;
 		this.m_env = env;
 		this.googleCalendarService = googleCalendarService;
@@ -111,6 +114,8 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 		this.unitService = unitService;
 		this.modifiedChannelService = modifiedChannelService;
 		this.sbmCalendarService = sbmCalendarService;
+		this.apiServiceBuilder = apiServiceBuilder;
+		this.tokenCalendarService = tokenCalendarService;
 	}
 
 	@Override
@@ -137,8 +142,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					TokenReq tokenReq = new TokenReq(m_env.getGoogleClientId(), m_env.getGoogleClientSecrets(),
 							googleCalendarSbmSync.getRefreshToken());
 					TokenResp token = tokenCalendarService.getToken(tokenReq);
-					GoogleCalendarApiService googleApiService = new GoogleCalendarApiServiceImpl(
-							token.getAccess_token());
+					GoogleCalendarApiService googleApiService = apiServiceBuilder.build(token.getAccess_token());
 					List<Items> confirmedItems = new ArrayList<>();
 					List<Items> cancelledItems = new ArrayList<>();
 					CalendarEvents eventList = null;
@@ -154,7 +158,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 							String currentTime = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
 									.format(Calendar.getInstance().getTime());
 							GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-							lastQueryTimeMin = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
+							lastQueryTimeMin = TimeUtils.convertTimeZone(DateTimeZone.getDefault(), DateTimeZone.forID( settingInfo.getValue()), currentTime);
 							timeMinQuery = true;
 
 							eventList = googleApiService.getEventWithoutToken(maxResult, lastQueryTimeMin, GC_TIME_MIN,

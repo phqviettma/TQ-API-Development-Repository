@@ -69,7 +69,7 @@ public class GoogleRenewChannelInfo implements Serializable {
 	public void setLastCheckingTime(Long lastCheckingTime) {
 		this.lastCheckingTime = lastCheckingTime;
 	}
-
+  
 	@DynamoDBHashKey(attributeName = "channelId")
 	public String getChannelId() {
 		return channelId;

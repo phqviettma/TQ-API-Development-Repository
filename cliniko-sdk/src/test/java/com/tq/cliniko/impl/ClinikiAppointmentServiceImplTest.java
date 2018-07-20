@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
@@ -22,8 +21,7 @@ import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
 
 public class ClinikiAppointmentServiceImplTest {
-	static ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl(
-			"874189e82c10331de622968e86459c2d");
+	static ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("API_KEY");
 	Integer maxResult = 100;
 
 	@Test
@@ -56,7 +54,6 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
-	@Ignore
 	public void testCreateAppointments() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");
@@ -76,7 +73,7 @@ public class ClinikiAppointmentServiceImplTest {
 		assertNull(result.getAppointment_start());
 	}
 
-	// @Test
+	@Test
 	public void testDeleteAppointment() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-09-11T04:45:00Z");
@@ -135,7 +132,6 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
-	@Ignore
 	public void testGetPractitionerAppointment() throws ClinikoSDKExeption {
 		AppointmentsInfo appt = m_service.getPractitionerAppointment(95260, 10);
 		assertTrue(appt.getAppointments().size() > 0);
@@ -143,7 +139,7 @@ public class ClinikiAppointmentServiceImplTest {
 
 	@Test
 	public void testCreatePatient() throws ClinikoSDKExeption {
-		PatientDetail p = m_service.createPatient("Suong", "Pham","suongpham@gmail.com","0123366655");
+		PatientDetail p = m_service.createPatient("Suong", "Pham", "suongpham@gmail.com", "0123366655");
 		assertNotNull(p.getId());
 	}
 
@@ -156,7 +152,7 @@ public class ClinikiAppointmentServiceImplTest {
 	@Test
 	public void testGetPatientDetails() throws ClinikoSDKExeption {
 		Patients patient = m_service.getPatient("toannhan@gmail.com");
-		System.out.println(patient);
+		assertNotNull(patient.getPatients().get(0).getId());
 	}
 
 }

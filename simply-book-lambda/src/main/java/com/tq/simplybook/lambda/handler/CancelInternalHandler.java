@@ -103,20 +103,6 @@ public class CancelInternalHandler implements InternalHandler {
 		String infusionSoftApiName = env.getInfusionSoftApiName();
 		String infusionSoftApiKey = env.getInfusionSoftApiKey();
 
-		String infusionSoftAppointmentTimeField = env.getInfusionSoftAppointmentTimeField();
-		String infusionSoftAppointmentLocationField = env.getInfusionSoftAppointmentLocationField();
-		String infusionSoftServiceProviderField = env.getInfusionSoftServiceProviderField();
-		String infusionSoftAppointmentInstructionField = env.getInfusionSoftAppointmentInstructionField();
-		String infusionSoftAppointmentDateField = env.getInfusionftAppointmentDate();
-		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
-		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
-		String infusionsoftAppointmentAddress1 = env.getInfusionsoftApptAddress1();
-		String infusionsoftAppointmentAddress2 = env.getInfusionsoftApptAddress2();
-		String infusionsoftAppointmentCity = env.getInfusionsoftApptCity();
-		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
-		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
-		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
-
 		int appliedTagId = env.getInfusionSoftCancelAppliedTag();
 		Long bookingId = payload.getBooking_id();
 
@@ -125,7 +111,7 @@ public class CancelInternalHandler implements InternalHandler {
 		BookingInfo bookingInfo = bookingService.getBookingInfo(companyLogin, adminEndPoint, token, bookingId);
 
 		if (bookingInfo == null) {
-			throw new SbmSDKException("There is no booking content asociated to the booking id: " + bookingId);
+			m_log.info("There is no booking content asociated to the booking id: " + bookingId);
 		}
 
 		// load with email as id from DynamoDB
@@ -139,40 +125,29 @@ public class CancelInternalHandler implements InternalHandler {
 		} else {
 			Integer ifContactId = contactItem.getClient().getContactId();
 
-			Map<String, String> updateRecord = new HashMap<>();
-			updateRecord.put(infusionSoftAppointmentTimeField, "");
-			updateRecord.put(infusionSoftAppointmentLocationField, "");
-			updateRecord.put(infusionSoftServiceProviderField, "");
-			updateRecord.put(infusionSoftAppointmentInstructionField, "");
-			updateRecord.put(infusionSoftAppointmentDateField, "");
-			updateRecord.put(infusionSoftPractitionerLastName, "");
-			updateRecord.put(infusionsoftPractitionerFirstName, "");
-			updateRecord.put(infusionsoftAppointmentAddress1, "");
-			updateRecord.put(infusionsoftAppointmentAddress2, "");
-			updateRecord.put(infusionsoftAppointmentCity, "");
-			updateRecord.put(infusionsoftAppointmentCountry, "");
-			updateRecord.put(infusionsoftAppointmentPhone, "");
-			updateRecord.put(infusionsoftAppointmentZip, "");
+			Map<String, String> updateRecord = resetRecordCustomFiledIS();
+
 			try {
 				contactService.update(infusionSoftApiName, infusionSoftApiKey,
 						new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
 
 			} catch (InfSDKExecption e) {
-				throw new SbmSDKException("Updating custom field to Infusion Soft failed", e);
+				m_log.info("Updating custom field to Infusion Soft failed "+ e);
 			}
 
 			try {
 				ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
 
 				boolean isApplied = contactService.applyTag(infusionSoftApiName, infusionSoftApiKey, applyTagQuery);
-				if(isApplied) {
-					m_log.info(String.format("Applied tag with id %d under contact id %d successfully",appliedTagId,ifContactId));
-				}
-				else {
-					m_log.info(String.format("Can not apply tag id %d under contact id: %d", appliedTagId, ifContactId));
+				if (isApplied) {
+					m_log.info(String.format("Applied tag with id %d under contact id %d successfully", appliedTagId,
+							ifContactId));
+				} else {
+					m_log.info(
+							String.format("Can not apply tag id %d under contact id: %d", appliedTagId, ifContactId));
 				}
 			} catch (InfSDKExecption e) {
-				throw new SbmSDKException("Applying Tag " + appliedTagId + " to contact Infusion Soft failed", e);
+				m_log.info("Applying Tag " + appliedTagId + " to contact Infusion Soft failed" + e);
 			}
 		}
 		return bookingInfo;
@@ -204,10 +179,40 @@ public class CancelInternalHandler implements InternalHandler {
 		} else {
 			sbmGoogleCalendar.setFlag(0);
 			sbmGoogleCalendarService.put(sbmGoogleCalendar);
-			m_log.info("Delete item on database successfully");
 			googleService.deleteEvent(sbmGoogleCalendar.getEventId(), googleCalendarId);
 			m_log.info("Delete google event successfully");
 			return true;
 		}
+	}
+
+	public Map<String, String> resetRecordCustomFiledIS() {
+		String infusionSoftAppointmentTimeField = env.getInfusionSoftAppointmentTimeField();
+		String infusionSoftAppointmentLocationField = env.getInfusionSoftAppointmentLocationField();
+		String infusionSoftServiceProviderField = env.getInfusionSoftServiceProviderField();
+		String infusionSoftAppointmentInstructionField = env.getInfusionSoftAppointmentInstructionField();
+		String infusionSoftAppointmentDateField = env.getInfusionftAppointmentDate();
+		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
+		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
+		String infusionsoftAppointmentAddress1 = env.getInfusionsoftApptAddress1();
+		String infusionsoftAppointmentAddress2 = env.getInfusionsoftApptAddress2();
+		String infusionsoftAppointmentCity = env.getInfusionsoftApptCity();
+		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
+		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
+		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
+		Map<String, String> updateRecord = new HashMap<>();
+		updateRecord.put(infusionSoftAppointmentTimeField, "");
+		updateRecord.put(infusionSoftAppointmentLocationField, "");
+		updateRecord.put(infusionSoftServiceProviderField, "");
+		updateRecord.put(infusionSoftAppointmentInstructionField, "");
+		updateRecord.put(infusionSoftAppointmentDateField, "");
+		updateRecord.put(infusionSoftPractitionerLastName, "");
+		updateRecord.put(infusionsoftPractitionerFirstName, "");
+		updateRecord.put(infusionsoftAppointmentAddress1, "");
+		updateRecord.put(infusionsoftAppointmentAddress2, "");
+		updateRecord.put(infusionsoftAppointmentCity, "");
+		updateRecord.put(infusionsoftAppointmentCountry, "");
+		updateRecord.put(infusionsoftAppointmentPhone, "");
+		updateRecord.put(infusionsoftAppointmentZip, "");
+		return updateRecord;
 	}
 }

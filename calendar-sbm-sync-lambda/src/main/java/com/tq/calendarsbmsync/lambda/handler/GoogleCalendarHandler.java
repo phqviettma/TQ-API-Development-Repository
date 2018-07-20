@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,7 +146,7 @@ public class GoogleCalendarHandler implements RequestHandler<AwsProxyRequest, Aw
 						String nextPageToken = googleCalendarSbmSync.getNextPageToken();
 						String currentTime = TimeUtils.getPreviousTime();
 						GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
-						String updateTime = TimeUtils.getTimeFullOffset(currentTime, settingInfo.getValue());
+						String updateTime = TimeUtils.convertTimeZone(DateTimeZone.getDefault(), DateTimeZone.forID( settingInfo.getValue()), currentTime);
 						if (nextPageToken == null) {
 							eventList = googleApiService.queryNewestEvent(maxResult, updateTime, googleCalendarId);
 						} else {

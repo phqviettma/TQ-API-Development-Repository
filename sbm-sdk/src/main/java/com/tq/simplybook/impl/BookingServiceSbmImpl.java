@@ -66,6 +66,7 @@ public class BookingServiceSbmImpl implements BookingServiceSbm {
 
 	}
 
+	@Override
 	public List<GetBookingResp> getBookings(String companyLogin, String endpoint, String token,
 			GetBookingReq getBookingReq) throws SbmSDKException {
 		try {
@@ -79,5 +80,7 @@ public class BookingServiceSbmImpl implements BookingServiceSbm {
 			throw new SbmSDKException(e.getMessage() + " during getBookings()", e);
 		}
 	}
+
+
 
 }

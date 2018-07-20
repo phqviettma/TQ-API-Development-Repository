@@ -1,0 +1,48 @@
+{
+    "kind": "calendar#events",
+    "etag": "\"p324e1tdrkucdo0g\"",
+    "summary": "pbradas@gmail.com",
+    "updated": "2018-07-12T00:30:14.229Z",
+    "timeZone": "Australia/Perth",
+    "accessRole": "owner",
+    "defaultReminders": [
+        {
+            "method": "sms",
+            "minutes": 60
+        }
+    ],
+    "nextPageToken": "CigKGmNlZzkyYzBlYjZoZnB1MzUwYTY0amNzdHYwGAEggIDAjtr20coSGg0IABIAGIjg9bunmNwC",
+    "items": [
+        {
+            "kind": "calendar#event",
+            "etag": "\"2531065854164000\"",
+            "id": "9b4bj027tp607hkja56r5sg9a8",
+            "status": "cancelled",
+            "htmlLink": "https://www.google.com/calendar/event?eid=OWI0YmowMjd0cDYwN2hramE1NnI1c2c5YTggcGJyYWRhc0Bt",
+            "created": "2010-02-07T08:53:08.000Z",
+            "updated": "2010-02-07T08:55:27.082Z",
+            "summary": "Osteo 9:30",
+            "creator": {
+                "email": "pbradas@gmail.com",
+                "displayName": "Penny B",
+                "self": true
+            },
+            "organizer": {
+                "email": "pbradas@gmail.com",
+                "displayName": "Penny B",
+                "self": true
+            },
+            "start": {
+                "dateTime": "2010-02-15T06:30:00+08:00"
+            },
+            "end": {
+                "dateTime": "2010-02-15T07:30:00+08:00"
+            },
+            "iCalUID": "9b4bj027tp607hkja56r5sg9a8@google.com",
+            "sequence": 1,
+            "reminders": {
+                "useDefault": true
+            }
+        }
+    ]
+}

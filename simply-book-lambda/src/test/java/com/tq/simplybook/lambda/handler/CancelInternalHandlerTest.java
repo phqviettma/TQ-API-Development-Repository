@@ -1,10 +1,13 @@
 package com.tq.simplybook.lambda.handler;
 
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
@@ -13,6 +16,7 @@ import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
@@ -41,6 +45,7 @@ public class CancelInternalHandlerTest {
 	ContactItemService cis = mock(ContactItemService.class);
 	ContactItem contactItem = new ContactItem();
 	Env env = MockUtil.mockEnv();
+	PayloadCallback payLoad = null;
 	SbmClinikoSyncService scs = mock(SbmClinikoSyncService.class);
 	SbmGoogleCalendarDbService sbmGoogleService = mock(SbmGoogleCalendarDbService.class);
 	GoogleCalendarDbService googleCalendarService = mock(GoogleCalendarDbService.class);
@@ -53,17 +58,28 @@ public class CancelInternalHandlerTest {
 			googleCalendarService, tokenCalendarService, clinikoSyncToSbmService, clinikoApiServiceBuilder,
 			googleApiBuilder);
 
+	@Before
+	public void init() throws SbmSDKException {
+		payLoad = new PayloadCallback();
+		payLoad.setBooking_id(5L);
+		payLoad.setBooking_hash("784ee770544f77f25f5f713772cf6910");
+		payLoad.setNotification_type("cancel");
+		when(tss.getUserToken(any(), any(), any(), any())).thenReturn("token");
+		BookingInfo bookingInfo = new BookingInfo().withClientEmail("suongpham5@gmail.com");
+		bookingInfo.setEvent_id("2");
+		bookingInfo.setUnit_id("1");
+		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
+	}
+
 	@Test
-	public void testExecuteCliniko() throws SbmSDKException, ClinikoSDKExeption, Exception {
+	public void testHandleCliniko() throws SbmSDKException, ClinikoSDKExeption, Exception {
 
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(448);
 		contactItem.setClient(ci);
 		when(cis.load(any())).thenReturn(contactItem);
-		PayloadCallback payLoad = new PayloadCallback();
-		payLoad.setBooking_id(5L);
-		payLoad.setBooking_hash("784ee770544f77f25f5f713772cf6910");
-		payLoad.setNotification_type("cancel");
+		when(csi.update(any(), any(), any())).thenReturn(10);
+		when(csi.applyTag(any(), any(), any())).thenReturn(true);
 		SbmCliniko sbmCliniko = new SbmCliniko();
 		sbmCliniko.setSbmId(5L);
 		when(scs.load(any())).thenReturn(sbmCliniko);
@@ -74,15 +90,17 @@ public class CancelInternalHandlerTest {
 		when(clinikoApiServiceBuilder.build(any())).thenReturn(clinikoApptService);
 		when(scs.load(any())).thenReturn(sbmCliniko);
 		when(clinikoApptService.deleteAppointment(any())).thenReturn(true);
-		handler.executeWithCliniko(payLoad, "api_key");
+		handler.handle(payLoad);
 	}
 
 	@Test
-	public void testExcuteGoogleCalendar() throws SbmSDKException, GoogleApiSDKException {
-		PayloadCallback payLoad = new PayloadCallback();
-		payLoad.setBooking_id(5L);
-		payLoad.setBooking_hash("784ee770544f77f25f5f713772cf6910");
-		payLoad.setNotification_type("cancel");
+	public void testHandleGoogleCalendar() throws SbmSDKException, GoogleApiSDKException, ClinikoSDKExeption {
+		List<GoogleCalendarSbmSync> googleCalendarSbmSync = new ArrayList<>();
+		GoogleCalendarSbmSync googleSbm = new GoogleCalendarSbmSync();
+		googleSbm.setRefreshToken("refresh_token");
+		googleSbm.setGoogleCalendarId("google_calendar_id");
+		googleCalendarSbmSync.add(googleSbm);
+		when(googleCalendarService.queryEmail(any())).thenReturn(googleCalendarSbmSync);
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("access_token");
 		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
@@ -92,28 +110,18 @@ public class CancelInternalHandlerTest {
 		sbmGoogleCalendar.setEventId("event_id");
 		when(sbmGoogleService.load(any())).thenReturn(sbmGoogleCalendar);
 		when(googleApiService.deleteEvent(any(), any())).thenReturn(true);
-		boolean isExuted = handler.excuteWithGoogleCalendar("refresh_token", payLoad, "google_calendar_id");
-		assertTrue(isExuted);
+		handler.handle(payLoad);
 	}
+
 	@Test
-	public void testHandler() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption {
+	public void testInfusionsoft() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption {
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(448);
 		contactItem.setClient(ci);
 		when(cis.load(any())).thenReturn(contactItem);
-		PayloadCallback payLoad = new PayloadCallback();
-		payLoad.setBooking_id(5L);
-		payLoad.setBooking_hash("784ee770544f77f25f5f713772cf6910");
-		payLoad.setNotification_type("cancel");
-		when(tss.getUserToken(any(), any(), any(), any())).thenReturn("token");
-		BookingInfo bookingInfo = new BookingInfo().withClientEmail("suongpham5@gmail.com");
-		bookingInfo.setEvent_id("2");
-		bookingInfo.setUnit_id("1");
-		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
-		when(cis.load(any())).thenReturn(contactItem);
 		when(csi.update(any(), any(), any())).thenReturn(10);
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
-		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo );
+
 		handler.handle(payLoad);
 	}
 

@@ -1,0 +1,62 @@
+{
+    "kind": "calendar#events",
+    "etag": "\"p324e1tdrkucdo0g\"",
+    "summary": "pbradas@gmail.com",
+    "updated": "2018-07-12T00:30:14.229Z",
+    "timeZone": "Australia/Perth",
+    "accessRole": "owner",
+    "defaultReminders": [
+        {
+            "method": "sms",
+            "minutes": 60
+        }
+    ],
+    "items": [
+      
+        {
+            "kind": "calendar#event",
+            "etag": "\"2554045314106000\"",
+            "id": "ceg92c0eb6hfpu350a64jcstv0",
+            "status": "confirmed",
+            "htmlLink": "https://www.google.com/calendar/event?eid=Y2VnOTJjMGViNmhmcHUzNTBhNjRqY3N0djAgcGJyYWRhc0Bt",
+            "created": "2010-06-07T23:30:38.000Z",
+            "updated": "2010-06-20T08:30:57.053Z",
+            "summary": "Flight - QF 497 - QANTAS",
+            "description": "booking reference ZKO23K\n\nCUSTOMER NAME: MS PANAGIOTA BRADAS\nCUSTOMER NAME: MR CLIFFORD BRAUN\n \nE-TICKET NO: 081 2493270684\n\nTotal \t$106.70",
+            "location": "Sydney - Melbourne",
+            "creator": {
+                "email": "cbraun22@gmail.com",
+                "displayName": "clifford braun"
+            },
+            "organizer": {
+                "email": "cbraun22@gmail.com",
+                "displayName": "clifford braun"
+            },
+            "start": {
+                "dateTime": "2010-06-13T20:10:00+08:00"
+            },
+            "end": {
+                "dateTime": "2010-06-13T21:40:00+08:00"
+            },
+            "iCalUID": "ceg92c0eb6hfpu350a64jcstv0@google.com",
+            "sequence": 0,
+            "attendees": [
+                {
+                    "email": "cbraun22@gmail.com",
+                    "displayName": "clifford braun",
+                    "organizer": true,
+                    "responseStatus": "accepted"
+                },
+                {
+                    "email": "pbradas@gmail.com",
+                    "displayName": "Penny B",
+                    "self": true,
+                    "responseStatus": "accepted"
+                }
+            ],
+            "reminders": {
+                "useDefault": true
+            }
+        }
+    ]
+}

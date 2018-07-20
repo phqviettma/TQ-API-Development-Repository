@@ -1,0 +1,463 @@
+{
+    "appointments": [
+        {
+            "id": 114656840,
+            "created_at": "2018-06-25T02:56:40Z",
+            "updated_at": "2018-06-25T02:59:18Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": 10,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656840/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "suong pham",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-06-28T02:00:00Z",
+            "appointment_end": "2018-06-28T03:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": "2018-06-25T02:59:18Z",
+            "archived_at": null,
+            "cancelled_at": "2018-06-25T02:59:18Z",
+            "ends_at": "2018-06-28T03:00:00Z",
+            "starts_at": "2018-06-28T02:00:00Z",
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/294139"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/65046"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/100701"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/50040183"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656840/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656840/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/114656840"
+            }
+        },
+        {
+            "id": 114656844,
+            "created_at": "2018-06-25T02:56:42Z",
+            "updated_at": "2018-06-25T02:59:15Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": 10,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656844/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "suong pham",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-06-28T01:00:00Z",
+            "appointment_end": "2018-06-28T02:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": "2018-06-25T02:59:15Z",
+            "archived_at": null,
+            "cancelled_at": "2018-06-25T02:59:15Z",
+            "ends_at": "2018-06-28T02:00:00Z",
+            "starts_at": "2018-06-28T01:00:00Z",
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/294139"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/65046"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/100701"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/50040183"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656844/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656844/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/114656844"
+            }
+        },
+        {
+            "id": 114656847,
+            "created_at": "2018-06-25T02:56:43Z",
+            "updated_at": "2018-06-25T02:59:12Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": 10,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656847/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "suong pham",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-06-28T01:00:00Z",
+            "appointment_end": "2018-06-28T02:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": "2018-06-25T02:59:12Z",
+            "archived_at": null,
+            "cancelled_at": "2018-06-25T02:59:12Z",
+            "ends_at": "2018-06-28T02:00:00Z",
+            "starts_at": "2018-06-28T01:00:00Z",
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/294139"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/65046"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/100701"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/50040183"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656847/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656847/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/114656847"
+            }
+        },
+        {
+            "id": 114656848,
+            "created_at": "2018-06-25T02:56:44Z",
+            "updated_at": "2018-06-25T02:59:01Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": 10,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656848/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "suong pham",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-06-28T00:00:00Z",
+            "appointment_end": "2018-06-28T01:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": "2018-06-25T02:59:01Z",
+            "archived_at": null,
+            "cancelled_at": "2018-06-25T02:59:01Z",
+            "ends_at": "2018-06-28T01:00:00Z",
+            "starts_at": "2018-06-28T00:00:00Z",
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/294139"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/65046"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/100701"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/50040183"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656848/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656848/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/114656848"
+            }
+        },
+        {
+            "id": 114656849,
+            "created_at": "2018-06-25T02:56:45Z",
+            "updated_at": "2018-06-25T02:59:05Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": 10,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656849/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "suong pham",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-06-28T00:00:00Z",
+            "appointment_end": "2018-06-28T01:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": "2018-06-25T02:59:05Z",
+            "archived_at": null,
+            "cancelled_at": "2018-06-25T02:59:05Z",
+            "ends_at": "2018-06-28T01:00:00Z",
+            "starts_at": "2018-06-28T00:00:00Z",
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/294139"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/65046"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/100701"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/50040183"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656849/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114656849/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/114656849"
+            }
+        },
+        {
+            "id": 114665086,
+            "created_at": "2018-06-25T03:50:11Z",
+            "updated_at": "2018-06-25T03:51:23Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": 10,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114665086/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "suong suong",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-06-26T23:00:00Z",
+            "appointment_end": "2018-06-26T23:30:00Z",
+            "deleted_at": null,
+            "cancellation_time": "2018-06-25T03:51:23Z",
+            "archived_at": null,
+            "cancelled_at": "2018-06-25T03:51:23Z",
+            "ends_at": "2018-06-26T23:30:00Z",
+            "starts_at": "2018-06-26T23:00:00Z",
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/294139"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/65046"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/100773"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/50057204"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114665086/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114665086/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/114665086"
+            }
+        },
+        {
+            "id": 114714273,
+            "created_at": "2018-06-25T08:23:49Z",
+            "updated_at": "2018-06-25T08:25:44Z",
+            "booking_ip_address": null,
+            "cancellation_note": null,
+            "cancellation_reason": 10,
+            "conflicts": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114714273/conflicts"
+                }
+            },
+            "did_not_arrive": false,
+            "email_reminder_sent": false,
+            "invoice_status": null,
+            "notes": null,
+            "online_booking_policy_accepted": null,
+            "patient_arrived": false,
+            "patient_name": "suong pham",
+            "repeat_rule": {},
+            "repeats": null,
+            "sms_reminder_sent": false,
+            "treatment_note_status": null,
+            "appointment_start": "2018-06-29T00:00:00Z",
+            "appointment_end": "2018-06-29T01:00:00Z",
+            "deleted_at": null,
+            "cancellation_time": "2018-06-25T08:25:44Z",
+            "archived_at": null,
+            "cancelled_at": "2018-06-25T08:25:44Z",
+            "ends_at": "2018-06-29T01:00:00Z",
+            "starts_at": "2018-06-29T00:00:00Z",
+            "appointment_type": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointment_types/294139"
+                }
+            },
+            "business": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/businesses/65046"
+                }
+            },
+            "practitioner": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/practitioners/100701"
+                }
+            },
+            "patient": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/patients/50060854"
+                }
+            },
+            "attendees": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114714273/attendees"
+                }
+            },
+            "invoices": {
+                "links": {
+                    "self": "https://api.cliniko.com/v1/appointments/114714273/invoices"
+                }
+            },
+            "links": {
+                "self": "https://api.cliniko.com/v1/appointments/114714273"
+            }
+        }
+    ],
+    "total_entries": 7,
+    "links": {
+        "self": "https://api.cliniko.com/v1/appointments/cancelled?page=1"
+    }
+}

@@ -21,7 +21,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikiAppointmentServiceImpl;
+import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
 import com.tq.cliniko.lambda.model.FoundNewApptContext;
@@ -78,6 +78,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private SbmUnitService unitService = null;
 	private Integer maxAppt = 20;
 	private BookingServiceSbm bookingService = null;
+	private ClinikoApiServiceBuilder apiServiceBuilder = null;
 
 	public ClinikoSyncHandler() {
 		this.env = Env.load();
@@ -91,13 +92,14 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		this.unitService = new SbmUnitServiceImpl();
 		this.clinikoSyncService = new ClinikoSyncToSbmServiceImpl(new ClinikoSyncToSbmDaoImpl(m_amazonDynamoDB));
 		this.bookingService = new BookingServiceSbmImpl();
+		this.apiServiceBuilder = new ClinikoApiServiceBuilder();
 	}
 
 	// for testing only
 	ClinikoSyncHandler(Env env, AmazonDynamoDB db, SpecialdayServiceSbm specialdayService, TokenServiceSbm tokenService,
 			SbmBreakTimeManagement sbmTimeManagement, ClinikoSyncToSbmService clinikoSyncService,
 			ClinikoItemService clinikoItemService, SbmClinikoSyncService sbmClinikoSyncService,
-			SbmUnitService unitService, BookingServiceSbm bookingService) {
+			SbmUnitService unitService, BookingServiceSbm bookingService, ClinikoApiServiceBuilder apiServiceBuilder) {
 		this.env = env;
 		this.m_amazonDynamoDB = db;
 		this.m_sss = specialdayService;
@@ -108,6 +110,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		this.sbmClinikoSyncService = sbmClinikoSyncService;
 		this.unitService = unitService;
 		this.bookingService = bookingService;
+		this.apiServiceBuilder = apiServiceBuilder;
 	}
 
 	@Override
@@ -132,7 +135,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 				if (clinikoSbmSync != null) {
 					String clinikoId[] = clinikoSbmSync.getClinikoId().split("-");
 					Integer practitionerId = Integer.parseInt(clinikoId[1]);
-					ClinikoAppointmentService clinikoApiService = new ClinikiAppointmentServiceImpl(apiKey);
+					ClinikoAppointmentService clinikoApiService = apiServiceBuilder.build(apiKey);
 					Settings settings = clinikoApiService.getAllSettings();
 					String country = settings.getAccount().getCountry();
 					String time_zone = settings.getAccount().getTime_zone();
@@ -184,9 +187,9 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 								maxResult, practitionerId);
 					}
 
-					m_log.info(
-							"Fetched: " + cancelledAppt.getAppointments().size() + " removed Cliniko appointment(s)");
 					if (cancelledAppt != null && cancelledAppt.getAppointments().size() > 0) {
+						m_log.info(
+								"Fetched: " + cancelledAppt.getAppointments().size() + " removed Cliniko appointment(s)");
 						List<AppointmentInfo> fetchedAppts = cancelledAppt.getAppointments();
 						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts);
 						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(cancelledAppt)) {
@@ -222,8 +225,8 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						deletedAppt = clinikoApiService.getDeletedAppointments(clinikoItem.getLatestTime(), maxResult,
 								practitionerId);
 					}
-					m_log.info("Fetched: " + deletedAppt.getAppointments().size() + " removed Cliniko appointment(s)");
 					if (deletedAppt != null && deletedAppt.getAppointments().size() > 0) {
+						m_log.info("Fetched: " + deletedAppt.getAppointments().size() + " removed Cliniko appointment(s)");
 						List<AppointmentInfo> fetchedAppts = deletedAppt.getAppointments();
 						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts);
 						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(deletedAppt)) {

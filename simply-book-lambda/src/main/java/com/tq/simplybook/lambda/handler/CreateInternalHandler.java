@@ -1,7 +1,6 @@
 
 package com.tq.simplybook.lambda.handler;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +52,7 @@ import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.lambda.model.PayloadCallback;
+import com.tq.simplybook.lambda.util.SbmInfUtil;
 import com.tq.simplybook.resp.BookingInfo;
 import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
@@ -133,47 +133,16 @@ public class CreateInternalHandler implements InternalHandler {
 
 	public boolean executeWithInfusionSoft(PayloadCallback payload, BookingInfo bookingInfo, Integer ifContactId)
 			throws SbmSDKException {
-
 		String infusionSoftApiName = env.getInfusionSoftApiName();
 		String infusionSoftApiKey = env.getInfusionSoftApiKey();
-		String infusionSoftAppointmentTimeField = env.getInfusionSoftAppointmentTimeField();
-		String infusionSoftAppointmentLocationField = env.getInfusionSoftAppointmentLocationField();
-		String infusionSoftServiceProviderField = env.getInfusionSoftServiceProviderField();
-		String infusionSoftAppointmentInstructionField = env.getInfusionSoftAppointmentInstructionField();
-		String infusionSoftAppointmentDateField = env.getInfusionftAppointmentDate();
-		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
-		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
-		String infusionsoftAppointmentAddress1 = env.getInfusionsoftApptAddress1();
-		String infusionsoftAppointmentAddress2 = env.getInfusionsoftApptAddress2();
-		String infusionsoftAppointmentCity = env.getInfusionsoftApptCity();
-		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
-		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
-		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
 		String infusionsoftApptCountryName = countryItemService
 				.queryCountryCode(bookingInfo.getLocation().getCountry_id());
 		if (infusionsoftApptCountryName == null) {
 			infusionsoftApptCountryName = bookingInfo.getLocation().getCountry_id();
 		}
 		int appliedTagId = env.getInfusionSoftCreateAppliedTag();
-		Map<String, String> updateRecord = new HashMap<>();
-
-		updateRecord.put(infusionSoftAppointmentTimeField,
-				buildApppointmentTime(bookingInfo.getStart_date_time(), bookingInfo.getEnd_date_time()));
-		updateRecord.put(infusionSoftAppointmentLocationField,
-				bookingInfo.getLocation() == null ? "" : String.valueOf(bookingInfo.getLocation().getTitle()));
-		updateRecord.put(infusionSoftServiceProviderField, bookingInfo.getUnit_name());
-		updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getLocation().getDescription());
-		updateRecord.put(infusionSoftAppointmentDateField, buildAppointmentDate(bookingInfo.getStart_date_time()));
-		updateRecord.put(infusionsoftPractitionerFirstName, buildFirstName(bookingInfo.getUnit_name()));
-		updateRecord.put(infusionSoftPractitionerLastName, buildLastName(bookingInfo.getUnit_name()));
-		updateRecord.put(infusionsoftAppointmentAddress1, bookingInfo.getLocation().getAddress1());
-		updateRecord.put(infusionsoftAppointmentAddress2, bookingInfo.getLocation().getAddress2());
-		updateRecord.put(infusionsoftAppointmentCity, bookingInfo.getLocation().getCity());
-		updateRecord.put(infusionsoftAppointmentCountry, infusionsoftApptCountryName);
-		updateRecord.put(infusionsoftAppointmentPhone, bookingInfo.getLocation().getPhone());
-		updateRecord.put(infusionsoftAppointmentZip, bookingInfo.getLocation().getZip());
+		Map<String, String> updateRecord = buildInfCustomField(bookingInfo);
 		try {
-
 			contactService.update(infusionSoftApiName, infusionSoftApiKey,
 					new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
 			m_log.info("Update infusionsoft field successfully" + updateRecord.toString());
@@ -212,8 +181,8 @@ public class CreateInternalHandler implements InternalHandler {
 			Patients patientInfo = clinikoApptService.getPatient(bookingInfo.getClient_email());
 			PatientDetail patientDetail = null;
 			if (patientInfo.getPatients().isEmpty()) {
-				String firstName = buildFirstName(bookingInfo.getClient_name());
-				String lastName = buildLastName(bookingInfo.getClient_name());
+				String firstName = SbmInfUtil.buildFirstName(bookingInfo.getClient_name());
+				String lastName = SbmInfUtil.buildLastName(bookingInfo.getClient_name());
 				m_log.info(String.format("Client name %s has firstname: %s, lastname: %s", bookingInfo.getClient_name(),
 						firstName, lastName));
 				patientDetail = clinikoApptService.createPatient(firstName, lastName, bookingInfo.getClient_email(),
@@ -239,7 +208,7 @@ public class CreateInternalHandler implements InternalHandler {
 					clinikoSbmSync.getApiKey(), AGENT);
 
 			sbmClinikoService.put(sbmCliniko);
-			m_log.info("Added to database successfully");
+			m_log.info("Added to database successfully" + sbmCliniko);
 
 		}
 		return true;
@@ -273,45 +242,19 @@ public class CreateInternalHandler implements InternalHandler {
 
 	}
 
-	private static String buildApppointmentTime(String start_date_time, String end_date_time) {
-		String startTime = TimeUtils.getTimeFormatTwHour(start_date_time);
-		String endTime = TimeUtils.getTimeFormatTwHour(end_date_time);
-		return startTime + ((endTime == null || endTime.isEmpty() ? "" : " - " + endTime));
-	}
-
-	private static String buildAppointmentDate(String start_date_time) {
-		String startDate = TimeUtils.extractDateSbm(start_date_time);
-
-		return startDate == null ? "" : startDate;
-	}
-
-	private static String buildFirstName(String name) {
-		String[] splitName = name.split("\\s+");
-		return splitName[0];
-	}
-
-	private static String buildLastName(String name) {
-		List<String> lastName = Arrays.asList(name.trim().split("\\s+"));
-		if (lastName.size() > 1) {
-			return lastName.get(1);
-		} else {
-			return "";
-		}
-	}
-
 	protected Integer addContactToInfusionsoft(BookingInfo bookingInfo) throws SbmSDKException {
 		Integer contactId = null;
 		long start = System.currentTimeMillis();
 		try {
 			Map<String, String> dataRecord = new HashMap<>();
 			dataRecord.put("Email", bookingInfo.getClient_email());
-			dataRecord.put("FirstName", buildFirstName(bookingInfo.getClient_name()));
-			dataRecord.put("LastName", buildLastName(bookingInfo.getClient_name()));
+			dataRecord.put("FirstName", SbmInfUtil.buildFirstName(bookingInfo.getClient_name()));
+			dataRecord.put("LastName", SbmInfUtil.buildLastName(bookingInfo.getClient_name()));
 			dataRecord.put("Phone1", bookingInfo.getClient_phone());
 			contactId = contactService.addWithDupCheck(env.getInfusionSoftApiName(), env.getInfusionSoftApiKey(),
 					new AddNewContactQuery().withDataRecord(dataRecord));
 		} catch (InfSDKExecption e) {
-			throw new SbmSDKException("Create contact failed", e);
+			m_log.info("Create contact failed " + e);
 		}
 		m_log.info(String.format("addINFContact()= %d ms", (System.currentTimeMillis() - start)));
 		return contactId;
@@ -321,8 +264,10 @@ public class CreateInternalHandler implements InternalHandler {
 		// build client to save DynomaDB
 		long start = System.currentTimeMillis();
 		ClientInfo clientInfo = new ClientInfo().withClientId(bookingInfo.getClient_id()).withContactId(contactInfId)
-				.withEmail(bookingInfo.getClient_email()).withFirstName(buildFirstName(bookingInfo.getClient_name()))
-				.withLastName(buildLastName(bookingInfo.getClient_name())).withPhone1(bookingInfo.getClient_phone());
+				.withEmail(bookingInfo.getClient_email())
+				.withFirstName(SbmInfUtil.buildFirstName(bookingInfo.getClient_name()))
+				.withLastName(SbmInfUtil.buildLastName(bookingInfo.getClient_name()))
+				.withPhone1(bookingInfo.getClient_phone());
 
 		ContactItem contactItem = new ContactItem().withEmail(bookingInfo.getClient_email()) // unique
 				// key
@@ -332,4 +277,43 @@ public class CreateInternalHandler implements InternalHandler {
 		return contactItem;
 	}
 
+	private Map<String, String> buildInfCustomField(BookingInfo bookingInfo) {
+		String infusionSoftAppointmentTimeField = env.getInfusionSoftAppointmentTimeField();
+		String infusionSoftAppointmentLocationField = env.getInfusionSoftAppointmentLocationField();
+		String infusionSoftServiceProviderField = env.getInfusionSoftServiceProviderField();
+		String infusionSoftAppointmentInstructionField = env.getInfusionSoftAppointmentInstructionField();
+		String infusionSoftAppointmentDateField = env.getInfusionftAppointmentDate();
+		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
+		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
+		String infusionsoftAppointmentAddress1 = env.getInfusionsoftApptAddress1();
+		String infusionsoftAppointmentAddress2 = env.getInfusionsoftApptAddress2();
+		String infusionsoftAppointmentCity = env.getInfusionsoftApptCity();
+		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
+		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
+		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
+		String infusionsoftApptCountryName = countryItemService
+				.queryCountryCode(bookingInfo.getLocation().getCountry_id());
+		if (infusionsoftApptCountryName == null) {
+			infusionsoftApptCountryName = bookingInfo.getLocation().getCountry_id();
+		}
+		Map<String, String> updateRecord = new HashMap<>();
+
+		updateRecord.put(infusionSoftAppointmentTimeField,
+				SbmInfUtil.buildApppointmentTime(bookingInfo.getStart_date_time(), bookingInfo.getEnd_date_time()));
+		updateRecord.put(infusionSoftAppointmentLocationField,
+				bookingInfo.getLocation() == null ? "" : String.valueOf(bookingInfo.getLocation().getTitle()));
+		updateRecord.put(infusionSoftServiceProviderField, bookingInfo.getUnit_name());
+		updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getLocation().getDescription());
+		updateRecord.put(infusionSoftAppointmentDateField,
+				SbmInfUtil.buildAppointmentDate(bookingInfo.getStart_date_time()));
+		updateRecord.put(infusionsoftPractitionerFirstName, SbmInfUtil.buildFirstName(bookingInfo.getUnit_name()));
+		updateRecord.put(infusionSoftPractitionerLastName, SbmInfUtil.buildLastName(bookingInfo.getUnit_name()));
+		updateRecord.put(infusionsoftAppointmentAddress1, bookingInfo.getLocation().getAddress1());
+		updateRecord.put(infusionsoftAppointmentAddress2, bookingInfo.getLocation().getAddress2());
+		updateRecord.put(infusionsoftAppointmentCity, bookingInfo.getLocation().getCity());
+		updateRecord.put(infusionsoftAppointmentCountry, infusionsoftApptCountryName);
+		updateRecord.put(infusionsoftAppointmentPhone, bookingInfo.getLocation().getPhone());
+		updateRecord.put(infusionsoftAppointmentZip, bookingInfo.getLocation().getZip());
+		return updateRecord;
+	}
 }

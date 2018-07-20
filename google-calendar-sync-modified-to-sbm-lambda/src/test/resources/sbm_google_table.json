@@ -1,0 +1,17 @@
+{
+  "agent": {
+    "S": "google"
+  },
+  "clientEmail": {
+    "S": "-BLANK-"
+  },
+  "eventId": {
+    "S": "1tsklgh3jh2974aebcf1d6uv86_20251126T220000Z"
+  },
+  "flag": {
+    "N": "1"
+  },
+  "sbmId": {
+    "N": "-3198602990553772674"
+  }
+}

@@ -2,178 +2,181 @@ package com.tq.common.lambda.dynamodb.model;
 
 import java.util.List;
 
-public class OrderDetail{
-    
-    private Integer contactId;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-    private Integer orderIdInf;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OrderDetail {
 
-    private Integer invoiceInf;
+	private Integer contactId;
 
-    private List<Integer> productIdInfs;
+	private Integer orderIdInf;
 
-    private Integer productCf;
+	private Integer invoiceInf;
 
-    private String createdAt;
+	private List<Integer> productIdInfs;
 
-    private String updatedAt;
+	private Integer productCf;
 
-    private String successful;
+	private String createdAt;
 
-    private String message;
+	private String updatedAt;
 
-    private String refNum;
+	private String successful;
 
-    private String code;
-    
+	private String message;
 
-    public Integer getContactId() {
-        return contactId;
-    }
+	private String refNum;
 
-    public void setContactId(Integer contactId) {
-        this.contactId = contactId;
-    }
-    
-    public OrderDetail withContactId(Integer contactId) {
-        this.contactId = contactId;
-        return this;
-    }
+	private String code;
 
-    public Integer getOrderIdInf() {
-        return orderIdInf;
-    }
+	public Integer getContactId() {
+		return contactId;
+	}
 
-    public void setOrderIdInf(Integer orderIdInf) {
-        this.orderIdInf = orderIdInf;
-    }
+	public void setContactId(Integer contactId) {
+		this.contactId = contactId;
+	}
 
-    public OrderDetail withOrderIdInf(Integer orderIdInf) {
-        this.orderIdInf = orderIdInf;
-        return this;
-    }
+	public OrderDetail withContactId(Integer contactId) {
+		this.contactId = contactId;
+		return this;
+	}
 
-    public Integer getInvoiceInf() {
-        return invoiceInf;
-    }
+	public Integer getOrderIdInf() {
+		return orderIdInf;
+	}
 
-    public void setInvoiceInf(Integer invoiceInf) {
-        this.invoiceInf = invoiceInf;
-    }
+	public void setOrderIdInf(Integer orderIdInf) {
+		this.orderIdInf = orderIdInf;
+	}
 
-    public OrderDetail withInvoiceInf(Integer invoiceInf) {
-        this.invoiceInf = invoiceInf;
-        return this;
-    }
+	public OrderDetail withOrderIdInf(Integer orderIdInf) {
+		this.orderIdInf = orderIdInf;
+		return this;
+	}
 
-    public List<Integer> getProductIdInfs() {
-        return productIdInfs;
-    }
+	public Integer getInvoiceInf() {
+		return invoiceInf;
+	}
 
-    public void setProductIdInfs(List<Integer> productIdInfs) {
-        this.productIdInfs = productIdInfs;
-    }
+	public void setInvoiceInf(Integer invoiceInf) {
+		this.invoiceInf = invoiceInf;
+	}
 
-    public OrderDetail withProductIdInf(List<Integer> productIdInfs) {
-        this.productIdInfs = productIdInfs;
-        return this;
-    }
+	public OrderDetail withInvoiceInf(Integer invoiceInf) {
+		this.invoiceInf = invoiceInf;
+		return this;
+	}
 
-    public Integer getProductCf() {
-        return productCf;
-    }
+	public List<Integer> getProductIdInfs() {
+		return productIdInfs;
+	}
 
-    public void setProductCf(Integer productCf) {
-        this.productCf = productCf;
-    }
+	public void setProductIdInfs(List<Integer> productIdInfs) {
+		this.productIdInfs = productIdInfs;
+	}
 
-    public OrderDetail withProductCf(Integer productCf) {
-        this.productCf = productCf;
-        return this;
-    }
+	public OrderDetail withProductIdInf(List<Integer> productIdInfs) {
+		this.productIdInfs = productIdInfs;
+		return this;
+	}
 
-    public String getCreatedAt() {
-        return createdAt;
-    }
+	public Integer getProductCf() {
+		return productCf;
+	}
 
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
+	public void setProductCf(Integer productCf) {
+		this.productCf = productCf;
+	}
 
-    public OrderDetail withCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-        return this;
-    }
+	public OrderDetail withProductCf(Integer productCf) {
+		this.productCf = productCf;
+		return this;
+	}
 
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
+	public String getCreatedAt() {
+		return createdAt;
+	}
 
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+	}
 
-    public OrderDetail withUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
-        return this;
-    }
+	public OrderDetail withCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+		return this;
+	}
 
-    public String getSuccessful() {
-        return successful;
-    }
+	public String getUpdatedAt() {
+		return updatedAt;
+	}
 
-    public void setSuccessful(String successful) {
-        this.successful = successful;
-    }
+	public void setUpdatedAt(String updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 
-    public OrderDetail withSuccessful(String successful) {
-        this.successful = successful;
-        return this;
-    }
+	public OrderDetail withUpdatedAt(String updatedAt) {
+		this.updatedAt = updatedAt;
+		return this;
+	}
 
-    public String getMessage() {
-        return message;
-    }
+	public String getSuccessful() {
+		return successful;
+	}
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+	public void setSuccessful(String successful) {
+		this.successful = successful;
+	}
 
-    public OrderDetail withMessage(String message) {
-        this.message = message;
-        return this;
-    }
+	public OrderDetail withSuccessful(String successful) {
+		this.successful = successful;
+		return this;
+	}
 
-    public String getRefNum() {
-        return refNum;
-    }
+	public String getMessage() {
+		return message;
+	}
 
-    public void setRefNum(String refNum) {
-        this.refNum = refNum;
-    }
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
-    public OrderDetail withRefNum(String refNum) {
-        this.refNum = refNum;
-        return this;
-    }
+	public OrderDetail withMessage(String message) {
+		this.message = message;
+		return this;
+	}
 
-    public String getCode() {
-        return code;
-    }
+	public String getRefNum() {
+		return refNum;
+	}
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+	public void setRefNum(String refNum) {
+		this.refNum = refNum;
+	}
 
-    public OrderDetail withCode(String code) {
-        this.code = code;
-        return this;
-    }
+	public OrderDetail withRefNum(String refNum) {
+		this.refNum = refNum;
+		return this;
+	}
 
-    @Override
-    public String toString() {
-        return "OrderDetail [contactId=" + contactId + ", orderIdInf=" + orderIdInf + ", invoiceInf=" + invoiceInf + ", productIdInfs="
-                + productIdInfs + ", productCf=" + productCf + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", successful="
-                + successful + ", message=" + message + ", refNum=" + refNum + ", code=" + code + "]";
-    }
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public OrderDetail withCode(String code) {
+		this.code = code;
+		return this;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderDetail [contactId=" + contactId + ", orderIdInf=" + orderIdInf + ", invoiceInf=" + invoiceInf
+				+ ", productIdInfs=" + productIdInfs + ", productCf=" + productCf + ", createdAt=" + createdAt
+				+ ", updatedAt=" + updatedAt + ", successful=" + successful + ", message=" + message + ", refNum="
+				+ refNum + ", code=" + code + "]";
+	}
 }

@@ -46,7 +46,7 @@ public class SbmUnitServiceImpl implements SbmUnitService {
 
 	@Override
 	public Map<String, UnitWorkingTime> getUnitWorkDayInfo(String companyLogin, String endpoint, String token,
-			String dateStart, String dateEnd, int unitGroupId) throws SbmSDKException {
+			String dateStart, String dateEnd, Integer unitGroupId) throws SbmSDKException {
 		try {
 			long start = System.currentTimeMillis();
 			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getUnitWorkdayInfo",

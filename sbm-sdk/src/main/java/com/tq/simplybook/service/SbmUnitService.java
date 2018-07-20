@@ -12,5 +12,5 @@ public interface SbmUnitService {
 			Boolean asArray, Integer handleClasses) throws SbmSDKException;
 
 	public Map<String, UnitWorkingTime> getUnitWorkDayInfo(String companyLogin, String endpoint, String token,
-			String dateStart, String dateEnd, int unitGroupId) throws SbmSDKException;
+			String dateStart, String dateEnd, Integer unitGroupId) throws SbmSDKException;
 }

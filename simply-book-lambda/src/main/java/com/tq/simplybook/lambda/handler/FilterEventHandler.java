@@ -58,28 +58,59 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private static final Logger m_log = LoggerFactory.getLogger(FilterEventHandler.class);
 	private static int STATUS_CODE = 200;
 	private ObjectMapper m_jsonMapper = new ObjectMapper();
-	public DataServiceInf dataServiceInf = new DataServiceImpl();
-	private Env m_env = Env.load();
-	private AmazonDynamoDB m_amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(m_env.getRegions(),
-			m_env.getAwsAccessKeyId(), m_env.getAwsSecretAccessKey());
-	private ContactServiceInf m_csi = new ContactServiceImpl();
-	private BookingServiceSbm m_bss = new BookingServiceSbmImpl();
-	private TokenServiceSbm m_tss = new TokenServiceImpl();
-	private SbmClinikoSyncService m_scs = new SbmClinikoSyncImpl(new SbmClinikoSyncDaoImpl(m_amazonDynamoDB));
-	private ContactItemService m_cis = new ContactItemServiceImpl(new ContactItemDaoImpl(m_amazonDynamoDB));
-	private GoogleCalendarDbService m_gcs = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(m_amazonDynamoDB));
-	private SbmGoogleCalendarDbService m_sgcs = new SbmGoogleCalendarServiceImpl(
-			new SbmGoogleCalendarSyncDaoImpl(m_amazonDynamoDB));
-	private TokenGoogleCalendarImpl m_tgc = new TokenGoogleCalendarImpl();
-	private ClinikoSyncToSbmService clinikoSyncToSbmService = new ClinikoSyncToSbmServiceImpl(
-			new ClinikoSyncToSbmDaoImpl(m_amazonDynamoDB));
-	private ClinikoApiServiceBuilder clinikoApiServiceBuilder =new ClinikoApiServiceBuilder();
-	private GoogleCalendarApiServiceBuilder googleApiServiceBuilder = new GoogleCalendarApiServiceBuilder();
-	private CountryItemService countryItemService = new CountryItemServiceImpl(new CountryItemDaoImpl(m_amazonDynamoDB));
-	private ClinikoCompanyInfoService clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
-	private InternalHandler m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc, clinikoSyncToSbmService, clinikoCompanyService, clinikoApiServiceBuilder, googleApiServiceBuilder, countryItemService);
-	private InternalHandler m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs,
-			m_sgcs, m_gcs, m_tgc, clinikoSyncToSbmService, clinikoApiServiceBuilder, googleApiServiceBuilder);
+	public DataServiceInf dataServiceInf = null;
+	private Env m_env = null;
+	private AmazonDynamoDB m_amazonDynamoDB = null;
+	private ContactServiceInf m_csi = null;
+	private BookingServiceSbm m_bss = null;
+	private TokenServiceSbm m_tss = null;
+	private SbmClinikoSyncService m_scs = null;
+	private ContactItemService m_cis = null;
+	private GoogleCalendarDbService m_gcs = null;
+	private SbmGoogleCalendarDbService m_sgcs = null;
+	private TokenGoogleCalendarImpl m_tgc = null;
+	private ClinikoSyncToSbmService clinikoSyncToSbmService = null;
+	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
+	private GoogleCalendarApiServiceBuilder googleApiServiceBuilder = null;
+	private CountryItemService countryItemService = null;
+	private ClinikoCompanyInfoService clinikoCompanyService = null;
+	private InternalHandler m_createHandler = null;
+	private InternalHandler m_cancelHandler = null;
+
+	public FilterEventHandler() {
+		this.m_env = Env.load();
+		this.dataServiceInf = new DataServiceImpl();
+		this.m_amazonDynamoDB = DynamodbUtils.getAmazonDynamoDB(m_env.getRegions(), m_env.getAwsAccessKeyId(),
+				m_env.getAwsSecretAccessKey());
+		this.m_csi = new ContactServiceImpl();
+		this.m_bss = new BookingServiceSbmImpl();
+		this.m_tss = new TokenServiceImpl();
+		this.m_scs = new SbmClinikoSyncImpl(new SbmClinikoSyncDaoImpl(m_amazonDynamoDB));
+		this.m_cis = new ContactItemServiceImpl(new ContactItemDaoImpl(m_amazonDynamoDB));
+		this.m_gcs = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(m_amazonDynamoDB));
+		this.m_sgcs = new SbmGoogleCalendarServiceImpl(new SbmGoogleCalendarSyncDaoImpl(m_amazonDynamoDB));
+		this.m_tgc = new TokenGoogleCalendarImpl();
+		this.clinikoSyncToSbmService = new ClinikoSyncToSbmServiceImpl(new ClinikoSyncToSbmDaoImpl(m_amazonDynamoDB));
+		this.clinikoApiServiceBuilder = new ClinikoApiServiceBuilder();
+		this.googleApiServiceBuilder = new GoogleCalendarApiServiceBuilder();
+		this.countryItemService = new CountryItemServiceImpl(new CountryItemDaoImpl(m_amazonDynamoDB));
+		this.clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
+		this.m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc,
+				clinikoSyncToSbmService, clinikoCompanyService, clinikoApiServiceBuilder, googleApiServiceBuilder,
+				countryItemService);
+		this.m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_sgcs, m_gcs, m_tgc,
+				clinikoSyncToSbmService, clinikoApiServiceBuilder, googleApiServiceBuilder);
+
+	}
+	//for testing only
+	FilterEventHandler(Env m_env,ContactServiceInf m_csi, BookingServiceSbm m_bss,InternalHandler m_createHandler, InternalHandler m_cancelHandler){
+		this.m_env = m_env;
+		this.m_csi = m_csi;
+		this.m_bss = m_bss;
+		this.m_createHandler = m_createHandler;
+		this.m_cancelHandler = m_cancelHandler;
+		
+	}
 
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
