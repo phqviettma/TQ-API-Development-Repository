@@ -7,5 +7,6 @@ import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 
 public interface InternalHandler {
-    boolean handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption;
+
+    void handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption;
 }

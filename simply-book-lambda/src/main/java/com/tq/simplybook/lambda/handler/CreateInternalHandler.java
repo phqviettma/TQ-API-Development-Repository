@@ -98,7 +98,7 @@ public class CreateInternalHandler implements InternalHandler {
 	}
 
 	@Override
-	public boolean handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
+	public void handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
 		String companyLogin = env.getSimplyBookCompanyLogin();
 		String user = env.getSimplyBookUser();
 		String password = env.getSimplyBookPassword();
@@ -130,7 +130,6 @@ public class CreateInternalHandler implements InternalHandler {
 		} else {
 			m_log.info("The booking is synced neither to Cliniko nor Google Calendar");
 		}
-		return processed;
 	}
 
 	public boolean executeWithInfusionSoft(PayloadCallback payload, BookingInfo bookingInfo, Integer ifContactId)

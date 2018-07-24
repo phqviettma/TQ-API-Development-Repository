@@ -86,7 +86,7 @@ public class ChangeInternalHandler implements InternalHandler {
 	}
 
 	@Override
-	public boolean handle(PayloadCallback payload)
+	public void handle(PayloadCallback payload)
 			throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption {
 		String companyLogin = env.getSimplyBookCompanyLogin();
 		String user = env.getSimplyBookUser();
@@ -121,15 +121,14 @@ public class ChangeInternalHandler implements InternalHandler {
 			m_log.info("The booking is synced neither to Cliniko nor Google Calendar");
 		}
 		updateCustomFieldIS(bookingInfo, clientISContact.getClient().getContactId());
-		return processed;
 	}
 
-	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, String refreshToken,
-			String googleCalendarId) throws GoogleApiSDKException {
+	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, String refreshToken, String googleCalendarId)
+			throws GoogleApiSDKException {
 		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
 		TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
 		GoogleCalendarApiService googleApiService = googleApiBuilder.build(tokenResp.getAccess_token());
-		SbmGoogleCalendar sbmGoogleDbItem = sbmGoogleCalendarService.load(Long.parseLong(bookingInfo.getId(),10));
+		SbmGoogleCalendar sbmGoogleDbItem = sbmGoogleCalendarService.load(Long.parseLong(bookingInfo.getId(), 10));
 		if (sbmGoogleDbItem != null) {
 			GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());

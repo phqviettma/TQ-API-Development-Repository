@@ -1,6 +1,5 @@
 package com.tq.simplybook.lambda.handler;
 
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -92,8 +91,7 @@ public class CancelInternalHandlerTest {
 		when(clinikoApiServiceBuilder.build(any())).thenReturn(clinikoApptService);
 		when(scs.load(any())).thenReturn(sbmCliniko);
 		when(clinikoApptService.deleteAppointment(any())).thenReturn(true);
-		boolean isHandled = handler.handle(payLoad);
-		assertTrue(isHandled);
+		 handler.handle(payLoad);
 	}
 
 	@Test
@@ -113,8 +111,7 @@ public class CancelInternalHandlerTest {
 		sbmGoogleCalendar.setEventId("event_id");
 		when(sbmGoogleService.load(any())).thenReturn(sbmGoogleCalendar);
 		when(googleApiService.deleteEvent(any(), any())).thenReturn(true);
-		boolean isHandled = handler.handle(payLoad);
-		assertTrue(isHandled);
+		handler.handle(payLoad);
 	}
 
 	@Test
@@ -126,9 +123,8 @@ public class CancelInternalHandlerTest {
 		when(cis.load(any())).thenReturn(contactItem);
 		when(csi.update(any(), any(), any())).thenReturn(10);
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
+		handler.handle(payLoad);
 
-		boolean isHandled = handler.handle(payLoad);
-		assertTrue(isHandled);
 	}
 
 }

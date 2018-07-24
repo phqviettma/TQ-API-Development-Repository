@@ -124,8 +124,7 @@ public class CreateInternalHandlerTest {
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
 
 		when(countryItemService.queryCountryCode(any())).thenReturn("AU");
-		boolean isHandled = handler.handle(payLoad);
-		assertTrue(isHandled);
+		handler.handle(payLoad);
 	}
 
 	@Test
@@ -141,7 +140,7 @@ public class CreateInternalHandlerTest {
 		boolean excuted = handler.executeWithInfusionSoft(payLoad, bookingInfo, contactItem.getClient().getContactId());
 		assertTrue(excuted);
 	}
-	
+
 	@Test
 	public void testPatientNotExist() throws ClinikoSDKExeption, SbmSDKException, GoogleApiSDKException {
 		Patients patient = new Patients();
@@ -153,8 +152,8 @@ public class CreateInternalHandlerTest {
 		ClinikoSbmSync clinikoSbm = new ClinikoSbmSync("apiKey", "email", "1-1", "1-1");
 		when(clinikoSyncToSbmService.load(any())).thenReturn(clinikoSbm);
 		when(clinikoApptService.createPatient(any(), any(), any(), any())).thenReturn(patientDetail);
-		boolean isHandled = handler.handle(payLoad);
-		assertTrue(isHandled);
+		handler.handle(payLoad);
+
 	}
 
 	@Test
@@ -177,8 +176,7 @@ public class CreateInternalHandlerTest {
 		eventResp.setId("event_id");
 		when(googleApiService.createEvent(any(), any())).thenReturn(eventResp);
 		when(countryItemService.queryCountryCode(any())).thenReturn("AU");
-		boolean isHandled = handler.handle(payLoad);
-		assertTrue(isHandled);
+		handler.handle(payLoad);
 	}
 
 }

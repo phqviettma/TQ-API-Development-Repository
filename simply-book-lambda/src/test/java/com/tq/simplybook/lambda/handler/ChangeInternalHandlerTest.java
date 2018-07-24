@@ -1,6 +1,5 @@
 package com.tq.simplybook.lambda.handler;
 
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,7 +53,6 @@ public class ChangeInternalHandlerTest {
 	private BookingServiceSbm bookingService = mock(BookingServiceSbm.class);
 	private Env env = MockUtil.mockEnv();
 	private ObjectMapper mapper = new ObjectMapper();
-	private ClinikoAppointmentService clinikoApptService = null;
 	private SbmClinikoSyncService sbmClinikoService = mock(SbmClinikoSyncService.class);
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private GoogleCalendarDbService googleCalendarService = mock(GoogleCalendarDbService.class);
@@ -117,8 +115,7 @@ public class ChangeInternalHandlerTest {
 		when(sbmGoogleCalendarService.load(any())).thenReturn(sbmGoogle);
 		EventResp eventResp = new EventResp();
 		when(googleCalendarApiService.updateEvent(any(), any(), any())).thenReturn(eventResp);
-		boolean isHandled = changeHandler.handle(payLoad);
-		assertTrue(isHandled);
+		changeHandler.handle(payLoad);
 	}
 
 	@Test
@@ -137,7 +134,7 @@ public class ChangeInternalHandlerTest {
 		when(clinikoApiService.getAllSettings()).thenReturn(settingValue);
 		AppointmentInfo updatedAppointment = new AppointmentInfo();
 		when(clinikoApiService.updateAppointment(any(), any())).thenReturn(updatedAppointment);
-		boolean isHandled = changeHandler.handle(payLoad);
-		assertTrue(isHandled);
+
+		changeHandler.handle(payLoad);
 	}
 }

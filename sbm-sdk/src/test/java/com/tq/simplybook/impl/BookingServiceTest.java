@@ -32,7 +32,7 @@ public class BookingServiceTest {
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "epymutehy";
+		String password = "";
 		String token = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		BookingInfo info = bookingService.getBookingInfo(companyLogin, endpoint, token, 259L);
 		assertNotNull(info.getClient_email());
