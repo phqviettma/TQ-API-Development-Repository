@@ -124,7 +124,8 @@ public class CreateInternalHandlerTest {
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
 
 		when(countryItemService.queryCountryCode(any())).thenReturn("AU");
-		handler.handle(payLoad);
+		boolean isHandled = handler.handle(payLoad);
+		assertTrue(isHandled);
 	}
 
 	@Test
@@ -152,7 +153,8 @@ public class CreateInternalHandlerTest {
 		ClinikoSbmSync clinikoSbm = new ClinikoSbmSync("apiKey", "email", "1-1", "1-1");
 		when(clinikoSyncToSbmService.load(any())).thenReturn(clinikoSbm);
 		when(clinikoApptService.createPatient(any(), any(), any(), any())).thenReturn(patientDetail);
-		handler.handle(payLoad);
+		boolean isHandled = handler.handle(payLoad);
+		assertTrue(isHandled);
 	}
 
 	@Test
@@ -175,7 +177,8 @@ public class CreateInternalHandlerTest {
 		eventResp.setId("event_id");
 		when(googleApiService.createEvent(any(), any())).thenReturn(eventResp);
 		when(countryItemService.queryCountryCode(any())).thenReturn("AU");
-		handler.handle(payLoad);
+		boolean isHandled = handler.handle(payLoad);
+		assertTrue(isHandled);
 	}
 
 }

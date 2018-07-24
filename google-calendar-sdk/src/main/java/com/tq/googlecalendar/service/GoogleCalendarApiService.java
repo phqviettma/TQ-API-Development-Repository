@@ -41,4 +41,5 @@ public interface GoogleCalendarApiService {
 	
 	GoogleCalendarList getListCalendar() throws GoogleApiSDKException;
 
+	EventResp updateEvent(EventReq events,String googleCalendarId, String eventId) throws GoogleApiSDKException;
 }

@@ -38,6 +38,7 @@ import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
+import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.impl.DataServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
@@ -76,6 +77,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private InternalHandler m_createHandler = null;
 	private InternalHandler m_cancelHandler = null;
+	private InternalHandler m_changeHandler = null;
 
 	public FilterEventHandler() {
 		this.m_env = Env.load();
@@ -100,16 +102,21 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 				countryItemService);
 		this.m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_sgcs, m_gcs, m_tgc,
 				clinikoSyncToSbmService, clinikoApiServiceBuilder, googleApiServiceBuilder);
-
+		this.m_changeHandler = new ChangeInternalHandler(m_env, m_bss, m_tss, countryItemService, m_csi, m_cis,
+				clinikoSyncToSbmService, m_gcs, m_tgc, clinikoApiServiceBuilder, m_sgcs, googleApiServiceBuilder,
+				m_scs);
 	}
-	//for testing only
-	FilterEventHandler(Env m_env,ContactServiceInf m_csi, BookingServiceSbm m_bss,InternalHandler m_createHandler, InternalHandler m_cancelHandler){
+
+	// for testing only
+	FilterEventHandler(Env m_env, ContactServiceInf m_csi, BookingServiceSbm m_bss, InternalHandler m_createHandler,
+			InternalHandler m_cancelHandler, InternalHandler changeHandler) {
 		this.m_env = m_env;
 		this.m_csi = m_csi;
 		this.m_bss = m_bss;
 		this.m_createHandler = m_createHandler;
 		this.m_cancelHandler = m_cancelHandler;
-		
+		this.m_changeHandler = changeHandler;
+
 	}
 
 	@Override
@@ -129,6 +136,8 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					m_createHandler.handle(payLoad);
 				} else if ("cancel".equalsIgnoreCase(payLoad.getNotification_type())) {
 					m_cancelHandler.handle(payLoad);
+				} else if ("change".equals(payLoad.getNotification_type())) {
+					m_changeHandler.handle(payLoad);
 				} else {
 					ignored = false;
 				}
@@ -141,7 +150,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 							+ payLoad.getBooking_id() + " is unhandled");
 				}
 
-			} catch (SbmSDKException | ClinikoSDKExeption | GoogleApiSDKException e) {
+			} catch (SbmSDKException | ClinikoSDKExeption | GoogleApiSDKException | InfSDKExecption e) {
 				m_log.error("Processed notification: " + payLoad.getNotification_type() + " for booking ID: "
 						+ payLoad.getBooking_id() + " results in error: ", e);
 				error = e;

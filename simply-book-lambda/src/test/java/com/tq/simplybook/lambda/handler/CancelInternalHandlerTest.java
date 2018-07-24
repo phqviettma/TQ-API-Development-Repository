@@ -1,5 +1,6 @@
 package com.tq.simplybook.lambda.handler;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
@@ -90,7 +92,8 @@ public class CancelInternalHandlerTest {
 		when(clinikoApiServiceBuilder.build(any())).thenReturn(clinikoApptService);
 		when(scs.load(any())).thenReturn(sbmCliniko);
 		when(clinikoApptService.deleteAppointment(any())).thenReturn(true);
-		handler.handle(payLoad);
+		boolean isHandled = handler.handle(payLoad);
+		assertTrue(isHandled);
 	}
 
 	@Test
@@ -110,10 +113,12 @@ public class CancelInternalHandlerTest {
 		sbmGoogleCalendar.setEventId("event_id");
 		when(sbmGoogleService.load(any())).thenReturn(sbmGoogleCalendar);
 		when(googleApiService.deleteEvent(any(), any())).thenReturn(true);
-		handler.handle(payLoad);
+		boolean isHandled = handler.handle(payLoad);
+		assertTrue(isHandled);
 	}
 
 	@Test
+	@Ignore
 	public void testInfusionsoft() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption {
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(448);
@@ -122,7 +127,8 @@ public class CancelInternalHandlerTest {
 		when(csi.update(any(), any(), any())).thenReturn(10);
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
 
-		handler.handle(payLoad);
+		boolean isHandled = handler.handle(payLoad);
+		assertTrue(isHandled);
 	}
 
 }

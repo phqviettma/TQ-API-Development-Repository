@@ -32,3 +32,6 @@ dependencies {
         'org.slf4j:slf4j-simple:1.7.25'
     )
 }
+test {
+    exclude 'com/tq/googlecalendar/impl/*'
+}

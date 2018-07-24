@@ -2,13 +2,11 @@ package com.tq.simplybook.impl;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tq.simplybook.exception.SbmSDKException;
@@ -41,24 +39,20 @@ public class BookingServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void testGetListBooking() throws SbmSDKException {
 		String companyLogin = "canhcanh";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
-		String password = "1900561594";
-		String userToken = "token";
-		when(tokenService.getUserToken(companyLogin, username, password, endpoint_login)).thenReturn(userToken);
+		String password = "";
+		String token = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		GetBookingReq e = new GetBookingReq("2018-04-25", "non_cancelled", "start_date", 2, 1);
-		List<GetBookingResp> bookingList = Arrays.asList(new GetBookingResp());
-		when(bookingService.getBookings(companyLogin, endpoint, userToken, e)).thenReturn(bookingList);
-		assertTrue(bookingList.size() > 0);
+		List<GetBookingResp> bookings = bookingService.getBookings(companyLogin, endpoint, token, e);
+		assertTrue(bookings.size() > 0);
 
 	}
 
 	@Test
-	@Ignore
 	public void testCancelBatch() throws SbmSDKException {
 		String companyLogin = "truequit";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
@@ -72,17 +66,15 @@ public class BookingServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void testBooking() throws Exception {
 		String companyLogin = "canhcanh";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
 		String endpoint_login = "https://user-api.simplybook.asia/login";
 		String username = "admin";
 		String password = "";
-		String userToken = "token";
-		when(tokenService.getUserToken(companyLogin, username, password, endpoint_login)).thenReturn(userToken);
+		String token = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
 		GetBookingReq getBookingReq = new GetBookingReq("date_from", "booking_type", "order", 1, 1);
-		List<GetBookingResp> booking = bookingService.getBookings(companyLogin, endpoint, userToken, getBookingReq);
+		List<GetBookingResp> booking = bookingService.getBookings(companyLogin, endpoint, token, getBookingReq);
 		assertNotNull(booking);
 	}
 

@@ -4,6 +4,9 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
@@ -16,16 +19,19 @@ import com.tq.cliniko.lambda.model.Patients;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
+import com.tq.cliniko.lambda.req.ClinikoBodyRequest;
 import com.tq.cliniko.lambda.req.ClinikoRespParser;
 import com.tq.cliniko.lambda.req.DeleteClinikoApiReq;
 import com.tq.cliniko.lambda.req.GetDirectUrlClinikoApiReq;
 import com.tq.cliniko.lambda.req.PostClinikoApiReq;
+import com.tq.cliniko.lambda.req.PutClinikoApiReq;
 import com.tq.cliniko.lambda.req.QueryClinikoApiReq;
 import com.tq.cliniko.lambda.req.UtilsExecutor;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 
 public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService {
 	private final String m_clinikoApiKey;
+	private static final Logger m_log = LoggerFactory.getLogger(ClinikiAppointmentServiceImpl.class);
 
 	public ClinikiAppointmentServiceImpl(String clinikoApiKey) {
 		this.m_clinikoApiKey = clinikoApiKey;
@@ -402,4 +408,22 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 			throw new ClinikoSDKExeption(e);
 		}
 	}
+
+	@Override
+	public AppointmentInfo updateAppointment(ClinikoBodyRequest appt, Long appointmentId) throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+ 			jsonResp = UtilsExecutor.request(new UpdateAppointmentApiReq(m_clinikoApiKey, appt, appointmentId));
+			m_log.info("update event with json " + jsonResp);
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentInfo.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+	}
+	private class UpdateAppointmentApiReq extends PutClinikoApiReq {
+		public UpdateAppointmentApiReq(String apiKey, Object object, Long appointmentId) {
+			super(apiKey, "appointments/" + appointmentId, object);
+		}
+	}
+
 }

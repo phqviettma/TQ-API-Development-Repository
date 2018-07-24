@@ -157,17 +157,25 @@ public class AppointmentInfo implements Serializable {
 		return id;
 	}
 
+	@Override
+	public String toString() {
+		return "AppointmentInfo [id=" + id + ", appointment_start=" + appointment_start + ", appointment_end="
+				+ appointment_end + ", did_not_arrive=" + did_not_arrive + ", notes=" + notes + ", deleted_at="
+				+ deleted_at + ", cancellation_time=" + cancellation_time + ", cancellation_note=" + cancellation_note
+				+ ", cancellation_reason=" + cancellation_reason + ", patient_id=" + patient_id + ", practitioner_id="
+				+ practitioner_id + ", appointment_type_id=" + appointment_type_id + ", business_id=" + business_id
+				+ ", business=" + business + ", practitioner=" + practitioner + "]";
+	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	@Override
-	public String toString() {
-		return "AppointmentInfo [id=" + id + ", appointment_start=" + appointment_start + ", appointment_end="
-				+ appointment_end + ", did_not_arrive=" + did_not_arrive + ", notes=" + notes + ", cancellation_time="
-				+ cancellation_time + ", cancellation_note=" + cancellation_note + ", cancellation_reason="
-				+ cancellation_reason + ", patient_id=" + patient_id + ", practitioner_id=" + practitioner_id
-				+ ", appointment_type_id=" + appointment_type_id + ", business_id=" + business_id + "]";
+	public AppointmentInfo(String appointmentStart, String appointmentEnd) {
+		this.appointment_start = appointmentStart;
+		this.appointment_end = appointmentEnd;
 	}
+
+	
 
 }

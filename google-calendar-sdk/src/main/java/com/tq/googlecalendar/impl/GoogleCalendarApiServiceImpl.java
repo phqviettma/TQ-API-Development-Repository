@@ -11,6 +11,7 @@ import com.tq.googlecalendar.req.EventReq;
 import com.tq.googlecalendar.req.GetGoogleCalendarApiReq;
 import com.tq.googlecalendar.req.GoogleCalendarParser;
 import com.tq.googlecalendar.req.PostGoogleCalendarApiReq;
+import com.tq.googlecalendar.req.PutGoogleCalendarApiReq;
 import com.tq.googlecalendar.req.StopWatchEventReq;
 import com.tq.googlecalendar.req.UtilsExecutor;
 import com.tq.googlecalendar.req.WatchEventReq;
@@ -348,6 +349,28 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		public GetListCalendar(String accessToken) {
 			super(accessToken, "users/me/calendarList?minAccessRole=owner");
 
+
+		}
+
+	}
+
+	@Override
+	public EventResp updateEvent(EventReq events, String googleCalendarId, String eventId) throws GoogleApiSDKException {
+		String jsonResp;
+		try {
+			ApiResponse response = UtilsExecutor.request(new UpdateEvent(accessToken, events, googleCalendarId, eventId));
+			jsonResp = response.getEntity();
+			m_log.info("update event json response: " + String.valueOf(jsonResp));
+			return GoogleCalendarParser.readJsonValueForObject(jsonResp, EventResp.class);
+
+		} catch (Exception e) {
+			throw new GoogleApiSDKException(e);
+		}
+	}
+	private class UpdateEvent extends PutGoogleCalendarApiReq {
+
+		public UpdateEvent(String accessToken, Object object, String googleCalendarId, String eventId) {
+			super(accessToken, "calendars/" + googleCalendarId + "/events/"+ eventId, object);
 
 		}
 

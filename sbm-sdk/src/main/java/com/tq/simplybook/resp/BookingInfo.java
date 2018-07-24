@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class BookingInfo implements Serializable {
 	private static final long serialVersionUID = -5324059681740376947L;
 
+	private String id;
 	private Integer is_confirmed;
 	private String comment;
 	private String event_id;
@@ -41,6 +42,14 @@ public class BookingInfo implements Serializable {
 
 	public String getUnit_id() {
 		return unit_id;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public void setUnit_id(String unit_id) {
@@ -255,15 +264,15 @@ public class BookingInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return "BookingInfo [is_confirmed=" + is_confirmed + ", comment=" + comment + ", event_id=" + event_id
-				+ ", event_name=" + event_name + ", event_duration=" + event_duration + ", unit_id=" + unit_id
-				+ ", unit_name=" + unit_name + ", unit_email=" + unit_email + ", unit_description=" + unit_description
-				+ ", start_date_time=" + start_date_time + ", end_date_time=" + end_date_time + ", record_date="
-				+ record_date + ", client_id=" + client_id + ", client_name=" + client_name + ", client_phone="
-				+ client_phone + ", client_email=" + client_email + ", client_address1=" + client_address1
-				+ ", client_address2=" + client_address2 + ", client_city=" + client_city + ", client_zip=" + client_zip
-				+ ", client_country_id=" + client_country_id + ", company_login=" + company_login + ", company_name="
-				+ company_name + ", location=" + location + "]";
+		return "BookingInfo [id=" + id + ", is_confirmed=" + is_confirmed + ", comment=" + comment + ", event_id="
+				+ event_id + ", event_name=" + event_name + ", event_duration=" + event_duration + ", unit_id="
+				+ unit_id + ", unit_name=" + unit_name + ", unit_email=" + unit_email + ", unit_description="
+				+ unit_description + ", start_date_time=" + start_date_time + ", end_date_time=" + end_date_time
+				+ ", record_date=" + record_date + ", client_id=" + client_id + ", client_name=" + client_name
+				+ ", client_phone=" + client_phone + ", client_email=" + client_email + ", client_address1="
+				+ client_address1 + ", client_address2=" + client_address2 + ", client_city=" + client_city
+				+ ", client_zip=" + client_zip + ", client_country_id=" + client_country_id + ", company_login="
+				+ company_login + ", company_name=" + company_name + ", location=" + location + "]";
 	}
 
 }

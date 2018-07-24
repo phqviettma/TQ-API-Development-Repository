@@ -72,7 +72,7 @@ public class CancelInternalHandler implements InternalHandler {
 	}
 
 	@Override
-	public void handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
+	public boolean handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
 		BookingInfo bookingInfo = executeWithInfusionSoft(payload);
 		boolean processed = false;
 		String sbmId = bookingInfo.getEvent_id() + "-" + bookingInfo.getUnit_id();
@@ -91,7 +91,7 @@ public class CancelInternalHandler implements InternalHandler {
 		} else {
 			m_log.info("The cancellation is synced neither to Cliniko nor Google Calendar");
 		}
-
+		return processed;
 	}
 
 	private BookingInfo executeWithInfusionSoft(PayloadCallback payload) throws SbmSDKException {
@@ -132,7 +132,7 @@ public class CancelInternalHandler implements InternalHandler {
 						new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
 
 			} catch (InfSDKExecption e) {
-				m_log.info("Updating custom field to Infusion Soft failed "+ e);
+				m_log.info("Updating custom field to Infusion Soft failed " + e);
 			}
 
 			try {

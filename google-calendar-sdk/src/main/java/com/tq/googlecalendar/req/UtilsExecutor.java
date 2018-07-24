@@ -10,6 +10,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
@@ -40,7 +41,11 @@ public class UtilsExecutor {
 		case "POST":
 			req = new HttpPost();
 			break;
+		case "PUT":
+			req = new HttpPut();
+			break;
 		}
+		
 		req.setURI(URI.create(apiReq.getEndPoint()));
 		req.setHeader("Authorization", "Bearer " + apiReq.getAccessToken());
 		if (apiReq.getContentType() != null) {

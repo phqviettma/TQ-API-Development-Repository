@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
@@ -19,16 +20,16 @@ import com.tq.cliniko.lambda.model.Patients;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.model.User;
+import com.tq.cliniko.lambda.req.ClinikoBodyRequest;
 
 public class ClinikiAppointmentServiceImplTest {
 	static ClinikiAppointmentServiceImpl m_service = new ClinikiAppointmentServiceImpl("API_KEY");
 	Integer maxResult = 100;
 
 	@Test
+	@Ignore
 	public void testGetAppointments() throws ClinikoSDKExeption {
 		AppointmentsInfo appts = m_service.getAppointments("2017-11-25T14:00Z", maxResult, 95260);
-		System.out.println(appts.getAppointments());
-		System.out.println(appts.getLinks().getNext());
 		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0)) > 0);
 		assertTrue(appts.getAppointments().size() > 0);
 
@@ -38,17 +39,17 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
+	@Ignore
 	public void testGetDeletedAppointments() throws ClinikoSDKExeption {
 		AppointmentsInfo appts = m_service.getDeletedAppointments("2017-11-28T00:00Z", maxResult, 95260);
-		System.out.println(appts.getAppointments());
 		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0)) > 0);
 
 	}
 
 	@Test
+	@Ignore
 	public void testGetCancelledAppointment() throws ClinikoSDKExeption {
 		AppointmentsInfo appts = m_service.getCancelAppointments("2017-12-04T00:00Z", maxResult, 95260);
-		System.out.println(appts.getAppointments());
 		assertTrue(AppoinmentUtil.getBusinessId(appts.getAppointments().get(0)) > 0);
 
 	}
@@ -86,6 +87,7 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
+	@Ignore
 	public void tesGetAppointment() throws ClinikoSDKExeption {
 		AppointmentInfo appointmentInfo = new AppointmentInfo();
 		appointmentInfo.setAppointment_start("2017-11-15T11:00:00Z");
@@ -102,12 +104,14 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
+	@Ignore
 	public void testGetAuthenticateUser() throws ClinikoSDKExeption {
 		User user = m_service.getAuthenticateUser();
 		assertNotNull(user.getId());
 	}
 
 	@Test
+	@Ignore
 	public void testGetPractitioner() throws ClinikoSDKExeption {
 		User user = m_service.getAuthenticateUser();
 		PractitionersInfo practitioner = m_service.getPractitioner(user.getId());
@@ -116,6 +120,7 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
+	@Ignore
 	public void testGetPractitionerByUrl() throws ClinikoSDKExeption {
 		BusinessesInfo businesses = m_service.getListBusinesses();
 		for (Businesses business : businesses.getBusinesses()) {
@@ -126,6 +131,7 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
+	@Ignore
 	public void testGetSystemSettings() throws ClinikoSDKExeption {
 		Settings setting = m_service.getAllSettings();
 		assertNotNull(setting.getAccount().getTime_zone());
@@ -138,21 +144,32 @@ public class ClinikiAppointmentServiceImplTest {
 	}
 
 	@Test
+	@Ignore
 	public void testCreatePatient() throws ClinikoSDKExeption {
 		PatientDetail p = m_service.createPatient("Suong", "Pham", "suongpham@gmail.com", "0123366655");
 		assertNotNull(p.getId());
 	}
 
 	@Test
+	@Ignore
 	public void testGetAppointmentType() throws ClinikoSDKExeption {
 		ClinikoAppointmentType apptType = m_service.getAppointmentType(95260);
 		assertTrue(apptType.getAppointment_types().size() > 0);
 	}
 
 	@Test
+	@Ignore
 	public void testGetPatientDetails() throws ClinikoSDKExeption {
 		Patients patient = m_service.getPatient("toannhan@gmail.com");
 		assertNotNull(patient.getPatients().get(0).getId());
+
+	}
+	@Test
+	public void updateAppointment() throws ClinikoSDKExeption {
+		ClinikoBodyRequest appointmentInfo = new ClinikoBodyRequest("2018-11-11T04:45:00Z","2018-11-11T05:45:00Z");
+		Long appointmentId = 118036883L;
+		AppointmentInfo appt = m_service.updateAppointment(appointmentInfo , appointmentId);
+		System.out.println("update successfully"+ appt);
 	}
 
 }
