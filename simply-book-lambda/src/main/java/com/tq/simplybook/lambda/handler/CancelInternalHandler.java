@@ -1,8 +1,6 @@
 package com.tq.simplybook.lambda.handler;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +25,6 @@ import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.exception.InfSDKExecption;
-import com.tq.inf.query.AddDataQuery;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
@@ -124,16 +121,6 @@ public class CancelInternalHandler implements InternalHandler {
 		} else {
 			Integer ifContactId = contactItem.getClient().getContactId();
 
-			Map<String, String> updateRecord = resetRecordCustomFiledIS();
-
-			try {
-				contactService.update(infusionSoftApiName, infusionSoftApiKey,
-						new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
-
-			} catch (InfSDKExecption e) {
-				m_log.info("Updating custom field to Infusion Soft failed " + e);
-			}
-
 			try {
 				ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
 
@@ -182,36 +169,5 @@ public class CancelInternalHandler implements InternalHandler {
 			m_log.info("Delete google event successfully");
 			return true;
 		}
-	}
-
-	public Map<String, String> resetRecordCustomFiledIS() {
-		String infusionSoftAppointmentTimeField = env.getInfusionSoftAppointmentTimeField();
-		String infusionSoftAppointmentLocationField = env.getInfusionSoftAppointmentLocationField();
-		String infusionSoftServiceProviderField = env.getInfusionSoftServiceProviderField();
-		String infusionSoftAppointmentInstructionField = env.getInfusionSoftAppointmentInstructionField();
-		String infusionSoftAppointmentDateField = env.getInfusionftAppointmentDate();
-		String infusionSoftPractitionerLastName = env.getInfusionsoftPractitionerLastName();
-		String infusionsoftPractitionerFirstName = env.getInfusionsoftPractitionerFirstName();
-		String infusionsoftAppointmentAddress1 = env.getInfusionsoftApptAddress1();
-		String infusionsoftAppointmentAddress2 = env.getInfusionsoftApptAddress2();
-		String infusionsoftAppointmentCity = env.getInfusionsoftApptCity();
-		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
-		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
-		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
-		Map<String, String> updateRecord = new HashMap<>();
-		updateRecord.put(infusionSoftAppointmentTimeField, "");
-		updateRecord.put(infusionSoftAppointmentLocationField, "");
-		updateRecord.put(infusionSoftServiceProviderField, "");
-		updateRecord.put(infusionSoftAppointmentInstructionField, "");
-		updateRecord.put(infusionSoftAppointmentDateField, "");
-		updateRecord.put(infusionSoftPractitionerLastName, "");
-		updateRecord.put(infusionsoftPractitionerFirstName, "");
-		updateRecord.put(infusionsoftAppointmentAddress1, "");
-		updateRecord.put(infusionsoftAppointmentAddress2, "");
-		updateRecord.put(infusionsoftAppointmentCity, "");
-		updateRecord.put(infusionsoftAppointmentCountry, "");
-		updateRecord.put(infusionsoftAppointmentPhone, "");
-		updateRecord.put(infusionsoftAppointmentZip, "");
-		return updateRecord;
 	}
 }

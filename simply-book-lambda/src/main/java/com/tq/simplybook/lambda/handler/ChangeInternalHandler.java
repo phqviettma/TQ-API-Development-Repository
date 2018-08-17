@@ -37,6 +37,7 @@ import com.tq.googlecalendar.resp.Start;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
+import com.tq.googlecalendar.utils.GoogleCalendarUtil;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddDataQuery;
 import com.tq.inf.service.ContactServiceInf;
@@ -133,12 +134,13 @@ public class ChangeInternalHandler implements InternalHandler {
 			GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
 			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
+			String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingInfo.getClient_name(),
+					bookingInfo.getClient_email(), bookingInfo.getClient_phone());
 			Start start = new Start(sbmStartTime, settingInfo.getValue());
 			End end = new End(sbmEndTime, settingInfo.getValue());
-			EventReq events = new EventReq();
-			events.setStart(start);
-			events.setEnd(end);
-			EventResp eventResp = googleApiService.updateEvent(events, googleCalendarId, sbmGoogleDbItem.getEventId());
+			EventReq req = new EventReq(start, end, clientDescription,
+					bookingInfo.getClient_name() + "" + env.getGoogleCalendarEventName());
+			EventResp eventResp = googleApiService.updateEvent(req, googleCalendarId, sbmGoogleDbItem.getEventId());
 			m_log.info(String.format("update successfully event %s", eventResp.toString()));
 			return true;
 		} else {
