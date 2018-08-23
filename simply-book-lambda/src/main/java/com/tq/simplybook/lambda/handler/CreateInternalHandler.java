@@ -143,6 +143,7 @@ public class CreateInternalHandler implements InternalHandler {
 		}
 		int appliedTagId = env.getInfusionSoftCreateAppliedTag();
 		Map<String, String> updateRecord = CustomField.buildInfCustomField(countryItemService, env, bookingInfo);
+
 		try {
 			contactService.update(infusionSoftApiName, infusionSoftApiKey,
 					new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
@@ -278,5 +279,4 @@ public class CreateInternalHandler implements InternalHandler {
 		m_log.info(String.format("addDBContact()= %d ms", (System.currentTimeMillis() - start)));
 		return contactItem;
 	}
-
 }

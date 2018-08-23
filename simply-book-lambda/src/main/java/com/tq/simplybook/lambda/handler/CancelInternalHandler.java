@@ -120,7 +120,6 @@ public class CancelInternalHandler implements InternalHandler {
 			m_log.info("There is no contact on Infusion Soft asociated to the email: " + clientEmail);
 		} else {
 			Integer ifContactId = contactItem.getClient().getContactId();
-
 			try {
 				ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(appliedTagId);
 

@@ -68,6 +68,7 @@ public class FilterHandlerTest {
 	private GoogleCalendarApiServiceBuilder googleApiBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private CountryItemService countryItemService = mock(CountryItemService.class);
 	private BookingInfo bookingInfo = null;
+
 	private TokenGoogleCalendarService tokenCalendarService = mock(TokenGoogleCalendarService.class);
 	private CreateInternalHandler createHandler = new CreateInternalHandler(env, tss, bss, csi, cis, scs,
 			googleCalendarService, sbmGoogleService, tokenGoogleService, clinikoSyncToSbmService, clinikoCompanyService,
@@ -84,15 +85,6 @@ public class FilterHandlerTest {
 		bookingInfo = new BookingInfo().withClientEmail("suongpham03@gmail.com").withClientName("suong pham")
 				.withClientPhone("0122553333").withClientId(97).withRecordDate("2018-06-22 16:36:43");
 		bookingInfo.setId("1");
-		bookingInfo.setEvent_id("6");
-		bookingInfo.setUnit_id("1");
-		bookingInfo.setUnit_name("Suong pham");
-		bookingInfo.setStart_date_time("2018-06-27 10:00:00");
-		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
-		Location location = new Location();
-		location.setCountry_id("AU");
-		bookingInfo.setLocation(location);
-		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
 	}
 
 	@Test
@@ -115,12 +107,24 @@ public class FilterHandlerTest {
 	@Test
 	public void testHandleCancelClinikoRequest() throws SbmSDKException, InfSDKExecption {
 		FilterEventHandler handler = new FilterEventHandler(env, csi, bss, createHandler, cancelHandler, changeHandler);
+
 		Context context = mock(Context.class);
 		String jsonString = JsonUtils.getJsonString(
 				this.getClass().getClassLoader().getResourceAsStream("cancel_booking_info_payload.json"));
 		AwsProxyRequest req = new AwsProxyRequest();
 		req.setBody(jsonString);
-	
+		BookingInfo bookingInfo = new BookingInfo().withClientEmail("suongpham03@gmail.com")
+				.withClientName("suong pham").withClientPhone("0122553333").withClientId(97)
+				.withRecordDate("2018-06-22 16:36:43");
+		bookingInfo.setEvent_id("6");
+		bookingInfo.setUnit_id("1");
+		bookingInfo.setUnit_name("Suong pham");
+		bookingInfo.setStart_date_time("2018-06-27 10:00:00");
+		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
+		Location location = new Location();
+		location.setCountry_id("AU");
+		bookingInfo.setLocation(location);
+		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
 		when(csi.addWithDupCheck(any(), any(), any())).thenReturn(518);
 		when(csi.update(any(), any(), any())).thenReturn(518);
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
@@ -140,18 +144,6 @@ public class FilterHandlerTest {
 	}
 
 	@Test
-	public void testOtherNotificationType() {
-		FilterEventHandler handler = new FilterEventHandler(env, csi, bss, createHandler, cancelHandler, changeHandler);
-		Context context = mock(Context.class);
-		String jsonString = JsonUtils
-				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("notify_payload.json"));
-		AwsProxyRequest req = new AwsProxyRequest();
-		req.setBody(jsonString);
-		AwsProxyResponse response = handler.handleRequest(req, context);
-		assertEquals(200, response.getStatusCode());
-	}
-
-	@Test
 	public void testGoogleCreateHandleRequest() throws SbmSDKException, InfSDKExecption, GoogleApiSDKException {
 		FilterEventHandler handler = new FilterEventHandler(env, csi, bss, createHandler, cancelHandler, changeHandler);
 		Context context = mock(Context.class);
@@ -159,6 +151,18 @@ public class FilterHandlerTest {
 				this.getClass().getClassLoader().getResourceAsStream("create_booking_info_payload.json"));
 		AwsProxyRequest req = new AwsProxyRequest();
 		req.setBody(jsonString);
+		BookingInfo bookingInfo = new BookingInfo().withClientEmail("suongpham03@gmail.com")
+				.withClientName("suong pham").withClientPhone("0122553333").withClientId(97)
+				.withRecordDate("2018-06-22 16:36:43");
+		bookingInfo.setEvent_id("6");
+		bookingInfo.setUnit_id("1");
+		bookingInfo.setUnit_name("Suong pham");
+		bookingInfo.setStart_date_time("2018-06-27 10:00:00");
+		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
+		Location location = new Location();
+		location.setCountry_id("AU");
+		bookingInfo.setLocation(location);
+		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
 		when(csi.addWithDupCheck(any(), any(), any())).thenReturn(518);
 		when(csi.update(any(), any(), any())).thenReturn(518);
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);

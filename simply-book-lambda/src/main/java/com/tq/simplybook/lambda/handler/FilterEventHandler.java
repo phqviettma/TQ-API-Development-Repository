@@ -110,13 +110,13 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	// for testing only
 	FilterEventHandler(Env m_env, ContactServiceInf m_csi, BookingServiceSbm m_bss, InternalHandler m_createHandler,
 			InternalHandler m_cancelHandler, InternalHandler changeHandler) {
+
 		this.m_env = m_env;
 		this.m_csi = m_csi;
 		this.m_bss = m_bss;
 		this.m_createHandler = m_createHandler;
 		this.m_cancelHandler = m_cancelHandler;
 		this.m_changeHandler = changeHandler;
-
 	}
 
 	@Override

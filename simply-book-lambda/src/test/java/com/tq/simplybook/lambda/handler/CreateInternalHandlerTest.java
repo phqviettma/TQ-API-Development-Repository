@@ -140,7 +140,7 @@ public class CreateInternalHandlerTest {
 		boolean excuted = handler.executeWithInfusionSoft(payLoad, bookingInfo, contactItem.getClient().getContactId());
 		assertTrue(excuted);
 	}
-
+	
 	@Test
 	public void testPatientNotExist() throws ClinikoSDKExeption, SbmSDKException, GoogleApiSDKException {
 		Patients patient = new Patients();
@@ -153,7 +153,6 @@ public class CreateInternalHandlerTest {
 		when(clinikoSyncToSbmService.load(any())).thenReturn(clinikoSbm);
 		when(clinikoApptService.createPatient(any(), any(), any(), any())).thenReturn(patientDetail);
 		handler.handle(payLoad);
-
 	}
 
 	@Test

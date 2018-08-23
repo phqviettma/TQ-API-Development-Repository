@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
@@ -115,7 +114,6 @@ public class CancelInternalHandlerTest {
 	}
 
 	@Test
-	@Ignore
 	public void testInfusionsoft() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption {
 		ClientInfo ci = new ClientInfo();
 		ci.setContactId(448);

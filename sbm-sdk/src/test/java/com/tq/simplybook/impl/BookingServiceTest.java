@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tq.simplybook.exception.SbmSDKException;
@@ -39,6 +40,7 @@ public class BookingServiceTest {
 	}
 
 	@Test
+	@Ignore
 	public void testGetListBooking() throws SbmSDKException {
 		String companyLogin = "canhcanh";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
@@ -53,6 +55,7 @@ public class BookingServiceTest {
 	}
 
 	@Test
+	@Ignore
 	public void testCancelBatch() throws SbmSDKException {
 		String companyLogin = "truequit";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
@@ -66,6 +69,7 @@ public class BookingServiceTest {
 	}
 
 	@Test
+	@Ignore
 	public void testBooking() throws Exception {
 		String companyLogin = "canhcanh";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
