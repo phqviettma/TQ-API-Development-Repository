@@ -106,6 +106,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		m_log.info("Received one request with body " + input.getBody());
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("content-Type", "application/json");
+		headers.put("Access-Control-Allow-Origin", eVariables.getWebAllowOrigin());
 		resp.setHeaders(headers);
 		ClinikoConnectStatusResponse response = new ClinikoConnectStatusResponse();
 		ClinikoPractitionerConnectReq req = getPractitionerReq(input.getBody());

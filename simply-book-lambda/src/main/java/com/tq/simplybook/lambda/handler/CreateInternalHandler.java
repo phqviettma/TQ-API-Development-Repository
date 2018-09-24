@@ -22,6 +22,7 @@ import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
+import com.tq.common.lambda.dynamodb.model.SbmBookingInfo;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
@@ -29,6 +30,7 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.TimeUtils;
@@ -74,13 +76,15 @@ public class CreateInternalHandler implements InternalHandler {
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
 	private GoogleCalendarApiServiceBuilder googleApiBuilder = null;
 	private CountryItemService countryItemService = null;
+	private SbmBookingInfoService sbmBookingInfoService = null;
 	private static final String AGENT = "sbm";
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SbmClinikoSyncService scs, GoogleCalendarDbService gcs,
 			SbmGoogleCalendarDbService sgcs, TokenGoogleCalendarService tcs, ClinikoSyncToSbmService csts,
 			ClinikoCompanyInfoService ccis, ClinikoApiServiceBuilder apiServiceBuilder,
-			GoogleCalendarApiServiceBuilder apiBuilder, CountryItemService countryService) {
+			GoogleCalendarApiServiceBuilder apiBuilder, CountryItemService countryService,
+			SbmBookingInfoService bookingInfoService) {
 		env = environtment;
 		tokenService = tss;
 		bookingService = bss;
@@ -95,10 +99,11 @@ public class CreateInternalHandler implements InternalHandler {
 		clinikoApiServiceBuilder = apiServiceBuilder;
 		googleApiBuilder = apiBuilder;
 		countryItemService = countryService;
+		sbmBookingInfoService = bookingInfoService;
 	}
 
 	@Override
-	public void handle(PayloadCallback payload) throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException {
+	public void handle(PayloadCallback payload) throws GoogleApiSDKException, SbmSDKException, ClinikoSDKExeption {
 		String companyLogin = env.getSimplyBookCompanyLogin();
 		String user = env.getSimplyBookUser();
 		String password = env.getSimplyBookPassword();
@@ -110,6 +115,8 @@ public class CreateInternalHandler implements InternalHandler {
 		if (bookingInfo == null) {
 			throw new SbmSDKException("There is no booking content asociated to the booking id: " + bookingId);
 		}
+		// TSI-45
+		storeBookingInfoToDb(bookingInfo);
 		Integer contactId = addContactToInfusionsoft(bookingInfo);
 		executeWithInfusionSoft(payload, bookingInfo, contactId);
 		persitClientVoInDB(bookingInfo, contactId);
@@ -132,15 +139,27 @@ public class CreateInternalHandler implements InternalHandler {
 		}
 	}
 
+	private void storeBookingInfoToDb(BookingInfo clientBookingInfo) {
+		SbmBookingInfo bookingInfo = sbmBookingInfoService.load(Long.parseLong(clientBookingInfo.getId()));
+		if (bookingInfo == null) {
+			String appointmentTime = TimeUtils.buildTimeWithFormatStartToEndTime(clientBookingInfo.getStart_date_time(),
+					clientBookingInfo.getEnd_date_time());
+			String appointmentDate = TimeUtils.extractDateFormatDateMonth(clientBookingInfo.getStart_date_time());
+			Long timeStamp = TimeUtils.convertDateTimeToLong(clientBookingInfo.getStart_date_time());
+			String address = clientBookingInfo.getLocation().getAddress1() == null ? "No set"
+					: clientBookingInfo.getLocation().getAddress1();
+			bookingInfo = new SbmBookingInfo(Long.parseLong(clientBookingInfo.getId()),
+					clientBookingInfo.getUnit_email(), clientBookingInfo.getUnit_name(), clientBookingInfo.getLocation().getAddress2(), appointmentTime,
+					timeStamp, clientBookingInfo.getClient_name(), clientBookingInfo.getClient_phone(),
+					clientBookingInfo.getClient_email(), appointmentDate, address);
+		}
+		sbmBookingInfoService.put(bookingInfo);
+	}
+
 	public boolean executeWithInfusionSoft(PayloadCallback payload, BookingInfo bookingInfo, Integer ifContactId)
 			throws SbmSDKException {
 		String infusionSoftApiName = env.getInfusionSoftApiName();
 		String infusionSoftApiKey = env.getInfusionSoftApiKey();
-		String infusionsoftApptCountryName = countryItemService
-				.queryCountryCode(bookingInfo.getLocation().getCountry_id());
-		if (infusionsoftApptCountryName == null) {
-			infusionsoftApptCountryName = bookingInfo.getLocation().getCountry_id();
-		}
 		int appliedTagId = env.getInfusionSoftCreateAppliedTag();
 		Map<String, String> updateRecord = CustomField.buildInfCustomField(countryItemService, env, bookingInfo);
 
@@ -170,7 +189,6 @@ public class CreateInternalHandler implements InternalHandler {
 
 	private boolean executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo, ClinikoSbmSync clinikoSbmSync)
 			throws SbmSDKException, ClinikoSDKExeption {
-		m_log.info("Excute google handler " );
 		String clinikoCompanyId[] = clinikoSbmSync.getClinikoId().split("-");
 		Integer practitionerId = Integer.valueOf(clinikoCompanyId[1]);
 		Integer businessId = Integer.valueOf(clinikoCompanyId[0]);
@@ -219,7 +237,7 @@ public class CreateInternalHandler implements InternalHandler {
 
 	boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, PayloadCallback payload, String refreshToken,
 			String googleCalendarId) throws GoogleApiSDKException, SbmSDKException {
-		m_log.info("Excute google handler with calendarId" +googleCalendarId );
+		m_log.info("Excute google handler with calendarId" + googleCalendarId);
 		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
 		TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
 		GoogleCalendarApiService googleApiService = googleApiBuilder.build(tokenResp.getAccess_token());
@@ -235,7 +253,6 @@ public class CreateInternalHandler implements InternalHandler {
 		EventReq req = new EventReq(start, end, clientDescription,
 				bookingInfo.getClient_name() + "" + env.getGoogleCalendarEventName());
 		EventResp eventResp = googleApiService.createEvent(req, googleCalendarId);
-		m_log.info("Create event successfully with value " + eventResp.toString());
 		SbmGoogleCalendar sbmGoogleCalendarSync = new SbmGoogleCalendar(payload.getBooking_id(), eventResp.getId(),
 				bookingInfo.getClient_email(), 1, "sbm");
 		sbmGoogleCalendarService.put(sbmGoogleCalendarSync);

@@ -18,6 +18,7 @@ import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.CountryItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.SbmBookingInfoDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmClinikoSyncDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmGoogleCalendarSyncDaoImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoCompanyInfoServiceImpl;
@@ -25,6 +26,7 @@ import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.CountryItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.SbmBookingInfoServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmClinikoSyncImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmGoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
@@ -32,6 +34,7 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.DynamodbUtils;
@@ -75,6 +78,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	private GoogleCalendarApiServiceBuilder googleApiServiceBuilder = null;
 	private CountryItemService countryItemService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
+	private SbmBookingInfoService sbmBookingInfoService = null;
 	private InternalHandler m_createHandler = null;
 	private InternalHandler m_cancelHandler = null;
 	private InternalHandler m_changeHandler = null;
@@ -96,15 +100,16 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		this.clinikoApiServiceBuilder = new ClinikoApiServiceBuilder();
 		this.googleApiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.countryItemService = new CountryItemServiceImpl(new CountryItemDaoImpl(m_amazonDynamoDB));
+		this.sbmBookingInfoService = new SbmBookingInfoServiceImpl(new SbmBookingInfoDaoImpl(m_amazonDynamoDB));
 		this.clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(m_amazonDynamoDB));
 		this.m_createHandler = new CreateInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_gcs, m_sgcs, m_tgc,
 				clinikoSyncToSbmService, clinikoCompanyService, clinikoApiServiceBuilder, googleApiServiceBuilder,
-				countryItemService);
+				countryItemService,sbmBookingInfoService);
 		this.m_cancelHandler = new CancelInternalHandler(m_env, m_tss, m_bss, m_csi, m_cis, m_scs, m_sgcs, m_gcs, m_tgc,
-				clinikoSyncToSbmService, clinikoApiServiceBuilder, googleApiServiceBuilder);
+				clinikoSyncToSbmService, clinikoApiServiceBuilder, googleApiServiceBuilder, sbmBookingInfoService);
 		this.m_changeHandler = new ChangeInternalHandler(m_env, m_bss, m_tss, countryItemService, m_csi, m_cis,
 				clinikoSyncToSbmService, m_gcs, m_tgc, clinikoApiServiceBuilder, m_sgcs, googleApiServiceBuilder,
-				m_scs);
+				m_scs, sbmBookingInfoService);
 	}
 
 	// for testing only

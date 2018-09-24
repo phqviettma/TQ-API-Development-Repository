@@ -26,6 +26,7 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.JsonUtils;
@@ -64,10 +65,11 @@ public class ChangeInternalHandlerTest {
 	private BookingInfo bookingInfo = null;
 	private CountryItemService countryItemService = mock(CountryItemService.class);
 	private ContactServiceInf contactService = mock(ContactServiceInf.class);
+	private SbmBookingInfoService sbmBookingInfoService = mock(SbmBookingInfoService.class);
 	private ChangeInternalHandler changeHandler = new ChangeInternalHandler(env, bookingService, tokenService,
 			countryItemService, contactService, contactItemService, clinikoSyncToSbmService, googleCalendarService,
 			tokenCalendarService, clinikoApiServiceBuilder, sbmGoogleCalendarService, googleApiBuilder,
-			sbmClinikoService);
+			sbmClinikoService, sbmBookingInfoService);
 
 	@Before
 	public void init() throws SbmSDKException, Exception {

@@ -20,10 +20,9 @@ public class GetBookingResp implements Serializable {
 	private String end_date;
 	private String phone;
 	private String client;
-
 	private String event;
 	private String client_email;
-
+	private String unitName;
 	@DynamoDBAttribute(attributeName = "id")
 	public String getId() {
 		return id;
@@ -60,6 +59,7 @@ public class GetBookingResp implements Serializable {
 		this.client = client;
 	}
 
+	@DynamoDBAttribute(attributeName = "event")
 	public String getEvent() {
 		return event;
 	}
@@ -89,6 +89,15 @@ public class GetBookingResp implements Serializable {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	@DynamoDBAttribute(attributeName = "unitName")
+	public String getUnitName() {
+		return unitName;
+	}
+
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
 	}
 
 	@Override

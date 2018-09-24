@@ -2,17 +2,16 @@ package com.tq.googlecalendar.lambda.handler;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
+import com.tq.common.lambda.dynamodb.model.SbmBookingInfo;
 import com.tq.common.lambda.dynamodb.model.SbmBookingList;
 import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.googlecalendar.context.Env;
@@ -30,8 +29,6 @@ import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.googlecalendar.utils.GoogleCalendarUtil;
 
 public class GoogleDisconnectCalendarHandler implements Handler {
-	private static final Logger m_log = LoggerFactory.getLogger(GoogleDisconnectCalendarHandler.class);
-
 	private Env eVariables = null;
 	private GoogleCalendarDbService googleCalendarService = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
@@ -40,12 +37,13 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
 	private SbmListBookingService sbmListBookingService = null;
+	private SbmBookingInfoService sbmBookingInfoService = null;
 
 	public GoogleDisconnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			TokenGoogleCalendarService tokenCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder,
 			GoogleCalRenewService googleCalRenewService,
 			GoogleCalendarModifiedSyncService calendarModifiedChannelService,
-			SbmSyncFutureBookingsService sbmSyncFutureBookingService, SbmListBookingService sbmListBookingService) {
+			SbmSyncFutureBookingsService sbmSyncFutureBookingService, SbmListBookingService sbmListBookingService, SbmBookingInfoService sbmBookingInfoService) {
 		this.eVariables = eVariables;
 		this.googleCalendarService = googleCalendarService;
 		this.tokenCalendarService = tokenCalendarService;
@@ -54,6 +52,7 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 		this.calendarModifiedChannelService = calendarModifiedChannelService;
 		this.sbmSyncFutureBookingService = sbmSyncFutureBookingService;
 		this.sbmListBookingService = sbmListBookingService;
+		this.sbmBookingInfoService = sbmBookingInfoService;
 	}
 
 	@Override
@@ -73,31 +72,13 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 				StopWatchEventReq stopEventReq = new StopWatchEventReq(googleSbm.getChannelId(),
 						googleSbm.getGcWatchResourceId());
 				GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
-				// work-around: can' stop channel in just one request. So as to make sure the
+				// work-around: can't stop channel in just one request. So as to make sure the
 				// channel is stopped successfully, we try to stop maximum of 3 times .
 				GoogleCalendarUtil.stopWatchChannel(googleApiService, stopEventReq);
 				stoppedWatch = true;
 			}
 			if (stoppedWatch) {
-				List<GCModifiedChannel> modifiedChannel = calendarModifiedChannelService.queryEmail(sbmEmail);
-				List<GoogleRenewChannelInfo> renewChannel = googleCalRenewService
-						.queryEmail(googleCalendarSbmSync.get(0).getGoogleEmail());
-				if (!renewChannel.isEmpty() && !modifiedChannel.isEmpty()) {
-					googleCalendarService.deleteGoogleItem(googleCalendarSbmSync);
-					m_log.info("Delete record in table GoogleSbmSync successfully");
-					googleCalRenewService.deleteRenewChannel(renewChannel);
-					calendarModifiedChannelService.deleteModifiedItem(modifiedChannel);
-					SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService
-							.load(googleCalendarSbmSync.get(0).getSbmId());
-					sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
-					SbmBookingList bookingListItem = sbmListBookingService
-							.load(googleCalendarSbmSync.get(0).getSbmId());
-					if (bookingListItem != null) {
-						sbmListBookingService.delete(bookingListItem);
-					}
-				} else {
-					throw new GoogleApiSDKException("Internal error");
-				}
+				deleteDataWhenPractitionerDisconnect(sbmEmail, googleCalendarSbmSync);
 			} else {
 				throw new GoogleApiSDKException("Can not stop watch this channel");
 			}
@@ -112,6 +93,32 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 		response.setSucceeded(true);
 		return response;
 
+	}
+
+	private void deleteDataWhenPractitionerDisconnect(String sbmEmail,
+			List<GoogleCalendarSbmSync> googleCalendarSbmSync) throws GoogleApiSDKException {
+		List<GCModifiedChannel> modifiedChannel = calendarModifiedChannelService.queryEmail(sbmEmail);
+		List<GoogleRenewChannelInfo> renewChannel = googleCalRenewService
+				.queryEmail(googleCalendarSbmSync.get(0).getGoogleEmail());
+		if (!renewChannel.isEmpty() && !modifiedChannel.isEmpty()) {
+			googleCalendarService.deleteGoogleItem(googleCalendarSbmSync);
+			googleCalRenewService.deleteRenewChannel(renewChannel);
+			calendarModifiedChannelService.deleteModifiedItem(modifiedChannel);
+			SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService
+					.load(googleCalendarSbmSync.get(0).getSbmId());
+			sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
+			SbmBookingList bookingListItem = sbmListBookingService.load(googleCalendarSbmSync.get(0).getSbmId());
+			if (bookingListItem != null) {
+				sbmListBookingService.delete(bookingListItem);
+			}
+
+		} else {
+			throw new GoogleApiSDKException("Internal error");
+		}
+		 List<SbmBookingInfo> sbmBookingInfo = sbmBookingInfoService.queryEmailIndex(sbmEmail);
+		if (!sbmBookingInfo.isEmpty()) {
+			sbmBookingInfoService.deleteListBookings(sbmBookingInfo);
+		}
 	}
 
 }

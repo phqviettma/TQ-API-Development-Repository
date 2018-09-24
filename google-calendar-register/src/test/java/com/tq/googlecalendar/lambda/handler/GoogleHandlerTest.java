@@ -29,6 +29,7 @@ import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.utils.JsonUtils;
@@ -66,6 +67,7 @@ public class GoogleHandlerTest {
 	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = mock(SbmSyncFutureBookingsService.class);
 	private GoogleCalendarCheckStatusHandler checkHandler = new GoogleCalendarCheckStatusHandler(calendarService);
+	private SbmBookingInfoService sbmBookingInfoService = mock(SbmBookingInfoService.class);
 	private GoogleHandler handler = null;
 	private GoogleCalendarApiService googleApiService =null;
 	private GoogleConnectCalendarHandler connectHandler = new GoogleConnectCalendarHandler(mockedeEnv, calendarService,
@@ -75,7 +77,7 @@ public class GoogleHandlerTest {
 
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
 			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService,
-			modifiedChannelService, sbmSyncFutureBookingService, sbmListBookingService);
+			modifiedChannelService, sbmSyncFutureBookingService, sbmListBookingService, sbmBookingInfoService);
 	private ShowGoogleCalendarHandler showCalendarHandleResponse = new ShowGoogleCalendarHandler(tokenCalendarService, mockedeEnv, mockedApiServiceBuilder);
 
 	@Before

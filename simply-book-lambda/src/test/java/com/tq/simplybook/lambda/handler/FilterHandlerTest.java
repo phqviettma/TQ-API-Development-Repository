@@ -32,6 +32,7 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.JsonUtils;
@@ -68,17 +69,18 @@ public class FilterHandlerTest {
 	private GoogleCalendarApiServiceBuilder googleApiBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private CountryItemService countryItemService = mock(CountryItemService.class);
 	private BookingInfo bookingInfo = null;
+	private SbmBookingInfoService sbmBookingInfoService = mock(SbmBookingInfoService.class);
 
 	private TokenGoogleCalendarService tokenCalendarService = mock(TokenGoogleCalendarService.class);
 	private CreateInternalHandler createHandler = new CreateInternalHandler(env, tss, bss, csi, cis, scs,
 			googleCalendarService, sbmGoogleService, tokenGoogleService, clinikoSyncToSbmService, clinikoCompanyService,
-			clinikoApiServiceBuilder, googleApiBuilder, countryItemService);
+			clinikoApiServiceBuilder, googleApiBuilder, countryItemService, sbmBookingInfoService);
 	private CancelInternalHandler cancelHandler = new CancelInternalHandler(env, tss, bss, csi, cis, scs,
 			sbmGoogleService, googleCalendarService, tokenCalendarService, clinikoSyncToSbmService,
-			clinikoApiServiceBuilder, googleApiBuilder);
+			clinikoApiServiceBuilder, googleApiBuilder, sbmBookingInfoService);
 	private ChangeInternalHandler changeHandler = new ChangeInternalHandler(env, bss, tss, countryItemService, csi, cis,
 			clinikoSyncToSbmService, googleCalendarService, tokenGoogleService, clinikoApiServiceBuilder,
-			sbmGoogleService, googleApiBuilder, scs);
+			sbmGoogleService, googleApiBuilder, scs, sbmBookingInfoService);
 
 	@Before
 	public void init() throws SbmSDKException {

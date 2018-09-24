@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.tq.simplybook.exception.SbmSDKException;
@@ -40,7 +39,6 @@ public class BookingServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void testGetListBooking() throws SbmSDKException {
 		String companyLogin = "canhcanh";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
@@ -55,7 +53,6 @@ public class BookingServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void testCancelBatch() throws SbmSDKException {
 		String companyLogin = "truequit";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
@@ -69,7 +66,6 @@ public class BookingServiceTest {
 	}
 
 	@Test
-	@Ignore
 	public void testBooking() throws Exception {
 		String companyLogin = "canhcanh";
 		String endpoint = "https://user-api.simplybook.asia/admin/";
@@ -81,5 +77,28 @@ public class BookingServiceTest {
 		List<GetBookingResp> booking = bookingService.getBookings(companyLogin, endpoint, token, getBookingReq);
 		assertNotNull(booking);
 	}
+	@Test
+	public void confirmBooking() throws Exception{
+		String companyLogin = "truequit";
+		String endpoint = "https://user-api.simplybook.asia/admin/";
+		String endpoint_login = "https://user-api.simplybook.asia/login";
+		String username = "admin";
+		String password = "";
+		String token = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
+		boolean response = bookingService.setBookingStatus(companyLogin, endpoint, token, 383, 6);
+		assertTrue(response);
+	}
+	@Test
+	public void cancelBooking() throws Exception {
+		String companyLogin = "truequit";
+		String endpoint = "https://user-api.simplybook.asia/admin/";
+		String endpoint_login = "https://user-api.simplybook.asia/login";
+		String username = "admin";
+		String password = "";
+		String token = tokenService.getUserToken(companyLogin, username, password, endpoint_login);
+		boolean isCancelled = bookingService.cancelBooking(companyLogin, endpoint, token, 382);
+		assertTrue(isCancelled);
+	}
 
 }
+
