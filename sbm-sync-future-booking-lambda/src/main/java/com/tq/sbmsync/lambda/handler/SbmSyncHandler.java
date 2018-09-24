@@ -26,20 +26,25 @@ import com.tq.common.lambda.dynamodb.impl.SbmClinikoSyncImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmGoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmListBookingServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmSyncFutureBookingServiceImpl;
+import com.tq.common.lambda.dynamodb.model.SbmBookingInfo;
+import com.tq.common.lambda.dynamodb.model.SbmBookingList;
 import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.utils.DynamodbUtils;
+import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
 import com.tq.googlecalendar.impl.TokenGoogleCalendarImpl;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
+import com.tq.simplybook.resp.GetBookingResp;
 
 public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static int STATUS_CODE = 200;
@@ -58,6 +63,7 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = null;
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = null;
+	private SbmBookingInfoService sbmBookingService = null;
 
 	public SbmSyncHandler() {
 		this.env = Env.load();
@@ -108,6 +114,7 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 				Iterator<SbmSyncFutureBookings> sbmItem = sbmSyncFutureBookingItems.iterator();
 				while (sbmItem.hasNext()) {
 					SbmSyncFutureBookings sbmSyncItem = sbmItem.next();
+					saveBookingInfoToDb(sbmSyncItem.getSbmId(), sbmSyncItem.getEmail());
 					if (sbmSyncItem.getClinikoApiKey() != null) {
 						sbmSyncClinikoHandler.handle(sbmSyncItem);
 					} else if (sbmSyncItem.getEmail() != null) {
@@ -126,5 +133,22 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 			resp.setStatusCode(STATUS_CODE);
 		}
 		return resp;
+	}
+
+	private void saveBookingInfoToDb(String sbmId, String practitionerEmail) {
+		SbmBookingList bookingLists = sbmListBookingService.load(sbmId);
+		if (bookingLists != null && !bookingLists.getBookingList().isEmpty()) {
+			for (GetBookingResp bookingInfo : bookingLists.getBookingList()) {
+				String apptTime = TimeUtils.buildTimeWithFormatStartToEndTime(bookingInfo.getStart_date(),
+						bookingInfo.getEnd_date());
+				String apptDate = TimeUtils.extractDateFormatDateMonth(bookingInfo.getStart_date());
+				Long timeStamp = TimeUtils.convertDateTimeToLong(bookingInfo.getStart_date());
+				SbmBookingInfo sbmBookingInfo = new SbmBookingInfo(Long.parseLong(bookingInfo.getId()),
+						practitionerEmail, bookingInfo.getClient(),
+						bookingInfo.getClient_email(), apptTime, apptDate, timeStamp, bookingInfo.getUnitName());
+				sbmBookingService.put(sbmBookingInfo);
+			}
+		}
+
 	}
 }

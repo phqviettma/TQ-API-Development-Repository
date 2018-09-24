@@ -33,6 +33,8 @@ public class Env {
 	private Integer numberEvent = Integer.valueOf(System.getenv("NUMBER_EVENT"));
 	private Integer numberRecordDB = Integer.valueOf(System.getenv("NUMBER_RECORD_DB"));
 
+	private String webAllowOrigin = System.getenv("WEB_ALLOW_ORIGIN");
+
 	private Env() {
 
 		assertVar(regions, "REGIONS");
@@ -60,6 +62,7 @@ public class Env {
 		assertVar(googleCalendarMaxResult, "GOOGLE_CALENDAR_MAX_RESULT");
 		assertVar(numberEvent, "NUMBER_EVENT");
 		assertVar(numberRecordDB, "NUMBER_RECORD_DB");
+		assertVar(webAllowOrigin, "WEB_ALLOW_ORIGIN");
 	}
 
 	private static Env instance;
@@ -188,5 +191,10 @@ public class Env {
 	public Integer getGoogleCalendarMaxResult() {
 		return googleCalendarMaxResult;
 	}
+
+	public String getWebAllowOrigin() {
+		return webAllowOrigin;
+	}
+	
 
 }

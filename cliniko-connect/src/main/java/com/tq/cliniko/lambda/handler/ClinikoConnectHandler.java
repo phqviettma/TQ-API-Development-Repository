@@ -121,32 +121,8 @@ public class ClinikoConnectHandler implements ConnectHandler {
 								String unitId = unitInfo.getId();
 								String sbmId = eventId + "-" + unitId;
 								String clinikoId = clinikoMap.get("clinikoId");
-								m_log.info("Cliniko Map" + clinikoMap);
-								clinikoSbmSync = new ClinikoSbmSync(apiKey, req.getParams().getPractitionerEmail(),
-										clinikoId, sbmId);
-								clinikoSyncService.put(clinikoSbmSync);
-								m_log.info("Save to database successfully with value " + clinikoSbmSync);
-								long timeStamp = Calendar.getInstance().getTimeInMillis();
-								ClinikoSyncStatus clinikoItem = new ClinikoSyncStatus();
-								clinikoItem.setApiKey(apiKey);
-								clinikoItem.setTimeStamp(timeStamp);
-								clinikoItemService.put(clinikoItem);
-								m_log.info("Add to database successfully" + clinikoSbmSync);
-								ClinikoCompanyInfo clinikoCompanyInfo = getAppointmentTypeByPractitioner(clinikoId,
-										apiKey);
-								clinikoCompanyService.put(clinikoCompanyInfo);
-								m_log.info("Save to database " + clinikoCompanyInfo);
-								SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId,
-										apiKey, 1, timeStamp);
-								sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
-								String dateFrom = new SimpleDateFormat("yyyy-MM-dd")
-										.format(Calendar.getInstance().getTime());
-								GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY,
-										Integer.valueOf(unitId), Integer.valueOf(eventId));
-								List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint,
-										token, getBookingReq);
-								SbmBookingList sbmBookingItem = new SbmBookingList(sbmId, bookingList);
-								sbmBookingDBService.put(sbmBookingItem);
+								saveToDBWhenPracConnect(req, companyLogin, endpoint, token, apiKey, eventId, unitId,
+										sbmId, clinikoId);
 								done = true;
 								break;
 							}
@@ -169,6 +145,29 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		}
 		response.setSucceeded(true);
 		return response;
+	}
+
+	private void saveToDBWhenPracConnect(ClinikoPractitionerConnectReq req, String companyLogin, String endpoint,
+			String token, String apiKey, String eventId, String unitId, String sbmId, String clinikoId)
+			throws ClinikoSDKExeption, SbmSDKException {
+		ClinikoSbmSync clinikoSbmSync;
+		clinikoSbmSync = new ClinikoSbmSync(apiKey, req.getParams().getPractitionerEmail(), clinikoId, sbmId);
+		clinikoSyncService.put(clinikoSbmSync);
+		long timeStamp = Calendar.getInstance().getTimeInMillis();
+		ClinikoSyncStatus clinikoItem = new ClinikoSyncStatus();
+		clinikoItem.setApiKey(apiKey);
+		clinikoItem.setTimeStamp(timeStamp);
+		clinikoItemService.put(clinikoItem);
+		ClinikoCompanyInfo clinikoCompanyInfo = getAppointmentTypeByPractitioner(clinikoId, apiKey);
+		clinikoCompanyService.put(clinikoCompanyInfo);
+		SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, apiKey, 1, timeStamp);
+		sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
+		String dateFrom = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+		GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY, Integer.valueOf(unitId),
+				Integer.valueOf(eventId));
+		List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint, token, getBookingReq);
+		SbmBookingList sbmBookingItem = new SbmBookingList(sbmId, bookingList);
+		sbmBookingDBService.put(sbmBookingItem);
 	}
 
 	private ClinikoCompanyInfo getAppointmentTypeByPractitioner(String clinikoId, String apiKey)

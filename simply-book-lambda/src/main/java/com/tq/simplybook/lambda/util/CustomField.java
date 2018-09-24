@@ -8,7 +8,8 @@ import com.tq.simplybook.context.Env;
 import com.tq.simplybook.resp.BookingInfo;
 
 public class CustomField {
-	public static Map<String, String> buildInfCustomField(CountryItemService countryItemService, Env env, BookingInfo bookingInfo) {
+	public static Map<String, String> buildInfCustomField(CountryItemService countryItemService, Env env,
+			BookingInfo bookingInfo) {
 		String infusionSoftAppointmentTimeField = env.getInfusionSoftAppointmentTimeField();
 		String infusionSoftAppointmentLocationField = env.getInfusionSoftAppointmentLocationField();
 		String infusionSoftServiceProviderField = env.getInfusionSoftServiceProviderField();
@@ -22,6 +23,7 @@ public class CustomField {
 		String infusionsoftAppointmentCountry = env.getInfusionsoftApptCountry();
 		String infusionsoftAppointmentPhone = env.getInfusionsoftApptPhone();
 		String infusionsoftAppointmentZip = env.getInfusionsoftApptZip();
+		String infusionSoftPractitionerEmail = env.getInfusionsoftPractitionerEmail();
 		String infusionsoftApptCountryName = countryItemService
 				.queryCountryCode(bookingInfo.getLocation().getCountry_id());
 		if (infusionsoftApptCountryName == null) {
@@ -45,6 +47,7 @@ public class CustomField {
 		updateRecord.put(infusionsoftAppointmentCountry, infusionsoftApptCountryName);
 		updateRecord.put(infusionsoftAppointmentPhone, bookingInfo.getLocation().getPhone());
 		updateRecord.put(infusionsoftAppointmentZip, bookingInfo.getLocation().getZip());
+		updateRecord.put(infusionSoftPractitionerEmail, bookingInfo.getUnit_email());
 		return updateRecord;
 	}
 }

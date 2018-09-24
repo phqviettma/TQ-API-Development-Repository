@@ -30,6 +30,7 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
@@ -69,10 +70,11 @@ public class CreateInternalHandlerTest {
 	private GoogleCalendarApiServiceBuilder googleApiBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private PayloadCallback payLoad = null;
 	private BookingInfo bookingInfo = null;
+	private SbmBookingInfoService sbmBookingInfoService = mock(SbmBookingInfoService.class);
 	private CountryItemService countryItemService = mock(CountryItemService.class);
 	private CreateInternalHandler handler = new CreateInternalHandler(env, tss, bss, csi, cis, scs,
 			googleCalendarService, sbmGoogleService, tokenGoogleService, clinikoSyncToSbmService, clinikoCompanyService,
-			clinikoApiServiceBuilder, googleApiBuilder, countryItemService);
+			clinikoApiServiceBuilder, googleApiBuilder, countryItemService, sbmBookingInfoService);
 
 	@Before
 	public void init() throws SbmSDKException, ClinikoSDKExeption {

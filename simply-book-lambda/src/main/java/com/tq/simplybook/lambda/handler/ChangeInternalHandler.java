@@ -17,12 +17,14 @@ import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
+import com.tq.common.lambda.dynamodb.model.SbmBookingInfo;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.TimeUtils;
@@ -40,6 +42,7 @@ import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.googlecalendar.utils.GoogleCalendarUtil;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddDataQuery;
+import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
 import com.tq.simplybook.exception.SbmSDKException;
@@ -64,13 +67,15 @@ public class ChangeInternalHandler implements InternalHandler {
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = null;
 	private GoogleCalendarApiServiceBuilder googleApiBuilder = null;
 	private SbmClinikoSyncService sbmClinikoService = null;
+	private SbmBookingInfoService sbmBookingService = null;
 
 	public ChangeInternalHandler(Env env, BookingServiceSbm bookingService, TokenServiceSbm tokenService,
 			CountryItemService countryItemService, ContactServiceInf contactService,
 			ContactItemService contactItemService, ClinikoSyncToSbmService clinikoSyncToSbmService,
 			GoogleCalendarDbService googleCalendarService, TokenGoogleCalendarService tokenCalendarService,
 			ClinikoApiServiceBuilder clinikoApiServiceBuilder, SbmGoogleCalendarDbService sbmGoogleCalendarService,
-			GoogleCalendarApiServiceBuilder googleApiBuilder, SbmClinikoSyncService sbmClinikoService) {
+			GoogleCalendarApiServiceBuilder googleApiBuilder, SbmClinikoSyncService sbmClinikoService,
+			SbmBookingInfoService sbmBookingService) {
 		this.env = env;
 		this.bookingService = bookingService;
 		this.tokenCalendarService = tokenCalendarService;
@@ -84,6 +89,7 @@ public class ChangeInternalHandler implements InternalHandler {
 		this.sbmClinikoService = sbmClinikoService;
 		this.contactService = contactService;
 		this.contactItemService = contactItemService;
+		this.sbmBookingService = sbmBookingService;
 	}
 
 	@Override
@@ -100,6 +106,8 @@ public class ChangeInternalHandler implements InternalHandler {
 		if (bookingInfo == null) {
 			throw new SbmSDKException("There is no booking content asociated to the booking id: " + bookingId);
 		}
+		// TSI-45
+		changeBookingInfo(bookingInfo);
 		ContactItem clientISContact = contactItemService.load(bookingInfo.getClient_email());
 		if (clientISContact.getEmail() == null && clientISContact.getClient().getContactId() == null) {
 			throw new InfSDKExecption(String.format("There do not have email %s in IS", bookingInfo.getClient_email()));
@@ -121,7 +129,22 @@ public class ChangeInternalHandler implements InternalHandler {
 		} else {
 			m_log.info("The booking is synced neither to Cliniko nor Google Calendar");
 		}
-		updateCustomFieldIS(bookingInfo, clientISContact.getClient().getContactId());
+		excuteInfusionsoft(bookingInfo, clientISContact.getClient().getContactId());
+	}
+
+	private void changeBookingInfo(BookingInfo bookingInfo) {
+		SbmBookingInfo bookingItem = sbmBookingService.load(Long.parseLong(bookingInfo.getId()));
+		if (bookingItem != null) {
+			String apptDate = TimeUtils.extractDateFormatDateMonth(bookingInfo.getStart_date_time());
+			String apptTime = TimeUtils.buildTimeWithFormatStartToEndTime(bookingInfo.getStart_date_time(),
+					bookingInfo.getEnd_date_time());
+			Long timeStamp = TimeUtils.convertDateTimeToLong(bookingInfo.getStart_date_time());
+			bookingItem.setApptTime(apptTime);
+			bookingItem.setApptDate(apptDate);
+			bookingItem.setTimeStamp(timeStamp);
+			sbmBookingService.put(bookingItem);
+		}
+
 	}
 
 	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, String refreshToken, String googleCalendarId)
@@ -176,16 +199,21 @@ public class ChangeInternalHandler implements InternalHandler {
 		}
 	}
 
-	private void updateCustomFieldIS(BookingInfo bookingInfo, Integer ifContactId) {
+	private void excuteInfusionsoft(BookingInfo bookingInfo, Integer ifContactId) {
 		Map<String, String> updateRecord = CustomField.buildInfCustomField(countryItemService, env, bookingInfo);
 		String infusionSoftApiName = env.getInfusionSoftApiName();
 		String infusionSoftApiKey = env.getInfusionSoftApiKey();
+		Integer rescheduleTag = env.getInfusionsoftRescheduleTag();
 		try {
 			contactService.update(infusionSoftApiName, infusionSoftApiKey,
 					new AddDataQuery().withRecordID(ifContactId).withDataRecord(updateRecord));
-			m_log.info("Update infusionsoft field successfully" + updateRecord.toString());
+			ApplyTagQuery tagQuery = new ApplyTagQuery().withContactID(ifContactId).withTagID(rescheduleTag);
+			Boolean isApplied = contactService.applyTag(infusionSoftApiName, infusionSoftApiKey, tagQuery);
+			if(isApplied) {
+				m_log.info("Applied tag successfully with id " + rescheduleTag + "under contact " + ifContactId);
+			}
 		} catch (InfSDKExecption e) {
-			m_log.info("Updating custom field to Infusion Soft failed", e);
+			m_log.info("failed during excute Infusionsoft", e);
 		}
 	}
 

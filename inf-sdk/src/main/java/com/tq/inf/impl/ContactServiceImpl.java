@@ -3,6 +3,8 @@ package com.tq.inf.impl;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddNewContactQuery;
 import com.tq.inf.query.AddDataQuery;
@@ -15,7 +17,7 @@ import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.utils.XmlRqcUtils;
 
 public class ContactServiceImpl implements ContactServiceInf {
-
+	private static final Logger log = Logger.getLogger(ContactServiceImpl.class);
 	public Object load(String apiName, String apiKey, final LoadContactQuery loaderQuery) throws InfSDKExecption {
 		Object result = XmlRqcUtils.execute(apiName, apiKey, new ActionCallback() {
 			@Override
@@ -92,6 +94,7 @@ public class ContactServiceImpl implements ContactServiceInf {
 
 				params.add(applyTagQuery.getContactID());
 				params.add(applyTagQuery.getTagID());
+				log.info("Param when make apply tag query" + params);
 				return params;
 			}
 		}, method);

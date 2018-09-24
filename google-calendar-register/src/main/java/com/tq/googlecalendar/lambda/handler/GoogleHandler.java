@@ -18,18 +18,21 @@ import com.tq.common.lambda.dynamodb.dao.ContactItemDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarModifiedSynDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleRenewChannelDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.SbmBookingInfoDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmListBookingDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmSyncFutureBookingDaoImpl;
 import com.tq.common.lambda.dynamodb.impl.ContactItemServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarModifiedSyncServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleWatchChannelDbServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.SbmBookingInfoServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmListBookingServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmSyncFutureBookingServiceImpl;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.common.lambda.exception.TrueQuitBadRequest;
@@ -69,6 +72,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	private  SbmListBookingService sbmListBookingService = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
 	private GoogleCalendarModifiedSyncService calendarModifiedChannelService = null;
+	private SbmBookingInfoService sbmBookingInfoService = null;
 	private Handler connectHandler = null;
 	private Handler disconnectHandler = null;
 	private Handler checkStatusHandler = null;
@@ -93,13 +97,14 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		this.sbmSyncFutureBooking = new SbmSyncFutureBookingServiceImpl(
 				new SbmSyncFutureBookingDaoImpl(amazonDynamoDB));
 		this.bookingSbmService = new BookingServiceSbmImpl();
+		this.sbmBookingInfoService = new SbmBookingInfoServiceImpl(new SbmBookingInfoDaoImpl(amazonDynamoDB));
 		this.sbmListBookingService = new SbmListBookingServiceImpl(new SbmListBookingDaoImpl(amazonDynamoDB));
 		this.connectHandler = new GoogleConnectCalendarHandler(eVariables, googleCalendarService, contactItemService,
 				tokenCalendarService, sbmUnitService, tokenServiceSbm, apiServiceBuilder, googleWatchChannelDbService,
 				calendarModifiedChannelService, sbmSyncFutureBooking, bookingSbmService, sbmListBookingService);
 		this.disconnectHandler = new GoogleDisconnectCalendarHandler(eVariables, googleCalendarService,
 				tokenCalendarService, apiServiceBuilder, googleWatchChannelDbService, calendarModifiedChannelService,
-				sbmSyncFutureBooking, sbmListBookingService);
+				sbmSyncFutureBooking, sbmListBookingService, sbmBookingInfoService);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
 		this.showCalendarHandler = new ShowGoogleCalendarHandler(tokenCalendarService, eVariables, apiServiceBuilder);
 
@@ -128,6 +133,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		m_log.info("Received one request with body " + input.getBody());
 		GoogleRegisterReq req = getRegisterReq(input.getBody());
 		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Access-Control-Allow-Origin", eVariables.getWebAllowOrigin());
 		headers.put("content-Type", "application/json");
 		resp.setHeaders(headers);
 		GoogleConnectStatusResponse response = new GoogleConnectStatusResponse();

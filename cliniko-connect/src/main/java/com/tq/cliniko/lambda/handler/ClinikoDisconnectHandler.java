@@ -39,7 +39,7 @@ public class ClinikoDisconnectHandler implements ConnectHandler {
 				SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService
 						.load(clinikoSbmSync.getSbmId());
 				SbmBookingList sbmListBooking = sbmListBookingService.load(clinikoSbmSync.getSbmId());
-				if (sbmSyncFutureBookings!=null && sbmListBooking != null) {
+				if (sbmSyncFutureBookings != null && sbmListBooking != null) {
 					sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
 					sbmListBookingService.delete(sbmListBooking);
 				}

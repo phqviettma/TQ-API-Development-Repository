@@ -22,6 +22,7 @@ import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.googlecalendar.exception.GoogleApiSDKException;
@@ -54,9 +55,10 @@ public class CancelInternalHandlerTest {
 	ClinikoSyncToSbmService clinikoSyncToSbmService = mock(ClinikoSyncToSbmService.class);
 	ClinikoApiServiceBuilder clinikoApiServiceBuilder = mock(ClinikoApiServiceBuilder.class);
 	GoogleCalendarApiServiceBuilder googleApiBuilder = mock(GoogleCalendarApiServiceBuilder.class);
+	private SbmBookingInfoService sbmBookingInfoService = mock(SbmBookingInfoService.class);
 	CancelInternalHandler handler = new CancelInternalHandler(env, tss, bss, csi, cis, scs, sbmGoogleService,
 			googleCalendarService, tokenCalendarService, clinikoSyncToSbmService, clinikoApiServiceBuilder,
-			googleApiBuilder);
+			googleApiBuilder, sbmBookingInfoService);
 
 	@Before
 	public void init() throws SbmSDKException {

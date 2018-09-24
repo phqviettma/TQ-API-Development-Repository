@@ -64,7 +64,6 @@ public class GoogleConnectCalendarHandler implements Handler {
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
 	private BookingServiceSbmImpl bookingService = null;
 	private SbmListBookingService sbmBookingDBService = null;
-
 	public GoogleConnectCalendarHandler(Env eVariables, GoogleCalendarDbService googleCalendarService,
 			ContactItemService contactItemService, TokenGoogleCalendarService tokenCalendarService,
 			SbmUnitService sbmUnitService, TokenServiceSbm tokenServiceSbm,
@@ -135,35 +134,13 @@ public class GoogleConnectCalendarHandler implements Handler {
 								m_log.info("Watch calendar successfully with response: " + watchEventResp);
 								String refreshToken = req.getParams().getRefreshToken();
 								Long checkingTime = buildCheckingTime(watchEventResp.getExpiration());
-								GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync(sbmId, sbmEmail,
-										googleCalendarId, req.getParams().getLastName(), req.getParams().getFirstName(),
-										refreshToken, googleEmail, watchEventResp.getWatchResourceId(),
-										watchEventResp.getId());
-								GoogleRenewChannelInfo channelInfo = new GoogleRenewChannelInfo(checkingTime,
-										watchEventResp.getExpiration(), refreshToken,
-										watchEventResp.getWatchResourceId(), lastQueryTime, channelId, googleEmail);
-								m_log.info("Added to database successfully " + channelInfo.toString());
-								long timeStamp = Calendar.getInstance().getTimeInMillis();
-								GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(googleCalendarId, -1,
-										timeStamp, sbmEmail, channelId);
-								googleCalendarService.put(calendarSbm);
-
-								googleCalRenewService.put(channelInfo);
-								m_log.info("Added to GoogleCalendarChannelInfo table successfully "
-										+ channelInfo.toString());
-								calendarModifiedChannelService.put(modifiedChannelItem);
-								SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, null,
-										sbmEmail, 1, timeStamp);
-								sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
-								String dateFrom = new SimpleDateFormat("yyyy-MM-dd")
-										.format(Calendar.getInstance().getTime());
-								GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY,
-										Integer.valueOf(unitId), Integer.valueOf(eventId));
-								List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint,
-										token, getBookingReq);
-								SbmBookingList sbmBookingItem = new SbmBookingList(sbmId, bookingList);
-								sbmBookingDBService.put(sbmBookingItem);
-								m_log.info("Added to database successfully " + sbmBookingItem.toString());
+								saveToMappingDB(req, googleEmail, sbmEmail, sbmId, googleCalendarId, watchEventResp,
+										refreshToken);
+								saveToCheckingExpirationDB(googleEmail, lastQueryTime, channelId, watchEventResp,
+										refreshToken, checkingTime);
+								saveToSyncedUpDB(sbmEmail, sbmId, googleCalendarId, channelId);
+								saveFutureBookingToDB(companyLogin, endpoint, token, eventId, unitId, sbmId);
+								
 							}
 							done = true;
 							break;
@@ -182,6 +159,47 @@ public class GoogleConnectCalendarHandler implements Handler {
 		response.setSucceeded(true);
 		return response;
 
+	}
+
+	private void saveFutureBookingToDB(String companyLogin, String endpoint, String token, String eventId,
+			String unitId, String sbmId) throws SbmSDKException {
+		String dateFrom = new SimpleDateFormat("yyyy-MM-dd")
+				.format(Calendar.getInstance().getTime());
+		GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY,
+				Integer.valueOf(unitId), Integer.valueOf(eventId));
+		List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint,
+				token, getBookingReq);
+		SbmBookingList sbmBookingItem = new SbmBookingList(sbmId, bookingList);
+		sbmBookingDBService.put(sbmBookingItem);
+		m_log.info("Added to database successfully " + sbmBookingItem.toString());
+	}
+
+	private void saveToSyncedUpDB(String sbmEmail, String sbmId, String googleCalendarId, String channelId) {
+		long timeStamp = Calendar.getInstance().getTimeInMillis();
+		GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(googleCalendarId, -1,
+				timeStamp, sbmEmail, channelId);
+		calendarModifiedChannelService.put(modifiedChannelItem);
+		SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, null,
+				sbmEmail, 1, timeStamp);
+		sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
+	}
+
+	private void saveToCheckingExpirationDB(String googleEmail, Long lastQueryTime, String channelId,
+			WatchEventResp watchEventResp, String refreshToken, Long checkingTime) {
+		GoogleRenewChannelInfo channelInfo = new GoogleRenewChannelInfo(checkingTime,
+				watchEventResp.getExpiration(), refreshToken,
+				watchEventResp.getWatchResourceId(), lastQueryTime, channelId, googleEmail);
+		googleCalRenewService.put(channelInfo);
+		m_log.info("Added to database successfully " + channelInfo.toString());
+	}
+
+	private void saveToMappingDB(GoogleRegisterReq req, String googleEmail, String sbmEmail, String sbmId,
+			String googleCalendarId, WatchEventResp watchEventResp, String refreshToken) {
+		GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync(sbmId, sbmEmail,
+				googleCalendarId, req.getParams().getLastName(), req.getParams().getFirstName(),
+				refreshToken, googleEmail, watchEventResp.getWatchResourceId(),
+				watchEventResp.getId());
+		googleCalendarService.put(calendarSbm);
 	}
 
 	private static Long buildCheckingTime(long expirationTime) {

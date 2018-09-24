@@ -13,6 +13,7 @@ public class ClinikoEnv {
 	private String simplyBookPassword = new String(System.getenv("SIMPLY_BOOK_PASSWORD"));
 	private String simplyBookApiKey = new String(System.getenv("SIMPLY_BOOK_API_KEY"));
 	private String simplyBookSecretKey = new String(System.getenv("SIMPLY_BOOK_SECRET_KEY"));
+	private String webAllowOrigin = System.getenv("WEB_ALLOW_ORIGIN");
 	private ClinikoEnv() {
 		assertVar(regions, "REGIONS");
 		assertVar(awsAccessKeyId, "AMAZON_ACCESS_KEY");
@@ -25,6 +26,7 @@ public class ClinikoEnv {
 		assertVar(simplyBookPassword, "SIMPLY_BOOK_PASSWORD");
 		assertVar(simplyBookApiKey, "SIMPLY_BOOK_API_KEY");
 		assertVar(simplyBookSecretKey, "SIMPLY_BOOK_SECRET_KEY");
+		assertVar(webAllowOrigin, "WEB_ALLOW_ORIGIN");
 
 	}
 	private static ClinikoEnv instance;
@@ -84,6 +86,10 @@ public class ClinikoEnv {
 
 	public String getSimplyBookSecretKey() {
 		return simplyBookSecretKey;
+	}
+
+	public String getWebAllowOrigin() {
+		return webAllowOrigin;
 	}
 	
 

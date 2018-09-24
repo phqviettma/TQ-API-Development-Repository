@@ -148,6 +148,7 @@ public class TimeUtils {
 		String currentTime = sdf.format(date);
 		return currentTime;
 	}
+
 	public static String getTimeFormatTwHour(String dateTime) {
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date date;
@@ -156,11 +157,48 @@ public class TimeUtils {
 			date = dateFormatter.parse(dateTime);
 			// Get time from date
 			SimpleDateFormat timeFormatter = new SimpleDateFormat("h:mm a");
-			 displayValue = timeFormatter.format(date);
+			displayValue = timeFormatter.format(date);
 		} catch (ParseException e) {
 		}
 		return displayValue;
 
 	}
 
+	public static String buildTimeWithFormatStartToEndTime(String startDateTime, String endDateTime) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat printFormat = new SimpleDateFormat("hh:mm");
+		Date newStartTime = null;
+		Date newEndTime = null;
+		try {
+			newStartTime = dateFormat.parse(startDateTime);
+			newEndTime = dateFormat.parse(endDateTime);
+		} catch (ParseException e) {
+			m_log.info("error on parsing date" + e);
+		}
+		return printFormat.format(newStartTime) + "-" + printFormat.format(newEndTime);
+	}
+
+	public static String extractDateFormatDateMonth(String datetime) {
+		String convertedDateTime = utcToBasicFormat(datetime);
+		DateFormat f = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		try {
+			Date d = f.parse(convertedDateTime);
+			DateFormat date = new SimpleDateFormat("dd-MM-yyyy");
+			return date.format(d);
+		} catch (ParseException e) {
+
+		}
+		return null;
+	}
+	public static Long convertDateTimeToLong(String time) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		try {
+			Date date = sdf.parse(time);
+			return date.getTime();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+		
+	}
 }

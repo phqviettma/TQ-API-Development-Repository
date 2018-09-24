@@ -19,6 +19,7 @@ import com.tq.common.lambda.dynamodb.model.SbmBookingList;
 import com.tq.common.lambda.dynamodb.service.GoogleCalRenewService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarModifiedSyncService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
 import com.tq.googlecalendar.context.Env;
@@ -44,9 +45,10 @@ public class GoogleDisconnectHandlerTest {
 	private GoogleCalendarModifiedSyncService modifiedChannelService = mock(GoogleCalendarModifiedSyncService.class);
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingsService = mock(SbmSyncFutureBookingsService.class);
 	private SbmListBookingService sbmListBookingService = mock(SbmListBookingService.class);
+	private SbmBookingInfoService sbmBookingInfoService = mock(SbmBookingInfoService.class);
 	private GoogleDisconnectCalendarHandler disconnectHandler = new GoogleDisconnectCalendarHandler(mockedeEnv,
 			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService,
-			modifiedChannelService, sbmSyncFutureBookingsService, sbmListBookingService);
+			modifiedChannelService, sbmSyncFutureBookingsService, sbmListBookingService, sbmBookingInfoService);
 
 	@Before
 	public void init() throws GoogleApiSDKException {

@@ -15,6 +15,7 @@ public class Env {
 
 	private String infusionftAppointmentDate = System.getenv("INFUSIONSOFT_APT_DATE_FIELD");
 	private String infusionsoftPractitionerFirstName = System.getenv("INFUSIONSOFT_PRACTITIONER_FIRST_NAME");
+	private String infusionsoftPractitionerEmail = System.getenv("INFUSIONSOFT_PRACTITIONER_EMAIL");
 	private String infusionsoftPractitionerLastName = System.getenv("INFUSIONSOFT_PRACTITIONER_LAST_NAME");
 	private String infusionSoftAppointmentTimeField = System.getenv("INFUSIONSOFT_APT_TIME_FILED");
 	private String infusionSoftAppointmentLocationField = System.getenv("INFUSIONSOFT_APT_LOC_FIELD");
@@ -22,6 +23,7 @@ public class Env {
 	private String infusionSoftAppointmentInstructionField = System.getenv("INFUSIONSOFT_APT_INST_FIELD");
 	private Integer infusionsoftGoogleDeleteTag = Integer
 			.valueOf(System.getenv("INFUSIONSOFT_GOOGLE_CALENDAR_DELETE_TAG"));
+	private Integer infusionsoftRescheduleTag = Integer.valueOf(System.getenv("INFUSIONSOFT_RESCHEDULE_APPT_TAG"));
 	private String simplyBookServiceUrlLogin = System.getenv("SIMPLY_BOOK_SERVICE_URL_lOGIN");
 	private String simplyBookAdminServiceUrl = System.getenv("SIMPLY_BOOK_ADMIN_SERVICE_URL");
 	private String simplyBookCompanyLogin = System.getenv("SIMPLY_BOOK_COMPANY_LOGIN");
@@ -73,6 +75,8 @@ public class Env {
 		assertVar(infusionsoftApptZip, "INFUSIONSOFT_APPT_ZIP");
 		assertVar(infusionsoftApptCountry, "INFUSIONSOFT_APPT_COUNTRY");
 		assertVar(infusionsoftApptPhone, "INFUSIONSOFT_APPT_PHONE");
+		assertVar(infusionsoftPractitionerEmail, "INFUSIONSOFT_PRACTITIONER_EMAIL");
+		assertVar(infusionsoftRescheduleTag, "INFUSIONSOFT_RESCHEDULE_APPT_TAG");
 	}
 
 	private static Env instance;
@@ -224,6 +228,14 @@ public class Env {
 
 	public Map<String, String> getAllEnvVariables() {
 		return System.getenv();
+	}
+
+	public String getInfusionsoftPractitionerEmail() {
+		return infusionsoftPractitionerEmail;
+	}
+
+	public Integer getInfusionsoftRescheduleTag() {
+		return infusionsoftRescheduleTag;
 	}
 
 }
