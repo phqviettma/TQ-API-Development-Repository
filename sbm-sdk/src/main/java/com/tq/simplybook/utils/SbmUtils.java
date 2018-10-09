@@ -2,10 +2,6 @@ package com.tq.simplybook.utils;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.log4j.Logger;
 
@@ -65,22 +61,6 @@ public final class SbmUtils {
 			log.error(e1.getMessage());
 			throw new SbmSDKException("Error during reading response error : " + jsonResp, e1);
 		}
-	}
-
-	private static String encodeBookingInfo(Integer bookingId, String bookingHash, String secretKey)
-			throws NoSuchAlgorithmException {
-		String hash = String.valueOf(bookingId) + "." + bookingHash + "." + secretKey;
-		MessageDigest md = MessageDigest.getInstance("MD5");
-		md.update(hash.getBytes());
-		byte[] digest = md.digest();
-		String myHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
-		return myHash;
-	}
-
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-		String hash = encodeBookingInfo(238, "6621750bd211b456c56105626b7b5908",
-				"81be63834c5f60dafd79571043589bf958c1cb956d319c947d690e1a1966cf6a");
-		System.out.println(hash);
 	}
 
 }
