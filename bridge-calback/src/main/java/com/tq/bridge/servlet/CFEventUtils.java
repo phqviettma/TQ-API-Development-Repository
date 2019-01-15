@@ -2,6 +2,7 @@ package com.tq.bridge.servlet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
@@ -26,9 +27,8 @@ public class CFEventUtils {
     public static final String TQ_API_GATEGAY_CF_EVENT = "https://bacwgg46if.execute-api.us-east-1.amazonaws.com/" + API_GATEWAY_STAGES;
 
     public static void makeRequest(HttpServletRequest request, HttpServletResponse response, String apiGatewayResource) throws IOException {
-        // get Json from incoming request to build new request
+        logRequestParam(request);
         StringBuilder jsonBuff = CFEventUtils.getJsonFromRequest(request);
-        // making request to AWS lambda
         Resp awsRes = null;
         try {
             String endpoint = TQ_API_GATEGAY_CF_EVENT + apiGatewayResource;
@@ -38,7 +38,6 @@ public class CFEventUtils {
             CFEventUtils.handleErrorResponse(response, e.getMessage());
             return;
         }
-        
         CFEventUtils.handleResponse(response, awsRes);
     }
 
@@ -51,6 +50,7 @@ public class CFEventUtils {
             postRequest.addHeader("Content-type", "application/json; charset=UTF-8");
             StringEntity input = new StringEntity(json, "UTF-8");
             postRequest.setEntity(input);
+            log.info(String.format("In calling to %s .", endpoint));
             HttpResponse response = httpClient.execute(postRequest);
             return new Resp(response.getStatusLine().getStatusCode(), EntityUtils.toString(response.getEntity(), "UTF-8"));
         } catch (Exception e) {
@@ -87,6 +87,22 @@ public class CFEventUtils {
         response.setContentType("application/json");
         response.getWriter().write(rebuild);
         response.setStatus(400);
+    }
+    
+    private static void logRequestParam(HttpServletRequest req) {
+        log.info(req.getRequestURI());
+        StringBuilder paramString = new StringBuilder();
+        Enumeration<String> parameterNames = req.getParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            String paramName = parameterNames.nextElement();
+            String value = req.getParameterValues(paramName)[0];
+            if (value != null) {
+                paramString.append("&")
+                  .append(paramName)
+                  .append("=").append(value);
+            }
+        }
+        log.info(paramString.toString());
     }
     
     private static class Resp {

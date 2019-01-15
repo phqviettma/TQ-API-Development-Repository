@@ -48,11 +48,18 @@ public abstract class AbstractEventPayloadExecution implements EventPayloadExecu
          }
         return resp;
     }
-    public boolean applyTagToInfusionsoft(LambdaContext lambdaContext,Integer contactId, Integer appliedTagId ) throws InfSDKExecption
-    {
-    	  EnvVar envVar = lambdaContext.getEnvVar();
-          ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(contactId).withTagID(appliedTagId);
-          return lambdaContext.getContactServiceInf().applyTag(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY), applyTagQuery);
+    public boolean applyTagToInfusionsoft(LambdaContext lambdaContext,Integer contactId, Object appliedTagId) throws InfSDKExecption {
+        if (appliedTagId == null) {
+            log.info("There are no Tag ID being provided.");
+            return false;
+        }
+        EnvVar envVar = lambdaContext.getEnvVar();
+        ApplyTagQuery applyTagQuery = new ApplyTagQuery().withContactID(contactId).withTagID(Integer.valueOf(appliedTagId+""));
+        boolean result = lambdaContext.getContactServiceInf().applyTag(envVar.getEnv(Config.INFUSIONSOFT_API_NAME),
+                envVar.getEnv(Config.INFUSIONSOFT_API_KEY), applyTagQuery);
+        log.info(String.format("Result [%s] response when applied Tag[%s] to Contact ID [%s]", result, appliedTagId, contactId));
+        return result;
     }
+    
     public abstract AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException;
 }

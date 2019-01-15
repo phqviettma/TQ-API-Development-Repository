@@ -13,4 +13,6 @@ public interface EventType {
     public static final String ORDER_DELETED = "order-deleted";
     
     public static final String EVENT_PARAMETER_NAME = "event";
+    
+    public static final String OPT_IN_PARRAM = "optInType";
 }

@@ -11,7 +11,7 @@ public class CFContactPayload implements Serializable {
     private CFContact contact;
     
     private String event;
-
+    
     public CFContact getContact() {
         return contact;
     }
@@ -27,9 +27,5 @@ public class CFContactPayload implements Serializable {
     public void setEvent(String event) {
         this.event = event;
     }
-
-    @Override
-    public String toString() {
-        return "CFContactPayload [contact=" + contact + ", event=" + event + "]";
-    }
+    
 }

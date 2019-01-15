@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,8 +34,6 @@ import com.tq.inf.impl.DataServiceImpl;
 import com.tq.inf.impl.RecurringOrderImpl;
 import com.tq.inf.service.DataServiceInf;
 import com.tq.inf.service.RecurringOrderInf;
-
-import junit.framework.Assert;
 
 public class InfusionsoftInterceptorEventPayloadExternalProxyTest {
 	 private static final Logger log = Logger.getLogger(InfusionsoftInterceptorEventPayloadExternalProxyTest.class);

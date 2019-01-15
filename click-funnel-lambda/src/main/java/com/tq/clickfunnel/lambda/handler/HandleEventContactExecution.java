@@ -34,13 +34,13 @@ public class HandleEventContactExecution extends AbstractEventContactExecution {
     private static final String TOKEN_STRING = " ";
 
     @Override
-    public AwsProxyResponse handleLambdaProxy(AwsProxyRequest input, CFLambdaContext cfLambdaContext) throws CFLambdaException {
+    public AwsProxyResponse handleLambdaProxy(AwsProxyRequest request, CFLambdaContext cfLambdaContext) throws CFLambdaException {
         AwsProxyResponse resp = new AwsProxyResponse();
         LambdaContext lambdaContext = cfLambdaContext.getLambdaContext();
         ContactItem contactItem = null;
         try {
             // 1. building Client of Click Funnel from incoming AWS proxy request.
-            CFContactPayload contactPayLoad = m_mapper.readValue(input.getBody(), CFContactPayload.class);
+            CFContactPayload contactPayLoad = m_mapper.readValue(request.getBody(), CFContactPayload.class);
             if (contactPayLoad != null && contactPayLoad.getContact() != null) {
                 CFContact funnelContact = contactPayLoad.getContact();
 
@@ -49,10 +49,8 @@ public class HandleEventContactExecution extends AbstractEventContactExecution {
 
                 // 3. creating the contact based on Contact of Click Funnel on Infusion soft
                 Integer contactInfId = addContactToInfusionsoft(funnelContact, lambdaContext);
-                //Applied tag
-                Integer appliedTagId = Integer
-						.valueOf(lambdaContext.getEnvVar().getEnv(Config.INFUSION_CLICKFUNNEL_OPTIN_TAG));
-                applyTagToInfusionsoft(lambdaContext, contactInfId, appliedTagId);
+                //Applied Optin tag
+                applyTagToInfusionsoft(lambdaContext, contactInfId, getOptInTag(request, lambdaContext));
                 // 4. Saving the client & contact ID into DynamoDB.
                 contactItem = persitClientVoInDB(funnelContact, clientSbmId, contactInfId, lambdaContext);
             }
@@ -60,8 +58,21 @@ public class HandleEventContactExecution extends AbstractEventContactExecution {
             throw new CFLambdaException(e.getMessage(), e);
         }
         // 5. Handle respond
-        handleResponse(input, resp, contactItem);
+        handleResponse(request, resp, contactItem);
         return resp;
+    }
+
+    private Object getOptInTag(AwsProxyRequest request, LambdaContext lambdaContext) {
+        OptInType optInType = OptInType.parse(getOptinTypeParam(request));
+        if (optInType == null) {
+            log.info("No provide OPT_IN_PARRAM.");
+            return null;
+        }
+        return lambdaContext.getEnvVar().getEnv(optInType.getTag());
+    }
+
+    private String getOptinTypeParam(AwsProxyRequest request) {
+        return request.getQueryStringParameters().get(EventType.OPT_IN_PARRAM);
     }
 
     private Integer addClientToSimplyBookMe(CFContact funnelContact, LambdaContext lambdaContext) {
