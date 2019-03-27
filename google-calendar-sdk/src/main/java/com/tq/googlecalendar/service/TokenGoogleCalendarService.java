@@ -6,4 +6,6 @@ import com.tq.googlecalendar.resp.TokenResp;
 
 public interface TokenGoogleCalendarService {
 	TokenResp getToken(TokenReq req) throws GoogleApiSDKException;
+	TokenResp getTokenIfValidResponse(TokenReq req) throws GoogleApiSDKException;
+	boolean revokeToken(TokenReq req) throws GoogleApiSDKException;
 }

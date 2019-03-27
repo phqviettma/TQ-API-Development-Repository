@@ -188,6 +188,14 @@ public class GCSyncCreateHandlerTest {
 		when(googleApiService.getEventWithNextPageToken(any(), any(), any(), any())).thenReturn(googleCalendarEvents);
 		AwsProxyResponse response = handler.handleRequest(null, context);
 		assertEquals(200, response.getStatusCode());
+		
+		// invalid next page token
+		when(googleApiService.getEventWithNextPageToken(any(), any(), any(), any())).thenReturn(null);
+		response = handler.handleRequest(null, context);
+		assertEquals(null, googleCalendarSbm.getNextPageToken());
+		assertEquals(null, googleCalendarSbm.getNextSyncToken());
+		assertEquals(null, googleCalendarSbm.getLastQueryTimeMin());
+		assertEquals(200, response.getStatusCode());
 	}
 
 	@Test
@@ -202,6 +210,14 @@ public class GCSyncCreateHandlerTest {
 		when(googleApiService.getEventWithNextSyncToken(any(), any(), any())).thenReturn(googleCalendarEvents);
 		when(specialdayService.changeWorkDay(anyString(), anyString(), anyString(), any())).thenReturn(true);
 		AwsProxyResponse response = handler.handleRequest(null, context);
+		assertEquals(200, response.getStatusCode());
+		
+		//invalid next sync token
+		when(googleApiService.getEventWithNextSyncToken(any(), any(), any())).thenReturn(null);
+		response = handler.handleRequest(null, context);
+		assertEquals(null, googleCalendarSbm.getNextPageToken());
+		assertEquals(null, googleCalendarSbm.getNextSyncToken());
+		assertEquals(null, googleCalendarSbm.getLastQueryTimeMin());
 		assertEquals(200, response.getStatusCode());
 	}
 

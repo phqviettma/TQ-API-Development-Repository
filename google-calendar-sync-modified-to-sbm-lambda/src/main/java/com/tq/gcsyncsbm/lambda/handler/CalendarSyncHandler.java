@@ -181,6 +181,16 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 							eventList = googleApiService.getEventWithNextPageToken(maxResult, nextSyncToken,
 									nextPageToken, googleCalendarId);
 						}
+						
+						
+						if (eventList == null) {
+							m_log.info("Could not fetch google events due to invalid next sync token or next page token");
+							googleCalendarSbmSync.setNextPageToken(null);
+							googleCalendarSbmSync.setNextSyncToken(null);
+							googleCalendarSbmSync.setLastQueryTimeMin(null);
+							googleCalendarService.put(googleCalendarSbmSync);
+							continue;
+						}
 					}
 					m_log.info("Fetched Google Events: " + eventList);
 

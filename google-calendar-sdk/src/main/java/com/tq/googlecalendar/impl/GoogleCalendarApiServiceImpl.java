@@ -159,6 +159,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 	}
 
+	//TSI-59
 	@Override
 	public CalendarEvents getEventWithNextPageToken(Integer maxResult, String syncToken, String pageToken,
 			String googleCalendarId) throws GoogleApiSDKException {
@@ -167,6 +168,9 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 			ApiResponse response = UtilsExecutor
 					.request(new GetEventNextPage(accessToken, maxResult, syncToken, pageToken, googleCalendarId));
+			if (response.getStatusCode() == 410) {
+				return null;
+			}
 			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {
@@ -236,6 +240,7 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 	}
 
+	//TSI-59
 	@Override
 	public CalendarEvents getEventWithNextSyncToken(Integer maxResult, String nextSyncToken, String googleCalendarId)
 			throws GoogleApiSDKException {
@@ -243,6 +248,9 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 		try {
 			ApiResponse response = UtilsExecutor
 					.request(new GetEventWithNextSyncToken(accessToken, maxResult, nextSyncToken, googleCalendarId));
+			if (response.getStatusCode() == 410) {
+				return null;
+			}
 			jsonResp = response.getEntity();
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
 		} catch (Exception e) {

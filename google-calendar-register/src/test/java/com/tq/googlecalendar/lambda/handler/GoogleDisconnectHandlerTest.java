@@ -59,7 +59,7 @@ public class GoogleDisconnectHandlerTest {
 		req.setParams(params);
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("accesstoken");
-		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
+		when(tokenCalendarService.getTokenIfValidResponse(any())).thenReturn(tokenResp);
 	}
 
 	@Test
@@ -84,8 +84,20 @@ public class GoogleDisconnectHandlerTest {
 		SbmBookingList sbmBookingList = new SbmBookingList();
 		sbmBookingList.setSbmId("sbmId");
 		when(sbmListBookingService.load(any())).thenReturn(sbmBookingList);
+		
+		// refresh token is valid
+		when(tokenCalendarService.revokeToken(any())).thenReturn(true);
 		GoogleConnectStatusResponse response = disconnectHandler.handle(req);
 		assertEquals(response.isSucceeded(), true);
-
+		
+		// revoking token failed
+		when(tokenCalendarService.revokeToken(any())).thenReturn(false);
+		response = disconnectHandler.handle(req);
+		assertEquals(response.isSucceeded(), true);
+		
+		// refresh token has been expired
+		when(tokenCalendarService.getTokenIfValidResponse(any())).thenReturn(null);
+		response = disconnectHandler.handle(req);
+		assertEquals(response.isSucceeded(), true);
 	}
 }

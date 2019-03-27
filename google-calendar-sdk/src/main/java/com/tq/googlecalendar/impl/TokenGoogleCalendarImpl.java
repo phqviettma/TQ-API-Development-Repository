@@ -26,13 +26,18 @@ public class TokenGoogleCalendarImpl implements TokenGoogleCalendarService{
 		String jsonResp;
 		try {
 			jsonResp = tokenRequest(req);
-			m_log.info("Json token response" + String.valueOf(jsonResp));
+			m_log.info("Json token response: " + String.valueOf(jsonResp));
 			return GoogleCalendarParser.readJsonValueForObject(jsonResp, TokenResp.class);
 		} catch (Exception e) {
 			throw new GoogleApiSDKException(e);
 		}
 	}
 	private String tokenRequest(TokenReq body) throws Exception {
+		ApiResponse response = sendTokenRequest(body);
+		return response.getEntity();
+	}
+	
+	private ApiResponse sendTokenRequest(TokenReq body) throws Exception {
 		HttpPost req = new HttpPost();
 		req.setURI(URI.create("https://www.googleapis.com/oauth2/v4/token"));
 		req.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -42,7 +47,46 @@ public class TokenGoogleCalendarImpl implements TokenGoogleCalendarService{
 		params.add(new BasicNameValuePair("refresh_token", body.getRefresh_token()));
 		params.add(new BasicNameValuePair("grant_type", body.getGrant_type()));
 		req.setEntity(new UrlEncodedFormEntity(params));
-		ApiResponse response = UtilsExecutor.request(req);
-		return response.getEntity();
+		return UtilsExecutor.request(req);
+	}
+	
+	//TSI-59
+	@Override
+	public TokenResp getTokenIfValidResponse(TokenReq req) throws GoogleApiSDKException {
+		try {
+			ApiResponse response = sendTokenRequest(req);
+			m_log.info("Json token response: " + String.valueOf(response.getEntity()));
+			if (response.getStatusCode() == 200) {
+				return GoogleCalendarParser.readJsonValueForObject(response.getEntity(), TokenResp.class); 
+			}
+			return null;
+		} catch (Exception e) {
+			throw new GoogleApiSDKException(e);
+		}
+	}
+	//TSI-61
+	@Override
+	public boolean revokeToken(TokenReq req) throws GoogleApiSDKException {
+		try {
+			ApiResponse response = sendRevokeTokenRequest(req);
+			m_log.info("Json revoke token response: " + response.getStatusCode());
+			if (response.getStatusCode() == 200) {
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			throw new GoogleApiSDKException(e);
+		}
+		
+	}
+	
+	private ApiResponse sendRevokeTokenRequest(TokenReq body) throws Exception {
+		HttpPost req = new HttpPost();
+		req.setURI(URI.create("https://accounts.google.com/o/oauth2/revoke"));
+		req.setHeader("Content-Type", "application/x-www-form-urlencoded");
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("token", body.getRefresh_token()));
+		req.setEntity(new UrlEncodedFormEntity(params));
+		return UtilsExecutor.request(req);
 	}
 }

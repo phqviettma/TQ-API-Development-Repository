@@ -2,6 +2,9 @@ package com.tq.googlecalendar.lambda.handler;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.tq.common.lambda.dynamodb.model.GCModifiedChannel;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.GoogleRenewChannelInfo;
@@ -29,6 +32,7 @@ import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.googlecalendar.utils.GoogleCalendarUtil;
 
 public class GoogleDisconnectCalendarHandler implements Handler {
+	private static final Logger m_logger = LoggerFactory.getLogger(GoogleDisconnectCalendarHandler.class);
 	private Env eVariables = null;
 	private GoogleCalendarDbService googleCalendarService = null;
 	private TokenGoogleCalendarService tokenCalendarService = new TokenGoogleCalendarImpl();
@@ -68,13 +72,23 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 				TokenReq tokenReq = new TokenReq(eVariables.getGoogleClientId(), eVariables.getGoogleClientSecrets(),
 						googleSbm.getRefreshToken());
 
-				TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-				StopWatchEventReq stopEventReq = new StopWatchEventReq(googleSbm.getChannelId(),
-						googleSbm.getGcWatchResourceId());
-				GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
-				// work-around: can't stop channel in just one request. So as to make sure the
-				// channel is stopped successfully, we try to stop maximum of 3 times .
-				GoogleCalendarUtil.stopWatchChannel(googleApiService, stopEventReq);
+				// TSI-59
+				TokenResp tokenResp = tokenCalendarService.getTokenIfValidResponse(tokenReq);
+				if (tokenResp != null) {
+					StopWatchEventReq stopEventReq = new StopWatchEventReq(googleSbm.getChannelId(),
+							googleSbm.getGcWatchResourceId());
+					GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
+					// work-around: can't stop channel in just one request. So as to make sure the
+					// channel is stopped successfully, we try to stop maximum of 3 times .
+					GoogleCalendarUtil.stopWatchChannel(googleApiService, stopEventReq);
+					if (tokenCalendarService.revokeToken(tokenReq)) {
+						m_logger.info("Revoking token " +tokenReq.getRefresh_token() + " successfully");
+					} else {
+						m_logger.info("Unable to revoke token " +tokenReq.getRefresh_token());
+					}
+				} else {
+					m_logger.info("Could not get token from refresh token " +tokenReq.getRefresh_token());
+				}
 				stoppedWatch = true;
 			}
 			if (stoppedWatch) {
