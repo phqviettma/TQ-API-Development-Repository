@@ -32,6 +32,8 @@ public class GoogleCalendarCheckStatusHandler implements Handler {
 		} else {
 			response.setStatus("connected");
 			response.setSucceeded(true);
+			// TSI-60
+			response.setGoogleEmail(googleCalendarSbmSync.get(0).getGoogleEmail());
 			return response;
 		}
 

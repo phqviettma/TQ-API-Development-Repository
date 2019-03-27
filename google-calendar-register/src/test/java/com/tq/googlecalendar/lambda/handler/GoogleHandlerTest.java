@@ -97,8 +97,10 @@ public class GoogleHandlerTest {
 
 	@Test
 	public void testCheckHandler() {
-		List<GoogleCalendarSbmSync> googleCalendarSbmSync = Arrays.asList(new GoogleCalendarSbmSync());
-		when(calendarService.queryEmail(any())).thenReturn(googleCalendarSbmSync);
+		GoogleCalendarSbmSync googleCalendarSbmSync1 = new GoogleCalendarSbmSync();
+		googleCalendarSbmSync1.setGoogleEmail("testing@gmail.com");
+		List<GoogleCalendarSbmSync> googleCalendarSbmSyncList = Arrays.asList(googleCalendarSbmSync1);
+		when(calendarService.queryEmail(any())).thenReturn(googleCalendarSbmSyncList);
 		String jsonString = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("check_payload.json"));
 		AwsProxyRequest req = new AwsProxyRequest();
@@ -108,6 +110,15 @@ public class GoogleHandlerTest {
 		when(contactItemService.load(any())).thenReturn(contactItem);
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());
+		assertEquals(true, response.getBody().contains("testing@gmail.com"));
+		assertEquals(true, response.getBody().contains("connected"));
+		
+		googleCalendarSbmSyncList = new ArrayList<GoogleCalendarSbmSync>();
+		when(calendarService.queryEmail(any())).thenReturn(googleCalendarSbmSyncList);
+		response = handler.handleRequest(req, m_context);
+		assertEquals(200, response.getStatusCode());
+		assertEquals(false, response.getBody().contains("testing@gmail.com"));
+		assertEquals(true, response.getBody().contains("disconnected"));
 	}
 
 	@Test

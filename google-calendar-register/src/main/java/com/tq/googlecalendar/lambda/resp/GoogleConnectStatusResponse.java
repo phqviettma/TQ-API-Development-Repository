@@ -14,6 +14,7 @@ public class GoogleConnectStatusResponse implements Serializable {
 	private static final long serialVersionUID = 7015678209285455380L;
 	private boolean succeeded;
 	private String status;
+	private String googleEmail;
 	private GoogleCalendarResponseBody responseBody;
 
 	public boolean isSucceeded() {
@@ -30,6 +31,14 @@ public class GoogleConnectStatusResponse implements Serializable {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getGoogleEmail() {
+		return googleEmail;
+	}
+
+	public void setGoogleEmail(String googleEmail) {
+		this.googleEmail = googleEmail;
 	}
 
 	public GoogleCalendarResponseBody getResponseBody() {
@@ -54,8 +63,8 @@ public class GoogleConnectStatusResponse implements Serializable {
 
 	@Override
 	public String toString() {
-		return "GoogleConnectStatusResponse [succeeded=" + succeeded + ", status=" + status + ", responseBody="
-				+ responseBody + "]";
+		return "GoogleConnectStatusResponse [succeeded=" + succeeded + ", status=" + status + ", googleEmail="
+				+ googleEmail + ", responseBody=" + responseBody + "]";
 	}
 
 	public GoogleConnectStatusResponse() {
