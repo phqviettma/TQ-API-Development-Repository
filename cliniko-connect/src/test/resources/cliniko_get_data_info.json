@@ -1,5 +1,5 @@
 {
-    "action": "show_data",
+    "action": "get_data",
     "params": {
         "apiKey": "MS0xMjUyMi15My9oaDhPeWgrTllIOHJqWWpNcUFqaDFvM0hDMTU3VA",
         "practitionerEmail": null

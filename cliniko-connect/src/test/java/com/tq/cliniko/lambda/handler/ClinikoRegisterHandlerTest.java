@@ -167,7 +167,7 @@ public class ClinikoRegisterHandlerTest {
 	}
 	
 	@Test
-	public void testShowDataHandler() throws ClinikoSDKExeption {
+	public void testGetDataHandler() throws ClinikoSDKExeption {
 		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
 				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
 		AwsProxyRequest req = new AwsProxyRequest();
