@@ -151,7 +151,8 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 								practitionerId);
 					}
 
-					if (appts.getAppointments().size() > 0) {
+					if (appts != null && appts.getAppointments().size() > 0) {
+						m_log.info("Fetched: " + appts.getAppointments().size() + " created Cliniko appointment(s)");
 						List<AppointmentInfo> fetchedAppts = appts.getAppointments();
 						FoundNewApptContext news = findNewAppts(fetchedAppts);
 						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(appts)) {
@@ -189,7 +190,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 
 					if (cancelledAppt != null && cancelledAppt.getAppointments().size() > 0) {
 						m_log.info(
-								"Fetched: " + cancelledAppt.getAppointments().size() + " removed Cliniko appointment(s)");
+								"Fetched: " + cancelledAppt.getAppointments().size() + " cancelled Cliniko appointment(s)");
 						List<AppointmentInfo> fetchedAppts = cancelledAppt.getAppointments();
 						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts);
 						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(cancelledAppt)) {
@@ -257,7 +258,6 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					clinikoItem.setTimeStamp(timeStamp);
 					clinikoItem.setLatestTime(latestUpdateTime);
 					clinikoItemService.put(clinikoItem);
-					break;
 				} else {
 					m_log.info("Can't find the API key " + apiKey);
 				}

@@ -30,6 +30,7 @@ import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
@@ -57,12 +58,13 @@ public class SbmSyncClinikoTest {
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = mock(SbmSyncFutureBookingsService.class);
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private GoogleCalendarApiServiceBuilder mockApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
+	private SbmBookingInfoService sbmBookingService = mock(SbmBookingInfoService.class);
 	private SbmSyncClinikoHandler clinikoHandler = new SbmSyncClinikoHandler(clinikoSyncService, sbmClinikoSyncService,
 			clinikoCompanyService, sbmSyncFutureBookingService, mockClinikoApiService, sbmListBookingService);
 	private SbmSyncGCHandler gcHandler = new SbmSyncGCHandler(googleCalendarDbService, env, tokenCalendarService,
 			sbmSyncFutureBookingService, sbmListBookingService, sbmGoogleCalendarService, mockApiServiceBuilder);
 	private SbmSyncHandler sbmSyncHandler = new SbmSyncHandler(env, clinikoSyncService, sbmClinikoSyncService,
-			googleCalendarDbService, tokenCalendarService, clinikoHandler, gcHandler, sbmSyncFutureBookingService);
+			googleCalendarDbService, tokenCalendarService, clinikoHandler, gcHandler, sbmSyncFutureBookingService, sbmListBookingService, sbmBookingService);
 
 	@Before
 	public void init() throws GoogleApiSDKException, SbmSDKException, ClinikoSDKExeption {
@@ -73,7 +75,7 @@ public class SbmSyncClinikoTest {
 		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync("Api Key", "test@gmail.com", "63791-98447", "1-7");
 		when(clinikoSyncService.queryWithIndex(any())).thenReturn(clinikoSbmSync);
 		when(tokenService.getUserToken(any(), any(), any(), any())).thenReturn("Sbm Token");
-		ClinikoCompanyInfo clinikoCompanyValue = new ClinikoCompanyInfo(1000, 10000);
+		ClinikoCompanyInfo clinikoCompanyValue = new ClinikoCompanyInfo(1000, 10000, "apiKey");
 		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyValue);
 		clinikoApiService = mock(ClinikoAppointmentService.class);
 		when(mockClinikoApiService.build(any())).thenReturn(clinikoApiService);

@@ -111,6 +111,18 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		}
 
 	}
+	
+	@Override
+	public PractitionersInfo getAllPractitioner() throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			jsonResp = UtilsExecutor.request(new GetAllPractitioner(m_clinikoApiKey));
+			return ClinikoRespParser.getObjectMapper().readValue(jsonResp, PractitionersInfo.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+
+	}
 
 	@Override
 	public AppointmentInfo getAppointment(Long id) throws ClinikoSDKExeption {
@@ -192,6 +204,13 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 
 		}
 
+	}
+	
+	private class GetAllPractitioner extends QueryClinikoApiReq {
+
+		public GetAllPractitioner(String apiKey) {
+			super(apiKey, "practitioners", null);
+		}
 	}
 
 	private class GetBusinessApiReq extends QueryClinikoApiReq {
@@ -381,12 +400,31 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 			throw new ClinikoSDKExeption(e);
 		}
 	}
+	
+	@Override
+	public ClinikoAppointmentType getAllAppointmentType() throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			jsonResp = UtilsExecutor.request(new GetAllAppointmentType(m_clinikoApiKey));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, ClinikoAppointmentType.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+	}
 
 	private class GetAppointmentType extends QueryClinikoApiReq {
 
 		public GetAppointmentType(String apiKey, Integer practitionerId) {
 			super(apiKey, "practitioners", "/" + practitionerId + "/appointment_types");
 
+		}
+
+	}
+	
+	private class GetAllAppointmentType extends QueryClinikoApiReq {
+
+		public GetAllAppointmentType(String apiKey) {
+			super(apiKey, "appointment_types", null);
 		}
 
 	}

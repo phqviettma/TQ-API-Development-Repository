@@ -128,7 +128,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
 		AwsProxyResponse resp = new AwsProxyResponse();
 
-		m_log.info("Received one request with body " + input.getBody());
+		m_log.info("Received one request with body: " + input.getBody());
 
 		PayloadCallback payLoad = getPayloadCallback(input.getBody());
 		boolean ignored = true;

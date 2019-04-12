@@ -63,7 +63,7 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 			String clinikoId[] = clinikoSbmSync.getClinikoId().split("-");
 			Integer bussinessId = Integer.valueOf(clinikoId[0]);
 			Integer practitionerId = Integer.valueOf(clinikoId[1]);
-			ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(bussinessId);
+			ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(clinikoSbmSync.getApiKey());
 			if (clinikoCompanyInfo != null) {
 				ClinikoAppointmentService clinikoApptService = apiServiceBuilder.build(clinikoSbmSync.getApiKey());
 				Settings settings = clinikoApptService.getAllSettings();

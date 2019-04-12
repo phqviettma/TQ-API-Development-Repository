@@ -66,15 +66,15 @@ public class ClinikoRegisterHandlerTest {
 	private ClinikoApiServiceBuilder mockApiServiceBuilder = mock(ClinikoApiServiceBuilder.class);
 	private CheckingHandler checkingHandler = new CheckingHandler(clinikoSyncToSbmService);
 	private ClinikoConnectHandler connectHandler = new ClinikoConnectHandler(mockedeEnv, unitService, tokenService,
-			clinikoSyncToSbmService, clinikoItemService, clinikoCompanyService, sbmSyncBookingService, bookingService, sbmListBookingService, mockApiServiceBuilder);
+			clinikoSyncToSbmService, clinikoItemService, clinikoCompanyService, sbmSyncBookingService, bookingService, sbmListBookingService);
 	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService,
-			clinikoItemService, sbmSyncBookingService, sbmListBookingService);
+			clinikoItemService, sbmSyncBookingService, sbmListBookingService, clinikoCompanyService);
+	private ClinikoGetDataHandler getDataHandler = new ClinikoGetDataHandler(clinikoSyncToSbmService, mockApiServiceBuilder);
 
 	@Test
 	public void testCheckingHandler() {
-
 		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
-				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler);
+				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_check_info.json"));
@@ -95,7 +95,7 @@ public class ClinikoRegisterHandlerTest {
 	@Test
 	public void testConnectHandler() throws SbmSDKException, ClinikoSDKExeption {
 		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
-				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler);
+				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_connect_info.json"));
@@ -139,10 +139,6 @@ public class ClinikoRegisterHandlerTest {
 		when(clinikoAptService.getBusinessPractitioner(any())).thenReturn(practitionersInfo);
 		ClinikoCompanyInfo clinikoCompanyInfo = null;
 		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyInfo );
-		ClinikoAppointmentType clinikoApptType = new ClinikoAppointmentType();
-		List<AppointmentType> appointment_types = Arrays.asList(new AppointmentType().withId(1));
-		clinikoApptType.setAppointment_types(appointment_types );
-		when(clinikoAptService.getAppointmentType(any())).thenReturn(clinikoApptType );
 		List<GetBookingResp> getBookingResp = Arrays.asList(new GetBookingResp());
 		when(bookingService.getBookings(any(), any(), any(), any())).thenReturn(getBookingResp );
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
@@ -151,7 +147,7 @@ public class ClinikoRegisterHandlerTest {
 	@Test
 	public void testDisconnectHandler() {
 		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
-				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler);
+				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_disconnect_info.json"));
@@ -164,6 +160,98 @@ public class ClinikoRegisterHandlerTest {
 		when(sbmSyncBookingService.load(any())).thenReturn(futureBookings);
 		SbmBookingList sbmBookingList = new SbmBookingList();
 		when(sbmListBookingService.load(any())).thenReturn(sbmBookingList );
+		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo();
+		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyInfo);
+		AwsProxyResponse response = handler.handleRequest(req, m_context);
+		assertEquals(200, response.getStatusCode());
+	}
+	
+	@Test
+	public void testShowDataHandler() throws ClinikoSDKExeption {
+		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
+				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
+		AwsProxyRequest req = new AwsProxyRequest();
+		String json = JsonUtils
+				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_get_data_info.json"));
+		req.setBody(json);
+		ClinikoSbmSync clinikoSbmSync = null;
+		when(clinikoSyncToSbmService.queryWithIndex(any())).thenReturn(clinikoSbmSync);
+		ClinikoAppointmentService clinikoAptService = mock(ClinikoAppointmentService.class);
+		when(mockApiServiceBuilder.build(any())).thenReturn(clinikoAptService);
+		when(clinikoAptService.getAuthenticateUser()).thenReturn(new User());
+		
+		PractitionersInfo allPractitioners = new PractitionersInfo();
+		Practitioner practitioner1 = new Practitioner();
+		practitioner1.setId(1);
+		Practitioner practitioner2 = new Practitioner();
+		practitioner2.setId(2);
+		Practitioner practitioner3 = new Practitioner();
+		practitioner3.setId(2);
+		List<Practitioner> listPractitioner1 = new ArrayList<Practitioner>();
+		listPractitioner1.add(practitioner1);
+		listPractitioner1.add(practitioner2);
+		listPractitioner1.add(practitioner3);
+		allPractitioners.setPractitioners(listPractitioner1);
+		
+		BusinessesInfo allBusinesses = new BusinessesInfo();
+		Businesses business1 = new Businesses();
+		business1.setId(1);
+		business1.setBusiness_name("BUS1");
+		business1.setCountry("AU");
+		List<Integer> appointmentTypesList1 = new ArrayList<Integer>();
+		appointmentTypesList1.add(1);
+		appointmentTypesList1.add(2);
+		appointmentTypesList1.add(3);
+		business1.setAppointment_type_ids(appointmentTypesList1);
+		business1.setPractitioners(new Links().withLink(new Self().withSelf("http://business1")));
+		Businesses business2 = new Businesses();
+		business2.setId(1);
+		business2.setBusiness_name("BUS2");
+		business2.setCountry("AU");
+		List<Integer> appointmentTypesList2 = new ArrayList<Integer>();
+		appointmentTypesList2.add(1);
+		appointmentTypesList2.add(2);
+		appointmentTypesList2.add(3);
+		business2.setAppointment_type_ids(appointmentTypesList2);
+		business2.setPractitioners(new Links().withLink(new Self().withSelf("http://business2")));
+		List<Businesses> listBusiness = new ArrayList<Businesses>();
+		listBusiness.add(business1);
+		listBusiness.add(business2);
+		allBusinesses.setBusinesses(listBusiness);
+		
+		when(clinikoAptService.getAllPractitioner()).thenReturn(allPractitioners);
+		when(clinikoAptService.getListBusinesses()).thenReturn(allBusinesses);
+		
+		PractitionersInfo allPractitionersOfBusinesses = new PractitionersInfo();
+		Practitioner practitioner4 = new Practitioner();
+		practitioner4.setId(1);
+		Practitioner practitioner5 = new Practitioner();
+		practitioner5.setId(2);
+		Practitioner practitioner6 = new Practitioner();
+		practitioner6.setId(2);
+		List<Practitioner> listPractitioner2 = new ArrayList<Practitioner>();
+		listPractitioner2.add(practitioner4);
+		listPractitioner2.add(practitioner5);
+		listPractitioner2.add(practitioner6);
+		allPractitionersOfBusinesses.setPractitioners(listPractitioner2);
+		
+		when(clinikoAptService.getBusinessPractitioner(any())).thenReturn(allPractitionersOfBusinesses);
+		
+		AppointmentType appointmentType1 = new AppointmentType();
+		appointmentType1.setId(1);
+		AppointmentType appointmentType2 = new AppointmentType();
+		appointmentType2.setId(1);
+		AppointmentType appointmentType3 = new AppointmentType();
+		appointmentType3.setId(1);
+		ClinikoAppointmentType allAppointmentTypesOfPractitioner = new ClinikoAppointmentType();
+		List<AppointmentType> listAppointmentType = new ArrayList<AppointmentType>();
+		listAppointmentType.add(appointmentType1);
+		listAppointmentType.add(appointmentType2);
+		listAppointmentType.add(appointmentType3);
+		allAppointmentTypesOfPractitioner.setAppointment_types(listAppointmentType);
+		
+		when(clinikoAptService.getAppointmentType(any())).thenReturn(allAppointmentTypesOfPractitioner);
+		
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());
 	}

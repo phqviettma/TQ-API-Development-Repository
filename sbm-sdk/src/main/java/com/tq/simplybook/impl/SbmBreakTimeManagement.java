@@ -321,6 +321,9 @@ public class SbmBreakTimeManagement {
 		private int flag;// 0 for start, 1 for end
 
 		public TimePoint(String tp, int flag) {
+			if (tp.equals("24:00:00")) {
+				tp = "00:00:00";
+			}
 			this.time = LocalTime.parse(tp);
 			this.flag = flag;
 		}

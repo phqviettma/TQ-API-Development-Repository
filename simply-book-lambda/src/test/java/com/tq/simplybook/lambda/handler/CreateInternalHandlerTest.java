@@ -89,7 +89,7 @@ public class CreateInternalHandlerTest {
 		Account account = new Account().withCountry("Australia").withTimeZone("Melbourne");
 		settingValue.setAccount(account);
 		when(clinikoApptService.getAllSettings()).thenReturn(settingValue);
-		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(1000, 10000);
+		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(1000, 10000, "apiKey");
 		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyInfo);
 		AppointmentInfo apptInfo = new AppointmentInfo();
 		apptInfo.setId(199000L);
@@ -101,6 +101,7 @@ public class CreateInternalHandlerTest {
 		bookingInfo.setUnit_name("Suong pham");
 		bookingInfo.setStart_date_time("2018-06-27 10:00:00");
 		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
+		bookingInfo.setId("1");
 		Location location = new Location();
 		location.setCountry_id("AU");
 		bookingInfo.setLocation(location);

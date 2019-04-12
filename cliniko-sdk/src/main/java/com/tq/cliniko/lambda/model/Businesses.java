@@ -1,6 +1,8 @@
 package com.tq.cliniko.lambda.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -16,6 +18,7 @@ public class Businesses implements Serializable {
 	private String business_name;
 	private String country;
 	private Links practitioners;
+	private List<Integer> appointment_type_ids;
 
 	public Integer getId() {
 		return id;
@@ -54,10 +57,17 @@ public class Businesses implements Serializable {
 		return this;
 	}
 
+	public List<Integer> getAppointment_type_ids() {
+		return appointment_type_ids;
+	}
+
+	public void setAppointment_type_ids(List<Integer> appointment_type_ids) {
+		this.appointment_type_ids = appointment_type_ids;
+	}
+
 	@Override
 	public String toString() {
 		return "Businesses [id=" + id + ", business_name=" + business_name + ", country=" + country + ", practitioners="
-				+ practitioners + "]";
+				+ practitioners + ", appointment_type_ids=" + appointment_type_ids + "]";
 	}
-
 }

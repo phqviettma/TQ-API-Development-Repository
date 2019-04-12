@@ -47,6 +47,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private static final String CONNECT = "connect";
 	private static final String DISCONNECT = "disconnect";
 	private static final String CHECK = "check";
+	private static final String GET_DATA = "get_data";
 	private static final Logger m_log = LoggerFactory.getLogger(ClinikoRegisterHandler.class);
 	private static ObjectMapper jsonMapper = new ObjectMapper();
 	private SbmUnitService unitServiceSbm = null;
@@ -57,6 +58,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private ConnectHandler connectHandler = null;
 	private ConnectHandler disconnectHandler = null;
 	private ConnectHandler checkingHandler = null;
+	private ConnectHandler getDataHandler = null;
 	private ClinikoItemService clinikoItemService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
@@ -79,17 +81,18 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 				new SbmSyncFutureBookingDaoImpl(amazonDynamoDB));
 		this.clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(amazonDynamoDB));
 		this.disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncService, clinikoItemService,
-				sbmSyncFutureBookingService, sbmBookingDBService);
+				sbmSyncFutureBookingService, sbmBookingDBService, clinikoCompanyService);
 		this.checkingHandler = new CheckingHandler(clinikoSyncService);
 		this.connectHandler = new ClinikoConnectHandler(eVariables, unitServiceSbm, tokenServiceSbm, clinikoSyncService,
 				clinikoItemService, clinikoCompanyService, sbmSyncFutureBookingService, bookingService,
-				sbmBookingDBService, clinikoApiServiceBuilder);
+				sbmBookingDBService);
+		this.getDataHandler = new ClinikoGetDataHandler(clinikoSyncService, clinikoApiServiceBuilder);
 
 	}
 
 	ClinikoRegisterHandler(ClinikoEnv env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoDbService, ClinikoConnectHandler connectHandler,
-			ClinikoDisconnectHandler disconnectHandler, CheckingHandler checkingHandler) {
+			ClinikoDisconnectHandler disconnectHandler, CheckingHandler checkingHandler, ClinikoGetDataHandler getDataHandler) {
 		this.amazonDynamoDB = db;
 		this.unitServiceSbm = unitService;
 		this.tokenServiceSbm = tokenService;
@@ -98,6 +101,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		this.connectHandler = connectHandler;
 		this.disconnectHandler = disconnectHandler;
 		this.checkingHandler = checkingHandler;
+		this.getDataHandler = getDataHandler;
 	}
 
 	@Override
@@ -117,6 +121,8 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 				response = disconnectHandler.handle(req);
 			} else if (CHECK.equals(req.getAction())) {
 				response = checkingHandler.handle(req);
+			} else if (GET_DATA.equals(req.getAction())) {
+				response = getDataHandler.handle(req);
 			}
 
 		} catch (Exception e) {

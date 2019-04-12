@@ -14,6 +14,9 @@ public class ClinikoConnectReqParams implements Serializable {
 	private static final long serialVersionUID = 4990808343304857797L;
 	private String apiKey;
 	private String practitionerEmail;
+	private Integer practitionerId;
+	private Integer businessId;
+	private Integer appointmentTypeId;
 
 	public String getApiKey() {
 		return apiKey;
@@ -31,9 +34,34 @@ public class ClinikoConnectReqParams implements Serializable {
 		this.practitionerEmail = practitionerEmail;
 	}
 
-	@Override
-	public String toString() {
-		return "ClinikoConnectReqParams [apiKey=" + apiKey + ", practitionerEmail=" + practitionerEmail + "]";
+	public Integer getPractitionerId() {
+		return practitionerId;
 	}
 
+	public void setPractitionerId(Integer practitionerId) {
+		this.practitionerId = practitionerId;
+	}
+
+	public Integer getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(Integer businessId) {
+		this.businessId = businessId;
+	}
+
+	public Integer getAppointmentTypeId() {
+		return appointmentTypeId;
+	}
+
+	public void setAppointmentTypeId(Integer appointmentTypeId) {
+		this.appointmentTypeId = appointmentTypeId;
+	}
+
+	@Override
+	public String toString() {
+		return "ClinikoConnectReqParams [apiKey=" + apiKey + ", practitionerEmail=" + practitionerEmail
+				+ ", practitionerId=" + practitionerId + ", businessId=" + businessId + ", appointmentTypeId="
+				+ appointmentTypeId + "]";
+	}
 }

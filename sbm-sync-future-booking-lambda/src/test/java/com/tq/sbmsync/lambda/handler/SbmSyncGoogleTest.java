@@ -26,6 +26,7 @@ import com.tq.common.lambda.dynamodb.model.SbmSyncFutureBookings;
 import com.tq.common.lambda.dynamodb.service.ClinikoCompanyInfoService;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
+import com.tq.common.lambda.dynamodb.service.SbmBookingInfoService;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
@@ -53,12 +54,13 @@ public class SbmSyncGoogleTest {
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = mock(SbmSyncFutureBookingsService.class);
 	private SbmGoogleCalendarDbService sbmGoogleCalendarService = mock(SbmGoogleCalendarDbService.class);
 	private GoogleCalendarApiServiceBuilder mockApiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
+	private SbmBookingInfoService sbmBookingService = mock(SbmBookingInfoService.class);
 	private SbmSyncClinikoHandler clinikoHandler = new SbmSyncClinikoHandler(clinikoSyncService, sbmClinikoSyncService,
 			clinikoCompanyService, sbmSyncFutureBookingService, mockClinikoApiService, sbmListBookingService);
 	private SbmSyncGCHandler gcHandler = new SbmSyncGCHandler(googleCalendarDbService, env, tokenCalendarService,
 			sbmSyncFutureBookingService, sbmListBookingService, sbmGoogleCalendarService, mockApiServiceBuilder);
 	private SbmSyncHandler sbmSyncHandler = new SbmSyncHandler(env, clinikoSyncService, sbmClinikoSyncService,
-			googleCalendarDbService, tokenCalendarService, clinikoHandler, gcHandler, sbmSyncFutureBookingService);
+			googleCalendarDbService, tokenCalendarService, clinikoHandler, gcHandler, sbmSyncFutureBookingService, sbmListBookingService, sbmBookingService);
 
 	@Before
 	public void init() throws GoogleApiSDKException {
@@ -92,7 +94,7 @@ public class SbmSyncGoogleTest {
 		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync("dfb4a2e724f99ad8a31d6bd77e0cb917", "thuongsu@gmail.com",
 				"63241-97566", "2-19");
 		when(clinikoSyncService.queryWithIndex(any())).thenReturn(clinikoSbmSync);
-		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(48933484, 63791);
+		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(48933484, 63791, "apiKey");
 		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyInfo);
 
 		SbmCliniko sbmCliniko = new SbmCliniko(34L, 111000L, 0, "", "");

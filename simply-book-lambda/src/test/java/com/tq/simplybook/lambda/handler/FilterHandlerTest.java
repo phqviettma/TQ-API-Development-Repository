@@ -100,7 +100,7 @@ public class FilterHandlerTest {
 		when(csi.addWithDupCheck(any(), any(), any())).thenReturn(518);
 		when(csi.update(any(), any(), any())).thenReturn(518);
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
-		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(1000, 10000);
+		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(1000, 10000, "apiKey");
 		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyInfo);
 		AwsProxyResponse response = handler.handleRequest(req, context);
 		assertEquals(200, response.getStatusCode());
@@ -123,6 +123,7 @@ public class FilterHandlerTest {
 		bookingInfo.setUnit_name("Suong pham");
 		bookingInfo.setStart_date_time("2018-06-27 10:00:00");
 		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
+		bookingInfo.setId("1");
 		Location location = new Location();
 		location.setCountry_id("AU");
 		bookingInfo.setLocation(location);
@@ -130,7 +131,7 @@ public class FilterHandlerTest {
 		when(csi.addWithDupCheck(any(), any(), any())).thenReturn(518);
 		when(csi.update(any(), any(), any())).thenReturn(518);
 		when(csi.applyTag(any(), any(), any())).thenReturn(true);
-		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(1000, 10000);
+		ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(1000, 10000, "apiKey");
 		when(clinikoCompanyService.load(any())).thenReturn(clinikoCompanyInfo);
 		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync();
 		clinikoSbmSync.setApiKey("api_key");
@@ -163,6 +164,7 @@ public class FilterHandlerTest {
 		bookingInfo.setEnd_date_time("2018-06-27 11:00:00");
 		Location location = new Location();
 		location.setCountry_id("AU");
+		bookingInfo.setId("1");
 		bookingInfo.setLocation(location);
 		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
 		when(csi.addWithDupCheck(any(), any(), any())).thenReturn(518);

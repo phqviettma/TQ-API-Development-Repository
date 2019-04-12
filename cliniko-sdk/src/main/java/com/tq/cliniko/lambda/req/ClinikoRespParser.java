@@ -22,4 +22,8 @@ public class ClinikoRespParser {
 		
 	}
 	
+	public static ObjectMapper getObjectMapper() {
+		return JSON_MAPPER;
+	}
+	
 }

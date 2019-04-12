@@ -17,6 +17,7 @@ import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
+import com.tq.common.lambda.dynamodb.model.SbmBookingInfo;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
@@ -70,6 +71,7 @@ public class CancelInternalHandlerTest {
 		BookingInfo bookingInfo = new BookingInfo().withClientEmail("suongpham5@gmail.com");
 		bookingInfo.setEvent_id("2");
 		bookingInfo.setUnit_id("1");
+		bookingInfo.setId("1");
 		when(bss.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
 	}
 
@@ -92,7 +94,9 @@ public class CancelInternalHandlerTest {
 		when(clinikoApiServiceBuilder.build(any())).thenReturn(clinikoApptService);
 		when(scs.load(any())).thenReturn(sbmCliniko);
 		when(clinikoApptService.deleteAppointment(any())).thenReturn(true);
-		 handler.handle(payLoad);
+		SbmBookingInfo sbmBookingInfo = new SbmBookingInfo();
+		when(sbmBookingInfoService.load(any())).thenReturn(sbmBookingInfo);
+		handler.handle(payLoad);
 	}
 
 	@Test
@@ -112,6 +116,8 @@ public class CancelInternalHandlerTest {
 		sbmGoogleCalendar.setEventId("event_id");
 		when(sbmGoogleService.load(any())).thenReturn(sbmGoogleCalendar);
 		when(googleApiService.deleteEvent(any(), any())).thenReturn(true);
+		SbmBookingInfo sbmBookingInfo = new SbmBookingInfo();
+		when(sbmBookingInfoService.load(any())).thenReturn(sbmBookingInfo);
 		handler.handle(payLoad);
 	}
 

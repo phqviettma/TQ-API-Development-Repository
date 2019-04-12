@@ -36,6 +36,8 @@ public interface ClinikoAppointmentService {
 	BusinessesInfo getListBusinesses() throws ClinikoSDKExeption;
 
 	PractitionersInfo getPractitioner(Integer userId) throws ClinikoSDKExeption;
+	
+	PractitionersInfo getAllPractitioner() throws ClinikoSDKExeption;
 
 	User getAuthenticateUser() throws ClinikoSDKExeption;
 
@@ -57,6 +59,8 @@ public interface ClinikoAppointmentService {
 			throws ClinikoSDKExeption;
 
 	ClinikoAppointmentType getAppointmentType(Integer practitionerId) throws ClinikoSDKExeption;
+	
+	ClinikoAppointmentType getAllAppointmentType() throws ClinikoSDKExeption;
 
 	Patients getPatient(String email) throws ClinikoSDKExeption;
 

@@ -4,7 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.service.AbstractItem;
 
-public class ClinikoCompanyInfoDaoImpl extends AbstractItem<ClinikoCompanyInfo, Integer>
+public class ClinikoCompanyInfoDaoImpl extends AbstractItem<ClinikoCompanyInfo, String>
 		implements ClinikoCompanyInfoDao {
 
 	public ClinikoCompanyInfoDaoImpl(AmazonDynamoDB client) {

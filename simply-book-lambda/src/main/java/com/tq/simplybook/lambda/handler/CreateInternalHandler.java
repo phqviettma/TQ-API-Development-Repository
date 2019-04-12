@@ -189,6 +189,7 @@ public class CreateInternalHandler implements InternalHandler {
 
 	private boolean executeWithCliniko(PayloadCallback payload, BookingInfo bookingInfo, ClinikoSbmSync clinikoSbmSync)
 			throws SbmSDKException, ClinikoSDKExeption {
+		m_log.info("Excute Cliniko handler with clinikoId: {}, sbmId: {}", clinikoSbmSync.getClinikoId(), clinikoSbmSync.getSbmId());
 		String clinikoCompanyId[] = clinikoSbmSync.getClinikoId().split("-");
 		Integer practitionerId = Integer.valueOf(clinikoCompanyId[1]);
 		Integer businessId = Integer.valueOf(clinikoCompanyId[0]);
@@ -197,13 +198,17 @@ public class CreateInternalHandler implements InternalHandler {
 		Settings settings = clinikoApptService.getAllSettings();
 		String country = settings.getAccount().getCountry();
 		String time_zone = settings.getAccount().getTime_zone();
-		ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(businessId);
+		ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(clinikoSbmSync.getApiKey());
 		if (clinikoCompanyInfo != null) {
 			Patients patientInfo = clinikoApptService.getPatient(bookingInfo.getClient_email());
 			PatientDetail patientDetail = null;
 			if (patientInfo.getPatients().isEmpty()) {
 				String firstName = SbmInfUtil.buildFirstName(bookingInfo.getClient_name());
 				String lastName = SbmInfUtil.buildLastName(bookingInfo.getClient_name());
+				//If lastname is empty or blank, It should be replaced by '*' due to lastName as required field in Cliniko
+				if (lastName.equals("")) {
+					lastName = "*";
+				}
 				m_log.info(String.format("Client name %s has firstname: %s, lastname: %s", bookingInfo.getClient_name(),
 						firstName, lastName));
 				patientDetail = clinikoApptService.createPatient(firstName, lastName, bookingInfo.getClient_email(),
@@ -232,12 +237,13 @@ public class CreateInternalHandler implements InternalHandler {
 			m_log.info("Added to database successfully" + sbmCliniko);
 
 		}
+		m_log.info("Excute Cliniko handler has been completed");
 		return true;
 	}
 
 	boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, PayloadCallback payload, String refreshToken,
 			String googleCalendarId) throws GoogleApiSDKException, SbmSDKException {
-		m_log.info("Excute google handler with calendarId" + googleCalendarId);
+		m_log.info("Excute google handler with calendarId: " + googleCalendarId);
 		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
 		TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
 		GoogleCalendarApiService googleApiService = googleApiBuilder.build(tokenResp.getAccess_token());
@@ -257,7 +263,7 @@ public class CreateInternalHandler implements InternalHandler {
 				bookingInfo.getClient_email(), 1, "sbm");
 		sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
 		m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
-
+		m_log.info("Excute google handler has been completed");
 		return true;
 
 	}

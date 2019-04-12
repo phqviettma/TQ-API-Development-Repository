@@ -92,7 +92,7 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 	SbmSyncHandler(Env env, ClinikoSyncToSbmService clinikoSyncService, SbmClinikoSyncService sbmClinikoSyncService,
 			GoogleCalendarDbService googleCalendarDbService, TokenGoogleCalendarService tokenCalendarService,
 			SbmSyncClinikoHandler clinikoHandler, SbmSyncGCHandler gcHandler,
-			SbmSyncFutureBookingsService sbmSyncFutureBookingService) {
+			SbmSyncFutureBookingsService sbmSyncFutureBookingService, SbmListBookingService sbmListBookingService, SbmBookingInfoService sbmBookingService) {
 		this.env = env;
 		this.sbmClinikoSyncService = sbmClinikoSyncService;
 		this.googleCalendarDbService = googleCalendarDbService;
@@ -100,6 +100,8 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 		this.sbmSyncGCHandler = gcHandler;
 		this.sbmSyncClinikoHandler = clinikoHandler;
 		this.sbmSyncFutureBookingService = sbmSyncFutureBookingService;
+		this.sbmListBookingService = sbmListBookingService;
+		this.sbmBookingService = sbmBookingService;
 
 	}
 

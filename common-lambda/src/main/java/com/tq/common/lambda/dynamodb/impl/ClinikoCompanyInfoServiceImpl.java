@@ -15,10 +15,13 @@ public class ClinikoCompanyInfoServiceImpl implements ClinikoCompanyInfoService 
 		clinikoCompanyInfoDao.putItem(item);
 
 	}
-
+	
 	@Override
-	public ClinikoCompanyInfo load(Integer key) {
-
+	public void delete(ClinikoCompanyInfo item) {
+		clinikoCompanyInfoDao.deleteItem(item);
+	}
+	@Override
+	public ClinikoCompanyInfo load(String key) {
 		return clinikoCompanyInfoDao.loadItem(key);
 	}
 

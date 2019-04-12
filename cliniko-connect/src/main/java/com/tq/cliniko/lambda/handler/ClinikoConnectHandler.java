@@ -2,29 +2,18 @@ package com.tq.cliniko.lambda.handler;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.exception.ClinikoSDKExeption;
-import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.context.ClinikoEnv;
 import com.tq.cliniko.lambda.exception.ClinikoConnectException;
-import com.tq.cliniko.lambda.model.AppointmentType;
-import com.tq.cliniko.lambda.model.Businesses;
-import com.tq.cliniko.lambda.model.BusinessesInfo;
-import com.tq.cliniko.lambda.model.ClinikoAppointmentType;
 import com.tq.cliniko.lambda.model.ClinikoPractitionerConnectReq;
-import com.tq.cliniko.lambda.model.Practitioner;
-import com.tq.cliniko.lambda.model.PractitionersInfo;
-import com.tq.cliniko.lambda.model.User;
 import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
-import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ClinikoSyncStatus;
@@ -52,7 +41,6 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	private ClinikoItemService clinikoItemService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private BookingServiceSbm bookingService = null;
-	private ClinikoApiServiceBuilder apiServiceBuilder = null;
 	private static final String BOOKING_TYPE = "non_cancelled";
 	private static final String ORDER_BY = "start_date";
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
@@ -61,8 +49,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	public ClinikoConnectHandler(ClinikoEnv env, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoSyncService, ClinikoItemService clinikoItemService,
 			ClinikoCompanyInfoService clinikoCompanyService, SbmSyncFutureBookingsService sbmSyncFutureBookingService,
-			BookingServiceSbm bookingService, SbmListBookingService sbmBookingDBService,
-			ClinikoApiServiceBuilder apiServiceBuilder) {
+			BookingServiceSbm bookingService, SbmListBookingService sbmBookingDBService) {
 		this.eVariables = env;
 		this.unitServiceSbm = unitService;
 		this.tokenServiceSbm = tokenService;
@@ -72,7 +59,6 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		this.sbmSyncFutureBookingService = sbmSyncFutureBookingService;
 		this.bookingService = bookingService;
 		this.sbmBookingDBService = sbmBookingDBService;
-		this.apiServiceBuilder = apiServiceBuilder;
 	}
 
 	@Override
@@ -86,53 +72,31 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		String endpoint = eVariables.getSimplyBookAdminServiceUrl();
 		String token = tokenServiceSbm.getUserToken(companyLogin, user, password, loginEndPoint);
 		List<UnitProviderInfo> unitInfos = unitServiceSbm.getUnitList(companyLogin, endpoint, token, true, true, 1);
-		Map<String, String> clinikoMap = new HashMap<>();
 		String apiKey = req.getParams().getApiKey();
 		ClinikoSbmSync clinikoSbmSync = clinikoSyncService.queryWithIndex(apiKey);
 		if (clinikoSbmSync == null) {
-			ClinikoAppointmentService clinikoService = apiServiceBuilder.build(apiKey);
-			User userInfo = clinikoService.getAuthenticateUser();
-			String email = userInfo.getEmail();
-			PractitionersInfo practitionerInfo = clinikoService.getPractitioner(userInfo.getId());
+			String email = req.getParams().getPractitionerEmail();
 			boolean done = false;
-			if (!practitionerInfo.getPractitioners().isEmpty()) {
-				BusinessesInfo businesses = clinikoService.getListBusinesses();
-				for (Businesses business : businesses.getBusinesses()) {
-					String link = business.getPractitioners().getLinks().getSelf();
-					PractitionersInfo practitionersInfo = clinikoService.getBusinessPractitioner(link);
-
-					for (Practitioner practitioners : practitionersInfo.getPractitioners()) {
-						for (Practitioner practitioner : practitionerInfo.getPractitioners()) {
-							if (practitioner.getId().equals(practitioners.getId())) {
-								clinikoMap.put("clinikoId", business.getId() + "-" + practitioner.getId());
-								m_log.info("Business" + business.getId() + "Practitioner Id" + practitioner.getId());
-							}
+			for (UnitProviderInfo unitInfo : unitInfos) {
+				if (unitInfo.getEmail() != null && unitInfo.getEmail().equals(email)) {
+					if (unitInfo.getEvent_map() != null) {
+						Set<String> eventInfos = unitInfo.getEvent_map().keySet();
+						Iterator<String> it = eventInfos.iterator();
+						if (it.hasNext()) {
+							String eventId = it.next();
+							String unitId = unitInfo.getId();
+							String sbmId = eventId + "-" + unitId;
+							String clinikoId = req.getParams().getBusinessId() + "-" + req.getParams().getPractitionerId();
+							ClinikoCompanyInfo clinikoCompanyInfo = new ClinikoCompanyInfo(req.getParams().getBusinessId(), req.getParams().getAppointmentTypeId(), apiKey);
+							saveToDBWhenPracConnect(req, companyLogin, endpoint, token, apiKey, eventId, unitId,
+									sbmId, clinikoId, clinikoCompanyInfo);
+							done = true;
+							break;
 						}
-					}
-
-				}
-				for (UnitProviderInfo unitInfo : unitInfos) {
-					if (unitInfo.getEmail() != null && unitInfo.getEmail().equals(email)) {
-						if (unitInfo.getEvent_map() != null) {
-							Set<String> eventInfos = unitInfo.getEvent_map().keySet();
-							Iterator<String> it = eventInfos.iterator();
-							if (it.hasNext()) {
-								String eventId = it.next();
-								String unitId = unitInfo.getId();
-								String sbmId = eventId + "-" + unitId;
-								String clinikoId = clinikoMap.get("clinikoId");
-								saveToDBWhenPracConnect(req, companyLogin, endpoint, token, apiKey, eventId, unitId,
-										sbmId, clinikoId);
-								done = true;
-								break;
-							}
-						} else {
-							m_log.info("Please set service for provider in SBM");
-						}
+					} else {
+						m_log.info("Please set service for provider in SBM");
 					}
 				}
-			} else {
-				throw new ClinikoConnectException("Do not have this practitioner in this business");
 			}
 
 			if (!done) {
@@ -148,7 +112,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 	}
 
 	private void saveToDBWhenPracConnect(ClinikoPractitionerConnectReq req, String companyLogin, String endpoint,
-			String token, String apiKey, String eventId, String unitId, String sbmId, String clinikoId)
+			String token, String apiKey, String eventId, String unitId, String sbmId, String clinikoId, ClinikoCompanyInfo clinikoCompanyInfo)
 			throws ClinikoSDKExeption, SbmSDKException {
 		ClinikoSbmSync clinikoSbmSync;
 		clinikoSbmSync = new ClinikoSbmSync(apiKey, req.getParams().getPractitionerEmail(), clinikoId, sbmId);
@@ -158,7 +122,6 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		clinikoItem.setApiKey(apiKey);
 		clinikoItem.setTimeStamp(timeStamp);
 		clinikoItemService.put(clinikoItem);
-		ClinikoCompanyInfo clinikoCompanyInfo = getAppointmentTypeByPractitioner(clinikoId, apiKey);
 		clinikoCompanyService.put(clinikoCompanyInfo);
 		SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, apiKey, 1, timeStamp);
 		sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
@@ -168,23 +131,5 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		List<GetBookingResp> bookingList = bookingService.getBookings(companyLogin, endpoint, token, getBookingReq);
 		SbmBookingList sbmBookingItem = new SbmBookingList(sbmId, bookingList);
 		sbmBookingDBService.put(sbmBookingItem);
-	}
-
-	private ClinikoCompanyInfo getAppointmentTypeByPractitioner(String clinikoId, String apiKey)
-			throws ClinikoSDKExeption {
-		String clinikoCompanyId[] = clinikoId.split("-");
-		Integer businessId = Integer.parseInt(clinikoCompanyId[0]);
-		Integer practitionerId = Integer.parseInt(clinikoCompanyId[1]);
-		ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(businessId);
-		if (clinikoCompanyInfo == null) {
-			ClinikoAppointmentService clinikoApiService = apiServiceBuilder.build(apiKey);
-			ClinikoAppointmentType appointmentType = clinikoApiService.getAppointmentType(practitionerId);
-			Integer apptTypeId = 0;
-			for (AppointmentType apptType : appointmentType.getAppointment_types()) {
-				apptTypeId = apptType.getId();
-			}
-			clinikoCompanyInfo = new ClinikoCompanyInfo(businessId, apptTypeId);
-		}
-		return clinikoCompanyInfo;
 	}
 }

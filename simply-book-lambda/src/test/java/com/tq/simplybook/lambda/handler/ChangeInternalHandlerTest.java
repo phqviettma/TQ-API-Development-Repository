@@ -66,6 +66,7 @@ public class ChangeInternalHandlerTest {
 	private CountryItemService countryItemService = mock(CountryItemService.class);
 	private ContactServiceInf contactService = mock(ContactServiceInf.class);
 	private SbmBookingInfoService sbmBookingInfoService = mock(SbmBookingInfoService.class);
+	
 	private ChangeInternalHandler changeHandler = new ChangeInternalHandler(env, bookingService, tokenService,
 			countryItemService, contactService, contactItemService, clinikoSyncToSbmService, googleCalendarService,
 			tokenCalendarService, clinikoApiServiceBuilder, sbmGoogleCalendarService, googleApiBuilder,
@@ -136,7 +137,6 @@ public class ChangeInternalHandlerTest {
 		when(clinikoApiService.getAllSettings()).thenReturn(settingValue);
 		AppointmentInfo updatedAppointment = new AppointmentInfo();
 		when(clinikoApiService.updateAppointment(any(), any())).thenReturn(updatedAppointment);
-
 		changeHandler.handle(payLoad);
 	}
 }
