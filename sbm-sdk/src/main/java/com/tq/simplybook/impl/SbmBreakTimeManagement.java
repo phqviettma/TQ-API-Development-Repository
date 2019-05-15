@@ -422,28 +422,20 @@ public class SbmBreakTimeManagement {
 					stack.push(tag);
 					break;
 				case END_TAG: {
-
-					stack.pop();
-
+					if (!stack.isEmpty()) {
+						stack.pop();
+					}
 					break;
 
 				}
 				}
 
 			}
-			if (stack.isEmpty()) {
+			if (stack.isEmpty() && startPoint != null) {
 				endPoint = time;
 				String startTime = startPoint.toString();
 				String endTime = endPoint.toString();
 
-				Breaktime breakTime = new Breaktime(startTime, endTime);
-				newBreakTimes.add(breakTime);
-			}
-
-			if (stack.isEmpty()) {
-				endPoint = time;
-				String startTime = startPoint.toString();// minToHour(startPoint);
-				String endTime = endPoint.toString();// minToHour(endPoint);
 				Breaktime breakTime = new Breaktime(startTime, endTime);
 				newBreakTimes.add(breakTime);
 			}
