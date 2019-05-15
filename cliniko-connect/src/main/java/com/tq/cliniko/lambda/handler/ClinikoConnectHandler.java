@@ -94,14 +94,17 @@ public class ClinikoConnectHandler implements ConnectHandler {
 							break;
 						}
 					} else {
-						m_log.info("Please set service for provider in SBM");
+						m_log.info("Please assiociate a service for service provider in SBM");
+                        throw new ClinikoConnectException(
+                                "Please associate a service for service provider in SBM, service provider details: name " + unitInfo.getName()
+                                        + ", email " + unitInfo.getEmail());
 					}
 				}
 			}
 
 			if (!done) {
 				throw new ClinikoConnectException(
-						"There is no Cliniko practitioner associated to the provided apiKey " + apiKey);
+						"There is no Cliniko practitioner associated with the provided API Key " + apiKey);
 			}
 
 		} else {
