@@ -25,7 +25,7 @@ import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
 import com.tq.simplybook.exception.SbmSDKException;
 
 public class ClinikoGetDataHandler implements ConnectHandler {
-	private static final Logger m_log = LoggerFactory.getLogger(ClinikoConnectHandler.class);
+	private static final Logger m_log = LoggerFactory.getLogger(ClinikoGetDataHandler.class);
 	private ClinikoSyncToSbmService clinikoSyncService = null;
 	private ClinikoApiServiceBuilder apiServiceBuilder = null;
 
