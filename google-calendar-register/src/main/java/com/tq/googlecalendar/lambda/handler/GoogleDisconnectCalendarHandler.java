@@ -129,10 +129,6 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 		} else {
 			throw new GoogleApiSDKException("Internal error");
 		}
-		 List<SbmBookingInfo> sbmBookingInfo = sbmBookingInfoService.queryEmailIndex(sbmEmail);
-		if (!sbmBookingInfo.isEmpty()) {
-			sbmBookingInfoService.deleteListBookings(sbmBookingInfo);
-		}
 	}
 
 }
