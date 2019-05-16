@@ -18,6 +18,7 @@ import com.tq.cliniko.lambda.model.ClinikoAppointmentType;
 import com.tq.cliniko.lambda.model.ClinikoPractitionerConnectReq;
 import com.tq.cliniko.lambda.model.Practitioner;
 import com.tq.cliniko.lambda.model.PractitionersInfo;
+import com.tq.cliniko.lambda.model.User;
 import com.tq.cliniko.lambda.resp.ClinikoConnectStatusResponse;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
@@ -47,8 +48,12 @@ public class ClinikoGetDataHandler implements ConnectHandler {
 		if (clinikoSbmSync == null) {
 			ClinikoAppointmentService clinikoService = apiServiceBuilder.build(apiKey);
 			m_log.info("Checking apiKey: "+ req.getParams().getApiKey());
-			clinikoService.getAuthenticateUser();
-			m_log.info("The apiKey is valid. Able to get data from the apiKey");;
+			User user = clinikoService.getAuthenticateUser();
+			if (user == null) {
+				m_log.info("The provided API Key is invalid");
+				throw new ClinikoConnectException("The provided API Key is invalid");
+			}
+			m_log.info("The apiKey is valid. Able to get data from the apiKey");
 			PractitionersInfo allPractitioners = clinikoService.getAllPractitioner();
 			BusinessesInfo allBusinesses = clinikoService.getListBusinesses();
 			Map<String, PractitionersInfo> allPractitionerOfBusinessCached = new HashMap<String, PractitionersInfo>();
