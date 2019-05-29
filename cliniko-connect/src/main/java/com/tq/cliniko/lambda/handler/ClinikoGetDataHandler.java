@@ -51,7 +51,7 @@ public class ClinikoGetDataHandler implements ConnectHandler {
 			User user = clinikoService.getAuthenticateUser();
 			if (user == null) {
 				m_log.info("The provided API Key is invalid");
-				throw new ClinikoConnectException("The provided API Key is invalid");
+				throw new ClinikoConnectException("The provided API Key is invalid. Please generate a new API key.");
 			}
 			m_log.info("The apiKey is valid. Able to get data from the apiKey");
 			PractitionersInfo allPractitioners = clinikoService.getAllPractitioner();
