@@ -115,19 +115,17 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 		List<GoogleRenewChannelInfo> renewChannel = googleCalRenewService
 				.queryEmail(googleCalendarSbmSync.get(0).getGoogleEmail());
 		if (!renewChannel.isEmpty() && !modifiedChannel.isEmpty()) {
-			googleCalendarService.deleteGoogleItem(googleCalendarSbmSync);
 			googleCalRenewService.deleteRenewChannel(renewChannel);
 			calendarModifiedChannelService.deleteModifiedItem(modifiedChannel);
-			SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService
+		}
+		
+		googleCalendarService.deleteGoogleItem(googleCalendarSbmSync);
+		SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService
 					.load(googleCalendarSbmSync.get(0).getSbmId());
-			sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
-			SbmBookingList bookingListItem = sbmListBookingService.load(googleCalendarSbmSync.get(0).getSbmId());
-			if (bookingListItem != null) {
-				sbmListBookingService.delete(bookingListItem);
-			}
-
-		} else {
-			throw new GoogleApiSDKException("Internal error");
+		sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
+		SbmBookingList bookingListItem = sbmListBookingService.load(googleCalendarSbmSync.get(0).getSbmId());
+		if (bookingListItem != null) {
+			sbmListBookingService.delete(bookingListItem);
 		}
 	}
 
