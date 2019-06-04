@@ -37,7 +37,7 @@ public class AppointmentsInfo {
 	}
 
 	public static boolean hasNext(AppointmentsInfo apptInf) {
-		if(apptInf.getLinks().getNext()==null) {
+		if(apptInf == null || apptInf.getLinks() == null || apptInf.getLinks().getNext()== null) {
 			return false;
 		}
 		return true;

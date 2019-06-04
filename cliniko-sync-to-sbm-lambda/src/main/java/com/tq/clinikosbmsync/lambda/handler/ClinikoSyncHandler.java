@@ -137,9 +137,18 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					Integer practitionerId = Integer.parseInt(clinikoId[1]);
 					ClinikoAppointmentService clinikoApiService = apiServiceBuilder.build(apiKey);
 					Settings settings = clinikoApiService.getAllSettings();
+					if (settings == null || settings.getAccount() == null) {
+						m_log.info("Have something wrong on account settings. Ignore this practitioner");
+						continue;
+					}
 					String country = settings.getAccount().getCountry();
 					String time_zone = settings.getAccount().getTime_zone();
-					dateTz = DateTimeZone.forID(country + "/" + time_zone);
+					try {
+						dateTz = DateTimeZone.forID(country + "/" + time_zone);
+					} catch (Exception e) {
+						m_log.error(e.getMessage());
+						continue;
+					}
 					dbTime = clinikoItem.getLatestTime();
 					latestUpdateTime = TimeUtils.getNowInGMT();
 					AppointmentsInfo appts = null;
