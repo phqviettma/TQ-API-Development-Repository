@@ -202,6 +202,10 @@ public class CreateInternalHandler implements InternalHandler {
 		if (clinikoCompanyInfo != null) {
 			Patients patientInfo = clinikoApptService.getPatient(bookingInfo.getClient_email());
 			PatientDetail patientDetail = null;
+			if (patientInfo == null) {
+				m_log.error("The cliniko account maybe expired. Kindly check/renew it");
+				return false;
+			}
 			if (patientInfo.getPatients().isEmpty()) {
 				String firstName = SbmInfUtil.buildFirstName(bookingInfo.getClient_name());
 				String lastName = SbmInfUtil.buildLastName(bookingInfo.getClient_name());
@@ -214,9 +218,7 @@ public class CreateInternalHandler implements InternalHandler {
 				patientDetail = clinikoApptService.createPatient(firstName, lastName, bookingInfo.getClient_email(),
 						bookingInfo.getClient_phone());
 			} else {
-
 				patientDetail = patientInfo.getPatients().get(0);
-
 			}
 			DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
