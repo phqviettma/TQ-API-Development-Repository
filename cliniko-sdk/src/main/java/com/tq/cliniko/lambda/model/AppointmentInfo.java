@@ -18,6 +18,7 @@ public class AppointmentInfo implements Serializable {
 	private boolean did_not_arrive;
 	private String notes;
 	private String deleted_at;
+	private String updated_at;
 	private String cancellation_time;
 	private String cancellation_note;
 	private String cancellation_reason;
@@ -129,6 +130,14 @@ public class AppointmentInfo implements Serializable {
 		this.deleted_at = deleted_at;
 	}
 
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
+	}
+	
 	public String getCancellation_time() {
 		return cancellation_time;
 	}

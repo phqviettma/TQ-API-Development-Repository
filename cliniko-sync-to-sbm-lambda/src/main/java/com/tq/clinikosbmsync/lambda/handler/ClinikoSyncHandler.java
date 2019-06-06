@@ -50,8 +50,10 @@ import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.impl.SbmUnitServiceImpl;
 import com.tq.simplybook.impl.SpecialdayServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
+import com.tq.simplybook.req.EditBookReq;
 import com.tq.simplybook.req.FromDate;
 import com.tq.simplybook.req.ToDate;
+import com.tq.simplybook.resp.BookingInfo;
 import com.tq.simplybook.resp.Breaktime;
 import com.tq.simplybook.resp.UnitWorkingTime;
 import com.tq.simplybook.resp.WorkingTime;
@@ -64,6 +66,8 @@ import com.tq.simplybook.service.TokenServiceSbm;
 public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 	private static final Logger m_log = LoggerFactory.getLogger(ClinikoSyncHandler.class);
 
+	private static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
+	
 	private static final Integer maxResult = 20;
 	private static final String CLINIKO = "cliniko";
 	private static final String SBM = "sbm";
@@ -161,7 +165,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					}
 
 					if (appts != null && appts.getAppointments().size() > 0) {
-						m_log.info("Fetched: " + appts.getAppointments().size() + " created Cliniko appointment(s)");
+						m_log.info("Fetched: " + appts.getAppointments().size() + " updated Cliniko appointment(s)");
 						List<AppointmentInfo> fetchedAppts = appts.getAppointments();
 						FoundNewApptContext news = findNewAppts(fetchedAppts);
 						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(appts)) {
@@ -177,13 +181,35 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						if (news.getCount() > 0) {
 							Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
 							long start = System.currentTimeMillis();
-							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, true, clinikoSbmSync);
+							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, true, clinikoSbmSync, false);
 							m_log.info("Take " + (System.currentTimeMillis() - start)
 									+ "s to sync create appointment to Sbm");
-							saveDb(news.getNewApptsId(), true, 1, apiKey, null);
-						} else {
-
+							saveDb(news, true, 1, apiKey, null, false);
 						}
+						
+						// for the modifed appointment
+						
+						FoundNewApptContext modifedAppts = findModifedAppts(fetchedAppts);
+						while (modifedAppts.getCount() < maxAppt && AppointmentsInfo.hasNext(appts)) {
+							appts = clinikoApiService.next(appts);
+							if (appts != null && appts.getAppointments().size() > 0) {
+								FoundNewApptContext newAppt = findModifedAppts(appts.getAppointments());
+								if (newAppt.getCount() > 0) {
+									addUpToMax(modifedAppts, newAppt, maxAppt);
+								}
+							}
+						}
+						
+						m_log.info("Modified appointmentIds " + modifedAppts.getNewApptsId());
+						if (modifedAppts.getCount() > 0) {
+							Map<Long, AppointmentInfo> lookupedMap = toLookupMap(modifedAppts.getNewAppts());
+							long start = System.currentTimeMillis();
+							syncToSbm(dateTz, modifedAppts.getNewApptsId(), lookupedMap, false, clinikoSbmSync, true);
+							m_log.info("Take " + (System.currentTimeMillis() - start)
+									+ "s to sync modified appointment to Sbm");
+							saveDb(modifedAppts, false, 1, apiKey, null, true);
+						}
+						
 					} else {
 
 					}
@@ -215,10 +241,10 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						if (news.getCount() > 0) {
 							Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
 							long start = System.currentTimeMillis();
-							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false, clinikoSbmSync);
+							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false, clinikoSbmSync, false);
 							m_log.info("Take " + (System.currentTimeMillis() - start)
 									+ "s to sync cancel appointment to Sbm");
-							saveDb(news.getNewApptsId(), false, 1, apiKey, news.getBookingId());
+							saveDb(news, false, 1, apiKey, news.getBookingId(), false);
 						} else {
 
 						}
@@ -252,10 +278,10 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						if (news.getCount() > 0) {
 							Map<Long, AppointmentInfo> lookupedMap = toLookupMap(news.getNewAppts());
 							long start = System.currentTimeMillis();
-							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false, clinikoSbmSync);
+							syncToSbm(dateTz, news.getNewApptsId(), lookupedMap, false, clinikoSbmSync, false);
 							m_log.info("Take " + (System.currentTimeMillis() - start)
 									+ "s to sync delete appointment to Sbm");
-							saveDb(news.getNewApptsId(), false, 1, apiKey, news.getBookingId());
+							saveDb(news, false, 1, apiKey, news.getBookingId(), false);
 						} else {
 
 						}
@@ -283,16 +309,27 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		return resp;
 	}
 
-	private void saveDb(List<Long> newApptsId, boolean isCreated, int i, String apiKey, List<Long> bookingIds) {
+	private void saveDb(FoundNewApptContext news, boolean isCreated, int i, String apiKey, List<Long> bookingIds, boolean isModified) {
 
 		if (isCreated) {
-			for (Long apptId : newApptsId) {
+			for (AppointmentInfo apptInfo : news.getNewAppts()) {
 				UUID uuid = UUID.randomUUID();
 
 				Long sbmId = uuid.getMostSignificantBits();
-				SbmCliniko sbmCliniko = new SbmCliniko(sbmId, apptId, 1, apiKey, "cliniko");
+				SbmCliniko sbmCliniko = new SbmCliniko(sbmId, apptInfo.getId(), 1, apiKey, "cliniko", apptInfo.getUpdated_at(), apptInfo.getAppointment_start(), apptInfo.getAppointment_end());
 				sbmClinikoSyncService.put(sbmCliniko);
 				m_log.info("Save to database successfully with value " + sbmCliniko);
+			}
+		} else if(isModified) {
+			for (AppointmentInfo apptInfo : news.getNewAppts()) {
+				SbmCliniko sbmCliniko = sbmClinikoSyncService.queryIndex(apptInfo.getId());
+				if (sbmCliniko != null) {
+					sbmCliniko.setUpdatedAt(apptInfo.getUpdated_at());
+					sbmCliniko.setAppointmentStart(apptInfo.getAppointment_start());
+					sbmCliniko.setAppointmentEnd(apptInfo.getAppointment_end());
+					sbmClinikoSyncService.put(sbmCliniko);
+					m_log.info("Update to database successfully with value " + sbmCliniko);
+				}
 			}
 		} else {
 			for (Long sbmBookingId : bookingIds) {
@@ -378,19 +415,101 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		return new FoundNewApptContext(num, newApptsId, newAppts);
 	}
 
+	private FoundNewApptContext findModifedAppts(List<AppointmentInfo> fetchedAppts) throws SbmSDKException {
+		int num = 0;
+
+		List<Long> newApptsId = new LinkedList<Long>();
+		List<AppointmentInfo> newAppts = new LinkedList<AppointmentInfo>();
+		for (AppointmentInfo fetchAppt : fetchedAppts) {
+			SbmCliniko sbmClinikoSync = sbmClinikoSyncService.queryIndex(fetchAppt.getId());
+			if(sbmClinikoSync != null && sbmClinikoSync.getFlag() == 1) {
+				// if the appointment is created/booked from CLINIKO
+				if(CLINIKO.equals(sbmClinikoSync.getAgent()) && sbmClinikoSync.getUpdatedAt() != null) {
+    				String newUpdatedAt = fetchAppt.getUpdated_at();
+    				String oldUpdatedAt = sbmClinikoSync.getUpdatedAt();
+    				if (!newUpdatedAt.equals(oldUpdatedAt)) {
+    					newApptsId.add(fetchAppt.getId());
+    					newAppts.add(fetchAppt);
+    					num++;
+    				}
+				} else if (SBM.equals(sbmClinikoSync.getAgent())) { // if the appointment is created/booked from SBM
+					String newUpdatedAt = fetchAppt.getUpdated_at();
+					String oldUpdatedAt = sbmClinikoSync.getUpdatedAt();
+					if (oldUpdatedAt != null && oldUpdatedAt.equals(newUpdatedAt)) {
+						continue;
+					}
+					m_log.info("The appointment id {} is updated. Handle syncing to SBM (agent = SBM)", sbmClinikoSync.getSbmId());
+					String companyLogin = env.getSimplyBookCompanyLogin();
+					String endpoint = env.getSimplyBookAdminServiceUrl();
+					String token = m_tss.getUserToken(env.getSimplyBookCompanyLogin(), env.getSimplyBookUser(),
+							env.getSimplyBookPassword(), env.getSimplyBookServiceUrlLogin());
+					BookingInfo bookingInfo = bookingService.getBookingInfo(companyLogin, endpoint, token, sbmClinikoSync.getSbmId());
+					
+					DateTimeZone dateTz = DateTimeZone.forID(DEFAULT_TIME_ZONE);
+					
+					String newStartDateTime = TimeUtils.convertToTzFromLondonTz(dateTz, fetchAppt.getAppointment_start());
+					String newEndDateTime = TimeUtils.convertToTzFromLondonTz(dateTz, fetchAppt.getAppointment_end());
+					
+					String newStartDate = TimeUtils.extractDate(newStartDateTime);
+					String newEndDate = TimeUtils.extractDate(newEndDateTime);
+					String newStartTime = TimeUtils.extractTimeHMS(newStartDateTime);
+					String newEndTime = TimeUtils.extractTimeHMS(newEndDateTime);
+					
+					EditBookReq editBookReq = new EditBookReq();
+					editBookReq.setShedulerId(Integer.valueOf(bookingInfo.getId()));
+					editBookReq.setEventId(Integer.valueOf(bookingInfo.getEvent_id()));
+					editBookReq.setUnitId(Integer.valueOf(bookingInfo.getUnit_id()));
+					editBookReq.setClientId(bookingInfo.getClient_id());
+					
+					editBookReq.setStartDate(newStartDate);
+					editBookReq.setStartTime(newStartTime);
+					editBookReq.setEndDate(newEndDate);
+					editBookReq.setEndTime(newEndTime);
+					editBookReq.setClientTimeOffset(0);
+					boolean result = bookingService.editBooking(companyLogin, endpoint, token, editBookReq);
+					if (result) {
+						m_log.info("Updated booking success");
+						sbmClinikoSync.setUpdatedAt(fetchAppt.getUpdated_at());
+						m_log.info("Update to database successfully with value "+sbmClinikoSync);
+						sbmClinikoSyncService.put(sbmClinikoSync);
+					} else {
+						m_log.error("Updated booking failure");
+					}
+					
+				}
+			} 
+		}
+		return new FoundNewApptContext(num, newApptsId, newAppts);
+	}
+
 	public boolean syncToSbm(DateTimeZone dateTz, List<Long> apptsToBeSynced, Map<Long, AppointmentInfo> lookupedMap,
-			boolean isCreate, ClinikoSbmSync clinikoSbmSync) throws SbmSDKException {
+			boolean isCreate, ClinikoSbmSync clinikoSbmSync, boolean isModify) throws SbmSDKException {
 		PractitionerApptGroup apptGroup = new PractitionerApptGroup();
+		PractitionerApptGroup apptModifiedGroup = new PractitionerApptGroup();
 		for (Long i : apptsToBeSynced) {
 			AppointmentInfo appt = lookupedMap.get(i);
 			appt.setAppointment_start(TimeUtils.convertToTzFromLondonTz(dateTz, appt.getAppointment_start()));
 			appt.setAppointment_end(TimeUtils.convertToTzFromLondonTz(dateTz, appt.getAppointment_end()));
 			String date = TimeUtils.extractDate(appt.getAppointment_start());
 			apptGroup.addAppt(date, new GeneralAppt(appt.getAppointment_start(), appt.getAppointment_end()));
-
+			
+			if (isModify) {
+				SbmCliniko sbmClinikoSync = sbmClinikoSyncService.queryIndex(i);
+				String oldAppointmentStart = TimeUtils.convertToTzFromLondonTz(dateTz, sbmClinikoSync.getAppointmentStart());
+				String oldAppointmentEnd = TimeUtils.convertToTzFromLondonTz(dateTz, sbmClinikoSync.getAppointmentEnd());
+				String oldDate = TimeUtils.extractDate(sbmClinikoSync.getAppointmentStart());
+				apptModifiedGroup.addAppt(oldDate, new GeneralAppt(oldAppointmentStart, oldAppointmentEnd));
+			}
 		}
+		
 		String token = m_tss.getUserToken(env.getSimplyBookCompanyLogin(), env.getSimplyBookUser(),
 				env.getSimplyBookPassword(), env.getSimplyBookServiceUrlLogin());
+		
+		if (isModify) {
+			changeSbmBreakTime(apptModifiedGroup, token, false, clinikoSbmSync);
+			isCreate = true;
+		}
+		
 		changeSbmBreakTime(apptGroup, token, isCreate, clinikoSbmSync);
 		return true;
 	}
