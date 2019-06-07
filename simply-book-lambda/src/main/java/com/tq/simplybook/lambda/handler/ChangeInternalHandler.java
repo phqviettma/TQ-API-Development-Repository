@@ -34,7 +34,6 @@ import com.tq.googlecalendar.req.EventReq;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.resp.End;
 import com.tq.googlecalendar.resp.EventResp;
-import com.tq.googlecalendar.resp.GoogleCalendarSettingsInfo;
 import com.tq.googlecalendar.resp.Start;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
@@ -55,6 +54,7 @@ import com.tq.simplybook.service.TokenServiceSbm;
 public class ChangeInternalHandler implements InternalHandler {
 	private Env env = null;
 	private static final Logger m_log = LoggerFactory.getLogger(ChangeInternalHandler.class);
+	private static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 	private BookingServiceSbm bookingService = null;
 	private TokenServiceSbm tokenService = null;
 	private CountryItemService countryItemService = null;
@@ -68,7 +68,7 @@ public class ChangeInternalHandler implements InternalHandler {
 	private GoogleCalendarApiServiceBuilder googleApiBuilder = null;
 	private SbmClinikoSyncService sbmClinikoService = null;
 	private SbmBookingInfoService sbmBookingService = null;
-
+	
 	public ChangeInternalHandler(Env env, BookingServiceSbm bookingService, TokenServiceSbm tokenService,
 			CountryItemService countryItemService, ContactServiceInf contactService,
 			ContactItemService contactItemService, ClinikoSyncToSbmService clinikoSyncToSbmService,
@@ -154,13 +154,13 @@ public class ChangeInternalHandler implements InternalHandler {
 		GoogleCalendarApiService googleApiService = googleApiBuilder.build(tokenResp.getAccess_token());
 		SbmGoogleCalendar sbmGoogleDbItem = sbmGoogleCalendarService.load(Long.parseLong(bookingInfo.getId(), 10));
 		if (sbmGoogleDbItem != null) {
-			GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
+			//GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
 			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
 			String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingInfo.getClient_name(),
 					bookingInfo.getClient_email(), bookingInfo.getClient_phone());
-			Start start = new Start(sbmStartTime, settingInfo.getValue());
-			End end = new End(sbmEndTime, settingInfo.getValue());
+			Start start = new Start(sbmStartTime, DEFAULT_TIME_ZONE);
+			End end = new End(sbmEndTime, DEFAULT_TIME_ZONE);
 			EventReq req = new EventReq(start, end, clientDescription,
 					bookingInfo.getClient_name() + "" + env.getGoogleCalendarEventName());
 			EventResp eventResp = googleApiService.updateEvent(req, googleCalendarId, sbmGoogleDbItem.getEventId());

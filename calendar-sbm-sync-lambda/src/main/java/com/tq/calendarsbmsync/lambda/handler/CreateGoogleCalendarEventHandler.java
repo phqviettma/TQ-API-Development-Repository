@@ -87,7 +87,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							UUID uuid = UUID.randomUUID();
 							long bookingId = uuid.getMostSignificantBits();
 							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), 1, AGENT,
-									event.getOrganizer().getEmail());
+									event.getOrganizer().getEmail(), event.getUpdated(), event.getStart().getDateTime(), event.getEnd().getDateTime());
 							sbmCalendarService.put(sbmGoogleSync);
 						} else {
 							m_log.info("Error during set work day info for provider with id "
@@ -139,7 +139,7 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 					UUID uuid = UUID.randomUUID();
 					long bookingId = uuid.getMostSignificantBits();
 					SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, AGENT,
-							googleEvent.getOrganizer().getEmail());
+							googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(), googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime());
 					sbmCalendarService.put(sbmGoogleSync);
 					m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
 				}

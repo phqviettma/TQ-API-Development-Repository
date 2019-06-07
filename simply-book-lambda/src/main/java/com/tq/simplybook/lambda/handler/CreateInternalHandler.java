@@ -40,7 +40,6 @@ import com.tq.googlecalendar.req.EventReq;
 import com.tq.googlecalendar.req.TokenReq;
 import com.tq.googlecalendar.resp.End;
 import com.tq.googlecalendar.resp.EventResp;
-import com.tq.googlecalendar.resp.GoogleCalendarSettingsInfo;
 import com.tq.googlecalendar.resp.Start;
 import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
@@ -78,6 +77,7 @@ public class CreateInternalHandler implements InternalHandler {
 	private CountryItemService countryItemService = null;
 	private SbmBookingInfoService sbmBookingInfoService = null;
 	private static final String AGENT = "sbm";
+	private static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SbmClinikoSyncService scs, GoogleCalendarDbService gcs,
@@ -251,11 +251,11 @@ public class CreateInternalHandler implements InternalHandler {
 		GoogleCalendarApiService googleApiService = googleApiBuilder.build(tokenResp.getAccess_token());
 
 		// GoogleTimeZone
-		GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
+		//GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
 		String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
 		String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
-		Start start = new Start(sbmStartTime, settingInfo.getValue());
-		End end = new End(sbmEndTime, settingInfo.getValue());
+		Start start = new Start(sbmStartTime, DEFAULT_TIME_ZONE);
+		End end = new End(sbmEndTime, DEFAULT_TIME_ZONE);
 		String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingInfo.getClient_name(),
 				bookingInfo.getClient_email(), bookingInfo.getClient_phone());
 		EventReq req = new EventReq(start, end, clientDescription,

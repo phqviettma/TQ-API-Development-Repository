@@ -427,6 +427,11 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 				if(CLINIKO.equals(sbmClinikoSync.getAgent()) && sbmClinikoSync.getUpdatedAt() != null) {
     				String newUpdatedAt = fetchAppt.getUpdated_at();
     				String oldUpdatedAt = sbmClinikoSync.getUpdatedAt();
+    				if (sbmClinikoSync.getAppointmentStart() == null) {
+    					m_log.warn("The appointment cliniko id {} doesn't have appointmentStart (before this fix)", sbmClinikoSync.getClinikoId());
+    					continue;
+    				}
+    				
     				if (!newUpdatedAt.equals(oldUpdatedAt)) {
     					newApptsId.add(fetchAppt.getId());
     					newAppts.add(fetchAppt);
@@ -470,8 +475,8 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					if (result) {
 						m_log.info("Updated booking success");
 						sbmClinikoSync.setUpdatedAt(fetchAppt.getUpdated_at());
-						m_log.info("Update to database successfully with value "+sbmClinikoSync);
 						sbmClinikoSyncService.put(sbmClinikoSync);
+						m_log.info("Update to database successfully with value "+sbmClinikoSync);
 					} else {
 						m_log.error("Updated booking failure");
 					}

@@ -72,7 +72,7 @@ public class GCSyncCreateHandlerTest {
 	private TokenGoogleCalendarService tokenCalendarService = mock(TokenGoogleCalendarService.class);
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = mock(GoogleCalendarApiServiceBuilder.class);
 	private CreateGoogleEventHandler createHandler = new CreateGoogleEventHandler(env, tokenService, specialdayService,
-			sbmBreakTimeManagement, sbmGoogleCalendarService, unitService);
+			sbmBreakTimeManagement, sbmGoogleCalendarService, unitService, bookingService);
 	private DeleteGoogleEventHandler deleteHandler = new DeleteGoogleEventHandler(env, tokenService,
 			googleCalendarService, specialdayService, sbmBreakTimeManagement, contactItemService, contactInfService,
 			sbmCalendarService, bookingService, unitService);

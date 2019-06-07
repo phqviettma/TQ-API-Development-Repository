@@ -19,6 +19,9 @@ public class SbmGoogleCalendar implements Serializable {
 	private Integer flag;
 	private String agent;
 	private String googleEmail;
+	private String updated;
+	private String startDateTime;
+	private String endDateTime;
 
 	@DynamoDBAttribute(attributeName = "clientEmail")
 	public String getClientEmail() {
@@ -65,6 +68,33 @@ public class SbmGoogleCalendar implements Serializable {
 		this.googleEmail = googleEmail;
 	}
 
+	@DynamoDBAttribute(attributeName = "updated")
+	public String getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(String updated) {
+		this.updated = updated;
+	}
+
+	@DynamoDBAttribute(attributeName = "startDateTime")
+	public String getStartDateTime() {
+		return startDateTime;
+	}
+
+	public void setStartDateTime(String startDateTime) {
+		this.startDateTime = startDateTime;
+	}
+
+	@DynamoDBAttribute(attributeName = "endDateTime")
+	public String getEndDateTime() {
+		return endDateTime;
+	}
+
+	public void setEndDateTime(String endDateTime) {
+		this.endDateTime = endDateTime;
+	}
+
 	public SbmGoogleCalendar(Long sbmId, String eventId, String clientEmail, Integer flag, String checkKind) {
 
 		this.sbmId = sbmId;
@@ -75,7 +105,6 @@ public class SbmGoogleCalendar implements Serializable {
 	}
 
 	public SbmGoogleCalendar(Long sbmId, String eventId, Integer flag, String agent, String googleEmail) {
-
 		this.sbmId = sbmId;
 		this.eventId = eventId;
 		this.flag = flag;
@@ -83,6 +112,17 @@ public class SbmGoogleCalendar implements Serializable {
 		this.googleEmail = googleEmail;
 	}
 
+	public SbmGoogleCalendar(Long sbmId, String eventId, Integer flag, String agent, String googleEmail, String updated, String startDateTime, String endDateTime) {
+		this.sbmId = sbmId;
+		this.eventId = eventId;
+		this.flag = flag;
+		this.agent = agent;
+		this.googleEmail = googleEmail;
+		this.updated = updated;
+		this.startDateTime = startDateTime;
+		this.endDateTime = endDateTime;
+	}
+	
 	public SbmGoogleCalendar() {
 
 	}
@@ -99,7 +139,8 @@ public class SbmGoogleCalendar implements Serializable {
 	@Override
 	public String toString() {
 		return "SbmGoogleCalendar [sbmId=" + sbmId + ", eventId=" + eventId + ", clientEmail=" + clientEmail + ", flag="
-				+ flag + ", agent=" + agent + "]";
+				+ flag + ", agent=" + agent + ", googleEmail=" + googleEmail + ", updated=" + updated
+				+ ", startDateTime=" + startDateTime + ", endDateTime=" + endDateTime + "]";
 	}
 
 }

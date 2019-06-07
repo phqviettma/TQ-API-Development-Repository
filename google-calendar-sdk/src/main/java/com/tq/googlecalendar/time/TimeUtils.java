@@ -49,6 +49,19 @@ public class TimeUtils {
 		return null;
 	}
 
+	public static String extractTimeHMS(String datetime) {
+		String convertedDateTime = utcToBasicFormat(datetime);
+		DateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		try {
+			Date d = f.parse(convertedDateTime);
+			DateFormat time = new SimpleDateFormat("HH:mm:ss");
+			return time.format(d);
+		} catch (ParseException e) {
+
+		}
+		return null;
+	}
+	
 	public static String extractTime(String datetime) {
 		String convertedDateTime = utcToBasicFormat(datetime);
 		DateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

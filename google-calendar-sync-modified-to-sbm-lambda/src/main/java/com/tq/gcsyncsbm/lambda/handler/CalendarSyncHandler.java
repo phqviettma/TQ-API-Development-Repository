@@ -94,7 +94,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.googleCalendarService = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(m_amazonDynamoDB));
 		this.createEventHandler = new CreateGoogleEventHandler(m_env, tokenService, specialDayService,
-				sbmTimeManagement, sbmCalendarService, unitService);
+				sbmTimeManagement, sbmCalendarService, unitService, bookingService);
 		this.deleteEventHandler = new DeleteGoogleEventHandler(m_env, tokenService, googleCalendarService,
 				specialDayService, sbmTimeManagement, contactItemService, contactInfService, sbmCalendarService,
 				bookingService, unitService);
