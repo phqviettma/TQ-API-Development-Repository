@@ -43,7 +43,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		String jsonResp;
 		try {
 			jsonResp = UtilsExecutor.request(new GetAppointmentsApiReq(m_clinikoApiKey,
-					"updated_at:>" + startTime, maxResult, practitionerId));
+					"appointment_start:>" + startTime, maxResult, practitionerId));
 			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);
@@ -80,7 +80,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		String jsonResp;
 		try {
 			jsonResp = UtilsExecutor.request(new GetDeletedAppointment(m_clinikoApiKey,
-					"updated_at:>" + startTime, maxResultPerPage, practitionerId));
+					"appointment_start:>" + startTime, maxResultPerPage, practitionerId));
 			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);
@@ -93,7 +93,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		String jsonResp;
 		try {
 			jsonResp = UtilsExecutor.request(new GetCancelAppointment(m_clinikoApiKey,
-					"updated_at:>" + startTime, maxResultPerPage, practitionerId));
+					"appointment_start:>" + startTime, maxResultPerPage, practitionerId));
 			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);

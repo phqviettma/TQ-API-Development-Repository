@@ -258,7 +258,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						deletedAppt = clinikoApiService.getDeletedAppointments(latestUpdateTime, maxResult,
 								practitionerId);
 					} else {
-						deletedAppt = clinikoApiService.getDeletedAppointments(clinikoItem.getLatestTime(), maxResult,
+						deletedAppt = clinikoApiService.getNewestDeletedAppointments(clinikoItem.getLatestTime(), maxResult,
 								practitionerId);
 					}
 					if (deletedAppt != null && deletedAppt.getAppointments().size() > 0) {
