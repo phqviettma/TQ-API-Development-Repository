@@ -2,6 +2,8 @@ package com.tq.simplybook.req;
 
 import java.io.Serializable;
 
+import com.tq.simplybook.resp.BookingInfo;
+
 public class EditBookReq implements Serializable {
 
 	/**
@@ -33,6 +35,18 @@ public class EditBookReq implements Serializable {
 		this.additional = "";
 	}
 	
+	public EditBookReq(BookingInfo bookingInfo, String newStartDate, String newStartTime, String newEndDate, String newEndTime) {
+        setShedulerId(Integer.valueOf(bookingInfo.getId()));
+        setEventId(Integer.valueOf(bookingInfo.getEvent_id()));
+        setUnitId(Integer.valueOf(bookingInfo.getUnit_id()));
+        setClientId(bookingInfo.getClient_id());
+
+        setStartDate(newStartDate);
+        setStartTime(newStartTime);
+        setEndDate(newEndDate);
+        setEndTime(newEndTime);
+        setClientTimeOffset(0);
+	}
 	@Override
 	public String toString() {
 		return "EditBookReq [shedulerId=" + shedulerId + ", eventId=" + eventId + ", unitId=" + unitId + ", clientId="

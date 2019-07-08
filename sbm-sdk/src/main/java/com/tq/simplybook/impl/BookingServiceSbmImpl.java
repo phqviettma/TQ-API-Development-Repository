@@ -15,7 +15,6 @@ import com.tq.simplybook.req.GetBookingReq;
 import com.tq.simplybook.req.ParamIdReq;
 import com.tq.simplybook.req.SbmConfirmBooking;
 import com.tq.simplybook.resp.BatchResp;
-import com.tq.simplybook.resp.BookResp;
 import com.tq.simplybook.resp.BookingDetails;
 import com.tq.simplybook.resp.BookingInfo;
 import com.tq.simplybook.resp.BookingListResp;

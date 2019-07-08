@@ -35,6 +35,7 @@ import com.tq.simplybook.service.BookingServiceSbm;
 import com.tq.simplybook.service.SbmUnitService;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
+import com.tq.simplybook.utils.SbmUtils;
 
 public class CreateGoogleEventHandler implements GCInternalHandler {
 	private static final Logger m_log = LoggerFactory.getLogger(CreateGoogleEventHandler.class);
@@ -140,6 +141,9 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
     					String newUpdatedAt = event.getUpdated();
     					String oldUpdatedAt = sbmGoogleSync.getUpdated();
     					if (oldUpdatedAt != null && oldUpdatedAt.equals(newUpdatedAt)) {
+    						m_log.info("Ignoring appointment id {} due to no difference updated time or booked first time.", sbmGoogleSync.getSbmId());
+    						sbmGoogleSync.setUpdated(event.getUpdated());
+    						updateSbmGoogleCalendar(sbmGoogleSync);
     						continue;
     					}
     					
@@ -156,24 +160,20 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
     					String newStartTime = TimeUtils.extractTimeHMS(newStartDateTime);
     					String newEndTime = TimeUtils.extractTimeHMS(newEndDateTime);
     					
-    					EditBookReq editBookReq = new EditBookReq();
-    					editBookReq.setShedulerId(Integer.valueOf(bookingInfo.getId()));
-    					editBookReq.setEventId(Integer.valueOf(bookingInfo.getEvent_id()));
-    					editBookReq.setUnitId(Integer.valueOf(bookingInfo.getUnit_id()));
-    					editBookReq.setClientId(bookingInfo.getClient_id());
+    					if (SbmUtils.compareCurrentDateTimeToNewDateTime(bookingInfo, newStartDate + " " + newStartTime, newEndDate + " " + newEndTime)) {
+    						m_log.info("There is no change which related to the date or time. Ignore this");
+    						sbmGoogleSync.setUpdated(event.getUpdated());
+    						updateSbmGoogleCalendar(sbmGoogleSync);
+    						continue;
+    					}
     					
-    					editBookReq.setStartDate(newStartDate);
-    					editBookReq.setStartTime(newStartTime);
-    					editBookReq.setEndDate(newEndDate);
-    					editBookReq.setEndTime(newEndTime);
-    					editBookReq.setClientTimeOffset(0);
+    					EditBookReq editBookReq = new EditBookReq(bookingInfo, newStartDate, newStartTime, newEndDate, newEndTime);
     					
     					boolean result = bookingService.editBooking(companyLogin, endpoint, token, editBookReq);
     					if (result) {
     						m_log.info("Event Id {} is synced to SBM success", event.getId());
     						sbmGoogleSync.setUpdated(event.getUpdated());
-    						sbmCalendarService.put(sbmGoogleSync);
-    						m_log.info("Update to database successfully with value " +sbmGoogleSync);
+    						updateSbmGoogleCalendar(sbmGoogleSync);
     					} else {
     						m_log.error("Event Id {} is not synced to SBM", event.getId());
     					}
@@ -190,6 +190,10 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 		return true;
 	}
 
+	private void updateSbmGoogleCalendar(SbmGoogleCalendar sbmGoogleCalendar) {
+		sbmCalendarService.put(sbmGoogleCalendar);
+		m_log.info("Update to database successfully with value " +sbmGoogleCalendar);
+	}
 	private void changeBreakTime(PractitionerApptGroup group, String token, Integer unitId, Integer eventId, boolean isModified)
 			throws SbmSDKException {
 
@@ -223,6 +227,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 	}
 	
 	private void saveDb(PractitionerApptGroup group, boolean isModified) {
+		m_log.info("Saving DB with isModified = "+isModified);
 		for (Entry<String, EventDateInfo> entry : group.getEventDateInfoMap().entrySet()) {
     		List<Items> googleEvents = entry.getValue().googleEvents;
     		for (Items googleEvent : googleEvents) {
@@ -231,14 +236,12 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
     				long bookingId = uuid.getMostSignificantBits();
     				SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, AGENT,
     						googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(), googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime());
-    				sbmCalendarService.put(sbmGoogleSync);
-    				m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
+    				updateSbmGoogleCalendar(sbmGoogleSync);
     			} else {
     				SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(googleEvent.getId());
     				if (sbmGoogleSync != null) {
     					sbmGoogleSync.setUpdated(googleEvent.getUpdated());
-    					sbmCalendarService.put(sbmGoogleSync);
-    					m_log.info("Updated to database SbmGoogleSync " + sbmGoogleSync);
+    					updateSbmGoogleCalendar(sbmGoogleSync);
     				}
     			}
     		}

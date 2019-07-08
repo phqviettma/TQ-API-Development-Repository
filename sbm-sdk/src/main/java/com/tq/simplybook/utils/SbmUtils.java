@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.simplybook.exception.SbmSDKException;
+import com.tq.simplybook.resp.BookingInfo;
 import com.tq.simplybook.resp.SbmError;
 import com.tq.simplybook.resp.SbmErrorResp;
 
@@ -63,4 +64,7 @@ public final class SbmUtils {
 		}
 	}
 
+	public static boolean compareCurrentDateTimeToNewDateTime(BookingInfo bookingInfo, String newStartDateTime, String newEndDateTime) {
+		return bookingInfo.getStart_date_time().equals(newStartDateTime) && bookingInfo.getEnd_date_time().equals(newEndDateTime);
+	}
 }
