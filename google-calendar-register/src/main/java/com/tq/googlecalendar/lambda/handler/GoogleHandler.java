@@ -57,6 +57,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	private static final String CONNECT = "connect";
 	private static final String DISCONNECT = "disconnect";
 	private static final String SHOW_CALENDAR = "show";
+	private static final String RESYNC = "resync";
 	private static final Logger m_log = LoggerFactory.getLogger(GoogleHandler.class);
 	private static ObjectMapper jsonMapper = new ObjectMapper();
 	private SbmUnitService sbmUnitService = null;
@@ -77,6 +78,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 	private Handler disconnectHandler = null;
 	private Handler checkStatusHandler = null;
 	private Handler showCalendarHandler = null;
+	private Handler resyncCalendarHandler = null;
 
 	public GoogleHandler() {
 
@@ -107,14 +109,15 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 				sbmSyncFutureBooking, sbmListBookingService, sbmBookingInfoService);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
 		this.showCalendarHandler = new ShowGoogleCalendarHandler(tokenCalendarService, eVariables, apiServiceBuilder);
-
+		this.resyncCalendarHandler = new GoogleResyncCalendarHandler(googleCalendarService);
 	}
 
 	// for testing only
 	GoogleHandler(Env env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
 			GoogleCalendarDbService calendarService, ContactItemService contactItemService,
 			GoogleConnectCalendarHandler connectHandler, GoogleCalendarCheckStatusHandler checkHandler,
-			GoogleDisconnectCalendarHandler disconnectHandler, ShowGoogleCalendarHandler showCalendarHandler) {
+			GoogleDisconnectCalendarHandler disconnectHandler, ShowGoogleCalendarHandler showCalendarHandler,
+			GoogleResyncCalendarHandler resyncCalendarHandler) {
 		this.amazonDynamoDB = db;
 		this.sbmUnitService = unitService;
 		this.tokenServiceSbm = tokenService;
@@ -125,6 +128,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 		this.checkStatusHandler = checkHandler;
 		this.disconnectHandler = disconnectHandler;
 		this.showCalendarHandler = showCalendarHandler;
+		this.resyncCalendarHandler = resyncCalendarHandler;
 	}
 
 	@Override
@@ -148,7 +152,8 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 
 			} else if (DISCONNECT.equals(req.getAction())) {
 				response = disconnectHandler.handle(req);
-
+			} else if (RESYNC.equals(req.getAction())) {
+				response = resyncCalendarHandler.handle(req);
 			} else {
 				throw new TrueQuitBadRequest("Bad request");
 			}

@@ -48,6 +48,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private static final String DISCONNECT = "disconnect";
 	private static final String CHECK = "check";
 	private static final String GET_DATA = "get_data";
+	private static final String RESYNC = "resync";
 	private static final Logger m_log = LoggerFactory.getLogger(ClinikoRegisterHandler.class);
 	private static ObjectMapper jsonMapper = new ObjectMapper();
 	private SbmUnitService unitServiceSbm = null;
@@ -59,6 +60,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 	private ConnectHandler disconnectHandler = null;
 	private ConnectHandler checkingHandler = null;
 	private ConnectHandler getDataHandler = null;
+	private ConnectHandler resyncHandler = null;
 	private ClinikoItemService clinikoItemService = null;
 	private ClinikoCompanyInfoService clinikoCompanyService = null;
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
@@ -87,12 +89,14 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 				clinikoItemService, clinikoCompanyService, sbmSyncFutureBookingService, bookingService,
 				sbmBookingDBService);
 		this.getDataHandler = new ClinikoGetDataHandler(clinikoSyncService, clinikoApiServiceBuilder);
+		this.resyncHandler = new ClinikoResyncHandler(clinikoSyncService, clinikoItemService);
 
 	}
 
 	ClinikoRegisterHandler(ClinikoEnv env, AmazonDynamoDB db, SbmUnitService unitService, TokenServiceSbm tokenService,
 			ClinikoSyncToSbmService clinikoDbService, ClinikoConnectHandler connectHandler,
-			ClinikoDisconnectHandler disconnectHandler, CheckingHandler checkingHandler, ClinikoGetDataHandler getDataHandler) {
+			ClinikoDisconnectHandler disconnectHandler, CheckingHandler checkingHandler, ClinikoGetDataHandler getDataHandler,
+			ClinikoResyncHandler resyncHandler) {
 		this.amazonDynamoDB = db;
 		this.unitServiceSbm = unitService;
 		this.tokenServiceSbm = tokenService;
@@ -102,6 +106,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		this.disconnectHandler = disconnectHandler;
 		this.checkingHandler = checkingHandler;
 		this.getDataHandler = getDataHandler;
+		this.resyncHandler = resyncHandler;
 	}
 
 	@Override
@@ -123,6 +128,8 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 				response = checkingHandler.handle(req);
 			} else if (GET_DATA.equals(req.getAction())) {
 				response = getDataHandler.handle(req);
+			} else if (RESYNC.equals(req.getAction())) {
+				response = resyncHandler.handle(req);
 			}
 
 		} catch (Exception e) {

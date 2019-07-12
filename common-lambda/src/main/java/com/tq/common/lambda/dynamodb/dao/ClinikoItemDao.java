@@ -8,4 +8,6 @@ import com.tq.common.lambda.dynamodb.service.GenericItem;
 public interface ClinikoItemDao extends GenericItem<ClinikoSyncStatus, String> {
 
 	public List<ClinikoSyncStatus> queryIndex();
+	
+	public ClinikoSyncStatus queryIndex(String apiKey);
 }

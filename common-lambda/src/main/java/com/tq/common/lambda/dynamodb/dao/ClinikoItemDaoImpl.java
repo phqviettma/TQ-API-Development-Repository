@@ -35,4 +35,15 @@ public class ClinikoItemDaoImpl extends AbstractItem<ClinikoSyncStatus, String> 
 		return clinikoItems;
 	}
 
+	@Override
+	public ClinikoSyncStatus queryIndex(String apiKey) {
+		List<ClinikoSyncStatus> clinikoItems = queryIndex();
+		for (ClinikoSyncStatus item : clinikoItems) {
+			if(apiKey.equals(item.getApiKey())) {
+				return item;
+			}
+		}
+		return null;
+	}
+
 }

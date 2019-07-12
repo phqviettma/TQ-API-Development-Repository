@@ -37,4 +37,9 @@ public class ClinikoItemServiceImpl implements ClinikoItemService {
 		return clinikoDao.queryIndex();
 	}
 
+	@Override
+	public ClinikoSyncStatus queryWithIndex(String apiKey) {
+		return clinikoDao.queryIndex(apiKey);
+	}
+
 }

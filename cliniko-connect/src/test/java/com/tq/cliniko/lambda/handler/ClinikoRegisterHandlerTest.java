@@ -1,6 +1,7 @@
 package com.tq.cliniko.lambda.handler;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,11 +71,15 @@ public class ClinikoRegisterHandlerTest {
 	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService,
 			clinikoItemService, sbmSyncBookingService, sbmListBookingService, clinikoCompanyService);
 	private ClinikoGetDataHandler getDataHandler = new ClinikoGetDataHandler(clinikoSyncToSbmService, mockApiServiceBuilder);
+	private ClinikoResyncHandler resyncHandler = new ClinikoResyncHandler(clinikoSyncToSbmService, clinikoItemService);
 
+	private ClinikoRegisterHandler initHandler() {
+		return new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
+				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler, resyncHandler);
+	}
 	@Test
 	public void testCheckingHandler() {
-		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
-				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
+		ClinikoRegisterHandler handler = initHandler();
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_check_info.json"));
@@ -94,8 +99,7 @@ public class ClinikoRegisterHandlerTest {
 	}
 	@Test
 	public void testConnectHandler() throws SbmSDKException, ClinikoSDKExeption {
-		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
-				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
+		ClinikoRegisterHandler handler = initHandler();
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_connect_info.json"));
@@ -146,8 +150,7 @@ public class ClinikoRegisterHandlerTest {
 	}
 	@Test
 	public void testDisconnectHandler() {
-		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
-				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
+		ClinikoRegisterHandler handler = initHandler();
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_disconnect_info.json"));
@@ -168,8 +171,7 @@ public class ClinikoRegisterHandlerTest {
 	
 	@Test
 	public void testGetDataHandler() throws ClinikoSDKExeption {
-		ClinikoRegisterHandler handler = new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
-				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler);
+		ClinikoRegisterHandler handler = initHandler();
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_get_data_info.json"));
@@ -254,5 +256,33 @@ public class ClinikoRegisterHandlerTest {
 		
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());
+	}
+	
+	@Test
+	public void testResyncHandler() {
+		String email = "tmatesting@gmail.com";
+		String apiKey = "apiKey";
+		ClinikoRegisterHandler handler = initHandler();
+		AwsProxyRequest req = new AwsProxyRequest();
+		String json = JsonUtils
+				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_resync_info.json"));
+		req.setBody(json);
+		// case 1
+		AwsProxyResponse response = handler.handleRequest(req, m_context);
+		assertTrue(response.getBody().contains("The practitioner email "+email+" does not exist"));
+		
+		// case 2
+		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync();
+		clinikoSbmSync.setApiKey(apiKey);
+		when(clinikoSyncToSbmService.queryEmail(email)).thenReturn(clinikoSbmSync);
+		response = handler.handleRequest(req, m_context);
+		assertTrue(response.getBody().contains("The provided API Key does not exist"));
+		
+		// case 3
+		ClinikoSyncStatus clinikoSyncStatus = new ClinikoSyncStatus();
+		when(clinikoItemService.queryWithIndex(apiKey)).thenReturn(clinikoSyncStatus);
+		response = handler.handleRequest(req, m_context);
+		assertEquals(200, response.getStatusCode());
+		
 	}
 }

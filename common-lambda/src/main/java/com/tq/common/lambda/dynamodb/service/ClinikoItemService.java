@@ -9,4 +9,6 @@ public interface ClinikoItemService extends BaseItemService<ClinikoSyncStatus, S
 	public void delete(ClinikoSyncStatus clinikoItem);
 
 	public List<ClinikoSyncStatus> queryIndex();
+	
+	public ClinikoSyncStatus queryWithIndex(String apiKey);
 }

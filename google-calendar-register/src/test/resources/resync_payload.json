@@ -1,0 +1,6 @@
+ { 
+    "action": "resync",
+    "params": {
+        "email": "testingtma@gmail.com"
+    }
+}

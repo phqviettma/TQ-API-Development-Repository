@@ -1,0 +1,6 @@
+{
+    "action": "resync",
+    "params": {
+        "practitionerEmail": "tmatesting@gmail.com"
+    }
+}

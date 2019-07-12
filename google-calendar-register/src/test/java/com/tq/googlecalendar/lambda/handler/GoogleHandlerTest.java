@@ -3,6 +3,7 @@ package com.tq.googlecalendar.lambda.handler;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -79,14 +80,14 @@ public class GoogleHandlerTest {
 			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService,
 			modifiedChannelService, sbmSyncFutureBookingService, sbmListBookingService, sbmBookingInfoService);
 	private ShowGoogleCalendarHandler showCalendarHandleResponse = new ShowGoogleCalendarHandler(tokenCalendarService, mockedeEnv, mockedApiServiceBuilder);
-
+	private GoogleResyncCalendarHandler resyncHandler = new GoogleResyncCalendarHandler(calendarService);
 	@Before
 	public void init() throws GoogleApiSDKException, SbmSDKException {
 
 		Env.mock(mockedeEnv);
 
 		handler = new GoogleHandler(mockedeEnv, amazonDynamoDB, unitService, tokenService, calendarService,
-				contactItemService, connectHandler, checkHandler, disconnectHandler, showCalendarHandleResponse);
+				contactItemService, connectHandler, checkHandler, disconnectHandler, showCalendarHandleResponse, resyncHandler);
 		TokenResp tokenResp = new TokenResp();
 		tokenResp.setAccess_token("access_token");
 		when(tokenCalendarService.getToken(any())).thenReturn(tokenResp);
@@ -253,5 +254,23 @@ public class GoogleHandlerTest {
 		req.setBody(jsonString);
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
 		assertEquals(400, response.getStatusCode());
+	}
+	
+	@Test
+	public void testResyncHandler() {
+		String email = "testingtma@gmail.com";
+		String jsonString = JsonUtils
+				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("resync_payload.json"));
+		AwsProxyRequest req = new AwsProxyRequest();
+		req.setBody(jsonString);
+		AwsProxyResponse response = handler.handleRequest(req, m_context);
+		assertTrue(response.getBody().contains("The email "+email+" does not exist"));
+		
+		GoogleCalendarSbmSync sbmSync = new GoogleCalendarSbmSync();
+		List<GoogleCalendarSbmSync> googleCalendarSbmSyncList = new ArrayList<GoogleCalendarSbmSync>();
+		googleCalendarSbmSyncList.add(sbmSync);
+		when(calendarService.queryEmail(email)).thenReturn(googleCalendarSbmSyncList);
+		response = handler.handleRequest(req, m_context);
+		assertEquals(200, response.getStatusCode());
 	}
 }
