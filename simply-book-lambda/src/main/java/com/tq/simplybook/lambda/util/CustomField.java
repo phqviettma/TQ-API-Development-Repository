@@ -36,7 +36,7 @@ public class CustomField {
 		updateRecord.put(infusionSoftAppointmentLocationField,
 				bookingInfo.getLocation() == null ? "" : String.valueOf(bookingInfo.getLocation().getTitle()));
 		updateRecord.put(infusionSoftServiceProviderField, bookingInfo.getUnit_name());
-		updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getLocation().getDescription());
+		updateRecord.put(infusionSoftAppointmentInstructionField, bookingInfo.getUnit_description());
 		updateRecord.put(infusionSoftAppointmentDateField,
 				SbmInfUtil.buildAppointmentDate(bookingInfo.getStart_date_time()));
 		updateRecord.put(infusionsoftPractitionerFirstName, SbmInfUtil.buildFirstName(bookingInfo.getUnit_name()));
