@@ -84,7 +84,7 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 		this.clinikoCompanyService = new ClinikoCompanyInfoServiceImpl(new ClinikoCompanyInfoDaoImpl(amazonDynamoDB));
 		this.disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncService, clinikoItemService,
 				sbmSyncFutureBookingService, sbmBookingDBService, clinikoCompanyService);
-		this.checkingHandler = new CheckingHandler(clinikoSyncService);
+		this.checkingHandler = new CheckingHandler(clinikoSyncService, clinikoApiServiceBuilder);
 		this.connectHandler = new ClinikoConnectHandler(eVariables, unitServiceSbm, tokenServiceSbm, clinikoSyncService,
 				clinikoItemService, clinikoCompanyService, sbmSyncFutureBookingService, bookingService,
 				sbmBookingDBService);

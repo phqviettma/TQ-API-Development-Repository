@@ -3,6 +3,7 @@ package com.tq.cliniko.service;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
+import com.tq.cliniko.lambda.model.Businesses;
 import com.tq.cliniko.lambda.model.BusinessesInfo;
 import com.tq.cliniko.lambda.model.ClinikoAppointmentType;
 import com.tq.cliniko.lambda.model.PatientDetail;
@@ -35,6 +36,8 @@ public interface ClinikoAppointmentService {
 
 	BusinessesInfo getListBusinesses() throws ClinikoSDKExeption;
 
+	Businesses getBusinessById(String businessId) throws ClinikoSDKExeption;
+	
 	PractitionersInfo getPractitioner(Integer userId) throws ClinikoSDKExeption;
 	
 	PractitionersInfo getAllPractitioner() throws ClinikoSDKExeption;

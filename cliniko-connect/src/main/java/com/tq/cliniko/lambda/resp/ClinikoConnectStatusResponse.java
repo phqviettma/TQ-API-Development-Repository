@@ -23,6 +23,7 @@ public class ClinikoConnectStatusResponse implements Serializable {
 	private Map<Integer, Practitioner> practitionersGroupById;
 	private Map<Integer, List<Businesses>> businessesGroupByPractitionerId;
 	private Map<Integer, List<AppointmentType>> appointmentTypesGroupByPractitioner;
+	private String businessName;
 
 	public boolean isSucceeded() {
 		return succeeded;
@@ -80,13 +81,19 @@ public class ClinikoConnectStatusResponse implements Serializable {
 		this.appointmentTypesGroupByPractitioner = appointmentTypesGroupByPractitioner;
 	}
 
+	public String getBusinessName() {
+		return businessName;
+	}
+
+	public void setBusinessName(String businessName) {
+		this.businessName = businessName;
+	}
+
 	@Override
 	public String toString() {
 		return "ClinikoConnectStatusResponse [succeeded=" + succeeded + ", status=" + status + ", data=" + data
 				+ ", practitionersGroupById=" + practitionersGroupById + ", businessesGroupByPractitionerId="
 				+ businessesGroupByPractitionerId + ", appointmentTypesGroupByPractitioner="
-				+ appointmentTypesGroupByPractitioner + "]";
-	}
-	
-	
+				+ appointmentTypesGroupByPractitioner + ", businessName=" + businessName + "]";
+	}	
 }

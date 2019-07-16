@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +67,7 @@ public class ClinikoRegisterHandlerTest {
 	private BookingServiceSbm bookingService = mock(BookingServiceSbm.class);
 	private SbmListBookingService sbmListBookingService = mock(SbmListBookingService.class);
 	private ClinikoApiServiceBuilder mockApiServiceBuilder = mock(ClinikoApiServiceBuilder.class);
-	private CheckingHandler checkingHandler = new CheckingHandler(clinikoSyncToSbmService);
+	private CheckingHandler checkingHandler = new CheckingHandler(clinikoSyncToSbmService, mockApiServiceBuilder);
 	private ClinikoConnectHandler connectHandler = new ClinikoConnectHandler(mockedeEnv, unitService, tokenService,
 			clinikoSyncToSbmService, clinikoItemService, clinikoCompanyService, sbmSyncBookingService, bookingService, sbmListBookingService);
 	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService,
@@ -78,7 +80,7 @@ public class ClinikoRegisterHandlerTest {
 				tokenService, clinikoSyncToSbmService, connectHandler, disconnectHandler, checkingHandler, getDataHandler, resyncHandler);
 	}
 	@Test
-	public void testCheckingHandler() {
+	public void testCheckingHandler_disconnected() {
 		ClinikoRegisterHandler handler = initHandler();
 		AwsProxyRequest req = new AwsProxyRequest();
 		String json = JsonUtils
@@ -95,8 +97,52 @@ public class ClinikoRegisterHandlerTest {
 		}).when(clinikoSyncToSbmService).put(any(ClinikoSbmSync.class));
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());
-
+		assertTrue(response.getBody().contains("disconnected"));
 	}
+	
+	@Test
+	public void testCheckingHandler_connected() throws ClinikoSDKExeption {
+		ClinikoRegisterHandler handler = initHandler();
+		AwsProxyRequest req = new AwsProxyRequest();
+		String json = JsonUtils
+				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_check_info.json"));
+		req.setBody(json);
+		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync();
+		clinikoSbmSync.setApiKey("apiKey");
+		clinikoSbmSync.setClinikoId("businessId-practitionerId");
+		when(clinikoSyncToSbmService.queryEmail(any())).thenReturn(clinikoSbmSync);
+		ClinikoAppointmentService clinikoService = mock(ClinikoAppointmentService.class);
+		when(clinikoService.getAuthenticateUser()).thenReturn(new User());
+		Businesses business = new Businesses();
+		business.setBusiness_name("Businesses Name");
+		when(clinikoService.getBusinessById("businessId")).thenReturn(business);
+		when(mockApiServiceBuilder.build("apiKey")).thenReturn(clinikoService);
+		
+		AwsProxyResponse response = handler.handleRequest(req, m_context);
+		assertEquals(200, response.getStatusCode());
+		assertTrue(response.getBody().contains("connected"));
+		assertTrue(response.getBody().contains("Businesses Name"));
+	}
+	
+	@Test
+	public void testCheckingHandler_invalidApiKey() throws ClinikoSDKExeption {
+		ClinikoRegisterHandler handler = initHandler();
+		AwsProxyRequest req = new AwsProxyRequest();
+		String json = JsonUtils
+				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("cliniko_check_info.json"));
+		req.setBody(json);
+		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync();
+		clinikoSbmSync.setApiKey("apiKey");
+		when(clinikoSyncToSbmService.queryEmail(any())).thenReturn(clinikoSbmSync);
+		ClinikoAppointmentService clinikoService = mock(ClinikoAppointmentService.class);
+		when(clinikoService.getAuthenticateUser()).thenReturn(null);
+		when(mockApiServiceBuilder.build("apiKey")).thenReturn(clinikoService);
+		AwsProxyResponse response = handler.handleRequest(req, m_context);
+		verify(clinikoSyncToSbmService).delete(clinikoSbmSync);
+		assertEquals(200, response.getStatusCode());
+		assertTrue(response.getBody().contains("disconnected"));
+	}
+	
 	@Test
 	public void testConnectHandler() throws SbmSDKException, ClinikoSDKExeption {
 		ClinikoRegisterHandler handler = initHandler();

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
+import com.tq.cliniko.lambda.model.Businesses;
 import com.tq.cliniko.lambda.model.BusinessesInfo;
 import com.tq.cliniko.lambda.model.ClinikoAppointmentType;
 import com.tq.cliniko.lambda.model.PatientDetail;
@@ -59,9 +60,19 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);
 		}
-
 	}
 
+	@Override
+	public Businesses getBusinessById(String businessId) throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			jsonResp = UtilsExecutor.request(new GetBusinessByIdApiReq(m_clinikoApiKey, businessId));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, Businesses.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+	}
+	
 	@Override
 	public User getAuthenticateUser() throws ClinikoSDKExeption {
 		String jsonResp;
@@ -217,11 +228,16 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 
 		public GetBusinessApiReq(String apiKey) {
 			super(apiKey, "businesses", null);
-
 		}
-
 	}
 
+	private class GetBusinessByIdApiReq extends QueryClinikoApiReq {
+
+		public GetBusinessByIdApiReq(String apiKey, String businessId) {
+			super(apiKey, "businesses" + "/" + businessId, null);
+		}
+	}
+	
 	private class GetUserApiReq extends QueryClinikoApiReq {
 
 		public GetUserApiReq(String apiKey) {
