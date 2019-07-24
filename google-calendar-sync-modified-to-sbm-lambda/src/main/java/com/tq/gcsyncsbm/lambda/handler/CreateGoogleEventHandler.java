@@ -77,6 +77,10 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 		String token = tokenService.getUserToken(companyLogin, username, password, endpointLogin);
 		PractitionerApptGroup apptGroup = new PractitionerApptGroup();
 		for (Items event : eventItems) {
+			if (event.getStart().getDateTime() == null || event.getEnd().getDateTime() == null) {
+				m_log.info("There are no date time from start date time and end date time, ignoring");
+				continue;
+			}
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 			if (sbmGoogleSync == null) {
 				String dateTime = event.getStart().getDateTime();
@@ -112,7 +116,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(), event));
 				}
 			} else {
-				m_log.info("Event Id " + event + " is already created by TrueQuit, ignoring");
+				m_log.info("Event Id " + event + " is already created by TrueQuit");
 				if (sbmGoogleSync.getFlag() == 1) {
     				if (AGENT.equals(sbmGoogleSync.getAgent())) {
     					String newUpdatedAt = event.getUpdated();
