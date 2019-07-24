@@ -203,7 +203,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 	private class GetAppointmentsApiReq extends QueryClinikoApiReq {
 		public GetAppointmentsApiReq(String apiKey, String queryStatement, int perPage, int practitionerId)
 				throws Exception {
-			super(apiKey, "appointments", "?q[]=" + URLEncoder.encode(queryStatement, "UTF-8") + "&practitioner_id:="
+			super(apiKey, "appointments", "?q[]=" + URLEncoder.encode(queryStatement, "UTF-8") + "&q[]=practitioner_id:="
 					+ practitionerId + "&per_page=" + String.valueOf(perPage));
 		}
 	}
@@ -251,7 +251,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		public GetDeletedAppointment(String apiKey, String queryStatement, int perPage, int practitionerId)
 				throws Exception {
 			super(apiKey, "appointments/deleted", "?q[]=" + URLEncoder.encode(queryStatement, "UTF-8")
-					+ "&practitioner_id:=" + practitionerId + "&per_page=" + String.valueOf(perPage));
+					+ "&q[]=practitioner_id:=" + practitionerId + "&per_page=" + String.valueOf(perPage));
 		}
 	}
 
@@ -259,7 +259,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		public GetCancelAppointment(String apiKey, String queryStatement, int perPage, int practitionerId)
 				throws Exception {
 			super(apiKey, "appointments/cancelled", "?q[]=" + URLEncoder.encode(queryStatement, "UTF-8")
-					+ "&practitioner_id:=" + practitionerId + "&per_page=" + String.valueOf(perPage));
+					+ "&q[]=practitioner_id:=" + practitionerId + "&per_page=" + String.valueOf(perPage));
 		}
 	}
 
@@ -380,7 +380,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		String jsonResp;
 		try {
 			jsonResp = UtilsExecutor.request(new GetPractitionerAppointment(m_clinikoApiKey,
-					"practitioner_id:=" + practitionerId, maxResultPerPage));
+					"q[]=practitioner_id:=" + practitionerId, maxResultPerPage));
 			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
 		} catch (Exception e) {
 			throw new ClinikoSDKExeption(e);
