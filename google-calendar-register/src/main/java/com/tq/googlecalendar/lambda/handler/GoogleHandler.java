@@ -109,7 +109,7 @@ public class GoogleHandler implements RequestHandler<AwsProxyRequest, AwsProxyRe
 				sbmSyncFutureBooking, sbmListBookingService, sbmBookingInfoService);
 		this.checkStatusHandler = new GoogleCalendarCheckStatusHandler(googleCalendarService);
 		this.showCalendarHandler = new ShowGoogleCalendarHandler(tokenCalendarService, eVariables, apiServiceBuilder);
-		this.resyncCalendarHandler = new GoogleResyncCalendarHandler(googleCalendarService);
+		this.resyncCalendarHandler = new GoogleResyncCalendarHandler(googleCalendarService, calendarModifiedChannelService);
 	}
 
 	// for testing only

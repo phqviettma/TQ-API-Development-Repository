@@ -80,7 +80,7 @@ public class GoogleHandlerTest {
 			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService,
 			modifiedChannelService, sbmSyncFutureBookingService, sbmListBookingService, sbmBookingInfoService);
 	private ShowGoogleCalendarHandler showCalendarHandleResponse = new ShowGoogleCalendarHandler(tokenCalendarService, mockedeEnv, mockedApiServiceBuilder);
-	private GoogleResyncCalendarHandler resyncHandler = new GoogleResyncCalendarHandler(calendarService);
+	private GoogleResyncCalendarHandler resyncHandler = new GoogleResyncCalendarHandler(calendarService, modifiedChannelService);
 	@Before
 	public void init() throws GoogleApiSDKException, SbmSDKException {
 
@@ -270,6 +270,12 @@ public class GoogleHandlerTest {
 		List<GoogleCalendarSbmSync> googleCalendarSbmSyncList = new ArrayList<GoogleCalendarSbmSync>();
 		googleCalendarSbmSyncList.add(sbmSync);
 		when(calendarService.queryEmail(email)).thenReturn(googleCalendarSbmSyncList);
+		
+		GCModifiedChannel gcModifiedChannel = new GCModifiedChannel();
+		List<GCModifiedChannel> gcModifiedChannels = new ArrayList<GCModifiedChannel>();
+		gcModifiedChannels.add(gcModifiedChannel);
+		when(modifiedChannelService.queryEmail(email)).thenReturn(gcModifiedChannels);
+		
 		response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());
 	}
