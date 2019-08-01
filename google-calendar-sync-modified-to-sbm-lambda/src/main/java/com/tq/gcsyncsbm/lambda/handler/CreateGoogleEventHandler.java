@@ -78,7 +78,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 		PractitionerApptGroup apptGroup = new PractitionerApptGroup();
 		for (Items event : eventItems) {
 			if (event.getStart().getDateTime() == null || event.getEnd().getDateTime() == null) {
-				m_log.info("There are no date time from start date time and end date time, ignoring");
+				m_log.info("There are no date time from start date time and end date time, ignoring: {}", event);
 				continue;
 			}
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
@@ -177,6 +177,8 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
     					if (result) {
     						m_log.info("Event Id {} is synced to SBM success", event.getId());
     						sbmGoogleSync.setUpdated(event.getUpdated());
+    						sbmGoogleSync.setStartDateTime(event.getStart().getDateTime());
+        					sbmGoogleSync.setEndDateTime(event.getEnd().getDateTime());
     						updateSbmGoogleCalendar(sbmGoogleSync);
     					} else {
     						m_log.error("Event Id {} is not synced to SBM", event.getId());
@@ -245,6 +247,8 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
     				SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(googleEvent.getId());
     				if (sbmGoogleSync != null) {
     					sbmGoogleSync.setUpdated(googleEvent.getUpdated());
+    					sbmGoogleSync.setStartDateTime(googleEvent.getStart().getDateTime());
+    					sbmGoogleSync.setEndDateTime(googleEvent.getEnd().getDateTime());
     					updateSbmGoogleCalendar(sbmGoogleSync);
     				}
     			}
