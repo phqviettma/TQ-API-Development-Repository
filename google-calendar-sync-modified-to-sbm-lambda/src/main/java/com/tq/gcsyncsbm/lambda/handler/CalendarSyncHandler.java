@@ -229,7 +229,8 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					if (newNextSyncToken != null) {
 						isDbChanged = true;
 						googleCalendarSbmSync.setNextSyncToken(newNextSyncToken);
-
+						googleCalendarSbmSync.setLastQueryTimeMin(null);
+						googleCalendarSbmSync.setNextPageToken(null);
 					} else {
 						if (timeMinQuery == true) {
 							isDbChanged = true;
