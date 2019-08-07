@@ -91,8 +91,7 @@ public class SbmBreakTimeManagement {
 			Set<Breaktime> newBreakTime, Set<WorkTimeSlot> workTimeSlots) {
 		Set<Breaktime> currentBreakTimes = findBreakTime(workTimeSlots, envStartWorkingTime, envEndWorkingTime);
 		currentBreakTimes.addAll(newBreakTime);
-		Set<Breaktime> newBreakTimes = mergeBreakTime(currentBreakTimes);
-		return newBreakTimes;
+		return currentBreakTimes;
 
 	}
 
