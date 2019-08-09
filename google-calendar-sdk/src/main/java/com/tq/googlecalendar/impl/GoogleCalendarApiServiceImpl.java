@@ -205,6 +205,30 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
 
 	}
 
+	@Override
+	public CalendarEvents getEventWithoutTokenByTimeMinAndTimeMax(Integer maxResult, String timeMin, String timeMax, boolean showDeleted, String googleCalendarId) throws GoogleApiSDKException {
+		String jsonResp;
+		try {
+			ApiResponse response = UtilsExecutor
+					.request(new QueryEventByTimeMinAndTimeMax(accessToken, maxResult, timeMin, timeMax, showDeleted, googleCalendarId));
+			jsonResp = response.getEntity();
+			return GoogleCalendarParser.readJsonValueForObject(jsonResp, CalendarEvents.class);
+		} catch (Exception e) {
+			throw new GoogleApiSDKException(e);
+		}
+	}
+	
+	private class QueryEventByTimeMinAndTimeMax extends GetGoogleCalendarApiReq {
+
+		public QueryEventByTimeMinAndTimeMax(String accessToken, Integer maxResult, String timeMin, String timeMax, boolean showDeleted, 
+				String googleCalendarId) throws Exception {
+			super(accessToken, "calendars/" + googleCalendarId + "/events?maxResults=" + maxResult
+					+ "&singleEvents=true&timeMin=" + URLEncoder.encode(timeMin, "UTF-8") + "&timeMax="+ URLEncoder.encode(timeMax, "UTF-8") +"&showDeleted="+showDeleted);
+
+		}
+
+	}
+	
 	private class QueryNewestEvent extends GetGoogleCalendarApiReq {
 
 		public QueryNewestEvent(String accessToken, Integer maxResult, String queryTime, String googleCalendarId)

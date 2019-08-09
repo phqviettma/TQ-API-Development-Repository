@@ -7,5 +7,5 @@ import com.tq.inf.exception.InfSDKExecption;
 import com.tq.simplybook.exception.SbmSDKException;
 
 public interface GCInternalHandler {
-	void handle(List<Items> item, String sbmId) throws SbmSDKException, InfSDKExecption;
+	void handle(List<Items> item, String sbmId, String googleCalendarId) throws SbmSDKException, InfSDKExecption;
 }

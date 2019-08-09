@@ -28,6 +28,8 @@ public interface GoogleCalendarApiService {
 
 	CalendarEvents getEventWithoutToken(Integer maxResult, String query, String timeMin, String googleCalendarId) throws GoogleApiSDKException;
 
+	CalendarEvents getEventWithoutTokenByTimeMinAndTimeMax(Integer maxResult, String timeMin, String timeMax, boolean showDeleted, String googleCalendarId) throws GoogleApiSDKException;
+	
 	GoogleCalendarSettingsInfo getSettingInfo(String settingId) throws GoogleApiSDKException;
 
 	CalendarEvents getUpdatedEventWithPageToken(Integer maxResult, String lastQueryTimeMin,String nextPageToken,String googleCalendarId) throws GoogleApiSDKException;

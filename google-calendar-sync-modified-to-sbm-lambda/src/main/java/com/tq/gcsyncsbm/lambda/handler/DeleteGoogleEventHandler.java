@@ -2,6 +2,7 @@ package com.tq.gcsyncsbm.lambda.handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,6 +18,7 @@ import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.context.Env;
+import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
@@ -52,12 +54,13 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
 	private BookingServiceSbm bookingService = null;
 	private SbmUnitService unitService = null;
+	private ForceUpdateGoogleEventHandler forceEventHandler = null;
 
 	public DeleteGoogleEventHandler(Env env, TokenServiceSbm tokenService,
 			GoogleCalendarDbService googleCalendarService, SpecialdayServiceSbm specialdayService,
 			SbmBreakTimeManagement sbmBreakTimeManagement, ContactItemService contactItemService,
 			ContactServiceInf contactInfService, SbmGoogleCalendarDbService sbmCalendarService,
-			BookingServiceSbm bookingService, SbmUnitService unitService) {
+			BookingServiceSbm bookingService, SbmUnitService unitService, ForceUpdateGoogleEventHandler forceEventHandler) {
 		this.contactItemService = contactItemService;
 		this.enV = env;
 		this.tokenService = tokenService;
@@ -67,14 +70,15 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 		this.sbmCalendarService = sbmCalendarService;
 		this.bookingService = bookingService;
 		this.unitService = unitService;
+		this.forceEventHandler = forceEventHandler;
 	}
 
 	@Override
-	public void handle(List<Items> item, String sbmId) throws SbmSDKException, InfSDKExecption {
-		syncToSbm(item, sbmId);
+	public void handle(List<Items> item, String sbmId, String googleCalendarId) throws SbmSDKException, InfSDKExecption {
+		syncToSbm(item, sbmId, googleCalendarId);
 	}
 
-	private void syncToSbm(List<Items> items, String sbmId) throws SbmSDKException, InfSDKExecption {
+	private void syncToSbm(List<Items> items, String sbmId, String googleCalendarId) throws SbmSDKException, InfSDKExecption {
 		String companyLogin = enV.getSimplyBookCompanyLogin();
 		String endpoint = enV.getSimplyBookAdminServiceUrl();
 		String endpointLogin = enV.getSimplyBookServiceUrlLogin();
@@ -89,7 +93,7 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 		List<Items> eventTobeUnblocked = new ArrayList<>();
 		List<SbmGoogleCalendar> listSbmGoogleCalendar = new ArrayList<>();
 		List<String> clientEmailsForCancellation = new ArrayList<>();
-
+		Set<String> dateToBeDeleted = new HashSet<String>();
 		for (Items event : items) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 
@@ -133,7 +137,14 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 						}
 						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
 								event.getEnd().getDateTime(), sbmGoogleSync));
-
+					}
+				}
+				
+				if (GOOGLE.equals(sbmGoogleSync.getAgent())) {
+					String dateTime = event.getStart().getDateTime();
+					if (dateTime != null) {
+						String date = TimeUtils.extractDate(event.getStart().getDateTime());
+						dateToBeDeleted.add(date);
 					}
 				}
 			}
@@ -156,6 +167,17 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 			removeBreakTime(apptGroupMap, token, Integer.valueOf(unitId[1]), Integer.valueOf(unitId[0]));
 			m_log.info("Events are synced to SBM provider " + sbmId + " by unblocking : "
 					+ String.valueOf(eventTobeUnblocked));
+		}
+		
+		if (googleCalendarId != null && !dateToBeDeleted.isEmpty()) {
+			try {
+				m_log.info("Forcing to re-add all appointment of date {} after deleting an appointment",
+						dateToBeDeleted);
+				forceEventHandler.handle(googleCalendarId, dateToBeDeleted);
+				m_log.info("Re-added all appointment successfully");
+			} catch (Exception e) {
+				m_log.error("{}", e);
+			}
 		}
 
 	}

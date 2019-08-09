@@ -74,6 +74,8 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 	private SbmGoogleCalendarDbService sbmCalendarService = null;
 	private BookingServiceSbm bookingService = null;
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
+	private ForceUpdateGoogleEventHandler forceEventHandler = null;
+	private ChangeGoogleEventHandler changeEventHandler = null;
 
 	public CalendarSyncHandler() {
 		this.m_env = Env.load();
@@ -93,18 +95,24 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 		this.tokenService = new TokenServiceImpl();
 		this.apiServiceBuilder = new GoogleCalendarApiServiceBuilder();
 		this.googleCalendarService = new GoogleCalendarServiceImpl(new GoogleCalendarDaoImpl(m_amazonDynamoDB));
+		this.forceEventHandler = new ForceUpdateGoogleEventHandler(m_env, sbmCalendarService, apiServiceBuilder,
+				sbmTimeManagement, googleCalendarService, tokenCalendarService, modifiedChannelService, unitService,
+				specialDayService, tokenService);
+		this.changeEventHandler = new ChangeGoogleEventHandler(m_env, bookingService, sbmCalendarService, tokenService,
+				unitService, specialDayService, sbmTimeManagement);
 		this.createEventHandler = new CreateGoogleEventHandler(m_env, tokenService, specialDayService,
-				sbmTimeManagement, sbmCalendarService, unitService, bookingService);
+				sbmTimeManagement, sbmCalendarService, unitService, forceEventHandler, changeEventHandler);
 		this.deleteEventHandler = new DeleteGoogleEventHandler(m_env, tokenService, googleCalendarService,
 				specialDayService, sbmTimeManagement, contactItemService, contactInfService, sbmCalendarService,
-				bookingService, unitService);
+				bookingService, unitService, forceEventHandler);
 	}
 
 	// for testing only
 	CalendarSyncHandler(Env env, AmazonDynamoDB db, GoogleCalendarDbService googleCalendarService,
 			SpecialdayServiceSbm specialDayService, CreateGoogleEventHandler createHandler,
 			DeleteGoogleEventHandler deleteHandler, SbmUnitService unitService,
-			GoogleCalendarModifiedSyncService modifiedChannelService, SbmGoogleCalendarDbService sbmCalendarService, GoogleCalendarApiServiceBuilder apiServiceBuilder,TokenGoogleCalendarService tokenCalendarService) {
+			GoogleCalendarModifiedSyncService modifiedChannelService, SbmGoogleCalendarDbService sbmCalendarService,
+			GoogleCalendarApiServiceBuilder apiServiceBuilder, TokenGoogleCalendarService tokenCalendarService) {
 		this.m_amazonDynamoDB = db;
 		this.m_env = env;
 		this.googleCalendarService = googleCalendarService;
@@ -181,8 +189,7 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 							eventList = googleApiService.getEventWithNextPageToken(maxResult, nextSyncToken,
 									nextPageToken, googleCalendarId);
 						}
-						
-						
+
 						if (eventList == null) {
 							m_log.info("Could not fetch google events due to invalid next sync token or next page token");
 							googleCalendarSbmSync.setNextPageToken(null);
@@ -205,12 +212,10 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					}
 
 					if (!confirmedItems.isEmpty()) {
-
-						createEventHandler.handle(confirmedItems, sbmId);
+						createEventHandler.handle(confirmedItems, sbmId, googleCalendarId);
 					}
 					if (!cancelledItems.isEmpty()) {
-
-						deleteEventHandler.handle(cancelledItems, sbmId);
+						deleteEventHandler.handle(cancelledItems, sbmId, googleCalendarId);
 					}
 
 					String newNextPageToken = eventList.getNextPageToken();
