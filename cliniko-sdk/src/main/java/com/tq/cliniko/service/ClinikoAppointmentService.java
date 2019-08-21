@@ -55,6 +55,9 @@ public interface ClinikoAppointmentService {
 	AppointmentsInfo getNewestCancelledAppointments(String startTime, Integer maxResultPerPage, int practitionerId)
 			throws ClinikoSDKExeption;
 
+	AppointmentsInfo getAppointmentsByFromDateAndToDate(String startDate, String endDate, Integer maxResultPerPage, int practitionerId)
+			throws ClinikoSDKExeption;
+
 	AppointmentsInfo getPractitionerAppointment(Integer practitionerId, Integer maxResultPerPage)
 			throws ClinikoSDKExeption;
 

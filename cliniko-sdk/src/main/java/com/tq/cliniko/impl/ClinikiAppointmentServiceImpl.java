@@ -375,6 +375,31 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 	}
 
 	@Override
+	public AppointmentsInfo getAppointmentsByFromDateAndToDate(String startDate, String endDate,
+			Integer maxResultPerPage, int practitionerId) throws ClinikoSDKExeption {
+		String jsonResp;
+		try {
+			String queryStartDate = "appointment_start:>=" + startDate;
+			String queryEndDate = "appointment_start:<=" + endDate;
+			jsonResp = UtilsExecutor.request(new GetAppointmentsByFromDateAndToDate(m_clinikoApiKey, queryStartDate, queryEndDate,
+					maxResultPerPage, practitionerId));
+			return ClinikoRespParser.readJsonValueForObject(jsonResp, AppointmentsInfo.class);
+		} catch (Exception e) {
+			throw new ClinikoSDKExeption(e);
+		}
+	}
+
+	private class GetAppointmentsByFromDateAndToDate extends QueryClinikoApiReq {
+		public GetAppointmentsByFromDateAndToDate(String apiKey, String queryStartDate, String queryEndDate, int perPage,
+				int practitionerId) throws Exception {
+			super(apiKey, "appointments",
+					"?q[]=" + URLEncoder.encode(queryStartDate, "UTF-8") + "&?q[]="
+							+ URLEncoder.encode(queryEndDate, "UTF-8") + "&q[]=practitioner_id:=" + practitionerId
+							+ "&per_page=" + String.valueOf(perPage));
+		}
+	}
+	
+	@Override
 	public AppointmentsInfo getPractitionerAppointment(Integer practitionerId, Integer maxResultPerPage)
 			throws ClinikoSDKExeption {
 		String jsonResp;

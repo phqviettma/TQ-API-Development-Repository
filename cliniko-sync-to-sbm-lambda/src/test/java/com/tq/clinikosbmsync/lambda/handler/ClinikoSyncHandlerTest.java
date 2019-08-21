@@ -5,10 +5,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,13 +20,13 @@ import org.junit.Test;
 import com.amazonaws.serverless.proxy.internal.model.AwsProxyResponse;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.Account;
+import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.AppointmentsInfo;
+import com.tq.cliniko.lambda.model.FoundNewApptContext;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.clinikosbmsync.lamdbda.context.Env;
@@ -66,9 +66,11 @@ public class ClinikoSyncHandlerTest {
 	private BookingServiceSbm bookingService = mock(BookingServiceSbm.class);
 	private ClinikoAppointmentService clinikoApptService = null;
 	private ClinikoApiServiceBuilder clinikoApiServiceBuilder = mock(ClinikoApiServiceBuilder.class);
+	private ChangeClinikoSyncHandler changeHandler = mock(ChangeClinikoSyncHandler.class);
+	private ForceUpdateClinikoSyncHandler forceUpdateHandler = mock(ForceUpdateClinikoSyncHandler.class);
 	ClinikoSyncHandler handler = new ClinikoSyncHandler(m_env, amazonDynamoDB, specialdayService, tokenService,
 			sbmTimeManagement, clinikoSyncService, clinikoItemService, sbmClinikoSyncService, unitService,
-			bookingService, clinikoApiServiceBuilder);
+			bookingService, clinikoApiServiceBuilder, changeHandler, forceUpdateHandler);
 
 	@Before
 	public void init() throws ClinikoSDKExeption, SbmSDKException {
@@ -106,6 +108,8 @@ public class ClinikoSyncHandlerTest {
 		workDayInfo.put("2018-06-19", workdayResp);
 		when(sbmTimeManagement.addBreakTime("companyLogin", "endpoint", "token", 1, 5, "09:00:00", "18:00:00",
 				"2018-06-19", newBreakTime, workDayInfo)).thenReturn(true);
+		when(changeHandler.findModifedAppts(any(), any(), any())).thenReturn(new FoundNewApptContext(0, new ArrayList<Long>(),
+				new LinkedList<AppointmentInfo>(), new ArrayList<Long>()));
 	}
 
 	@Test
