@@ -393,7 +393,7 @@ public class ClinikiAppointmentServiceImpl implements ClinikoAppointmentService 
 		public GetAppointmentsByFromDateAndToDate(String apiKey, String queryStartDate, String queryEndDate, int perPage,
 				int practitionerId) throws Exception {
 			super(apiKey, "appointments",
-					"?q[]=" + URLEncoder.encode(queryStartDate, "UTF-8") + "&?q[]="
+					"?q[]=" + URLEncoder.encode(queryStartDate, "UTF-8") + "&q[]="
 							+ URLEncoder.encode(queryEndDate, "UTF-8") + "&q[]=practitioner_id:=" + practitionerId
 							+ "&per_page=" + String.valueOf(perPage));
 		}
