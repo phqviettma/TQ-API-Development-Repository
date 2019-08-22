@@ -60,7 +60,8 @@ public class ChangeClinikoSyncHandler {
     					newApptsId.add(fetchAppt.getId());
     					newAppts.add(fetchAppt);
     					num++;
-    					dateToBeUpdated.add(TimeUtils.extractDate(fetchAppt.getAppointment_start()));
+    					String convertedStartDateTime = TimeUtils.convertToTzFromLondonTz(dateTz, fetchAppt.getAppointment_start());
+    					dateToBeUpdated.add(TimeUtils.extractDate(convertedStartDateTime));
     				}
 				} else if (ClinikoSyncHandler.SBM.equals(sbmClinikoSync.getAgent())) { // if the appointment is created/booked from SBM
 					String newUpdatedAt = fetchAppt.getUpdated_at();

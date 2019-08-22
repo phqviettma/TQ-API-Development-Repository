@@ -226,11 +226,11 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						m_log.info(
 								"Fetched: " + cancelledAppt.getAppointments().size() + " cancelled Cliniko appointment(s)");
 						List<AppointmentInfo> fetchedAppts = cancelledAppt.getAppointments();
-						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts, dateToBeUpdated);
+						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts, dateToBeUpdated, dateTz);
 						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(cancelledAppt)) {
 							cancelledAppt = clinikoApiService.next(cancelledAppt);
 							if (cancelledAppt != null && cancelledAppt.getAppointments().size() > 0) {
-								FoundNewApptContext newAppt = findNewCancelledAppts(cancelledAppt.getAppointments(), dateToBeUpdated);
+								FoundNewApptContext newAppt = findNewCancelledAppts(cancelledAppt.getAppointments(), dateToBeUpdated, dateTz);
 								if (newAppt.getCount() > 0) {
 									addUpToMax(news, newAppt, maxAppt);
 								}
@@ -263,11 +263,11 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					if (deletedAppt != null && deletedAppt.getAppointments().size() > 0) {
 						m_log.info("Fetched: " + deletedAppt.getAppointments().size() + " removed Cliniko appointment(s)");
 						List<AppointmentInfo> fetchedAppts = deletedAppt.getAppointments();
-						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts, dateToBeUpdated);
+						FoundNewApptContext news = findNewCancelledAppts(fetchedAppts, dateToBeUpdated, dateTz);
 						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(deletedAppt)) {
 							deletedAppt = clinikoApiService.next(deletedAppt);
 							if (deletedAppt != null && deletedAppt.getAppointments().size() > 0) {
-								FoundNewApptContext newAppt = findNewCancelledAppts(deletedAppt.getAppointments(), dateToBeUpdated);
+								FoundNewApptContext newAppt = findNewCancelledAppts(deletedAppt.getAppointments(), dateToBeUpdated, dateTz);
 								if (newAppt.getCount() > 0) {
 									addUpToMax(news, newAppt, maxAppt);
 								}
@@ -295,9 +295,13 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						FoundNewApptContext apptsNeedToBeUpdated = m_forceUpdateHandle
 								.findAllAppointmentNeedToBeUpdated(dateToBeUpdated, clinikoSbmSync, dateTz);
 						m_log.info("Appointment Ids Need to be updated: " + apptsNeedToBeUpdated.getNewApptsId());
-						Map<Long, AppointmentInfo> lookupedMap = toLookupMap(apptsNeedToBeUpdated.getNewAppts());
-						syncToSbm(dateTz, apptsNeedToBeUpdated.getNewApptsId(), lookupedMap, true, clinikoSbmSync, false);
-						saveDb(apptsNeedToBeUpdated, false, 1, apiKey, apptsNeedToBeUpdated.getBookingId(), true);
+						if (apptsNeedToBeUpdated.getNewApptsId().size() != 0) {
+    						Map<Long, AppointmentInfo> lookupedMap = toLookupMap(apptsNeedToBeUpdated.getNewAppts());
+    						syncToSbm(dateTz, apptsNeedToBeUpdated.getNewApptsId(), lookupedMap, true, clinikoSbmSync, false);
+    						saveDb(apptsNeedToBeUpdated, false, 1, apiKey, apptsNeedToBeUpdated.getBookingId(), true);
+						} else {
+							m_log.info("There are no appointments on the date {}", dateToBeUpdated);
+						}
 					}
 					Long timeStamp = Calendar.getInstance().getTimeInMillis();
 					clinikoItem.setTimeStamp(timeStamp);
@@ -352,7 +356,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 
 	}
 
-	private FoundNewApptContext findNewCancelledAppts(List<AppointmentInfo> fetchedAppts, Set<String> dateToBeUpdated) throws SbmSDKException {
+	private FoundNewApptContext findNewCancelledAppts(List<AppointmentInfo> fetchedAppts, Set<String> dateToBeUpdated, DateTimeZone dateTz) throws SbmSDKException {
 		int num = 0;
 
 		List<Long> newApptsId = new LinkedList<Long>();
@@ -368,7 +372,8 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					newAppts.add(fetchAppt);
 					num++;
 					bookingId.add(sbmClinikoSync.getSbmId());
-					dateToBeUpdated.add(TimeUtils.extractDate(fetchAppt.getAppointment_start()));
+					String convertedStartDateTime = TimeUtils.convertToTzFromLondonTz(dateTz, fetchAppt.getAppointment_start());
+					dateToBeUpdated.add(TimeUtils.extractDate(convertedStartDateTime));
 
 				} else if (sbmClinikoSync.getFlag() == 1 && SBM.equals(sbmClinikoSync.getAgent())) {
 					cancelBookingIds.add(sbmClinikoSync.getSbmId());
