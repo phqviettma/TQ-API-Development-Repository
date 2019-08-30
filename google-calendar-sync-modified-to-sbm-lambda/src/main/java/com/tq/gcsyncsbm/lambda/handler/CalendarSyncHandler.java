@@ -212,10 +212,10 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 					}
 
 					if (!confirmedItems.isEmpty()) {
-						createEventHandler.handle(confirmedItems, sbmId, googleCalendarId);
+						createEventHandler.handle(confirmedItems, sbmId, googleCalendarSbmSync);
 					}
 					if (!cancelledItems.isEmpty()) {
-						deleteEventHandler.handle(cancelledItems, sbmId, googleCalendarId);
+						deleteEventHandler.handle(cancelledItems, sbmId, googleCalendarSbmSync);
 					}
 
 					String newNextPageToken = eventList.getNextPageToken();
@@ -236,6 +236,8 @@ public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsP
 						googleCalendarSbmSync.setNextSyncToken(newNextSyncToken);
 						googleCalendarSbmSync.setLastQueryTimeMin(null);
 						googleCalendarSbmSync.setNextPageToken(null);
+						// set Resync = false after the resync process is completed
+						googleCalendarSbmSync.setResync(false);
 					} else {
 						if (timeMinQuery == true) {
 							isDbChanged = true;

@@ -40,6 +40,7 @@ public class GoogleResyncCalendarHandler implements Handler {
 		googleCalendarSbmSync.setLastQueryTimeMin(null);
 		googleCalendarSbmSync.setNextSyncToken(null);
 		googleCalendarSbmSync.setNextPageToken(null);
+		googleCalendarSbmSync.setResync(true);
 		m_googleCalendarService.put(googleCalendarSbmSync);
 		
 		GCModifiedChannel gcModifiedChannel = m_calendarModifiedChannelService.queryEmail(email).get(0);

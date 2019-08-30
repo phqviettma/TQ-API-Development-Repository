@@ -12,13 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.common.lambda.dynamodb.model.ContactItem;
+import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.context.Env;
-import com.tq.googlecalendar.exception.GoogleApiSDKException;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
@@ -74,11 +74,11 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 	}
 
 	@Override
-	public void handle(List<Items> item, String sbmId, String googleCalendarId) throws SbmSDKException, InfSDKExecption {
-		syncToSbm(item, sbmId, googleCalendarId);
+	public void handle(List<Items> item, String sbmId, GoogleCalendarSbmSync googleCalendarSbmSync) throws SbmSDKException, InfSDKExecption {
+		syncToSbm(item, sbmId, googleCalendarSbmSync);
 	}
 
-	private void syncToSbm(List<Items> items, String sbmId, String googleCalendarId) throws SbmSDKException, InfSDKExecption {
+	private void syncToSbm(List<Items> items, String sbmId, GoogleCalendarSbmSync googleCalendarSbmSync) throws SbmSDKException, InfSDKExecption {
 		String companyLogin = enV.getSimplyBookCompanyLogin();
 		String endpoint = enV.getSimplyBookAdminServiceUrl();
 		String endpointLogin = enV.getSimplyBookServiceUrlLogin();
@@ -94,6 +94,8 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 		List<SbmGoogleCalendar> listSbmGoogleCalendar = new ArrayList<>();
 		List<String> clientEmailsForCancellation = new ArrayList<>();
 		Set<String> dateToBeDeleted = new HashSet<String>();
+		String googleCalendarId = googleCalendarSbmSync.getGoogleCalendarId();
+		
 		for (Items event : items) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 

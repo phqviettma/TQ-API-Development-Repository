@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.googlecalendar.context.Env;
@@ -43,7 +44,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 	private SbmUnitService unitService = null;
 	private ForceUpdateGoogleEventHandler forceEventHandler = null;
 	private ChangeGoogleEventHandler changeEventHandler = null;
-	private static final String AGENT = "google";
+	private static final String GOOGLE = "google";
 	private static final String SBM = "sbm";
 
 	public CreateGoogleEventHandler(Env env, TokenServiceSbm tss, SpecialdayServiceSbm sds, SbmBreakTimeManagement sbt,
@@ -60,11 +61,11 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 	}
 
 	@Override
-	public void handle(List<Items> item, String sbmId, String googleCalendarId) throws SbmSDKException, InfSDKExecption {
-		syncToSbm(item, sbmId, googleCalendarId);
+	public void handle(List<Items> item, String sbmId, GoogleCalendarSbmSync googleCalendarSbmSync) throws SbmSDKException, InfSDKExecption {
+		syncToSbm(item, sbmId, googleCalendarSbmSync);
 	}
 
-	private boolean syncToSbm(List<Items> eventItems, String sbmId, String googleCalendarId) throws SbmSDKException {
+	private boolean syncToSbm(List<Items> eventItems, String sbmId, GoogleCalendarSbmSync googleCalendarSbmSync) throws SbmSDKException {
 		String companyLogin = env.getSimplyBookCompanyLogin();
 		String endpointLogin = env.getSimplyBookServiceUrlLogin();
 		String endpoint = env.getSimplyBookAdminServiceUrl();
@@ -75,6 +76,9 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 		String token = tokenService.getUserToken(companyLogin, username, password, endpointLogin);
 		PractitionerApptGroup apptGroup = new PractitionerApptGroup();
 		Set<String> dateToBeUpdated = new HashSet<String>();
+		String googleCalendarId = googleCalendarSbmSync.getGoogleCalendarId();
+		boolean isResync = googleCalendarSbmSync.isResync();
+		
 		for (Items event : eventItems) {
 			SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(event.getId());
 			if (sbmGoogleSync == null) {
@@ -97,7 +101,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 						if (isBlocked) {
 							UUID uuid = UUID.randomUUID();
 							long bookingId = uuid.getMostSignificantBits();
-							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), 1, AGENT,
+							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), 1, GOOGLE,
 									event.getOrganizer().getEmail(), event.getUpdated(), event.getStart().getDate(),
 									event.getEnd().getDate());
 							sbmCalendarService.put(sbmGoogleSync);
@@ -107,9 +111,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 						}
 					}
 				} else {
-					String date = TimeUtils.extractDate(event.getStart().getDateTime());
-					apptGroup.addAppt(date,
-							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(), event));
+					addApptGroup(apptGroup, event);
 				}
 			} else {
 				m_log.info("Event Id " + event + " is already created by TrueQuit");
@@ -119,8 +121,11 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 					continue;
 				}
 				if (sbmGoogleSync.getFlag() == 1) {
-					if (AGENT.equals(sbmGoogleSync.getAgent())) {
+					if (GOOGLE.equals(sbmGoogleSync.getAgent())) {
 						changeEventHandler.appointmentChanged(event, sbmGoogleSync, sbmId, dateToBeUpdated);
+						if (isResync) {
+							addApptGroup(apptGroup, event);
+						}
 					} else if (SBM.equalsIgnoreCase(sbmGoogleSync.getAgent())) {
 						changeEventHandler.bookingChanged(event, sbmGoogleSync);
 					}
@@ -146,6 +151,11 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 		return true;
 	}
 
+	private void addApptGroup(PractitionerApptGroup apptGroup, Items event) {
+		String date = TimeUtils.extractDate(event.getStart().getDateTime());
+		apptGroup.addAppt(date,
+				new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(), event));
+	}
 	private void updateSbmGoogleCalendar(SbmGoogleCalendar sbmGoogleCalendar) {
 		sbmCalendarService.put(sbmGoogleCalendar);
 		m_log.info("Update to database successfully with value " + sbmGoogleCalendar);
@@ -191,7 +201,7 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 				if (!isModified) {
 					UUID uuid = UUID.randomUUID();
 					long bookingId = uuid.getMostSignificantBits();
-					SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, AGENT,
+					SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, GOOGLE,
 							googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(),
 							googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime());
 					updateSbmGoogleCalendar(sbmGoogleSync);

@@ -15,6 +15,7 @@ import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.common.lambda.dynamodb.dao.ClinikoCompanyInfoDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.ClinikoSyncToSbmDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.GoogleCalendarDaoImpl;
+import com.tq.common.lambda.dynamodb.dao.SbmBookingInfoDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmClinikoSyncDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmGoogleCalendarSyncDaoImpl;
 import com.tq.common.lambda.dynamodb.dao.SbmListBookingDaoImpl;
@@ -22,6 +23,7 @@ import com.tq.common.lambda.dynamodb.dao.SbmSyncFutureBookingDaoImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoCompanyInfoServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.ClinikoSyncToSbmServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.GoogleCalendarServiceImpl;
+import com.tq.common.lambda.dynamodb.impl.SbmBookingInfoServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmClinikoSyncImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmGoogleCalendarServiceImpl;
 import com.tq.common.lambda.dynamodb.impl.SbmListBookingServiceImpl;
@@ -86,6 +88,7 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 				clinikoCompanyService, sbmSyncFutureBookingService, clinikoApiServiceBuilder, sbmListBookingService);
 		this.sbmSyncGCHandler = new SbmSyncGCHandler(googleCalendarDbService, env, tokenCalendarService,
 				sbmSyncFutureBookingService, sbmListBookingService, sbmGoogleCalendarService, apiServiceBuilder);
+		this.sbmBookingService = new SbmBookingInfoServiceImpl(new SbmBookingInfoDaoImpl(m_amazonDynamoDB));
 	}
 
 	// for testing only

@@ -25,6 +25,7 @@ public class GoogleCalendarSbmSync implements Serializable {
 	private String gcWatchResourceId;
 	private String lastQueryTimeMin;
 	private String channelId;
+	private boolean isResync;
 
 	@DynamoDBAttribute(attributeName = "gcWatchResourceId")
 	public String getGcWatchResourceId() {
@@ -132,6 +133,14 @@ public class GoogleCalendarSbmSync implements Serializable {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public boolean isResync() {
+		return isResync;
+	}
+
+	public void setResync(boolean isResync) {
+		this.isResync = isResync;
 	}
 
 	public GoogleCalendarSbmSync(String sbmId, String googleEmail, String email, String lastname, String firstname,
