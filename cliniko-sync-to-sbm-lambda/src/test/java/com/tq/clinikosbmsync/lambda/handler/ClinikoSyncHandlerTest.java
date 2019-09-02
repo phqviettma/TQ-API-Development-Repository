@@ -108,7 +108,7 @@ public class ClinikoSyncHandlerTest {
 		workDayInfo.put("2018-06-19", workdayResp);
 		when(sbmTimeManagement.addBreakTime("companyLogin", "endpoint", "token", 1, 5, "09:00:00", "18:00:00",
 				"2018-06-19", newBreakTime, workDayInfo)).thenReturn(true);
-		when(changeHandler.findModifedAppts(any(), any(), any())).thenReturn(new FoundNewApptContext(0, new ArrayList<Long>(),
+		when(changeHandler.findModifedAppts(any(), any(), any(), any())).thenReturn(new FoundNewApptContext(0, new ArrayList<Long>(),
 				new LinkedList<AppointmentInfo>(), new ArrayList<Long>()));
 	}
 

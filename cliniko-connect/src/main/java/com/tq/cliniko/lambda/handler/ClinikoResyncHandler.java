@@ -33,16 +33,17 @@ public class ClinikoResyncHandler implements ConnectHandler {
 		}
 
 		String apiKey = clinikoSbmSync.getApiKey();
-		m_log.info("Starting the resync process for apiKey: {}", apiKey);
+		m_log.info("Setting the re-sync process in the next sync for apiKey: {}", apiKey);
 		ClinikoSyncStatus clinikoSyncStatus = m_clinikoItemService.queryWithIndex(apiKey);
 		
 		if (clinikoSyncStatus != null) {
 			clinikoSyncStatus.setLatestTime(null);
+			clinikoSyncStatus.setReSync(true);
 			m_clinikoItemService.put(clinikoSyncStatus);
 		} else {
 			throw new ClinikoConnectException("The provided API Key does not exist");
 		}
-		m_log.info("The resync process is completed");
+		m_log.info("Setting up the resync process is completed");
 		ClinikoConnectStatusResponse response = new ClinikoConnectStatusResponse();
 		response.setSucceeded(true);
 		return response;

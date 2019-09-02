@@ -29,6 +29,7 @@ import com.tq.cliniko.lambda.model.GeneralAppt;
 import com.tq.cliniko.lambda.model.PractitionerApptGroup;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
+import com.tq.clinikosbmsync.lambda.utils.ClinikoSyncUtils;
 import com.tq.clinikosbmsync.lambda.utils.SbmBreakTimeUtils;
 import com.tq.clinikosbmsync.lamdbda.context.Env;
 import com.tq.common.lambda.dynamodb.dao.ClinikoItemDaoImpl;
@@ -166,11 +167,11 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					if (appts != null && appts.getAppointments().size() > 0) {
 						m_log.info("Fetched: " + appts.getAppointments().size() + " updated Cliniko appointment(s)");
 						List<AppointmentInfo> fetchedAppts = appts.getAppointments();
-						FoundNewApptContext news = findNewAppts(fetchedAppts);
+						FoundNewApptContext news = findNewAppts(fetchedAppts, clinikoItem);
 						while (news.getCount() < maxAppt && AppointmentsInfo.hasNext(appts)) {
 							appts = clinikoApiService.next(appts);
 							if (appts != null && appts.getAppointments().size() > 0) {
-								FoundNewApptContext newAppt = findNewAppts(appts.getAppointments());
+								FoundNewApptContext newAppt = findNewAppts(appts.getAppointments(), clinikoItem);
 								if (newAppt.getCount() > 0) {
 									addUpToMax(news, newAppt, maxAppt);
 								}
@@ -188,11 +189,11 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						
 						// for the modifed appointment
 						
-						FoundNewApptContext modifedAppts = findModifedAppts(fetchedAppts, dateToBeUpdated, dateTz);
+						FoundNewApptContext modifedAppts = findModifedAppts(fetchedAppts, dateToBeUpdated, dateTz, clinikoItem);
 						while (modifedAppts.getCount() < maxAppt && AppointmentsInfo.hasNext(appts)) {
 							appts = clinikoApiService.next(appts);
 							if (appts != null && appts.getAppointments().size() > 0) {
-								FoundNewApptContext newAppt = findModifedAppts(appts.getAppointments(), dateToBeUpdated, dateTz);
+								FoundNewApptContext newAppt = findModifedAppts(appts.getAppointments(), dateToBeUpdated, dateTz, clinikoItem);
 								if (newAppt.getCount() > 0) {
 									addUpToMax(modifedAppts, newAppt, maxAppt);
 								}
@@ -306,6 +307,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					Long timeStamp = Calendar.getInstance().getTimeInMillis();
 					clinikoItem.setTimeStamp(timeStamp);
 					clinikoItem.setLatestTime(latestUpdateTime);
+					clinikoItem.setReSync(false);
 					clinikoItemService.put(clinikoItem);
 				} else {
 					m_log.info("Can't find the API key " + apiKey);
@@ -331,8 +333,12 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 				UUID uuid = UUID.randomUUID();
 
 				Long sbmId = uuid.getMostSignificantBits();
-				SbmCliniko sbmCliniko = new SbmCliniko(sbmId, apptInfo.getId(), 1, apiKey, "cliniko", apptInfo.getUpdated_at(), apptInfo.getAppointment_start(), apptInfo.getAppointment_end());
-				updateSbmClinikoSync(sbmCliniko);
+				SbmCliniko sbmCliniko = sbmClinikoSyncService.queryIndex(apptInfo.getId());
+				
+				if (sbmCliniko == null) {
+					sbmCliniko = new SbmCliniko(sbmId, apptInfo.getId(), 1, apiKey, "cliniko", apptInfo.getUpdated_at(), apptInfo.getAppointment_start(), apptInfo.getAppointment_end());
+					updateSbmClinikoSync(sbmCliniko);
+				}
 			}
 		} else if(isModified) {
 			for (AppointmentInfo apptInfo : news.getNewAppts()) {
@@ -366,8 +372,8 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		SbmCliniko sbmClinikoSync = null;
 		for (AppointmentInfo fetchAppt : fetchedAppts) {
 			sbmClinikoSync = sbmClinikoSyncService.queryIndex(fetchAppt.getId());
-			if (sbmClinikoSync != null) {
-				if (sbmClinikoSync.getFlag() == 1 && CLINIKO.equals(sbmClinikoSync.getAgent())) {
+			if (sbmClinikoSync != null && ClinikoSyncUtils.isNotDeleted(sbmClinikoSync)) {
+				if (ClinikoSyncUtils.isCreatedInCliniko(sbmClinikoSync)) {
 					newApptsId.add(fetchAppt.getId());
 					newAppts.add(fetchAppt);
 					num++;
@@ -375,7 +381,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 					String convertedStartDateTime = TimeUtils.convertToTzFromLondonTz(dateTz, fetchAppt.getAppointment_start());
 					dateToBeUpdated.add(TimeUtils.extractDate(convertedStartDateTime));
 
-				} else if (sbmClinikoSync.getFlag() == 1 && SBM.equals(sbmClinikoSync.getAgent())) {
+				} else if (ClinikoSyncUtils.isCreatedInSBM(sbmClinikoSync)) {
 					cancelBookingIds.add(sbmClinikoSync.getSbmId());
 					sbmClinikoSync.setFlag(0);
 					sbmClinikoSyncService.put(sbmClinikoSync);
@@ -413,24 +419,38 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 		return lookupedMap;
 	}
 
-	private FoundNewApptContext findNewAppts(List<AppointmentInfo> fetchedAppts) {
+	private FoundNewApptContext findNewAppts(List<AppointmentInfo> fetchedAppts, ClinikoSyncStatus clinikoItem) {
 		int num = 0;
 
 		List<Long> newApptsId = new LinkedList<Long>();
 		List<AppointmentInfo> newAppts = new LinkedList<AppointmentInfo>();
+		boolean isReSync = clinikoItem.isReSync();
 		for (AppointmentInfo fetchAppt : fetchedAppts) {
 			SbmCliniko sbmClinikoSync = sbmClinikoSyncService.queryIndex(fetchAppt.getId());
 			if (sbmClinikoSync == null) {
 				newApptsId.add(fetchAppt.getId());
 				newAppts.add(fetchAppt);
 				num++;
+				continue;
+			}
+			
+			// TSI-70
+			// in case an appointment is existed in DB and Resync = true
+			if (isReSync) {
+				if (ClinikoSyncUtils.isNotDeleted(sbmClinikoSync) && ClinikoSyncUtils.isCreatedInCliniko(sbmClinikoSync)
+						&& ClinikoSyncUtils.equalsUpdateAt(fetchAppt, sbmClinikoSync)) {
+					newApptsId.add(fetchAppt.getId());
+					newAppts.add(fetchAppt);
+					num++;
+					continue;
+				}
 			}
 		}
 		return new FoundNewApptContext(num, newApptsId, newAppts);
 	}
 
-	private FoundNewApptContext findModifedAppts(List<AppointmentInfo> fetchedAppts, Set<String> dateToBeUpdated, DateTimeZone dateTz) throws SbmSDKException {
-		return m_changeClinikoHandler.findModifedAppts(fetchedAppts, dateToBeUpdated, dateTz);
+	private FoundNewApptContext findModifedAppts(List<AppointmentInfo> fetchedAppts, Set<String> dateToBeUpdated, DateTimeZone dateTz, ClinikoSyncStatus clinikoItem) throws SbmSDKException {
+		return m_changeClinikoHandler.findModifedAppts(fetchedAppts, dateToBeUpdated, dateTz, clinikoItem);
 	}
 
 	private void updateSbmClinikoSync(SbmCliniko sbmClinikoSync) {

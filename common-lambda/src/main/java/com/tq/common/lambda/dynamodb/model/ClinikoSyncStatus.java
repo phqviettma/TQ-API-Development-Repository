@@ -13,6 +13,7 @@ public class ClinikoSyncStatus {
 	private String apiKey;
 	private Long timeStamp;
 	private String latestTime;
+	private boolean isReSync;
 
 	@DynamoDBIndexHashKey(globalSecondaryIndexName = "Cliniko-Index", attributeName = "checkingItem")
 	public String getCheckingItem() {
@@ -50,10 +51,18 @@ public class ClinikoSyncStatus {
 		this.latestTime = latestTime;
 	}
 
+	public boolean isReSync() {
+		return isReSync;
+	}
+
+	public void setReSync(boolean isReSync) {
+		this.isReSync = isReSync;
+	}
+
 	@Override
 	public String toString() {
 		return "ClinikoSyncStatus [checkingItem=" + checkingItem + ", apiKey=" + apiKey + ", timeStamp=" + timeStamp
-				+ "]";
+				+ ", latestTime=" + latestTime + ", isReSync=" + isReSync + "]";
 	}
 
 	public ClinikoSyncStatus(String checkingItem, String apiKey, Long timeStamp, String latestTime) {

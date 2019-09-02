@@ -17,6 +17,7 @@ import org.junit.Test;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.FoundNewApptContext;
 import com.tq.clinikosbmsync.lamdbda.context.Env;
+import com.tq.common.lambda.dynamodb.model.ClinikoSyncStatus;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.simplybook.exception.SbmSDKException;
@@ -42,6 +43,7 @@ public class ChangeClinikoSyncHandlerTest {
 		List<AppointmentInfo> fetchedAppts = initAppointmentList();
 		Set<String> dateToBeUpdated = new HashSet<String>();
 		DateTimeZone dateTz = DateTimeZone.forID("Australia/Sydney");
+		ClinikoSyncStatus clinikoItem = mock(ClinikoSyncStatus.class);
 		SbmCliniko sbmClinikoSync1 = new SbmCliniko();
 		sbmClinikoSync1.setAgent(ClinikoSyncHandler.CLINIKO);
 		sbmClinikoSync1.setAppointmentStart("2019-08-19T23:15:00Z");
@@ -66,7 +68,7 @@ public class ChangeClinikoSyncHandlerTest {
 		bookingInfo.setUnit_id("30");
 		when(m_bookingService.getBookingInfo(any(), any(), any(), any())).thenReturn(bookingInfo);
 		when(m_bookingService.editBooking(any(), any(), any(), any())).thenReturn(true);
-		FoundNewApptContext result = changeHandler.findModifedAppts(fetchedAppts, dateToBeUpdated, dateTz);
+		FoundNewApptContext result = changeHandler.findModifedAppts(fetchedAppts, dateToBeUpdated, dateTz, clinikoItem);
 		assertEquals(1, result.getCount());
 		assertEquals(true, result.getNewApptsId().contains(1L));
 	}

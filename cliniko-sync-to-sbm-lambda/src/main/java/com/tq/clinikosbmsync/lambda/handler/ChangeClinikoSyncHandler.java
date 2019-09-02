@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.FoundNewApptContext;
+import com.tq.clinikosbmsync.lambda.utils.ClinikoSyncUtils;
 import com.tq.clinikosbmsync.lamdbda.context.Env;
+import com.tq.common.lambda.dynamodb.model.ClinikoSyncStatus;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.utils.TimeUtils;
@@ -39,34 +41,32 @@ public class ChangeClinikoSyncHandler {
 		m_log.info("Update to database successfully with value " + sbmClinikoSync);
 	}
 	
-	public FoundNewApptContext findModifedAppts(List<AppointmentInfo> fetchedAppts, Set<String> dateToBeUpdated, DateTimeZone dateTz) throws SbmSDKException {
+	public FoundNewApptContext findModifedAppts(List<AppointmentInfo> fetchedAppts, Set<String> dateToBeUpdated, DateTimeZone dateTz, ClinikoSyncStatus clinikoItem) throws SbmSDKException {
 		int num = 0;
 
 		List<Long> newApptsId = new LinkedList<Long>();
 		List<AppointmentInfo> newAppts = new LinkedList<AppointmentInfo>();
+		boolean isReSync = clinikoItem.isReSync();
 		for (AppointmentInfo fetchAppt : fetchedAppts) {
 			SbmCliniko sbmClinikoSync = m_sbmClinikoSyncService.queryIndex(fetchAppt.getId());
-			if(sbmClinikoSync != null && sbmClinikoSync.getFlag() == 1) {
+			if(sbmClinikoSync != null && ClinikoSyncUtils.isNotDeleted(sbmClinikoSync)) {
 				// if the appointment is created/booked from CLINIKO
-				if(ClinikoSyncHandler.CLINIKO.equals(sbmClinikoSync.getAgent()) && sbmClinikoSync.getUpdatedAt() != null) {
-    				String newUpdatedAt = fetchAppt.getUpdated_at();
-    				String oldUpdatedAt = sbmClinikoSync.getUpdatedAt();
+				if(ClinikoSyncUtils.isCreatedInCliniko(sbmClinikoSync) && sbmClinikoSync.getUpdatedAt() != null) {
     				if (sbmClinikoSync.getAppointmentStart() == null) {
     					m_log.warn("The appointment cliniko id {} doesn't have appointmentStart (before this fix)", sbmClinikoSync.getClinikoId());
     					continue;
     				}
     				
-    				if (!newUpdatedAt.equals(oldUpdatedAt)) {
+    				if (!ClinikoSyncUtils.equalsUpdateAt(fetchAppt, sbmClinikoSync) || isReSync) {
     					newApptsId.add(fetchAppt.getId());
     					newAppts.add(fetchAppt);
     					num++;
     					String convertedStartDateTime = TimeUtils.convertToTzFromLondonTz(dateTz, fetchAppt.getAppointment_start());
     					dateToBeUpdated.add(TimeUtils.extractDate(convertedStartDateTime));
     				}
-				} else if (ClinikoSyncHandler.SBM.equals(sbmClinikoSync.getAgent())) { // if the appointment is created/booked from SBM
-					String newUpdatedAt = fetchAppt.getUpdated_at();
+				} else if (ClinikoSyncUtils.isCreatedInSBM(sbmClinikoSync)) { // if the appointment is created/booked from SBM
 					String oldUpdatedAt = sbmClinikoSync.getUpdatedAt();
-					if (oldUpdatedAt != null && oldUpdatedAt.equals(newUpdatedAt)) {
+					if (oldUpdatedAt != null && ClinikoSyncUtils.equalsUpdateAt(fetchAppt, sbmClinikoSync)) {
 						m_log.info("Ignoring appointment id {} due to no difference updated time or booked first time.", sbmClinikoSync.getSbmId());
 						sbmClinikoSync.setUpdatedAt(fetchAppt.getUpdated_at());
 						updateSbmClinikoSync(sbmClinikoSync);
