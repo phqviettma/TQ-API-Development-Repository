@@ -201,10 +201,13 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 				if (!isModified) {
 					UUID uuid = UUID.randomUUID();
 					long bookingId = uuid.getMostSignificantBits();
-					SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, GOOGLE,
-							googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(),
-							googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime());
-					updateSbmGoogleCalendar(sbmGoogleSync);
+					SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(googleEvent.getId());
+					if (sbmGoogleSync == null) {
+						sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, GOOGLE,
+								googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(),
+								googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime());
+						updateSbmGoogleCalendar(sbmGoogleSync);
+					}
 				} else {
 					SbmGoogleCalendar sbmGoogleSync = sbmCalendarService.queryWithIndex(googleEvent.getId());
 					if (sbmGoogleSync != null) {
