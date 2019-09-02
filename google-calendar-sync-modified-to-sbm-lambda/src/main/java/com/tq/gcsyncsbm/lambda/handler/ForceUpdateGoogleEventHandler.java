@@ -49,6 +49,7 @@ public class ForceUpdateGoogleEventHandler {
 	private static final Logger m_logger = LoggerFactory.getLogger(ForceUpdateGoogleEventHandler.class);
 	private static final Integer MAX_RESULTS = 100;
 	private static final String GOOGLE_AGENT = "google";
+	private static final String SBM_AGENT = "sbm";
 
 	private Env m_env = null;
 	private GoogleCalendarApiServiceBuilder m_apiServiceBuilder = null;
@@ -138,7 +139,11 @@ public class ForceUpdateGoogleEventHandler {
 				m_logger.info("Don't support modify for event has no start/end date time, ignoring: {}", event);
 				continue;
 			}
-			
+			SbmGoogleCalendar sbmGoogleSync = m_sbmCalendarService.queryWithIndex(event.getId());
+			if (sbmGoogleSync != null && SBM_AGENT.equalsIgnoreCase(sbmGoogleSync.getAgent())) {
+				m_logger.warn("Skipping appointment id {} due to booked from SBM", sbmGoogleSync.getAgent());
+				continue;
+			}
 			String date = TimeUtils.extractDate(event.getStart().getDateTime());
 			apptGroup.addAppt(date,
 					new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(), event));
