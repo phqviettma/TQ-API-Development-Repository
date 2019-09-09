@@ -194,7 +194,7 @@ public class ChangeInternalHandler implements InternalHandler {
 			m_log.info(String.format("Updated appointment successfully %s ", updatedAppointment.toString()));
 			return true;
 		} else {
-			m_log.info(String.format("Can not find booking id %d in database", bookingInfo.getId()));
+			m_log.info(String.format("Can not find booking id %s in database", bookingInfo.getId()));
 			return false;
 		}
 	}
