@@ -126,8 +126,15 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		clinikoItem.setTimeStamp(timeStamp);
 		clinikoItemService.put(clinikoItem);
 		clinikoCompanyService.put(clinikoCompanyInfo);
-		SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, apiKey, 1, timeStamp);
+		
+		SbmSyncFutureBookings sbmSyncFutureBookingItem = sbmSyncFutureBookingService.load(sbmId);
+		if (sbmSyncFutureBookingItem == null) {
+			sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, apiKey, 1, timeStamp);
+		}
+		sbmSyncFutureBookingItem.setClinikoApiKey(apiKey);
+		sbmSyncFutureBookingItem.setTimeStamp(timeStamp);
 		sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
+		
 		String dateFrom = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
 		GetBookingReq getBookingReq = new GetBookingReq(dateFrom, BOOKING_TYPE, ORDER_BY, Integer.valueOf(unitId),
 				Integer.valueOf(eventId));

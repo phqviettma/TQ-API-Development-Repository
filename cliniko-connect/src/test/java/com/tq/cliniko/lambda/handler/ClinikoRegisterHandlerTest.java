@@ -73,7 +73,8 @@ public class ClinikoRegisterHandlerTest {
 	private ClinikoDisconnectHandler disconnectHandler = new ClinikoDisconnectHandler(clinikoSyncToSbmService,
 			clinikoItemService, sbmSyncBookingService, sbmListBookingService, clinikoCompanyService);
 	private ClinikoGetDataHandler getDataHandler = new ClinikoGetDataHandler(clinikoSyncToSbmService, mockApiServiceBuilder);
-	private ClinikoResyncHandler resyncHandler = new ClinikoResyncHandler(clinikoSyncToSbmService, clinikoItemService);
+	private ClinikoResyncHandler resyncHandler = new ClinikoResyncHandler(clinikoSyncToSbmService, clinikoItemService,
+			bookingService, sbmListBookingService, mockedeEnv, tokenService, sbmSyncBookingService);
 
 	private ClinikoRegisterHandler initHandler() {
 		return new ClinikoRegisterHandler(mockedeEnv, amazonDynamoDB, unitService,
@@ -320,7 +321,10 @@ public class ClinikoRegisterHandlerTest {
 		// case 2
 		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync();
 		clinikoSbmSync.setApiKey(apiKey);
+		clinikoSbmSync.setSbmId("2-32");
 		when(clinikoSyncToSbmService.queryEmail(email)).thenReturn(clinikoSbmSync);
+		
+		when(sbmSyncBookingService.load(any())).thenReturn(new SbmSyncFutureBookings());
 		response = handler.handleRequest(req, m_context);
 		assertTrue(response.getBody().contains("The provided API Key does not exist"));
 		

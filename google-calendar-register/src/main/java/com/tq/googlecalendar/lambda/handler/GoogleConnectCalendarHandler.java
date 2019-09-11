@@ -179,8 +179,12 @@ public class GoogleConnectCalendarHandler implements Handler {
 		GCModifiedChannel modifiedChannelItem = new GCModifiedChannel(googleCalendarId, -1,
 				timeStamp, sbmEmail, channelId);
 		calendarModifiedChannelService.put(modifiedChannelItem);
-		SbmSyncFutureBookings sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, null,
-				sbmEmail, 1, timeStamp);
+		SbmSyncFutureBookings sbmSyncFutureBookingItem = sbmSyncFutureBookingService.load(sbmId);
+		if (sbmSyncFutureBookingItem == null) {
+			sbmSyncFutureBookingItem = new SbmSyncFutureBookings(sbmId, null, sbmEmail, 1, timeStamp);
+		}
+		sbmSyncFutureBookingItem.setEmail(sbmEmail);
+		sbmSyncFutureBookingItem.setTimeStamp(timeStamp);
 		sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
 	}
 

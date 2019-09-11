@@ -39,6 +39,7 @@ import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
+import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
@@ -111,21 +112,33 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 	@Override
 	public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
 		AwsProxyResponse resp = new AwsProxyResponse();
-		m_log.info("Start Lambda");
+		m_log.info("Start SBM-Cliniko/Google synchronization lambda");
 		boolean errorOccured = false;
 		List<SbmSyncFutureBookings> sbmSyncFutureBookingItems = sbmSyncFutureBookingService.querySyncStatus();
 		try {
 			if (!sbmSyncFutureBookingItems.isEmpty()) {
 				Iterator<SbmSyncFutureBookings> sbmItem = sbmSyncFutureBookingItems.iterator();
 				while (sbmItem.hasNext()) {
+					boolean clinikoProcessed = false;
+					boolean googleProcessed = false;
 					SbmSyncFutureBookings sbmSyncItem = sbmItem.next();
+					m_log.info("Syncing Info: " + sbmSyncItem);
 					saveBookingInfoToDb(sbmSyncItem.getSbmId(), sbmSyncItem.getEmail());
 					if (sbmSyncItem.getClinikoApiKey() != null) {
 						sbmSyncClinikoHandler.handle(sbmSyncItem);
-					} else if (sbmSyncItem.getEmail() != null) {
+						clinikoProcessed = true;
+					} 
+					if (clinikoProcessed) {
+						m_log.info("The future booking is synced to Cliniko");
+					}
+					
+					if (sbmSyncItem.getEmail() != null) {
 						sbmSyncGCHandler.handle(sbmSyncItem);
-					} else {
-						throw new SbmSDKException("Error, can not sync to cliniko/google");
+						googleProcessed = true;
+					}
+					
+					if (googleProcessed) {
+						m_log.info("The future booking is synced to Google");
 					}
 				}
 			}

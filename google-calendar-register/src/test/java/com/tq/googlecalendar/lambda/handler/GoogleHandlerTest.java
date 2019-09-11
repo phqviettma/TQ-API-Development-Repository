@@ -80,7 +80,9 @@ public class GoogleHandlerTest {
 			calendarService, tokenCalendarService, mockedApiServiceBuilder, googleWatchChannelDbService,
 			modifiedChannelService, sbmSyncFutureBookingService, sbmListBookingService, sbmBookingInfoService);
 	private ShowGoogleCalendarHandler showCalendarHandleResponse = new ShowGoogleCalendarHandler(tokenCalendarService, mockedeEnv, mockedApiServiceBuilder);
-	private GoogleResyncCalendarHandler resyncHandler = new GoogleResyncCalendarHandler(calendarService, modifiedChannelService);
+	private GoogleResyncCalendarHandler resyncHandler = new GoogleResyncCalendarHandler(calendarService,
+			modifiedChannelService, bookingSbmService, sbmListBookingService, mockedeEnv, tokenServiceSbm,
+			sbmSyncFutureBookingService);
 	@Before
 	public void init() throws GoogleApiSDKException, SbmSDKException {
 
@@ -242,7 +244,7 @@ public class GoogleHandlerTest {
 		when(googleWatchChannelDbService.queryEmail(any())).thenReturn(renewChannels );
 		SbmSyncFutureBookings sbmSyncFutureBookings = new SbmSyncFutureBookings();
 		sbmSyncFutureBookings.setEmail("email");
-		when(sbmSyncFutureBookingService.load(any())).thenReturn(sbmSyncFutureBookings );
+		when(sbmSyncFutureBookingService.load(any())).thenReturn(sbmSyncFutureBookings);
 		AwsProxyResponse response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());
 	}
@@ -267,6 +269,7 @@ public class GoogleHandlerTest {
 		assertTrue(response.getBody().contains("The email "+email+" does not exist"));
 		
 		GoogleCalendarSbmSync sbmSync = new GoogleCalendarSbmSync();
+		sbmSync.setSbmId("2-32");
 		List<GoogleCalendarSbmSync> googleCalendarSbmSyncList = new ArrayList<GoogleCalendarSbmSync>();
 		googleCalendarSbmSyncList.add(sbmSync);
 		when(calendarService.queryEmail(email)).thenReturn(googleCalendarSbmSyncList);
@@ -275,6 +278,9 @@ public class GoogleHandlerTest {
 		List<GCModifiedChannel> gcModifiedChannels = new ArrayList<GCModifiedChannel>();
 		gcModifiedChannels.add(gcModifiedChannel);
 		when(modifiedChannelService.queryEmail(email)).thenReturn(gcModifiedChannels);
+		
+		SbmSyncFutureBookings sbmSyncFutureBookings = new SbmSyncFutureBookings();
+		when(sbmSyncFutureBookingService.load(any())).thenReturn(sbmSyncFutureBookings);
 		
 		response = handler.handleRequest(req, m_context);
 		assertEquals(200, response.getStatusCode());

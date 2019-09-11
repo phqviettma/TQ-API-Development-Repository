@@ -89,7 +89,8 @@ public class ClinikoRegisterHandler implements RequestHandler<AwsProxyRequest, A
 				clinikoItemService, clinikoCompanyService, sbmSyncFutureBookingService, bookingService,
 				sbmBookingDBService);
 		this.getDataHandler = new ClinikoGetDataHandler(clinikoSyncService, clinikoApiServiceBuilder);
-		this.resyncHandler = new ClinikoResyncHandler(clinikoSyncService, clinikoItemService);
+		this.resyncHandler = new ClinikoResyncHandler(clinikoSyncService, clinikoItemService, bookingService,
+				sbmBookingDBService, eVariables, tokenServiceSbm, sbmSyncFutureBookingService);
 
 	}
 

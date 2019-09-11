@@ -120,10 +120,10 @@ public class GoogleDisconnectCalendarHandler implements Handler {
 		}
 		
 		googleCalendarService.deleteGoogleItem(googleCalendarSbmSync);
-		SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService
-					.load(googleCalendarSbmSync.get(0).getSbmId());
+		SbmSyncFutureBookings sbmSyncFutureBookings = sbmSyncFutureBookingService.load(googleCalendarSbmSync.get(0).getSbmId());
 		if (sbmSyncFutureBookings != null) {
-			sbmSyncFutureBookingService.delete(sbmSyncFutureBookings);
+			sbmSyncFutureBookings.setEmail(null);
+			sbmSyncFutureBookingService.put(sbmSyncFutureBookings);
 		}
 		SbmBookingList bookingListItem = sbmListBookingService.load(googleCalendarSbmSync.get(0).getSbmId());
 		if (bookingListItem != null) {
