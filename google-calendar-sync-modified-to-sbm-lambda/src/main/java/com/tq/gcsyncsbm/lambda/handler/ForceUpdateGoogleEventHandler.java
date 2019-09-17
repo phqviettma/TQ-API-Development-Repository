@@ -144,9 +144,14 @@ public class ForceUpdateGoogleEventHandler {
 				m_logger.warn("Skipping appointment id {} due to booked from SBM", sbmGoogleSync.getAgent());
 				continue;
 			}
-			String date = TimeUtils.extractDate(event.getStart().getDateTime());
+			
+			DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
+			String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
+			String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+			m_logger.info("convertedStartDateTime = {}, convertedEndDateTime = {}", convertedStartDateTime, convertedEndDateTime);
+			String date = TimeUtils.extractDate(convertedStartDateTime);
 			apptGroup.addAppt(date,
-					new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(), event));
+					new GeneralAppt(convertedStartDateTime, convertedEndDateTime, event));
 		}
 		
 		m_logger.info(apptGroup.toString());
@@ -170,13 +175,16 @@ public class ForceUpdateGoogleEventHandler {
 					long bookingId = uuid.getMostSignificantBits();
 					SbmGoogleCalendar newSbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), 1,
 							GOOGLE_AGENT, event.getOrganizer().getEmail(), event.getUpdated(),
-							event.getStart().getDateTime(), event.getEnd().getDateTime());
+							event.getStart().getDateTime(), event.getEnd().getDateTime(),
+							event.getStart().getTimeZone(), event.getEnd().getTimeZone());
 					m_sbmCalendarService.put(newSbmGoogleSync);
 					m_logger.info("Created {} with value {}", event.getId(), newSbmGoogleSync);
 				} else {
 					sbmGoogleSync.setStartDateTime(event.getStart().getDateTime());
 					sbmGoogleSync.setEndDateTime(event.getEnd().getDateTime());
 					sbmGoogleSync.setUpdated(event.getUpdated());
+					sbmGoogleSync.setStartTimeZone(event.getStart().getTimeZone());
+					sbmGoogleSync.setEndTimeZone(event.getEnd().getTimeZone());
 					m_sbmCalendarService.put(sbmGoogleSync);
 					m_logger.info("Update to database successfully with value " + sbmGoogleSync);
 				}

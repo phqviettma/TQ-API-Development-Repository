@@ -37,8 +37,6 @@ import com.tq.simplybook.utils.SbmUtils;
 public class ChangeGoogleEventHandler {
 	private static final Logger m_logger = LoggerFactory.getLogger(ChangeGoogleEventHandler.class);
 	private static final String GOOGLE = "google";
-	private static final String SBM = "sbm";
-	private static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 	private Env m_env = null;
 	private SbmGoogleCalendarDbService m_sbmCalendarService = null;
 	private BookingServiceSbm m_bookingService = null;
@@ -79,9 +77,9 @@ public class ChangeGoogleEventHandler {
 		BookingInfo bookingInfo = m_bookingService.getBookingInfo(companyLogin, endpoint, token,
 				sbmGoogleSync.getSbmId());
 
-		DateTimeZone dateTz = DateTimeZone.forID(DEFAULT_TIME_ZONE);
-		String newStartDateTime = TimeUtils.convertToTzFromLondonTz(dateTz, event.getStart().getDateTime());
-		String newEndDateTime = TimeUtils.convertToTzFromLondonTz(dateTz, event.getEnd().getDateTime());
+		DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
+		String newStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
+		String newEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
 
 		String newStartDate = TimeUtils.extractDate(newStartDateTime);
 		String newEndDate = TimeUtils.extractDate(newEndDateTime);
@@ -104,6 +102,8 @@ public class ChangeGoogleEventHandler {
 			sbmGoogleSync.setUpdated(event.getUpdated());
 			sbmGoogleSync.setStartDateTime(event.getStart().getDateTime());
 			sbmGoogleSync.setEndDateTime(event.getEnd().getDateTime());
+			sbmGoogleSync.setStartTimeZone(event.getStart().getTimeZone());
+			sbmGoogleSync.setEndTimeZone(event.getEnd().getTimeZone());
 			updateSbmGoogleCalendar(sbmGoogleSync);
 		} else {
 			m_logger.error("Event Id {} is not synced to SBM", event.getId());
@@ -124,16 +124,23 @@ public class ChangeGoogleEventHandler {
 				return;
 			}
 			String token = getUserToken();
-			String date = TimeUtils.extractDate(sbmGoogleSync.getStartDateTime());
-			removeApptGroup.addAppt(date, new GeneralAppt(sbmGoogleSync.getStartDateTime(),
-					sbmGoogleSync.getEndDateTime(), event));
+			DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
+			String oldStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(sbmGoogleSync, dateTz);
+			String oldEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(sbmGoogleSync, dateTz);
+			String date = TimeUtils.extractDate(oldStartDateTime);
+			removeApptGroup.addAppt(date, new GeneralAppt(oldStartDateTime,
+					oldEndDateTime, event));
 			changeBreakTime(removeApptGroup, token, Integer.valueOf(unitId[1]),
 					Integer.valueOf(unitId[0]), true);
-
-			date = TimeUtils.extractDate(event.getStart().getDateTime());
+			
+			
+			String newStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
+			String newEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+			m_logger.info("convertedStartDateTime = {}, convertedEndDateTime = {}", newStartDateTime, newEndDateTime);
+			date = TimeUtils.extractDate(newStartDateTime);
 			PractitionerApptGroup updateApptGroup = new PractitionerApptGroup();
-			updateApptGroup.addAppt(date, new GeneralAppt(event.getStart().getDateTime(),
-					event.getEnd().getDateTime(), event));
+			updateApptGroup.addAppt(date, new GeneralAppt(newStartDateTime,
+					newEndDateTime, event));
 			changeBreakTime(updateApptGroup, token, Integer.valueOf(unitId[1]),
 					Integer.valueOf(unitId[0]), false);
 			saveDb(updateApptGroup, true);
@@ -197,7 +204,8 @@ public class ChangeGoogleEventHandler {
 					long bookingId = uuid.getMostSignificantBits();
 					SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, GOOGLE,
 							googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(),
-							googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime());
+							googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime(),
+							googleEvent.getStart().getTimeZone(), googleEvent.getEnd().getTimeZone());
 					updateSbmGoogleCalendar(sbmGoogleSync);
 				} else {
 					SbmGoogleCalendar sbmGoogleSync = m_sbmCalendarService.queryWithIndex(googleEvent.getId());
@@ -205,6 +213,8 @@ public class ChangeGoogleEventHandler {
 						sbmGoogleSync.setUpdated(googleEvent.getUpdated());
 						sbmGoogleSync.setStartDateTime(googleEvent.getStart().getDateTime());
 						sbmGoogleSync.setEndDateTime(googleEvent.getEnd().getDateTime());
+						sbmGoogleSync.setStartTimeZone(googleEvent.getStart().getTimeZone());
+						sbmGoogleSync.setEndTimeZone(googleEvent.getEnd().getTimeZone());
 						updateSbmGoogleCalendar(sbmGoogleSync);
 					}
 				}

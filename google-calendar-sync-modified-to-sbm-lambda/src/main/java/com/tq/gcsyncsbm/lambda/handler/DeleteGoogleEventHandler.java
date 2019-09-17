@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,12 +18,12 @@ import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ContactItemService;
 import com.tq.common.lambda.dynamodb.service.GoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
-import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
 import com.tq.googlecalendar.resp.Items;
+import com.tq.googlecalendar.time.TimeUtils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
@@ -131,21 +132,29 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 						}
 
 					} else {
-						dateTime = TimeUtils.extractDate(event.getStart().getDateTime());
+						DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
+						String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
+						String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+						dateTime = TimeUtils.extractDate(convertedStartDateTime);
 						PractitionerApptGroup group = apptGroupMap.get(dateTime);
 						if (group == null) {
 							group = new PractitionerApptGroup();
 							apptGroupMap.put(dateTime, group);
 						}
-						group.addAppt(dateTime, new GeneralAppt(event.getStart().getDateTime(),
-								event.getEnd().getDateTime(), sbmGoogleSync));
+						group.addAppt(dateTime, new GeneralAppt(convertedStartDateTime,
+								convertedEndDateTime, sbmGoogleSync));
 					}
 				}
 				
 				if (GOOGLE.equals(sbmGoogleSync.getAgent())) {
 					String dateTime = event.getStart().getDateTime();
 					if (dateTime != null) {
-						String date = TimeUtils.extractDate(event.getStart().getDateTime());
+						DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
+						String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
+						String date = TimeUtils.extractDate(convertedStartDateTime);
+						dateToBeDeleted.add(date);
+					} else {
+						String date = event.getStart().getDate();
 						dateToBeDeleted.add(date);
 					}
 				}

@@ -22,6 +22,8 @@ public class SbmGoogleCalendar implements Serializable {
 	private String updated;
 	private String startDateTime;
 	private String endDateTime;
+	private String startTimeZone;
+	private String endTimeZone;
 
 	@DynamoDBAttribute(attributeName = "clientEmail")
 	public String getClientEmail() {
@@ -94,6 +96,24 @@ public class SbmGoogleCalendar implements Serializable {
 	public void setEndDateTime(String endDateTime) {
 		this.endDateTime = endDateTime;
 	}
+	
+	@DynamoDBAttribute(attributeName = "startTimeZone")
+	public String getStartTimeZone() {
+		return startTimeZone;
+	}
+
+	public void setStartTimeZone(String startTimeZone) {
+		this.startTimeZone = startTimeZone;
+	}
+	
+	@DynamoDBAttribute(attributeName = "endTimeZone")
+	public String getEndTimeZone() {
+		return endTimeZone;
+	}
+
+	public void setEndTimeZone(String endTimeZone) {
+		this.endTimeZone = endTimeZone;
+	}
 
 	public SbmGoogleCalendar(Long sbmId, String eventId, String clientEmail, Integer flag, String checkKind) {
 
@@ -112,7 +132,7 @@ public class SbmGoogleCalendar implements Serializable {
 		this.googleEmail = googleEmail;
 	}
 
-	public SbmGoogleCalendar(Long sbmId, String eventId, Integer flag, String agent, String googleEmail, String updated, String startDateTime, String endDateTime) {
+	public SbmGoogleCalendar(Long sbmId, String eventId, Integer flag, String agent, String googleEmail, String updated, String startDateTime, String endDateTime, String startTimeZone, String endTimeZone) {
 		this.sbmId = sbmId;
 		this.eventId = eventId;
 		this.flag = flag;
@@ -121,6 +141,8 @@ public class SbmGoogleCalendar implements Serializable {
 		this.updated = updated;
 		this.startDateTime = startDateTime;
 		this.endDateTime = endDateTime;
+		this.startTimeZone = startTimeZone;
+		this.endTimeZone = endTimeZone;
 	}
 	
 	public SbmGoogleCalendar() {

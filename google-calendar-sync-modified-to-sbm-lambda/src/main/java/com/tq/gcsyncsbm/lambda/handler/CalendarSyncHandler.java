@@ -55,6 +55,7 @@ import com.tq.simplybook.service.SpecialdayServiceSbm;
 import com.tq.simplybook.service.TokenServiceSbm;
 
 public class CalendarSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
+	public static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 	private static final Logger m_log = LoggerFactory.getLogger(CalendarSyncHandler.class);
 	private static int STATUS_CODE = 200;
 	private static final String GC_TIME_MIN = "timeMin";

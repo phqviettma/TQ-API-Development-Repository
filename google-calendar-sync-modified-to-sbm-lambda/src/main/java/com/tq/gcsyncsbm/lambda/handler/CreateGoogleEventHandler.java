@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,8 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 							long bookingId = uuid.getMostSignificantBits();
 							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), 1, GOOGLE,
 									event.getOrganizer().getEmail(), event.getUpdated(), event.getStart().getDate(),
-									event.getEnd().getDate());
+									event.getEnd().getDate(), event.getStart().getTimeZone(),
+									event.getEnd().getTimeZone());
 							sbmCalendarService.put(sbmGoogleSync);
 						} else {
 							m_log.info("Error during set work day info for provider with id "
@@ -152,9 +154,13 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 	}
 
 	private void addApptGroup(PractitionerApptGroup apptGroup, Items event) {
-		String date = TimeUtils.extractDate(event.getStart().getDateTime());
+		DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
+		String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
+		String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+		String date = TimeUtils.extractDate(convertedStartDateTime);
+		m_log.info("convertedStartDateTime = {}, convertedEndDateTime = {}", convertedStartDateTime, convertedEndDateTime);
 		apptGroup.addAppt(date,
-				new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(), event));
+				new GeneralAppt(convertedStartDateTime, convertedEndDateTime, event));
 	}
 	private void updateSbmGoogleCalendar(SbmGoogleCalendar sbmGoogleCalendar) {
 		sbmCalendarService.put(sbmGoogleCalendar);
@@ -205,7 +211,8 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 					if (sbmGoogleSync == null) {
 						sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, GOOGLE,
 								googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(),
-								googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime());
+								googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime(),
+								googleEvent.getStart().getTimeZone(), googleEvent.getEnd().getTimeZone());
 						updateSbmGoogleCalendar(sbmGoogleSync);
 					}
 				} else {
@@ -214,6 +221,8 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 						sbmGoogleSync.setUpdated(googleEvent.getUpdated());
 						sbmGoogleSync.setStartDateTime(googleEvent.getStart().getDateTime());
 						sbmGoogleSync.setEndDateTime(googleEvent.getEnd().getDateTime());
+						sbmGoogleSync.setStartTimeZone(googleEvent.getStart().getTimeZone());
+						sbmGoogleSync.setEndTimeZone(googleEvent.getEnd().getTimeZone());
 						updateSbmGoogleCalendar(sbmGoogleSync);
 					}
 				}

@@ -44,6 +44,7 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private static final Logger m_log = LoggerFactory.getLogger(SbmSyncGCHandler.class);
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
+	private static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 
 	public SbmSyncGCHandler(GoogleCalendarDbService googleCalendarService, Env eVariables,
 			TokenGoogleCalendarService tokenCalendarService, SbmSyncFutureBookingsService sbmSyncFutureBookingService,
@@ -94,8 +95,8 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 
 								String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
 								String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
-								Start start = new Start(sbmStartTime, settingInfo.getValue());
-								End end = new End(sbmEndTime, settingInfo.getValue());
+								Start start = new Start(sbmStartTime, DEFAULT_TIME_ZONE);
+								End end = new End(sbmEndTime, DEFAULT_TIME_ZONE);
 								String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingResp.getClient(),bookingResp.getClient_email(),bookingResp.getPhone());
 								EventReq eventReq = new EventReq(start, end, clientDescription,
 										eVariables.getGoogleCalendarEventName());

@@ -15,6 +15,9 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
+import com.tq.googlecalendar.resp.Items;
+
 public class TimeUtils {
 	private static final Logger m_log = LoggerFactory.getLogger(TimeUtils.class);
 
@@ -136,5 +139,41 @@ public class TimeUtils {
 		}
 
 		return null;
+	}
+	
+	public static String convertAndGetStartDateTimeGoogleEvent(Items event, DateTimeZone destTimeZone) {
+		String dateTime = event.getStart().getDateTime();
+		String eventTimeZone = event.getStart().getTimeZone();
+		if (eventTimeZone != null) {
+			dateTime = convertToTzFromLondonTz(DateTimeZone.forID(eventTimeZone), dateTime);
+		}
+		return convertToTzFromLondonTz(destTimeZone, dateTime);
+	}
+	
+	public static String convertAndGetEndDateTimeGoogleEvent(Items event, DateTimeZone destTimeZone) {
+		String dateTime = event.getEnd().getDateTime();
+		String eventTimeZone = event.getEnd().getTimeZone();
+		if (eventTimeZone != null) {
+			dateTime = convertToTzFromLondonTz(DateTimeZone.forID(eventTimeZone), dateTime);
+		}
+		return convertToTzFromLondonTz(destTimeZone, dateTime);
+	}
+	
+	public static String convertAndGetStartDateTimeGoogleEvent(SbmGoogleCalendar event, DateTimeZone destTimeZone) {
+		String dateTime = event.getStartDateTime();
+		String eventTimeZone = event.getStartTimeZone();
+		if (eventTimeZone != null) {
+			dateTime = convertToTzFromLondonTz(DateTimeZone.forID(eventTimeZone), dateTime);
+		}
+		return convertToTzFromLondonTz(destTimeZone, dateTime);
+	}
+	
+	public static String convertAndGetEndDateTimeGoogleEvent(SbmGoogleCalendar event, DateTimeZone destTimeZone) {
+		String dateTime = event.getEndDateTime();
+		String eventTimeZone = event.getEndTimeZone();
+		if (eventTimeZone != null) {
+			dateTime = convertToTzFromLondonTz(DateTimeZone.forID(eventTimeZone), dateTime);
+		}
+		return convertToTzFromLondonTz(destTimeZone, dateTime);
 	}
 }

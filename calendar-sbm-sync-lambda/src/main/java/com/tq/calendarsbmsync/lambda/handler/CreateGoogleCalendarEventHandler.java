@@ -6,17 +6,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
-import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.context.Env;
 import com.tq.googlecalendar.model.GeneralAppt;
 import com.tq.googlecalendar.model.PractitionerApptGroup;
 import com.tq.googlecalendar.model.PractitionerApptGroup.EventDateInfo;
 import com.tq.googlecalendar.resp.Items;
+import com.tq.googlecalendar.time.TimeUtils;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.SbmBreakTimeManagement;
 import com.tq.simplybook.req.FromDate;
@@ -87,7 +88,8 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 							UUID uuid = UUID.randomUUID();
 							long bookingId = uuid.getMostSignificantBits();
 							sbmGoogleSync = new SbmGoogleCalendar(bookingId, event.getId(), 1, AGENT,
-									event.getOrganizer().getEmail(), event.getUpdated(), event.getStart().getDateTime(), event.getEnd().getDateTime());
+									event.getOrganizer().getEmail(), event.getUpdated(), event.getStart().getDateTime(),
+									event.getEnd().getDateTime(), event.getStart().getTimeZone(), event.getEnd().getTimeZone());
 							sbmCalendarService.put(sbmGoogleSync);
 						} else {
 							m_log.info("Error during set work day info for provider with id "
@@ -96,8 +98,12 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 					}
 				} else {
 					String date = TimeUtils.extractDate(event.getStart().getDateTime());
+					DateTimeZone dateTz = DateTimeZone.forID(GoogleCalendarHandler.DEFAULT_TIME_ZONE);
+					String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
+					String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+					m_log.info("convertedStartDateTime = {}, convertedEndDateTime = {}", convertedStartDateTime, convertedEndDateTime);
 					apptGroup.addAppt(date,
-							new GeneralAppt(event.getStart().getDateTime(), event.getEnd().getDateTime(), event));
+							new GeneralAppt(convertedStartDateTime, convertedEndDateTime, event));
 				}
 			} else {
 				m_log.info("Event Id " + event + " is aldready created by TrueQuit, ignoring");
@@ -139,7 +145,9 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 					UUID uuid = UUID.randomUUID();
 					long bookingId = uuid.getMostSignificantBits();
 					SbmGoogleCalendar sbmGoogleSync = new SbmGoogleCalendar(bookingId, googleEvent.getId(), 1, AGENT,
-							googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(), googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime());
+							googleEvent.getOrganizer().getEmail(), googleEvent.getUpdated(),
+							googleEvent.getStart().getDateTime(), googleEvent.getEnd().getDateTime(),
+							googleEvent.getStart().getTimeZone(), googleEvent.getEnd().getTimeZone());
 					sbmCalendarService.put(sbmGoogleSync);
 					m_log.info("Save to database SbmGoogleSync " + sbmGoogleSync);
 				}
