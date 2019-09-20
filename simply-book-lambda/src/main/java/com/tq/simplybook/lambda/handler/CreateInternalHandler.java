@@ -15,7 +15,6 @@ import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.PatientDetail;
 import com.tq.cliniko.lambda.model.Patients;
-import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
@@ -195,9 +194,6 @@ public class CreateInternalHandler implements InternalHandler {
 		Integer businessId = Integer.valueOf(clinikoCompanyId[0]);
 
 		ClinikoAppointmentService clinikoApptService = clinikoApiServiceBuilder.build(clinikoSbmSync.getApiKey());
-		Settings settings = clinikoApptService.getAllSettings();
-		String country = settings.getAccount().getCountry();
-		String time_zone = settings.getAccount().getTime_zone();
 		ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(clinikoSbmSync.getApiKey());
 		if (clinikoCompanyInfo != null) {
 			Patients patientInfo = clinikoApptService.getPatient(bookingInfo.getClient_email());
@@ -220,7 +216,7 @@ public class CreateInternalHandler implements InternalHandler {
 			} else {
 				patientDetail = patientInfo.getPatients().get(0);
 			}
-			DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
+			DateTimeZone timeZone = DateTimeZone.forID(DEFAULT_TIME_ZONE);
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
 			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
 			DateTime start_time = new DateTime(sbmStartTime, timeZone);

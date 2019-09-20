@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TimeUtils {
+	public static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 	private static final Logger m_log = LoggerFactory.getLogger(TimeUtils.class);
 
 	public static String getPreviousTime() {

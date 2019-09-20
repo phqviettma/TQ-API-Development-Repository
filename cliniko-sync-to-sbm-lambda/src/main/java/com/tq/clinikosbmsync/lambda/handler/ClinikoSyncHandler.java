@@ -145,14 +145,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						m_log.info("Have something wrong on account settings. Ignore this practitioner");
 						continue;
 					}
-					String country = settings.getAccount().getCountry();
-					String time_zone = settings.getAccount().getTime_zone();
-					try {
-						dateTz = DateTimeZone.forID(country + "/" + time_zone);
-					} catch (Exception e) {
-						m_log.error(e.getMessage());
-						continue;
-					}
+					dateTz = DateTimeZone.forID(TimeUtils.DEFAULT_TIME_ZONE);
 					dbTime = clinikoItem.getLatestTime();
 					latestUpdateTime = TimeUtils.getNowInGMT();
 					AppointmentsInfo appts = null;
@@ -438,7 +431,7 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 			// in case an appointment is existed in DB and Resync = true
 			if (isReSync) {
 				if (ClinikoSyncUtils.isNotDeleted(sbmClinikoSync) && ClinikoSyncUtils.isCreatedInCliniko(sbmClinikoSync)
-						&& ClinikoSyncUtils.equalsUpdateAt(fetchAppt, sbmClinikoSync)) {
+						&& sbmClinikoSync.getUpdatedAt() != null && ClinikoSyncUtils.equalsUpdateAt(fetchAppt, sbmClinikoSync)) {
 					newApptsId.add(fetchAppt.getId());
 					newAppts.add(fetchAppt);
 					num++;

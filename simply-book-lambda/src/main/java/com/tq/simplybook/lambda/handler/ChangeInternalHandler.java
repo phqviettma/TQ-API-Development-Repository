@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
-import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.req.ClinikoBodyRequest;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
@@ -177,10 +176,7 @@ public class ChangeInternalHandler implements InternalHandler {
 		ClinikoAppointmentService clinikoApptService = clinikoApiServiceBuilder.build(clinikoSbmSync.getApiKey());
 		SbmCliniko sbmCliniko = sbmClinikoService.load(Long.parseLong(bookingInfo.getId()));
 		if (sbmCliniko != null) {
-			Settings settings = clinikoApptService.getAllSettings();
-			String country = settings.getAccount().getCountry();
-			String time_zone = settings.getAccount().getTime_zone();
-			DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
+			DateTimeZone timeZone = DateTimeZone.forID(DEFAULT_TIME_ZONE);
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
 			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
 			DateTime start_time = new DateTime(sbmStartTime, timeZone);

@@ -14,7 +14,6 @@ import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.PatientDetail;
 import com.tq.cliniko.lambda.model.Patients;
-import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
@@ -66,9 +65,6 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 			ClinikoCompanyInfo clinikoCompanyInfo = clinikoCompanyService.load(clinikoSbmSync.getApiKey());
 			if (clinikoCompanyInfo != null) {
 				ClinikoAppointmentService clinikoApptService = apiServiceBuilder.build(clinikoSbmSync.getApiKey());
-				Settings settings = clinikoApptService.getAllSettings();
-				String country = settings.getAccount().getCountry();
-				String time_zone = settings.getAccount().getTime_zone();
 				SbmBookingList bookingLists = sbmListBookingService.load(clinikoSbmSync.getSbmId());
 				if (bookingLists != null && !bookingLists.getBookingList().isEmpty()) {
 					FindNewBooking newBookings = findNewBooking(bookingLists.getBookingList());
@@ -76,7 +72,7 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 
 					while (processNumber < syncNumber && booking.hasNext()) {
 						GetBookingResp bookingResp = booking.next();
-						DateTimeZone timeZone = DateTimeZone.forID(country + "/" + time_zone);
+						DateTimeZone timeZone = DateTimeZone.forID(TimeUtils.DEFAULT_TIME_ZONE);
 						String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
 						String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
 						DateTime start_time = new DateTime(sbmStartTime, timeZone);
