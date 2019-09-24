@@ -133,6 +133,7 @@ public class ClinikoConnectHandler implements ConnectHandler {
 		}
 		sbmSyncFutureBookingItem.setClinikoApiKey(apiKey);
 		sbmSyncFutureBookingItem.setTimeStamp(timeStamp);
+		sbmSyncFutureBookingItem.setSyncStatus(1);
 		sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
 		
 		String dateFrom = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
