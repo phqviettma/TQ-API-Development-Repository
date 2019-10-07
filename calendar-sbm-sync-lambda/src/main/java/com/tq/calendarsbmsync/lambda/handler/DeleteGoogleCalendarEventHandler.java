@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,9 +125,8 @@ public class DeleteGoogleCalendarEventHandler implements GoogleCalendarInternalH
 						}
 
 					} else {
-						DateTimeZone dateTz = DateTimeZone.forID(GoogleCalendarHandler.DEFAULT_TIME_ZONE);
-						String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
-						String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+						String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event);
+						String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event);
 						dateTime = TimeUtils.extractDate(convertedStartDateTime);
 						PractitionerApptGroup group = apptGroupMap.get(dateTime);
 						if (group == null) {

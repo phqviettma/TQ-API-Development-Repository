@@ -141,39 +141,39 @@ public class TimeUtils {
 		return null;
 	}
 	
-	public static String convertAndGetStartDateTimeGoogleEvent(Items event, DateTimeZone destTimeZone) {
+	public static String convertAndGetStartDateTimeGoogleEvent(Items event) {
 		String dateTime = event.getStart().getDateTime();
 		String eventTimeZone = event.getStart().getTimeZone();
 		if (eventTimeZone != null) {
 			dateTime = convertToTzFromLondonTz(DateTimeZone.forID(eventTimeZone), dateTime);
 		}
-		return convertToTzFromLondonTz(destTimeZone, dateTime);
+		return dateTime;
 	}
 	
-	public static String convertAndGetEndDateTimeGoogleEvent(Items event, DateTimeZone destTimeZone) {
+	public static String convertAndGetEndDateTimeGoogleEvent(Items event) {
 		String dateTime = event.getEnd().getDateTime();
 		String eventTimeZone = event.getEnd().getTimeZone();
 		if (eventTimeZone != null) {
 			dateTime = convertToTzFromLondonTz(DateTimeZone.forID(eventTimeZone), dateTime);
 		}
-		return convertToTzFromLondonTz(destTimeZone, dateTime);
+		return dateTime;
 	}
 	
-	public static String convertAndGetStartDateTimeGoogleEvent(SbmGoogleCalendar event, DateTimeZone destTimeZone) {
+	public static String convertAndGetStartDateTimeGoogleEvent(SbmGoogleCalendar event) {
 		String dateTime = event.getStartDateTime();
 		String eventTimeZone = event.getStartTimeZone();
 		if (eventTimeZone != null) {
 			dateTime = convertToTzFromLondonTz(DateTimeZone.forID(eventTimeZone), dateTime);
 		}
-		return convertToTzFromLondonTz(destTimeZone, dateTime);
+		return dateTime;
 	}
 	
-	public static String convertAndGetEndDateTimeGoogleEvent(SbmGoogleCalendar event, DateTimeZone destTimeZone) {
+	public static String convertAndGetEndDateTimeGoogleEvent(SbmGoogleCalendar event) {
 		String dateTime = event.getEndDateTime();
 		String eventTimeZone = event.getEndTimeZone();
 		if (eventTimeZone != null) {
 			dateTime = convertToTzFromLondonTz(DateTimeZone.forID(eventTimeZone), dateTime);
 		}
-		return convertToTzFromLondonTz(destTimeZone, dateTime);
+		return dateTime;
 	}
 }

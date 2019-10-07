@@ -44,7 +44,6 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 	private GoogleCalendarApiServiceBuilder apiServiceBuilder = null;
 	private static final Logger m_log = LoggerFactory.getLogger(SbmSyncGCHandler.class);
 	private SbmSyncFutureBookingsService sbmSyncFutureBookingService = null;
-	private static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 
 	public SbmSyncGCHandler(GoogleCalendarDbService googleCalendarService, Env eVariables,
 			TokenGoogleCalendarService tokenCalendarService, SbmSyncFutureBookingsService sbmSyncFutureBookingService,
@@ -72,7 +71,7 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 					googleChannelInfo.get(0).getRefreshToken());
 			TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
 			GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
-			GoogleCalendarSettingsInfo settingInfo = googleApiService.getSettingInfo("timezone");
+			GoogleCalendarSettingsInfo timeZoneSetting = googleApiService.getSettingInfo("timezone");
 			for (GoogleCalendarSbmSync googleCalendarSbmSync : googleChannelInfo) {
 				SbmBookingList bookingLists = sbmListBookingService.load(googleCalendarSbmSync.getSbmId());
 				if (bookingLists != null) {
@@ -95,8 +94,8 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 
 								String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
 								String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
-								Start start = new Start(sbmStartTime, DEFAULT_TIME_ZONE);
-								End end = new End(sbmEndTime, DEFAULT_TIME_ZONE);
+								Start start = new Start(sbmStartTime, timeZoneSetting.getValue());
+								End end = new End(sbmEndTime, timeZoneSetting.getValue());
 								String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingResp.getClient(),bookingResp.getClient_email(),bookingResp.getPhone());
 								EventReq eventReq = new EventReq(start, end, clientDescription,
 										eVariables.getGoogleCalendarEventName());

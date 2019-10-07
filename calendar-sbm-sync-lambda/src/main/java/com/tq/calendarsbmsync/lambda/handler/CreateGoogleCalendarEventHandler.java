@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,10 +96,9 @@ public class CreateGoogleCalendarEventHandler implements GoogleCalendarInternalH
 						}
 					}
 				} else {
-					String date = TimeUtils.extractDate(event.getStart().getDateTime());
-					DateTimeZone dateTz = DateTimeZone.forID(GoogleCalendarHandler.DEFAULT_TIME_ZONE);
-					String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
-					String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+					String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event);
+					String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event);
+					String date = TimeUtils.extractDate(convertedStartDateTime);
 					m_log.info("convertedStartDateTime = {}, convertedEndDateTime = {}", convertedStartDateTime, convertedEndDateTime);
 					apptGroup.addAppt(date,
 							new GeneralAppt(convertedStartDateTime, convertedEndDateTime, event));

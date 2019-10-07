@@ -185,6 +185,7 @@ public class GoogleConnectCalendarHandler implements Handler {
 		}
 		sbmSyncFutureBookingItem.setEmail(sbmEmail);
 		sbmSyncFutureBookingItem.setTimeStamp(timeStamp);
+		sbmSyncFutureBookingItem.setSyncStatus(1);
 		sbmSyncFutureBookingService.put(sbmSyncFutureBookingItem);
 	}
 

@@ -132,9 +132,8 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 						}
 
 					} else {
-						DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
-						String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
-						String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+						String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event);
+						String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event);
 						dateTime = TimeUtils.extractDate(convertedStartDateTime);
 						PractitionerApptGroup group = apptGroupMap.get(dateTime);
 						if (group == null) {
@@ -149,8 +148,7 @@ public class DeleteGoogleEventHandler implements GCInternalHandler {
 				if (GOOGLE.equals(sbmGoogleSync.getAgent())) {
 					String dateTime = event.getStart().getDateTime();
 					if (dateTime != null) {
-						DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
-						String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
+						String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event);
 						String date = TimeUtils.extractDate(convertedStartDateTime);
 						dateToBeDeleted.add(date);
 					} else {

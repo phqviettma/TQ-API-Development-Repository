@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,9 +153,8 @@ public class CreateGoogleEventHandler implements GCInternalHandler {
 	}
 
 	private void addApptGroup(PractitionerApptGroup apptGroup, Items event) {
-		DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
-		String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
-		String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+		String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event);
+		String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event);
 		String date = TimeUtils.extractDate(convertedStartDateTime);
 		m_log.info("convertedStartDateTime = {}, convertedEndDateTime = {}", convertedStartDateTime, convertedEndDateTime);
 		apptGroup.addAppt(date,

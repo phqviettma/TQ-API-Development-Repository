@@ -145,9 +145,8 @@ public class ForceUpdateGoogleEventHandler {
 				continue;
 			}
 			
-			DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
-			String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
-			String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+			String convertedStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event);
+			String convertedEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event);
 			m_logger.info("convertedStartDateTime = {}, convertedEndDateTime = {}", convertedStartDateTime, convertedEndDateTime);
 			String date = TimeUtils.extractDate(convertedStartDateTime);
 			apptGroup.addAppt(date,

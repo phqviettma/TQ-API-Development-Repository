@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +76,8 @@ public class ChangeGoogleEventHandler {
 		BookingInfo bookingInfo = m_bookingService.getBookingInfo(companyLogin, endpoint, token,
 				sbmGoogleSync.getSbmId());
 
-		DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
-		String newStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
-		String newEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+		String newStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event);
+		String newEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event);
 
 		String newStartDate = TimeUtils.extractDate(newStartDateTime);
 		String newEndDate = TimeUtils.extractDate(newEndDateTime);
@@ -124,9 +122,8 @@ public class ChangeGoogleEventHandler {
 				return;
 			}
 			String token = getUserToken();
-			DateTimeZone dateTz = DateTimeZone.forID(CalendarSyncHandler.DEFAULT_TIME_ZONE);
-			String oldStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(sbmGoogleSync, dateTz);
-			String oldEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(sbmGoogleSync, dateTz);
+			String oldStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(sbmGoogleSync);
+			String oldEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(sbmGoogleSync);
 			String date = TimeUtils.extractDate(oldStartDateTime);
 			removeApptGroup.addAppt(date, new GeneralAppt(oldStartDateTime,
 					oldEndDateTime, event));
@@ -134,8 +131,8 @@ public class ChangeGoogleEventHandler {
 					Integer.valueOf(unitId[0]), true);
 			
 			
-			String newStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event, dateTz);
-			String newEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event, dateTz);
+			String newStartDateTime = TimeUtils.convertAndGetStartDateTimeGoogleEvent(event);
+			String newEndDateTime = TimeUtils.convertAndGetEndDateTimeGoogleEvent(event);
 			m_logger.info("convertedStartDateTime = {}, convertedEndDateTime = {}", newStartDateTime, newEndDateTime);
 			date = TimeUtils.extractDate(newStartDateTime);
 			PractitionerApptGroup updateApptGroup = new PractitionerApptGroup();
