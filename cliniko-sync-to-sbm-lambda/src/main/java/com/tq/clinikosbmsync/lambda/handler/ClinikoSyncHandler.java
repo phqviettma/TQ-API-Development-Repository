@@ -145,7 +145,8 @@ public class ClinikoSyncHandler implements RequestHandler<AwsProxyRequest, AwsPr
 						m_log.info("Have something wrong on account settings. Ignore this practitioner");
 						continue;
 					}
-					dateTz = DateTimeZone.forID(TimeUtils.DEFAULT_TIME_ZONE);
+					String timeZoneId = settings.getAccount().getTime_zone_identifier();
+					dateTz = DateTimeZone.forID(timeZoneId);
 					dbTime = clinikoItem.getLatestTime();
 					latestUpdateTime = TimeUtils.getNowInGMT();
 					AppointmentsInfo appts = null;

@@ -15,6 +15,7 @@ import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.PatientDetail;
 import com.tq.cliniko.lambda.model.Patients;
+import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
@@ -77,7 +78,6 @@ public class CreateInternalHandler implements InternalHandler {
 	private CountryItemService countryItemService = null;
 	private SbmBookingInfoService sbmBookingInfoService = null;
 	private static final String AGENT = "sbm";
-	private static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 
 	public CreateInternalHandler(Env environtment, TokenServiceSbm tss, BookingServiceSbm bss, ContactServiceInf csi,
 			ContactItemService cis, SbmClinikoSyncService scs, GoogleCalendarDbService gcs,
@@ -217,7 +217,13 @@ public class CreateInternalHandler implements InternalHandler {
 			} else {
 				patientDetail = patientInfo.getPatients().get(0);
 			}
-			DateTimeZone timeZone = DateTimeZone.forID(DEFAULT_TIME_ZONE);
+			Settings settings = clinikoApptService.getAllSettings();
+			if (settings == null || settings.getAccount() == null) {
+				m_log.info("Have something wrong on account settings or the account maybe expired.");
+				return false;
+			}
+			String timeZoneId = settings.getAccount().getTime_zone_identifier();
+			DateTimeZone timeZone = DateTimeZone.forID(timeZoneId);
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
 			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
 			DateTime start_time = new DateTime(sbmStartTime, timeZone);

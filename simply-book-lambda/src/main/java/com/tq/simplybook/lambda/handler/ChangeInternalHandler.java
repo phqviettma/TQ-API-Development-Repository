@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.tq.cliniko.exception.ClinikoSDKExeption;
 import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
+import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.req.ClinikoBodyRequest;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
@@ -54,7 +55,6 @@ import com.tq.simplybook.service.TokenServiceSbm;
 public class ChangeInternalHandler implements InternalHandler {
 	private Env env = null;
 	private static final Logger m_log = LoggerFactory.getLogger(ChangeInternalHandler.class);
-	private static final String DEFAULT_TIME_ZONE = "Australia/Sydney";
 	private BookingServiceSbm bookingService = null;
 	private TokenServiceSbm tokenService = null;
 	private CountryItemService countryItemService = null;
@@ -177,7 +177,13 @@ public class ChangeInternalHandler implements InternalHandler {
 		ClinikoAppointmentService clinikoApptService = clinikoApiServiceBuilder.build(clinikoSbmSync.getApiKey());
 		SbmCliniko sbmCliniko = sbmClinikoService.load(Long.parseLong(bookingInfo.getId()));
 		if (sbmCliniko != null) {
-			DateTimeZone timeZone = DateTimeZone.forID(DEFAULT_TIME_ZONE);
+			Settings settings = clinikoApptService.getAllSettings();
+			if (settings == null || settings.getAccount() == null) {
+				m_log.info("Have something wrong on account settings or the account maybe expired.");
+				return false;
+			}
+			String timeZoneId = settings.getAccount().getTime_zone_identifier();
+			DateTimeZone timeZone = DateTimeZone.forID(timeZoneId);
 			String sbmStartTime = TimeUtils.parseTime(bookingInfo.getStart_date_time());
 			String sbmEndTime = TimeUtils.parseTime(bookingInfo.getEnd_date_time());
 			DateTime start_time = new DateTime(sbmStartTime, timeZone);

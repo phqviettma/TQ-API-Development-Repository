@@ -17,6 +17,7 @@ public class Account implements Serializable {
 	private String time_zone;
 	private String country_code;
 	private String email_from;
+	private String time_zone_identifier;
 
 	public String getName() {
 		return name;
@@ -56,6 +57,14 @@ public class Account implements Serializable {
 
 	public void setEmail_from(String email_from) {
 		this.email_from = email_from;
+	}
+
+	public String getTime_zone_identifier() {
+		return time_zone_identifier;
+	}
+
+	public void setTime_zone_identifier(String time_zone_identifier) {
+		this.time_zone_identifier = time_zone_identifier;
 	}
 
 	public Account withTimeZone(String timeZone) {

@@ -14,6 +14,7 @@ import com.tq.cliniko.impl.ClinikoApiServiceBuilder;
 import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.PatientDetail;
 import com.tq.cliniko.lambda.model.Patients;
+import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
@@ -69,10 +70,15 @@ public class SbmSyncClinikoHandler implements SbmInternalHandler {
 				if (bookingLists != null && !bookingLists.getBookingList().isEmpty()) {
 					FindNewBooking newBookings = findNewBooking(bookingLists.getBookingList());
 					Iterator<GetBookingResp> booking = newBookings.getBookingList().iterator();
-
+					Settings settings = clinikoApptService.getAllSettings();
+					if (settings == null || settings.getAccount() == null) {
+						m_log.error("Have something wrong on account settings or the account maybe expired.");
+						return response;
+					}
 					while (processNumber < syncNumber && booking.hasNext()) {
 						GetBookingResp bookingResp = booking.next();
-						DateTimeZone timeZone = DateTimeZone.forID(TimeUtils.DEFAULT_TIME_ZONE);
+						String timeZoneId = settings.getAccount().getTime_zone_identifier();
+						DateTimeZone timeZone = DateTimeZone.forID(timeZoneId);
 						String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
 						String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
 						DateTime start_time = new DateTime(sbmStartTime, timeZone);
