@@ -1,5 +1,7 @@
 package com.tq.simplybook.lambda.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -20,6 +22,7 @@ import com.tq.cliniko.service.ClinikoAppointmentService;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
+import com.tq.common.lambda.dynamodb.model.SbmBookingInfo;
 import com.tq.common.lambda.dynamodb.model.SbmCliniko;
 import com.tq.common.lambda.dynamodb.model.SbmGoogleCalendar;
 import com.tq.common.lambda.dynamodb.service.ClinikoSyncToSbmService;
@@ -40,6 +43,7 @@ import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
+import com.tq.simplybook.exception.SbmDateTimeException;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 import com.tq.simplybook.resp.BookingInfo;
@@ -94,11 +98,16 @@ public class ChangeInternalHandlerTest {
 				.getJsonString(this.getClass().getClassLoader().getResourceAsStream("contactItem-dummy.json"));
 		ContactItem contactItem = mapper.readValue(contactJsonPayLoad, ContactItem.class);
 		when(contactItemService.load(any())).thenReturn(contactItem);
+		
+		SbmBookingInfo bookingItem = new SbmBookingInfo();
+		bookingItem.setApptDate("27-07-2018");
+		bookingItem.setApptTime("10:00-11:00");
+		when(sbmBookingInfoService.load(any())).thenReturn(bookingItem);
 	}
 
 	@Test
 	public void testSyncChangeToGoogle()
-			throws GoogleApiSDKException, SbmSDKException, ClinikoSDKExeption, InfSDKExecption {
+			throws GoogleApiSDKException, SbmSDKException, ClinikoSDKExeption, InfSDKExecption, SbmDateTimeException {
 		when(clinikoSyncToSbmService.load(any())).thenReturn(null);
 		List<GoogleCalendarSbmSync> googleCalendarLists = new ArrayList<>();
 		GoogleCalendarSbmSync calendarSbm = new GoogleCalendarSbmSync();
@@ -122,7 +131,7 @@ public class ChangeInternalHandlerTest {
 	}
 
 	@Test
-	public void testSyncCliniko() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption {
+	public void testSyncCliniko() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption, SbmDateTimeException {
 		ClinikoSbmSync clinikoSbmSync = new ClinikoSbmSync();
 		clinikoSbmSync.setApiKey("api_key");
 		when(clinikoSyncToSbmService.load(any())).thenReturn(clinikoSbmSync);
@@ -138,5 +147,19 @@ public class ChangeInternalHandlerTest {
 		AppointmentInfo updatedAppointment = new AppointmentInfo();
 		when(clinikoApiService.updateAppointment(any(), any())).thenReturn(updatedAppointment);
 		changeHandler.handle(payLoad);
+	}
+	
+	@Test
+	public void testNoDiffDateTime() throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption, SbmDateTimeException {
+		SbmBookingInfo bookingItem = new SbmBookingInfo();
+		bookingItem.setApptDate("27-06-2018");
+		bookingItem.setApptTime("10:00-11:00");
+		when(sbmBookingInfoService.load(any())).thenReturn(bookingItem);
+		try {
+			changeHandler.handle(payLoad);
+			fail("Should throw an exception: There is no difference between new date time and old date time.");
+		} catch (Exception e) {
+			assertEquals("There is no difference between new date time and old date time.", e.getMessage());
+		}
 	}
 }

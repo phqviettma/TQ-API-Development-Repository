@@ -47,6 +47,7 @@ import com.tq.inf.impl.DataServiceImpl;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
 import com.tq.simplybook.context.Env;
+import com.tq.simplybook.exception.SbmDateTimeException;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.impl.BookingServiceSbmImpl;
 import com.tq.simplybook.impl.TokenServiceImpl;
@@ -155,7 +156,7 @@ public class FilterEventHandler implements RequestHandler<AwsProxyRequest, AwsPr
 							+ payLoad.getBooking_id() + " is unhandled");
 				}
 
-			} catch (SbmSDKException | ClinikoSDKExeption | GoogleApiSDKException | InfSDKExecption e) {
+			} catch (SbmSDKException | ClinikoSDKExeption | GoogleApiSDKException | InfSDKExecption | SbmDateTimeException e) {
 				m_log.error("Processed notification: " + payLoad.getNotification_type() + " for booking ID: "
 						+ payLoad.getBooking_id() + " results in error: ", e);
 				error = e;

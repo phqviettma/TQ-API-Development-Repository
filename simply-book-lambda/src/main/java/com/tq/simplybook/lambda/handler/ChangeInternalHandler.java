@@ -14,6 +14,7 @@ import com.tq.cliniko.lambda.model.AppointmentInfo;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.lambda.req.ClinikoBodyRequest;
 import com.tq.cliniko.service.ClinikoAppointmentService;
+import com.tq.cliniko.utils.ClinikoUtils;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
 import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.dynamodb.model.GoogleCalendarSbmSync;
@@ -45,6 +46,7 @@ import com.tq.inf.query.AddDataQuery;
 import com.tq.inf.query.ApplyTagQuery;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.context.Env;
+import com.tq.simplybook.exception.SbmDateTimeException;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.lambda.model.PayloadCallback;
 import com.tq.simplybook.lambda.util.CustomField;
@@ -94,7 +96,7 @@ public class ChangeInternalHandler implements InternalHandler {
 
 	@Override
 	public void handle(PayloadCallback payload)
-			throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption {
+			throws SbmSDKException, ClinikoSDKExeption, GoogleApiSDKException, InfSDKExecption, SbmDateTimeException {
 		String companyLogin = env.getSimplyBookCompanyLogin();
 		String user = env.getSimplyBookUser();
 		String password = env.getSimplyBookPassword();
@@ -132,12 +134,13 @@ public class ChangeInternalHandler implements InternalHandler {
 		excuteInfusionsoft(bookingInfo, clientISContact.getClient().getContactId());
 	}
 
-	private void changeBookingInfo(BookingInfo bookingInfo) {
+	private void changeBookingInfo(BookingInfo bookingInfo) throws SbmDateTimeException {
 		SbmBookingInfo bookingItem = sbmBookingService.load(Long.parseLong(bookingInfo.getId()));
 		if (bookingItem != null) {
 			String apptDate = TimeUtils.extractDateFormatDateMonth(bookingInfo.getStart_date_time());
 			String apptTime = TimeUtils.buildTimeWithFormatStartToEndTime(bookingInfo.getStart_date_time(),
 					bookingInfo.getEnd_date_time());
+			checkDateTimeDiff(bookingItem, apptDate, apptTime);
 			Long timeStamp = TimeUtils.convertDateTimeToLong(bookingInfo.getStart_date_time());
 			bookingItem.setApptTime(apptTime);
 			bookingItem.setApptDate(apptDate);
@@ -147,6 +150,13 @@ public class ChangeInternalHandler implements InternalHandler {
 
 	}
 
+	private void checkDateTimeDiff(SbmBookingInfo bookingItem, String newApptDate, String newApptTime) throws SbmDateTimeException {
+		String oldApptDate = bookingItem.getApptDate();
+		String oldApptTime = bookingItem.getApptTime();
+		if (newApptDate.equals(oldApptDate) && newApptTime.equals(oldApptTime)) {
+			throw new SbmDateTimeException("There is no difference between new date time and old date time.");
+		}
+	}
 	private boolean excuteWithGoogleCalendar(BookingInfo bookingInfo, String refreshToken, String googleCalendarId)
 			throws GoogleApiSDKException {
 		TokenReq tokenReq = new TokenReq(env.getGoogleClientId(), env.getGoogleClientSecrets(), refreshToken);
@@ -178,8 +188,8 @@ public class ChangeInternalHandler implements InternalHandler {
 		SbmCliniko sbmCliniko = sbmClinikoService.load(Long.parseLong(bookingInfo.getId()));
 		if (sbmCliniko != null) {
 			Settings settings = clinikoApptService.getAllSettings();
-			if (settings == null || settings.getAccount() == null) {
-				m_log.info("Have something wrong on account settings or the account maybe expired.");
+			if (ClinikoUtils.isExpiredOrNotAuthorized(clinikoApptService)) {
+				m_log.info("The cliniko account has been expired or not authorized.");
 				return false;
 			}
 			String timeZoneId = settings.getAccount().getTime_zone_identifier();

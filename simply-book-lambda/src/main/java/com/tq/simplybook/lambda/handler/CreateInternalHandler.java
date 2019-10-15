@@ -17,6 +17,7 @@ import com.tq.cliniko.lambda.model.PatientDetail;
 import com.tq.cliniko.lambda.model.Patients;
 import com.tq.cliniko.lambda.model.Settings;
 import com.tq.cliniko.service.ClinikoAppointmentService;
+import com.tq.cliniko.utils.ClinikoUtils;
 import com.tq.common.lambda.dynamodb.model.ClientInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoCompanyInfo;
 import com.tq.common.lambda.dynamodb.model.ClinikoSbmSync;
@@ -218,8 +219,8 @@ public class CreateInternalHandler implements InternalHandler {
 				patientDetail = patientInfo.getPatients().get(0);
 			}
 			Settings settings = clinikoApptService.getAllSettings();
-			if (settings == null || settings.getAccount() == null) {
-				m_log.info("Have something wrong on account settings or the account maybe expired.");
+			if (ClinikoUtils.isExpiredOrNotAuthorized(clinikoApptService)) {
+				m_log.info("The cliniko account has been expired or not authorized.");
 				return false;
 			}
 			String timeZoneId = settings.getAccount().getTime_zone_identifier();
