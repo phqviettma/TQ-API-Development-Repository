@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TimeUtils {
+	public static final SimpleDateFormat SBM_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
 	private static final Logger m_log = LoggerFactory.getLogger(TimeUtils.class);
 
 	public static String getPreviousTime() {
@@ -51,8 +52,7 @@ public class TimeUtils {
 		DateFormat f = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		try {
 			Date d = f.parse(convertedDateTime);
-			DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
-			return date.format(d);
+			return SBM_DATE_FORMATTER.format(d);
 		} catch (ParseException e) {
 			m_log.info("" + e);
 		}
@@ -96,15 +96,18 @@ public class TimeUtils {
 	}
 
 	public static Date parseDate(String date) {
-		SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
 		Date t;
 		try {
-			t = ft.parse(date);
+			t = SBM_DATE_FORMATTER.parse(date);
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(e);
 		}
 
 		return t;
+	}
+	
+	public static String formatDateSbm(Date date) {
+		return SBM_DATE_FORMATTER.format(date);
 	}
 
 	public static String convertTimeZone(DateTimeZone srcTimeZone, DateTimeZone destTimeZone, String datetime) {
@@ -126,8 +129,7 @@ public class TimeUtils {
 		DateFormat f = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		try {
 			Date d = f.parse(convertedDateTime);
-			DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
-			return date.format(d);
+			return SBM_DATE_FORMATTER.format(d);
 		} catch (ParseException e) {
 
 		}

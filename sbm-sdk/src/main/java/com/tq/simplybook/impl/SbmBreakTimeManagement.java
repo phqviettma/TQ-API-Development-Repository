@@ -1,8 +1,12 @@
 package com.tq.simplybook.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,7 +24,10 @@ import org.slf4j.LoggerFactory;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.SetWorkDayInfoInfoReq;
 import com.tq.simplybook.req.SetWorkDayInfoReq;
+import com.tq.simplybook.req.WorkCalendarReq;
 import com.tq.simplybook.resp.Breaktime;
+import com.tq.simplybook.resp.WorkCalendarResp;
+import com.tq.simplybook.resp.WorkSchedule;
 import com.tq.simplybook.resp.WorkTimeSlot;
 import com.tq.simplybook.resp.WorksDayInfoResp;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
@@ -33,14 +40,47 @@ public class SbmBreakTimeManagement {
 	public static final String END_TAG = ")";
 	public static final String SEPARATOR = "-";
 
+	private boolean isDayOff(String companyLogin, String endpoint, String token, int unitId, int eventId, String date) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date dateParsed = null;
+		try {
+			dateParsed = dateFormat.parse(date);
+		} catch (ParseException e) {
+			m_log.error("Could not parse date ", e);
+		}
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(dateParsed);
+		
+		WorkCalendarReq request = new WorkCalendarReq();
+		request.setEventId(eventId);
+		request.setUnitId(unitId);
+		request.setMonth(calendar.get(Calendar.MONTH) + 1);
+		request.setYear(calendar.get(Calendar.YEAR));
+		
+		WorkCalendarResp resp = sss.getWorkCalendar(companyLogin, endpoint, token, request);
+		Map<String, WorkSchedule> result = resp.getResult();
+		
+		if (result.containsKey(date)) {
+			WorkSchedule workSchedule = result.get(date);
+			return workSchedule.isDayOff();
+		}
+		
+		return false;
+	}
+	
 	public boolean addBreakTime(String companyLogin, String endpoint, String token, int unit_id, int event_id,
 			String envStartWorkingTime, String envEndWorkingTime, String date, Set<Breaktime> newBreakTime,
 			Map<String, WorksDayInfoResp> workDayInfoMap) throws SbmSDKException {
 
+		if (isDayOff(companyLogin, endpoint, token, unit_id, event_id, date)) {
+			m_log.info(date + " is day off, don't need to add/remove break times");
+			return false;
+		}
+		
 		WorksDayInfoResp workDayInfo = workDayInfoMap.get(date);
 		Set<WorkTimeSlot> workTimeSlots = workDayInfo.getInfo();
 		Set<Breaktime> breakTimes = appenBreakTime(envStartWorkingTime, envEndWorkingTime, newBreakTime, workTimeSlots);
-
+		
 		if (!breakTimes.isEmpty()) {
 			m_log.info("Break times to be added for date " + date + ":" + String.valueOf(breakTimes));
 			SetWorkDayInfoInfoReq info = new SetWorkDayInfoInfoReq(envStartWorkingTime, envEndWorkingTime, 0,
@@ -55,6 +95,12 @@ public class SbmBreakTimeManagement {
 	public boolean removeBreakTime(String companyLogin, String endpoint, String token, int unit_id, int event_id,
 			String envStartWorkingTime, String envEndWorkingTime, String date, Set<Breaktime> removedBreakTime,
 			Map<String, WorksDayInfoResp> workDayInfoMap) throws SbmSDKException {
+		
+		if (isDayOff(companyLogin, endpoint, token, unit_id, event_id, date)) {
+			m_log.info(date + " is day off, don't need to add/remove break times");
+			return false;
+		}
+		
 		WorksDayInfoResp workDayInfo = workDayInfoMap.get(date);
 
 		if (workDayInfo == null) {

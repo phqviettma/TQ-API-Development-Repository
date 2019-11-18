@@ -17,6 +17,7 @@ include 'cliniko-sync-to-sbm-lambda'
 include 'sbm-sync-future-booking-lambda'
 include 'google-calendar-sync-modified-to-sbm-lambda'
 include 'truequit-web'
+include 'sbm-clear-special-day-lambda'
 
 
 

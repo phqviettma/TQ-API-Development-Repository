@@ -29,7 +29,7 @@ public class ClinikoItemDaoImpl extends AbstractItem<ClinikoSyncStatus, String> 
 		queryCondition.put(":checkingItem", new AttributeValue().withS(ClinikoSyncStatus.CHECK_KEY));
 		DynamoDBQueryExpression<ClinikoSyncStatus> queryExpression = new DynamoDBQueryExpression<ClinikoSyncStatus>()
 				.withIndexName("Cliniko-Index").withKeyConditionExpression("checkingItem=:checkingItem")
-				.withExpressionAttributeValues(queryCondition).withConsistentRead(false);
+				.withExpressionAttributeValues(queryCondition).withConsistentRead(false).withLimit(100);
 		DynamoDBMapper mapper = new DynamoDBMapper(getClient());
 		List<ClinikoSyncStatus> clinikoItems = mapper.query(ClinikoSyncStatus.class, queryExpression);
 		return clinikoItems;

@@ -14,11 +14,15 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tq.simplybook.exception.SbmSDKException;
+import com.tq.simplybook.req.DeleteSpecialDayReq;
 import com.tq.simplybook.req.FromDate;
 import com.tq.simplybook.req.SetWorkDayInfoReq;
 import com.tq.simplybook.req.ToDate;
+import com.tq.simplybook.req.WorkCalendarReq;
 import com.tq.simplybook.req.WorkdayInfoReq;
+import com.tq.simplybook.resp.BatchResp;
 import com.tq.simplybook.resp.SetWorkDayInfoResp;
+import com.tq.simplybook.resp.WorkCalendarResp;
 import com.tq.simplybook.resp.WorkTimeSlot;
 import com.tq.simplybook.resp.WorksDayInfoResp;
 import com.tq.simplybook.service.SpecialdayServiceSbm;
@@ -99,6 +103,34 @@ public class SpecialdayServiceSbmImpl implements SpecialdayServiceSbm {
 		}
 
 		return null;
+	}
+
+	@Override
+	public WorkCalendarResp getWorkCalendar(String companyLogin, String endpoint, String token, WorkCalendarReq req) {
+		try {
+			long start = System.currentTimeMillis();
+			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "getWorkCalendar", req);
+			WorkCalendarResp readValueForObject = SbmUtils.readValueForObject(jsonResp, WorkCalendarResp.class);
+			m_log.info("getWorkCalendar took " + (System.currentTimeMillis() - start)+" ms");
+			return readValueForObject;
+		} catch (Exception e) {
+			m_log.info("Error when getWorkCalendar" + e);
+		}
+		return null;
+	}
+
+	@Override
+	public boolean deleteSpecialDay(String companyLogin, String endpoint, String token, DeleteSpecialDayReq req) {
+		try {
+			long start = System.currentTimeMillis();
+			String jsonResp = SbmExecute.executeWithUserToken(companyLogin, endpoint, token, "deleteSpecialDay", req);
+			BatchResp readValueForObject = SbmUtils.readValueForObject(jsonResp, BatchResp.class);
+			m_log.info("deleteSpecialDay took " + (System.currentTimeMillis() - start) + " ms");
+			return "true".equalsIgnoreCase(readValueForObject.getResult());
+		} catch (Exception e) {
+			m_log.info("Error when deleteSpecialDay" + e);
+		}
+		return false;
 	}
 
 }
