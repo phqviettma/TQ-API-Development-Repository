@@ -39,6 +39,7 @@ import com.tq.common.lambda.dynamodb.service.SbmClinikoSyncService;
 import com.tq.common.lambda.dynamodb.service.SbmGoogleCalendarDbService;
 import com.tq.common.lambda.dynamodb.service.SbmListBookingService;
 import com.tq.common.lambda.dynamodb.service.SbmSyncFutureBookingsService;
+import com.tq.common.lambda.response.LambdaStatusResponse;
 import com.tq.common.lambda.utils.DynamodbUtils;
 import com.tq.common.lambda.utils.TimeUtils;
 import com.tq.googlecalendar.impl.GoogleCalendarApiServiceBuilder;
@@ -131,8 +132,8 @@ public class SbmSyncHandler implements RequestHandler<AwsProxyRequest, AwsProxyR
 					}
 					
 					if (sbmSyncItem.getEmail() != null) {
-						sbmSyncGCHandler.handle(sbmSyncItem);
-						googleProcessed = true;
+						LambdaStatusResponse gCHandlerReponse = sbmSyncGCHandler.handle(sbmSyncItem);
+						googleProcessed = gCHandlerReponse.isSucceeded();
 					}
 					
 					if (googleProcessed) {

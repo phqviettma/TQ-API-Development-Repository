@@ -62,69 +62,76 @@ public class SbmSyncGCHandler implements SbmInternalHandler {
 	public LambdaStatusResponse handle(SbmSyncFutureBookings sbmSyncFutureBooking)
 			throws SbmSDKException, GoogleApiSDKException {
 		LambdaStatusResponse response = new LambdaStatusResponse();
-		List<GoogleCalendarSbmSync> googleChannelInfo = googleCalendarService
-				.queryEmail(sbmSyncFutureBooking.getEmail());
-		int syncNumber = 30;
-		int processNumber = 0;
-		if (!googleChannelInfo.isEmpty()) {
-			TokenReq tokenReq = new TokenReq(eVariables.getGoogleClientId(), eVariables.getGoogleClientSecrets(),
-					googleChannelInfo.get(0).getRefreshToken());
-			TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
-			GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
-			GoogleCalendarSettingsInfo timeZoneSetting = googleApiService.getSettingInfo("timezone");
-			for (GoogleCalendarSbmSync googleCalendarSbmSync : googleChannelInfo) {
-				SbmBookingList bookingLists = sbmListBookingService.load(googleCalendarSbmSync.getSbmId());
-				if (bookingLists != null) {
-					if (!bookingLists.getBookingList().isEmpty()) {
-						FindNewBooking newBookings = findNewBooking(bookingLists.getBookingList());
-						m_log.info("Number new booking " + newBookings.getCount() + "New booking "
-								+ newBookings.getBookingList().toString());
-						Iterator<GetBookingResp> booking = newBookings.getBookingList().iterator();
-						if (newBookings.getCount() > syncNumber) {
-							processNumber = 0;
-						} else {
-							syncNumber = newBookings.getCount();
-						}
-						while (processNumber < syncNumber && booking.hasNext()) {
-							GetBookingResp bookingResp = booking.next();
-
-							SbmGoogleCalendar sbmGoogleCalendarSync = sbmGoogleCalendarService
-									.load(Long.parseLong(bookingResp.getId()));
-							if (sbmGoogleCalendarSync == null) {
-
-								String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
-								String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
-								Start start = new Start(sbmStartTime, timeZoneSetting.getValue());
-								End end = new End(sbmEndTime, timeZoneSetting.getValue());
-								String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingResp.getClient(),bookingResp.getClient_email(),bookingResp.getPhone());
-								EventReq eventReq = new EventReq(start, end, clientDescription,
-										eVariables.getGoogleCalendarEventName());
-								EventResp eventResp = googleApiService.createEvent(eventReq,
-										googleCalendarSbmSync.getGoogleCalendarId());
-								m_log.info("Create event successfully with value " + eventResp.toString());
-								sbmGoogleCalendarSync = new SbmGoogleCalendar(Long.parseLong(bookingResp.getId()),
-										eventResp.getId(), bookingResp.getClient_email(), 1, AGENT);
-
-								sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
-								m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
+		try {
+			List<GoogleCalendarSbmSync> googleChannelInfo = googleCalendarService
+					.queryEmail(sbmSyncFutureBooking.getEmail());
+			int syncNumber = 30;
+			int processNumber = 0;
+			if (!googleChannelInfo.isEmpty()) {
+				TokenReq tokenReq = new TokenReq(eVariables.getGoogleClientId(), eVariables.getGoogleClientSecrets(),
+						googleChannelInfo.get(0).getRefreshToken());
+				TokenResp tokenResp = tokenCalendarService.getToken(tokenReq);
+				GoogleCalendarApiService googleApiService = apiServiceBuilder.build(tokenResp.getAccess_token());
+				GoogleCalendarSettingsInfo timeZoneSetting = googleApiService.getSettingInfo("timezone");
+				for (GoogleCalendarSbmSync googleCalendarSbmSync : googleChannelInfo) {
+					SbmBookingList bookingLists = sbmListBookingService.load(googleCalendarSbmSync.getSbmId());
+					if (bookingLists != null) {
+						if (!bookingLists.getBookingList().isEmpty()) {
+							FindNewBooking newBookings = findNewBooking(bookingLists.getBookingList());
+							m_log.info("Number new booking " + newBookings.getCount() + "New booking "
+									+ newBookings.getBookingList().toString());
+							Iterator<GetBookingResp> booking = newBookings.getBookingList().iterator();
+							if (newBookings.getCount() > syncNumber) {
+								processNumber = 0;
+							} else {
+								syncNumber = newBookings.getCount();
 							}
-							processNumber++;
-						}
-						if (newBookings.getCount() == 0) {
+							while (processNumber < syncNumber && booking.hasNext()) {
+								GetBookingResp bookingResp = booking.next();
+
+								SbmGoogleCalendar sbmGoogleCalendarSync = sbmGoogleCalendarService
+										.load(Long.parseLong(bookingResp.getId()));
+								if (sbmGoogleCalendarSync == null) {
+
+									String sbmStartTime = TimeUtils.parseTime(bookingResp.getStart_date());
+									String sbmEndTime = TimeUtils.parseTime(bookingResp.getEnd_date());
+									Start start = new Start(sbmStartTime, timeZoneSetting.getValue());
+									End end = new End(sbmEndTime, timeZoneSetting.getValue());
+									String clientDescription = GoogleCalendarUtil.buildClientInfo(bookingResp.getClient(),bookingResp.getClient_email(),bookingResp.getPhone());
+									EventReq eventReq = new EventReq(start, end, clientDescription,
+											eVariables.getGoogleCalendarEventName());
+									EventResp eventResp = googleApiService.createEvent(eventReq,
+											googleCalendarSbmSync.getGoogleCalendarId());
+									m_log.info("Create event successfully with value " + eventResp.toString());
+									sbmGoogleCalendarSync = new SbmGoogleCalendar(Long.parseLong(bookingResp.getId()),
+											eventResp.getId(), bookingResp.getClient_email(), 1, AGENT);
+
+									sbmGoogleCalendarService.put(sbmGoogleCalendarSync);
+									m_log.info("Add to database successfully " + sbmGoogleCalendarSync);
+								}
+								processNumber++;
+							}
+							if (newBookings.getCount() == 0) {
+								sbmSyncFutureBooking.setSyncStatus(0);
+								sbmSyncFutureBookingService.put(sbmSyncFutureBooking);
+								m_log.info("There is no new booking");
+							}
+
+						} else {
 							sbmSyncFutureBooking.setSyncStatus(0);
 							sbmSyncFutureBookingService.put(sbmSyncFutureBooking);
 							m_log.info("There is no new booking");
 						}
-
-					} else {
-						sbmSyncFutureBooking.setSyncStatus(0);
-						sbmSyncFutureBookingService.put(sbmSyncFutureBooking);
-						m_log.info("There is no new booking");
 					}
-				}
 
+				}
 			}
+		} catch (Exception e) {
+			m_log.error(e.getMessage());
+			response.setSucceeded(false);
+			return response;
 		}
+		
 		response.setSucceeded(true);
 		return response;
 	}

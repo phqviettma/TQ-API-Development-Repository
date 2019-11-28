@@ -1,8 +1,6 @@
 package com.tq.sbmsync.lambda.handler;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,6 +37,7 @@ import com.tq.googlecalendar.resp.TokenResp;
 import com.tq.googlecalendar.service.GoogleCalendarApiService;
 import com.tq.googlecalendar.service.TokenGoogleCalendarService;
 import com.tq.simplybook.context.Env;
+import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.resp.GetBookingResp;
 
 public class SbmSyncGoogleTest {
@@ -133,6 +132,12 @@ public class SbmSyncGoogleTest {
 		AwsProxyResponse response = sbmSyncHandler.handleRequest(null, context);
 		//assertThat("Error, can not sync to cliniko/google", is("Error, can not sync to cliniko/google"));
 		assertEquals(200, response.getStatusCode());
+	}
+	
+	@Test
+	public void testExceptionThrown_ThenAccessTokenNull() throws GoogleApiSDKException, SbmSDKException {
+		when(tokenCalendarService.getToken(any())).thenThrow(new GoogleApiSDKException("Token has been expired or revoked."));
+		assertEquals(false, gcHandler.handle(any()).isSucceeded());
 	}
 
 }
