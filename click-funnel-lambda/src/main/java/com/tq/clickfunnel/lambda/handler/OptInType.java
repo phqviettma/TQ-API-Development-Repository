@@ -10,7 +10,8 @@ public enum OptInType {
     YOUTYBE_OPT(Config.INFUSION_CLICKFUNNEL_YOUTUBE_OPTIN_TAG),
     GOOGLE_AD_OPT(Config.INFUSION_CLICKFUNNEL_GOOGLE_AD_OPTIN_TAG),
     FACEBOOK_LEAD(Config.INFUSION_CLICKFUNNEL_FACEBOOK_LEAD_OPTIN_TAG),
-    WANTS_TO_QUIT(Config.INFUSION_CLICKFUNNEL_WANTSTOQUIT_OPTIN_TAG)
+    WANTS_TO_QUIT(Config.INFUSION_CLICKFUNNEL_WANTSTOQUIT_OPTIN_TAG),
+    WEBINAR(Config.INFUSION_CLICKFUNNEL_WEBINAR_OPTIN_TAG)
     ;
     
     private static Map<String, OptInType> mapTagIDs = new HashMap<String, OptInType>() {{
@@ -19,6 +20,7 @@ public enum OptInType {
         put("GoogleOptin", GOOGLE_AD_OPT);
         put("FacebookLead", FACEBOOK_LEAD);
         put("Wantstoquit", WANTS_TO_QUIT);
+        put("Webinar", WEBINAR);
     }};
 
     private String tag;
