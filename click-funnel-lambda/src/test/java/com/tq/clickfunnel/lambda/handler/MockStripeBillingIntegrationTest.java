@@ -40,7 +40,9 @@ import com.tq.common.lambda.dynamodb.service.ProductItemService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddNewContactQuery;
+import com.tq.inf.query.OptQuery;
 import com.tq.inf.query.OrderQuery;
+import com.tq.inf.service.APIEmailServiceInf;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.InvoiceServiceInf;
 import com.tq.inf.service.OrderServiceInf;
@@ -101,6 +103,9 @@ public class MockStripeBillingIntegrationTest {
         ContactServiceInf contactServiceInf = m_lambdaContext.getContactServiceInf();
         when(contactServiceInf.addWithDupCheck(any(String.class), any(String.class), any(AddNewContactQuery.class)))
                 .thenReturn(infContactId);
+        
+        APIEmailServiceInf apiEmailServiceInf = m_lambdaContext.getAPIEmailServiceInf();
+        when(apiEmailServiceInf.optIn(any(String.class), any(String.class), any(OptQuery.class))).thenReturn(true);
 
         ContactItemService contactItemService = m_lambdaContext.getContactItemService();
         Mockito.doAnswer(new Answer<Void>() {

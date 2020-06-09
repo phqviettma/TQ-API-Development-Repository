@@ -3,7 +3,7 @@ package com.tq.inf.query;
 public class OptQuery {
     private String email;
     // what is the reason for OptIn/Optout under the apiName/apiKey
-    private String reasion;
+    private String reason;
 
     public String getEmail() {
         return email;
@@ -14,11 +14,11 @@ public class OptQuery {
     }
 
     public String getReasion() {
-        return reasion;
+        return reason;
     }
 
     public void setReasion(String reasion) {
-        this.reasion = reasion;
+        this.reason = reasion;
     }
 
     public OptQuery withEmail(String email) {
@@ -27,12 +27,12 @@ public class OptQuery {
     }
 
     public OptQuery withReasion(String reasion) {
-        this.reasion = reasion;
+        this.reason = reasion;
         return this;
     }
 
     @Override
     public String toString() {
-        return "OptQuery [email=" + email + ", reasion=" + reasion + "]";
+        return "OptQuery [email=" + email + ", reason=" + reason + "]";
     }
 }

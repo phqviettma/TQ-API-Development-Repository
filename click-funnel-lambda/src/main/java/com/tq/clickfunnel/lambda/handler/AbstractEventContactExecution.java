@@ -16,6 +16,8 @@ import com.tq.common.lambda.dynamodb.model.ContactItem;
 import com.tq.common.lambda.utils.Utils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.AddNewContactQuery;
+import com.tq.inf.query.OptQuery;
+import com.tq.inf.service.APIEmailServiceInf;
 import com.tq.inf.service.ContactServiceInf;
 
 public abstract class AbstractEventContactExecution extends AbstractEventPayloadExecution {
@@ -65,6 +67,17 @@ public abstract class AbstractEventContactExecution extends AbstractEventPayload
             ContactServiceInf contactServiceInf = lambdaContext.getContactServiceInf();
             contactId = contactServiceInf.addWithDupCheck(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY),
                     new AddNewContactQuery().withDataRecord(dataRecord));
+            
+            //Build value for Opt-in/Opt-out
+            APIEmailServiceInf apiEmailServiceInf = lambdaContext.getAPIEmailServiceInf();
+            OptQuery optQuery = new OptQuery();
+            optQuery.setEmail(funnelContact.getEmail());
+            optQuery.setReasion(funnelContact.getOptInReason());
+            
+            //Marketable for opt-in
+            boolean isOptIn = apiEmailServiceInf.optIn(envVar.getEnv(Config.INFUSIONSOFT_API_NAME), envVar.getEnv(Config.INFUSIONSOFT_API_KEY),
+            		optQuery);
+            log.info("Opt-in for email: " + funnelContact.getEmail() + " is " + isOptIn);
         } catch (InfSDKExecption e) {
             throw new CFLambdaException(e.getMessage(), e);
         }

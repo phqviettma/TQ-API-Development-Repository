@@ -78,8 +78,19 @@ public class CFContact implements Serializable {
 
     @JsonProperty("shipping_zip")
     private String shippingZip;
+    
+    @JsonProperty("opt_in_reason")
+    private String optInReason;
 
-    public Integer getId() {
+    public String getOptInReason() {
+		return optInReason;
+	}
+
+	public void setOptInReason(String optInReason) {
+		this.optInReason = optInReason;
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -267,14 +278,15 @@ public class CFContact implements Serializable {
         return serialVersionUID;
     }
 
-    @Override
-    public String toString() {
-        return "CFContact [id=" + id + ", pageId=" + pageId + ", firstName=" + firstName + ", lastName=" + lastName
-                + ", name=" + name + ", address=" + address + ", city=" + city + ", country=" + country + ", state=" + state + ", zip="
-                + zip + ", email=" + email + ", phone=" + phone + ", createAt=" + createAt + ", updateAt=" + updateAt + ", ip=" + ip
-                + ", funnelId=" + funnelId + ", funnelStepId=" + funnelStepId + ", cfUvid=" + cfUvid + ", shippingAddress="
-                + shippingAddress + ", shippingCity=" + shippingCity + ", shippingCountry=" + shippingCountry + ", shippingState="
-                + shippingState + ", shippingZip=" + shippingZip + "]";
-    }
+	@Override
+	public String toString() {
+		return "CFContact [id=" + id + ", pageId=" + pageId + ", firstName=" + firstName + ", lastName=" + lastName
+				+ ", name=" + name + ", address=" + address + ", city=" + city + ", country=" + country + ", state="
+				+ state + ", zip=" + zip + ", email=" + email + ", phone=" + phone + ", createAt=" + createAt
+				+ ", updateAt=" + updateAt + ", ip=" + ip + ", funnelId=" + funnelId + ", funnelStepId=" + funnelStepId
+				+ ", cfUvid=" + cfUvid + ", shippingAddress=" + shippingAddress + ", shippingCity=" + shippingCity
+				+ ", shippingCountry=" + shippingCountry + ", shippingState=" + shippingState + ", shippingZip="
+				+ shippingZip + ", optInReason=" + optInReason + "]";
+	}
 
 }

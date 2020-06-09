@@ -27,6 +27,7 @@ import com.tq.common.lambda.dynamodb.service.CountryItemService;
 import com.tq.common.lambda.utils.JsonUtils;
 import com.tq.inf.exception.InfSDKExecption;
 import com.tq.inf.query.ApplyTagQuery;
+import com.tq.inf.service.APIEmailServiceInf;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.simplybook.exception.SbmSDKException;
 import com.tq.simplybook.req.ClientData;
@@ -41,6 +42,7 @@ public class HandleEventContactExecutionTest {
     private ContactServiceInf contactServiceInf = mock(ContactServiceInf.class);
     private CountryItemService countryItemService = mock(CountryItemService.class);
     private ContactItemService contactItemService = mock(ContactItemService.class);
+    private APIEmailServiceInf apiEmailService = mock(APIEmailServiceInf.class);
     
     private HandleEventContactExecution handle = new HandleEventContactExecution();
 
@@ -52,6 +54,7 @@ public class HandleEventContactExecutionTest {
         when(lambdaContext.getEnvVar()).thenReturn(mockEnv());
         when(lambdaContext.getCountryItemService()).thenReturn(countryItemService);
         when(lambdaContext.getContactServiceInf()).thenReturn(contactServiceInf);
+        when(lambdaContext.getAPIEmailServiceInf()).thenReturn(apiEmailService);
         when(lambdaContext.getContactItemService()).thenReturn(contactItemService);
         when(countryItemService.load("Viet Nam")).thenReturn(mockVNCountry());
     }
@@ -165,6 +168,7 @@ public class HandleEventContactExecutionTest {
         env.put(Config.INFUSION_CLICKFUNNEL_GOOGLE_AD_OPTIN_TAG, "456");
         env.put(Config.INFUSION_CLICKFUNNEL_FACEBOOK_LEAD_OPTIN_TAG, "954");
         env.put(Config.INFUSION_CLICKFUNNEL_WANTSTOQUIT_OPTIN_TAG, "946");
+        env.put(Config.INFUSION_CLICKFUNNEL_WEBINAR_OPTIN_TAG, "1616");
         MockEnvVar envVar = new MockEnvVar();
         envVar.setValueSystems(env);
         return envVar;

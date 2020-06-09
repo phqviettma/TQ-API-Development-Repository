@@ -43,6 +43,8 @@ public class HandleEventContactExecution extends AbstractEventContactExecution {
             CFContactPayload contactPayLoad = m_mapper.readValue(request.getBody(), CFContactPayload.class);
             if (contactPayLoad != null && contactPayLoad.getContact() != null) {
                 CFContact funnelContact = contactPayLoad.getContact();
+                //Set opt-in reason
+                funnelContact.setOptInReason("Opt-in " + getOptinTypeParam(request));
 
                 // 2. creating the client based on Contact of Click Funnel on Simplybook.me
                 Integer clientSbmId = addClientToSimplyBookMe(funnelContact, lambdaContext);

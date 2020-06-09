@@ -15,6 +15,7 @@ import com.tq.common.lambda.services.RepositoryServiceImpl;
 import com.tq.common.lambda.services.SBMExternalService;
 import com.tq.common.lambda.services.SBMExternalServiceImpl;
 import com.tq.common.lambda.utils.DynamodbUtils;
+import com.tq.inf.service.APIEmailServiceInf;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
 import com.tq.inf.service.InvoiceServiceInf;
@@ -117,6 +118,11 @@ public class LambdaContextImpl implements LambdaContext {
 	@Override
 	public ContactServiceInf getContactServiceInf() {
 		return m_iSExternalService.getContactServiceInf();
+	}
+	
+	@Override
+	public APIEmailServiceInf getAPIEmailServiceInf() {
+		return m_iSExternalService.getAPIEmailServiceInf();
 	}
 
 	@Override

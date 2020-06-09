@@ -19,6 +19,7 @@ import com.tq.common.lambda.dynamodb.service.ProductItemService;
 import com.tq.common.lambda.services.ISExternalService;
 import com.tq.common.lambda.services.RepositoryService;
 import com.tq.common.lambda.services.SBMExternalService;
+import com.tq.inf.service.APIEmailServiceInf;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
 import com.tq.inf.service.InvoiceServiceInf;
@@ -48,6 +49,7 @@ public class CFLambdaMockUtils {
         env.put("DYNAMODB_AWS_REGION", Config.DYNAMODB_LOCAL_REGION_ECLIPSE);
         env.put("INFUSIONSOFT_CLICKFUNNEL_ORDER_PAID_TAG","110");
         env.put("INFUSION_CLICKFUNNEL_OPTIN_TAG", "101");
+        env.put("INFUSION_CLICKFUNNEL_WEBINAR_OPTIN_TAG", "1616");
         mockEnv.setValueSystems(env);
         return mockEnv;
     }
@@ -90,11 +92,13 @@ public class CFLambdaMockUtils {
         OrderServiceInf orderServiceInf = mock(OrderServiceInf.class);
         RecurringOrderInf recurringOrderInf = mock(RecurringOrderInf.class);
         InvoiceServiceInf invoiceServiceInf = mock(InvoiceServiceInf.class);
+        APIEmailServiceInf apiEmailServiceInf = mock(APIEmailServiceInf.class);
         when(isExternalService.getContactServiceInf()).thenReturn(contactServiceInf);
         when(isExternalService.getDataServiceInf()).thenReturn(dataServiceInf);
         when(isExternalService.getOrderServiceInf()).thenReturn(orderServiceInf);
         when(isExternalService.getRecurringOrderInf()).thenReturn(recurringOrderInf);
         when(isExternalService.getInvoiceServiceInf()).thenReturn(invoiceServiceInf);
+        when(isExternalService.getAPIEmailServiceInf()).thenReturn(apiEmailServiceInf);
 
         // LambdaContext mock for services
         when(lambdaContext.getClientServiceSbm()).thenReturn(clientServiceSbm);
@@ -104,6 +108,7 @@ public class CFLambdaMockUtils {
         when(lambdaContext.getOrderServiceInf()).thenReturn(orderServiceInf);
         when(lambdaContext.getRecurringOrderInf()).thenReturn(recurringOrderInf);
         when(lambdaContext.getInvoiceServiceInf()).thenReturn(invoiceServiceInf);
+        when(lambdaContext.getAPIEmailServiceInf()).thenReturn(apiEmailServiceInf);
 
         when(lambdaContext.getCountryItemService()).thenReturn(countryItemService);
         when(lambdaContext.getProductItemService()).thenReturn(productItemService);

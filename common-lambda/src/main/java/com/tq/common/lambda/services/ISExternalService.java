@@ -1,5 +1,6 @@
 package com.tq.common.lambda.services;
 
+import com.tq.inf.service.APIEmailServiceInf;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
 import com.tq.inf.service.InvoiceServiceInf;
@@ -17,4 +18,6 @@ public interface ISExternalService {
     public RecurringOrderInf getRecurringOrderInf();
     
     public InvoiceServiceInf getInvoiceServiceInf();
+    
+    public APIEmailServiceInf getAPIEmailServiceInf();
 }

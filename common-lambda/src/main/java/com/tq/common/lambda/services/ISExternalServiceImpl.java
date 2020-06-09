@@ -1,10 +1,12 @@
 package com.tq.common.lambda.services;
 
+import com.tq.inf.impl.APIEmailServiceImpl;
 import com.tq.inf.impl.ContactServiceImpl;
 import com.tq.inf.impl.DataServiceImpl;
 import com.tq.inf.impl.InvoiceServiceImpl;
 import com.tq.inf.impl.OrderServiceImpl;
 import com.tq.inf.impl.RecurringOrderImpl;
+import com.tq.inf.service.APIEmailServiceInf;
 import com.tq.inf.service.ContactServiceInf;
 import com.tq.inf.service.DataServiceInf;
 import com.tq.inf.service.InvoiceServiceInf;
@@ -18,6 +20,7 @@ public class ISExternalServiceImpl implements ISExternalService {
     private OrderServiceInf m_orderServiceInf;
     private RecurringOrderInf m_recurringOrderInf;
     private InvoiceServiceInf m_invoiceServiceInf;
+    private APIEmailServiceInf m_apiEmailServiceInf;
 
     public ISExternalServiceImpl() {
         this(buildDefault());
@@ -29,6 +32,7 @@ public class ISExternalServiceImpl implements ISExternalService {
         m_orderServiceInf = builder.orderServiceIn;
         m_recurringOrderInf = builder.recurringOrderInf;
         m_invoiceServiceInf = builder.invoiceServiceInf;
+        m_apiEmailServiceInf = builder.apiEmailServiceInf;
     }
 
     public static ISExternalServiceBuilder builder() {
@@ -42,7 +46,8 @@ public class ISExternalServiceImpl implements ISExternalService {
                 .withDataServiceInf(dataServiceInf)
                 .withOrderServiceIn(new OrderServiceImpl())
                 .withRecurringOrderInf(new RecurringOrderImpl(dataServiceInf))
-                .withInvoiceServiceInf(new InvoiceServiceImpl());
+                .withInvoiceServiceInf(new InvoiceServiceImpl())
+                .withAPIEmailServiceInf(new APIEmailServiceImpl());
     }
 
     @Override
@@ -69,6 +74,11 @@ public class ISExternalServiceImpl implements ISExternalService {
     public InvoiceServiceInf getInvoiceServiceInf() {
         return m_invoiceServiceInf;
     }
+    
+    @Override
+    public APIEmailServiceInf getAPIEmailServiceInf() {
+    	return m_apiEmailServiceInf;
+    }
 
     public static class ISExternalServiceBuilder {
         private DataServiceInf dataServiceInf;
@@ -76,6 +86,7 @@ public class ISExternalServiceImpl implements ISExternalService {
         private OrderServiceInf orderServiceIn;
         private RecurringOrderInf recurringOrderInf;
         private InvoiceServiceInf invoiceServiceInf;
+        private APIEmailServiceInf apiEmailServiceInf;
 
         public DataServiceInf getDataServiceInf() {
             return dataServiceInf;
@@ -143,6 +154,19 @@ public class ISExternalServiceImpl implements ISExternalService {
         
         public ISExternalServiceBuilder withInvoiceServiceInf(InvoiceServiceInf invoiceServiceInf) {
             this.invoiceServiceInf = invoiceServiceInf;
+            return this;
+        }
+        
+        public APIEmailServiceInf getAPIEmailServiceInf() {
+            return apiEmailServiceInf;
+        }
+
+        public void setAPIEmailServiceInf(APIEmailServiceInf apiEmailServiceInf) {
+            this.apiEmailServiceInf = apiEmailServiceInf;
+        }
+        
+        public ISExternalServiceBuilder withAPIEmailServiceInf(APIEmailServiceInf apiEmailServiceInf) {
+            this.apiEmailServiceInf = apiEmailServiceInf;
             return this;
         }
     }
